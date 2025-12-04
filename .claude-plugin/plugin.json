@@ -1,0 +1,10 @@
+{
+  "name": "ai-unified-process-vaadin-jooq",
+  "description": "AI Unified Process workflow for Vaadin/Spring Boot/jOOQ projects",
+  "version": "1.0.0",
+  "author": {
+    "name": "Simon Martinelli",
+    "email": "simon@martinelli.ch",
+    "url": "https://www.martinelli.ch"
+  }
+}
