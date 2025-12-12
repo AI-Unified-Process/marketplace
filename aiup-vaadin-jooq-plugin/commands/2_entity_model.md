@@ -1,56 +1,37 @@
-Create an entity model (docs/entity_model.md) based on docs/requirements.md as a Markdown file.
+Create an entity model (docs/entity_model.md) based on docs/requirements.md.
 
-DOCUMENT STRUCTURE:
+WORKFLOW - Follow these steps IN ORDER:
 
-1. Start with "# Entity Model"
-2. Add "## Entity Relationship Diagram" with a Mermaid erDiagram code block
-3. For each entity, add a level-3 heading, a description, and an attribute table
+1. Read docs/requirements.md completely
+2. Use TodoWrite to create a task for EACH entity you identify (e.g., "Create ROOM_TYPE table", "Create GUEST table")
+3. Create the document starting with "# Entity Model"
+4. Add "## Entity Relationship Diagram" with a Mermaid erDiagram (entities and relationships only, NO attributes in
+   diagram):
+   ```
+   ROOM_TYPE ||--o{ ROOM : "categorizes"
+   GUEST ||--o{ RESERVATION : "makes"
+   ```
+5. For EACH entity in your todo list:
+    - Add a ### heading with entity name
+    - Write ONE sentence describing it
+    - Create an attribute table with these EXACT columns:
+      | Attribute | Description | Data Type | Length/Precision | Validation Rules |
+    - If multi-column constraints exist, add "**Constraints:**" line after table
+    - Mark the todo as complete ONLY after the table is written
+6. After ALL entities are done, verify every entity from step 2 has a table
 
-MERMAID DIAGRAM REQUIREMENTS:
+VALIDATION RULES (never leave empty):
 
-- Show entity names and relationships only
-- Do NOT add columns/attributes to the diagram
-- Use this syntax style:
-  ROOM_TYPE ||--o{ ROOM : "categorizes"
-  GUEST ||--o{ RESERVATION : "makes"
+- id columns: "Primary Key, Sequence"
+- Required fields: "Not Null"
+- Unique fields: "Not Null, Unique"
+- Foreign keys: "Not Null, Foreign Key (ENTITY.id)"
+- Nullable fields with no rules: "Optional"
+- Add Min/Max, allowed Values, Format as appropriate
 
-CRITICAL - ATTRIBUTE TABLES ARE REQUIRED:
-For EACH entity, you MUST create a Markdown table listing ALL attributes.
-Do NOT write prose descriptions only.
-Do NOT skip the attribute tables.
-Do NOT use a "Primary Key:" line - put it in the table instead.
+PRIMARY KEYS: Use Long (19 digits) with Sequence by default.
 
-Each entity section MUST contain:
-
-1. A level-3 heading with the entity name (e.g., ### ROOM_TYPE)
-2. One sentence describing the entity's purpose
-3. An attribute table with EXACTLY these columns:
-   | Attribute | Description | Data Type | Length/Precision | Validation Rules |
-
-VALIDATION RULES REQUIREMENTS:
-The Validation Rules column must NEVER be empty. For each attribute, determine:
-
-- Primary Key, Sequence: For id columns
-- Not Null: For required fields
-- Unique: For fields that must be unique
-- Length constraints: Max length for strings
-- Value constraints: Allowed values (e.g., "Values: Active, Inactive")
-- Range constraints: Min/max for numbers (e.g., "Min: 0, Max: 100")
-- Format constraints: Patterns for emails, phone numbers
-- Foreign Key: References to other entities
-- Optional: For nullable fields with no other rules
-
-If requirements.md does not state validation rules explicitly, derive sensible defaults from the attribute name and
-domain context.
-
-MULTI-COLUMN VALIDATION:
-After each entity table, add a "**Constraints:**" line if validation rules span multiple columns.
-Example: "**Constraints:** Check-out date must be after check-in date."
-
-PRIMARY KEYS:
-By default, use sequences for primary keys (Long, 19 digits).
-
-EXAMPLE - This is the REQUIRED format:
+EXAMPLE TABLE:
 
 ### ROOM_TYPE
 
@@ -63,6 +44,3 @@ Defines categories of rooms with shared characteristics.
 | description | Detailed description     | String    | 500              | Optional                  |
 | capacity    | Maximum number of guests | Integer   | 10               | Not Null, Min: 1, Max: 10 |
 | price       | Price per night in CHF   | Decimal   | 10,2             | Not Null, Min: 0          |
-
-YOU MUST create a similar table for EVERY entity found in the requirements.
-Derive the attributes from the requirements document.
