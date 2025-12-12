@@ -21,3 +21,26 @@ EXAMPLE TABLE FORMAT:
 |------------|---------------------------------|-----------|------------------|------------------|
 | id | Unique identifier of the entity | Long | 19 | Primary Key |
 | first_name | First name of the person | String | 50 | Not Null |
+
+VALIDATION RULES REQUIREMENTS:
+
+For each attribute, you MUST determine and document validation rules:
+- Primary Key: Mark id columns
+- Not Null: Mark required fields
+- Unique: Mark fields that must be unique
+- Length constraints: Specify max length for strings
+- Value constraints: List allowed values for enums/types (e.g., "Values: Active, Inactive")
+- Range constraints: Min/max for numbers (e.g., "Min: 0, Max: 100")
+- Format constraints: Patterns for emails, phone numbers, etc.
+- Foreign Key: Mark references to other entities
+
+If requirements.md does not explicitly state validation rules, derive sensible defaults from:
+- The attribute name (e.g., "email" implies email format)
+- The domain context (e.g., "quantity" implies positive number)
+- Common business rules (e.g., "status" implies a fixed set of values)
+
+MULTI-COLUMN VALIDATION:
+After each entity table, add a "Validation Rules" subsection if rules span multiple columns.
+Example: "Either email or phone must be provided"
+
+The Validation Rules column must NEVER be empty. At minimum, specify "Optional" for nullable fields.
