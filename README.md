@@ -21,7 +21,7 @@ project.
 
 A plugin for Java web application development using the Vaadin + jOOQ technology stack.
 
-**Workflow Commands:**
+#### Workflow Commands
 
 | Command                 | Description                                  |
 |-------------------------|----------------------------------------------|
@@ -34,14 +34,14 @@ A plugin for Java web application development using the Vaadin + jOOQ technology
 | `/7_karibu_test`        | Create Karibu unit tests                     |
 | `/8_playwright_test`    | Create Playwright integration tests          |
 
-**Integrated MCP Servers:**
+#### Integrated MCP Servers
 
 - **Vaadin** - Access to Vaadin documentation
 - **KaribuTesting** - Karibu testing framework documentation
 - **jOOQ** - jOOQ documentation
 - **Playwright** - Browser automation for testing
 
-**Skills:**
+#### Skills
 
 - **data-modeler** - Creates entity models with ER diagrams and attribute tables
 
