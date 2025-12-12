@@ -10,7 +10,7 @@ Also add validation rules that may cover involve multiple columns.
 
 By default, use sequences for the primary keys.
 
-Template:
+The document must be formatted as follows and contain these sections exactly as in this template:
 
 # Entity Model
 
