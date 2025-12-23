@@ -5,11 +5,11 @@
       "url": "https://mcp.vaadin.com/docs"
     },
     "KaribuTesting": {
-      "type": "sse",
+      "type": "http",
       "url": "https://karibu-testing-mcp.martinelli.ch/sse"
     },
     "jOOQ": {
-      "type": "sse",
+      "type": "http",
       "url": "https://jooq-mcp.martinelli.ch/sse"
     },
     "context7": {
