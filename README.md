@@ -66,6 +66,7 @@ enabled.
 ```
 /plugin marketplace add martinellich/aiup-marketplace
 /plugin enable martinellich/aiup-marketplace
+/plugin enable aiup-vaadin-jooq
 ```
 
 ## Available Plugins
