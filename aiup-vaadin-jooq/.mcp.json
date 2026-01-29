@@ -16,6 +16,10 @@
       "type": "http",
       "url": "https://mcp.context7.com/mcp"
     },
+    "JavaDocs": {
+      "type": "http",
+      "url": "https://www.javadocs.dev/mcp"
+    },
     "playwright": {
       "type": "stdio",
       "command": "npx",
