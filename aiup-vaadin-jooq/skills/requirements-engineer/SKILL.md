@@ -1,6 +1,13 @@
 ---
 name: requirements-engineer
-description: Creates requirements catalogs.
+description: >
+  Gathers, organizes, and documents software requirements into structured
+  catalogs with functional requirements (user stories), non-functional
+  requirements (measurable quality attributes), and constraints. Use when
+  the user asks to "write requirements", "create a PRD", "gather requirements",
+  "document feature specs", "write user stories", "define NFRs", "list
+  constraints", or mentions requirements catalog, requirements analysis,
+  product requirements document, or feature specification.
 ---
 
 # Requirements Engineer
@@ -16,28 +23,6 @@ organized as Markdown tables.
 - Skip the user story format for functional requirements
 - Use duplicate IDs across requirement types
 - Leave the Status column empty
-
-## Document Structure
-
-# Requirements Catalog
-
-## Functional Requirements
-
-| ID     | Title        | User Story                                                              | Priority | Status |
-|--------|--------------|-------------------------------------------------------------------------|----------|--------|
-| FR-001 | Feature Name | As a [role], I want [goal] so that [benefit].                           | High     | Open   |
-
-## Non-Functional Requirements
-
-| ID      | Title            | Requirement                                              | Category    | Priority | Status |
-|---------|------------------|----------------------------------------------------------|-------------|----------|--------|
-| NFR-001 | Requirement Name | System must [measurable quality attribute].              | Performance | High     | Open   |
-
-## Constraints
-
-| ID    | Title           | Constraint                                              | Category   | Priority | Status |
-|-------|-----------------|---------------------------------------------------------|------------|----------|--------|
-| C-001 | Constraint Name | System must [limitation or boundary].                   | Technical  | High     | Open   |
 
 ## Requirement Types
 
@@ -125,6 +110,25 @@ Define limitations and boundaries imposed on the solution.
 | Regulatory  | Legal, compliance, industry standards         |
 | Operational | Deployment, maintenance, support requirements |
 
+## Requirement Quality Checks
+
+Every requirement must pass these checks before finalizing:
+
+| Check | Rule | Bad Example | Good Example |
+|-------|------|-------------|--------------|
+| Measurable | NFRs must have a number or threshold | "System should be fast" | "Pages load within 2 seconds" |
+| Singular | One requirement per row | "System must log in and export data" | Split into FR-001 and FR-002 |
+| Unambiguous | No subjective terms | "User-friendly interface" | "WCAG 2.1 AA compliant" |
+| Testable | Can write a pass/fail test | "System is reliable" | "99.9% uptime over 30 days" |
+| Unique IDs | No duplicate IDs across all tables | Two FR-001 entries | Each ID used exactly once |
+
+## Error Recovery
+
+- **Incomplete source document**: List what is missing (roles, NFR categories, constraints) and ask the user to clarify before proceeding
+- **Ambiguous requirement from user**: Rewrite it as a measurable requirement and ask the user to confirm the threshold
+- **Conflicting requirements**: Flag the conflict explicitly (e.g., "FR-003 requires real-time sync but C-002 limits to batch processing") and ask the user to resolve
+- **Missing stakeholder roles**: Default to generic roles (User, Admin, System) and note them for user review
+
 ## Workflow
 
 1. Read the vision document or project brief
@@ -141,5 +145,9 @@ Define limitations and boundaries imposed on the solution.
 6. For constraints:
     - Document technical and business limitations
     - Categorize by constraint type
-7. Review for completeness and consistency
+7. Validate: run every requirement against the quality checks table above
+    - No duplicate IDs across all tables
+    - All Status columns filled
+    - All user stories follow "As a [role], I want [goal] so that [benefit]"
+    - All NFRs contain a measurable threshold
 8. Mark todos complete
