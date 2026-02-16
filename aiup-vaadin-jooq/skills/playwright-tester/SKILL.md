@@ -33,7 +33,7 @@ Extend from `PlaywrightIT` base class.
 
 ## Template
 
-Use [templates/playwright-test.java](templates/playwright-test.java) as the test class structure.
+Use [templates/ExampleViewIT.java](templates/ExampleViewIT.java) as the test class structure.
 
 ## Key Classes
 
