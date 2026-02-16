@@ -26,8 +26,8 @@ Skills follow the [AIUP phases](https://aiup.dev) (based on the Rational Unified
 
 ```
 /plugin marketplace add martinellich/aiup-marketplace
-/plugin enable aiup-core
-/plugin enable aiup-vaadin-jooq
+/plugin install aiup-core
+/plugin install aiup-vaadin-jooq
 ```
 
 ## Available Plugins
@@ -36,15 +36,13 @@ Skills follow the [AIUP phases](https://aiup.dev) (based on the Rational Unified
 
 Stack-agnostic core methodology plugin. Use this for any project, regardless of technology stack.
 
-#### Commands
-
 #### Skills
 
 | Skill / Command     | Description                                                                  |
 |---------------------|------------------------------------------------------------------------------|
 | `/requirements`     | Creates requirements catalogs from vision document                           |
 | `/entity-model`     | Creates entity models with Mermaid ER diagrams and attribute tables          |
-| `/use_case_diagram` | Generate PlantUML use case diagrams                                          |
+| `/use-case-diagram` | Generate PlantUML use case diagrams                                          |
 | `/use-case-spec`    | Creates use case specifications with structured scenarios and business rules |
 
 #### MCP Servers
