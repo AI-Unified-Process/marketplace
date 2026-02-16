@@ -17,14 +17,20 @@ aiup-marketplace/
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # context7, Playwright
-│   ├── commands/                 # requirements, entity model, use cases
-│   └── skills/                   # requirements-engineer, data-modeler, use-case-specification-writer
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── requirements/
+│       ├── entity-model/
+│       ├── use-case-diagram/
+│       └── use-case-spec/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs
-│   ├── commands/                 # database migration, implement, karibu test, playwright test
-│   └── skills/                   # karibu-tester, playwright-tester
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── flyway-migration/
+│       ├── implement/
+│       ├── karibu-test/
+│       └── playwright-test/
 └── README.md
 ```
 
@@ -46,21 +52,26 @@ Each plugin contains:
 
 - `.claude-plugin/plugin.json` - Plugin metadata (name, version, author)
 - `.mcp.json` - MCP server configurations for external tools
-- `commands/` - Slash command files that define workflow steps
-- `skills/` - Auto-activated skills with SKILL.md definitions
+- `skills/` - Skills with SKILL.md definitions; each skill is also a slash command
 
 ## AIUP Workflow
 
+Skills follow the AIUP phases: Inception, Elaboration, Construction, Transition.
+
 ### Core (stack-agnostic)
 
-- **requirements.md** - Generate requirements from vision document
-- **entity_model.md** - Create entity model with Mermaid ER diagrams
-- **use_case_diagram.md** - Generate PlantUML use case diagrams
-- **use_case_spec.md** - Write detailed use case specifications
+| Phase        | Skill (slash command) | Description                            |
+|--------------|-----------------------|----------------------------------------|
+| Inception    | `/requirements`       | Generate requirements from vision      |
+| Elaboration  | `/entity-model`       | Create entity model with Mermaid ER    |
+| Elaboration  | `/use-case-diagram`   | Generate PlantUML use case diagrams    |
+| Construction | `/use-case-spec`      | Write detailed use case specifications |
 
 ### Vaadin/jOOQ (stack-specific)
 
-- **flyway_migration.md** - Create Flyway migrations
-- **implement.md** - Implement use cases using Vaadin and jOOQ
-- **karibu_test.md** - Create Karibu unit tests
-- **playwright_test.md** - Create Playwright integration tests
+| Phase        | Skill (slash command) | Description                               |
+|--------------|-----------------------|-------------------------------------------|
+| Construction | `/flyway-migration`   | Create Flyway migrations                  |
+| Construction | `/implement`          | Implement use cases using Vaadin and jOOQ |
+| Construction | `/karibu-test`        | Create Karibu unit tests                  |
+| Construction | `/playwright-test`    | Create Playwright integration tests       |

@@ -1,14 +1,13 @@
 ---
-name: use-case-specification
+name: use-case-spec
 description: Creates use case specifications with structured scenarios and business rules.
 ---
 
-# Use Case Specification Writer
+# Use Case Specification
 
 ## Instructions
 
-Create or update use case specification documents in `docs/use_cases/`. Each use case describes a complete interaction
-between an actor and the system to achieve a goal.
+Create or update use case specification documents for $ARGUMENTS in `docs/use_cases/`. Each use case describes a complete interaction between an actor and the system to achieve a goal.
 
 ## DO NOT
 

@@ -1,5 +1,5 @@
 ---
-name: requirements-engineer
+name: requirements
 description: >
   Gathers, organizes, and documents software requirements into structured
   catalogs with functional requirements (user stories), non-functional
@@ -10,12 +10,12 @@ description: >
   product requirements document, or feature specification.
 ---
 
-# Requirements Engineer
+# Requirements
 
 ## Instructions
 
-Create a requirements catalog document containing functional requirements, non-functional requirements, and constraints
-organized as Markdown tables.
+Create or update the requirements catalog at `docs/requirements.md` based on `docs/vision.md`.
+The document contains functional requirements, non-functional requirements, and constraints organized as Markdown tables.
 
 ## DO NOT
 
@@ -114,13 +114,13 @@ Define limitations and boundaries imposed on the solution.
 
 Every requirement must pass these checks before finalizing:
 
-| Check | Rule | Bad Example | Good Example |
-|-------|------|-------------|--------------|
-| Measurable | NFRs must have a number or threshold | "System should be fast" | "Pages load within 2 seconds" |
-| Singular | One requirement per row | "System must log in and export data" | Split into FR-001 and FR-002 |
-| Unambiguous | No subjective terms | "User-friendly interface" | "WCAG 2.1 AA compliant" |
-| Testable | Can write a pass/fail test | "System is reliable" | "99.9% uptime over 30 days" |
-| Unique IDs | No duplicate IDs across all tables | Two FR-001 entries | Each ID used exactly once |
+| Check       | Rule                                 | Bad Example                          | Good Example                  |
+|-------------|--------------------------------------|--------------------------------------|-------------------------------|
+| Measurable  | NFRs must have a number or threshold | "System should be fast"              | "Pages load within 2 seconds" |
+| Singular    | One requirement per row              | "System must log in and export data" | Split into FR-001 and FR-002  |
+| Unambiguous | No subjective terms                  | "User-friendly interface"            | "WCAG 2.1 AA compliant"       |
+| Testable    | Can write a pass/fail test           | "System is reliable"                 | "99.9% uptime over 30 days"   |
+| Unique IDs  | No duplicate IDs across all tables   | Two FR-001 entries                   | Each ID used exactly once     |
 
 ## Error Recovery
 

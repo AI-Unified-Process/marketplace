@@ -1,14 +1,13 @@
 ---
-name: karibu-tester
+name: karibu-test
 description: Creates Karibu unit tests for Vaadin views.
 ---
 
-# Karibu Test Writer
+# Karibu Test
 
 ## Instructions
 
-Create Karibu unit tests for Vaadin views. Karibu Testing allows server-side testing of Vaadin components without a
-browser.
+Create Karibu unit tests for Vaadin views based on the use case $ARGUMENTS. Karibu Testing allows server-side testing of Vaadin components without a browser.
 
 Use the KaribuTesting MCP server for documentation and code generation.
 

@@ -1,13 +1,14 @@
 ---
-name: data-modeler
+name: entity-model
 description: Creates entity model documents with Mermeaid.js ER diagrams and attribute tables.
 ---
 
-# Data Modeler
+# Entity Model
 
 ## Instructions
 
-Create an entity model document with ER diagram and attribute tables.
+Create or update the entity model at `docs/entity_model.md` based on `docs/requirements.md`.
+The document contains an ER diagram and attribute tables.
 
 ## DO NOT
 

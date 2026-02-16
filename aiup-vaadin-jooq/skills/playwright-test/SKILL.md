@@ -1,13 +1,13 @@
 ---
-name: playwright-tester
+name: playwright-test
 description: Creates Playwright integration tests for Vaadin views.
 ---
 
-# Playwright Test Writer
+# Playwright Test
 
 ## Instructions
 
-Create Playwright integration tests for Vaadin views. Playwright tests run in a real browser against a running
+Create Playwright integration tests for Vaadin views on the use case $ARGUMENTS. Playwright tests run in a real browser against a running
 application.
 
 ## DO NOT
