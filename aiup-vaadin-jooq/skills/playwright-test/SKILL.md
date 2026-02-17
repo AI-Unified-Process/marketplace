@@ -1,6 +1,6 @@
 ---
 name: playwright-test
-description: Creates Playwright integration tests for Vaadin views.
+description: Creates Playwright integration tests for Vaadin views. Use when writing e2e tests, browser tests, or UI tests for Vaadin.
 ---
 
 # Playwright Test
@@ -74,12 +74,8 @@ GridPw.RowPw row = gridPw.getRow(0);
 String text = row.getCell(0).innerText();
 
 // Select row
-row.
-
-select();
-mopo.
-
-waitForConnectionToSettle();
+row.select();
+mopo.waitForConnectionToSettle();
 ```
 
 ### Locate Vaadin Components
@@ -106,25 +102,15 @@ Locator comboBox = page.locator("vaadin-combo-box")
 String value = nameField.inputValue();
 
 // Fill text field
-nameField.
-
-fill("New Value");
+nameField.fill("New Value");
 
 // Click button
-saveButton.
-
-click();
-mopo.
-
-waitForConnectionToSettle();
+saveButton.click();
+mopo.waitForConnectionToSettle();
 
 // Clear and fill
-nameField.
-
-clear();
-nameField.
-
-fill("Updated Value");
+nameField.clear();
+nameField.fill("Updated Value");
 ```
 
 ### ComboBox Interactions
@@ -132,20 +118,10 @@ fill("Updated Value");
 ```java
 // Open and select
 comboBox.click();
-page.
-
-locator("vaadin-combo-box-item").
-
-filter(
-    new Locator.FilterOptions().
-
-setHasText("Option 1")
-).
-
-click();
-mopo.
-
-waitForConnectionToSettle();
+page.locator("vaadin-combo-box-item")
+    .filter(new Locator.FilterOptions().setHasText("Option 1"))
+    .click();
+mopo.waitForConnectionToSettle();
 ```
 
 ### Dialog Interactions
@@ -153,20 +129,10 @@ waitForConnectionToSettle();
 ```java
 // Confirm dialog
 page.locator("vaadin-confirm-dialog")
-    .
-
-locator("vaadin-button")
-    .
-
-filter(new Locator.FilterOptions().
-
-setHasText("Confirm"))
-        .
-
-click();
-mopo.
-
-waitForConnectionToSettle();
+    .locator("vaadin-button")
+    .filter(new Locator.FilterOptions().setHasText("Confirm"))
+    .click();
+mopo.waitForConnectionToSettle();
 ```
 
 ## Assertions Reference

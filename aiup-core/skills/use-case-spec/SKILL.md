@@ -1,6 +1,6 @@
 ---
 name: use-case-spec
-description: Creates use case specifications with structured scenarios and business rules.
+description: Creates use case specifications with structured scenarios and business rules. Use when documenting functional requirements, user flows, or system behavior.
 ---
 
 # Use Case Specification

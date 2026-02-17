@@ -1,6 +1,6 @@
 ---
 name: entity-model
-description: Creates entity model documents with Mermeaid.js ER diagrams and attribute tables.
+description: Creates entity model documents with Mermaid.js ER diagrams and attribute tables. Use when designing database schemas, ERDs, or data models.
 ---
 
 # Entity Model

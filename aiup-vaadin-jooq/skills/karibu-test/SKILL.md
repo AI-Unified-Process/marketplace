@@ -1,6 +1,6 @@
 ---
 name: karibu-test
-description: Creates Karibu unit tests for Vaadin views.
+description: Creates Karibu unit tests for Vaadin views. Use when writing server-side unit tests or view tests for Vaadin components.
 ---
 
 # Karibu Test
@@ -46,9 +46,7 @@ Use [templates/ExampleViewTest.java](templates/ExampleViewTest.java) as the test
 ### Navigate to View
 
 ```java
-UI.getCurrent().
-
-navigate(PersonView .class);
+UI.getCurrent().navigate(PersonView.class);
 ```
 
 ### Find Components
@@ -67,37 +65,21 @@ List<Button> buttons = _find(Button.class);
 
 ```java
 // Get grid size
-assertThat(GridKt._size(grid)).
-
-isEqualTo(100);
+assertThat(GridKt._size(grid)).isEqualTo(100);
 
 // Get selected items
 Set<PersonRecord> selected = grid.getSelectedItems();
 
 // Select a row
-GridKt.
-
-_selectRow(grid, 0);
+GridKt._selectRow(grid, 0);
 
 // Get cell component (for action buttons)
-GridKt.
-
-_getCellComponent(grid, 0,"actions")
-    .
-
-getChildren()
-    .
-
-filter(Button .class::isInstance)
-    .
-
-findFirst()
-    .
-
-map(Button .class::cast)
-    .
-
-ifPresent(Button::click);
+GridKt._getCellComponent(grid, 0, "actions")
+    .getChildren()
+    .filter(Button.class::isInstance)
+    .findFirst()
+    .map(Button.class::cast)
+    .ifPresent(Button::click);
 
 // Get cell value
 String name = GridKt._getFormattedRow(grid, 0).get("name");
@@ -107,30 +89,12 @@ String name = GridKt._getFormattedRow(grid, 0).get("name");
 
 ```java
 // Set field values
-_get(TextField .class, spec ->spec.
-
-withLabel("Name")).
-
-_setValue("John");
-
-_get(ComboBox .class, spec ->spec.
-
-withLabel("Country")).
-
-_setValue(country);
-
-_get(DatePicker .class, spec ->spec.
-
-withLabel("Birth Date")).
-
-_setValue(LocalDate.of(1990, 1,1));
+_get(TextField.class, spec -> spec.withLabel("Name"))._setValue("John");
+_get(ComboBox.class, spec -> spec.withLabel("Country"))._setValue(country);
+_get(DatePicker.class, spec -> spec.withLabel("Birth Date"))._setValue(LocalDate.of(1990, 1, 1));
 
 // Click button
-_get(Button .class, spec ->spec.
-
-withCaption("Save")).
-
-_click();
+_get(Button.class, spec -> spec.withCaption("Save"))._click();
 ```
 
 ### Notification Assertions
@@ -140,9 +104,7 @@ _click();
 expectNotifications("Record saved successfully");
 
 // Assert no notifications
-assertThat(NotificationsKt.getNotifications()).
-
-isEmpty();
+assertThat(NotificationsKt.getNotifications()).isEmpty();
 ```
 
 ### ConfirmDialog
@@ -152,9 +114,7 @@ isEmpty();
 ConfirmDialogKt._fireConfirm(_get(ConfirmDialog.class));
 
 // Click cancel
-        ConfirmDialogKt.
-
-_fireCancel(_get(ConfirmDialog.class));
+ConfirmDialogKt._fireCancel(_get(ConfirmDialog.class));
 ```
 
 ## Assertions Reference
