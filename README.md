@@ -47,10 +47,9 @@ Stack-agnostic core methodology plugin. Use this for any project, regardless of 
 
 #### MCP Servers
 
-| Server         | Description                          |
-|----------------|--------------------------------------|
-| **context7**   | General library documentation lookup |
-| **Playwright** | Browser automation for testing       |
+| Server       | Description                          |
+|--------------|--------------------------------------|
+| **context7** | General library documentation lookup |
 
 ### aiup-vaadin-jooq
 
@@ -74,6 +73,7 @@ Requires **aiup-core** for the methodology skills.
 | **KaribuTesting** | Karibu testing framework documentation |
 | **jOOQ**          | jOOQ documentation                     |
 | **JavaDocs**      | Java API documentation                 |
+| **Playwright**    | Browser automation for testing         |
 
 ## Learn More
 

@@ -16,7 +16,7 @@ aiup-marketplace/
 ├── aiup-core/                    # Stack-agnostic core methodology
 │   ├── .claude-plugin/
 │   │   └── plugin.json
-│   ├── .mcp.json                 # context7, Playwright
+│   ├── .mcp.json                 # context7
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── requirements/
 │       ├── entity-model/
@@ -25,7 +25,7 @@ aiup-marketplace/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
-│   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs
+│   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
