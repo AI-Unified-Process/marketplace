@@ -36,7 +36,7 @@ V003__create_reservation_table.sql
 ```sql
 -- V001__create_room_type_table.sql
 
-CREATE SEQUENCE room_type_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE room_type_seq START WITH 1 INCREMENT BY 1 CACHE 50;
 
 CREATE TABLE room_type
 (
