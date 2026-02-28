@@ -1,5 +1,5 @@
 {
-  "name": "aiup-vaadin-jooq",
+  "name": "vaadin-jooq",
   "description": "AI Unified Process plugin for the Vaadin/jOOQ stack",
   "version": "2.1.2",
   "author": {

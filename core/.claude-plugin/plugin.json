@@ -1,5 +1,5 @@
 {
-  "name": "aiup-core",
+  "name": "core",
   "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)",
   "version": "2.1.2",
   "author": {
