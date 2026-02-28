@@ -11,10 +11,10 @@ technology-specific plugins.
 ## Repository Structure
 
 ```
-aiup-marketplace/
+marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace metadata listing all plugins
-├── aiup-core/                    # Stack-agnostic core methodology
+├── core/                    # Stack-agnostic core methodology
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # context7
@@ -23,7 +23,7 @@ aiup-marketplace/
 │       ├── entity-model/
 │       ├── use-case-diagram/
 │       └── use-case-spec/
-├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
+├── vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
@@ -39,8 +39,8 @@ aiup-marketplace/
 
 ### Two-Layer Design
 
-- **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
-- **aiup-vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires aiup-core.
+- **core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
+- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
 
 ### Marketplace Configuration
 
