@@ -1,6 +1,7 @@
 # AI Unified Process Marketplace
 
-A collection of plugins that bring the [AI Unified Process](https://unifiedprocess.ai) methodology directly into Claude Code.
+A collection of plugins that bring the [AI Unified Process](https://unifiedprocess.ai) methodology directly into Claude
+Code.
 
 ## What is the AI Unified Process?
 
@@ -12,27 +13,27 @@ project.
 
 The marketplace is organized in two layers:
 
-- **core** — Stack-agnostic methodology (requirements, entity model, use cases). Works with any tech stack.
+- **aiup-core** — Stack-agnostic methodology (requirements, entity model, use cases). Works with any tech stack.
 - **vaadin-jooq** — Stack-specific implementation and testing for the Vaadin + jOOQ technology stack.
 
 Skills follow the [AI Unified Process phases](https://unifiedprocess.dev) (based on the Rational Unified Process):
 
-|                      | Inception       | Elaboration                            | Construction                                                                | Transition |
-|----------------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
+|                 | Inception       | Elaboration                            | Construction                                                                | Transition |
+|-----------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
 | **core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                            |            |
 | **vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/karibu-test`<br>`/playwright-test` |            |
 
 ## Installation
 
 ```
-/plugin marketplace add martinellich/marketplace
-/plugin install core
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
 /plugin install vaadin-jooq
 ```
 
 ## Available Plugins
 
-### core
+### aiup-core
 
 Stack-agnostic core methodology plugin. Use this for any project, regardless of technology stack.
 
@@ -54,7 +55,7 @@ Stack-agnostic core methodology plugin. Use this for any project, regardless of 
 ### vaadin-jooq
 
 Stack-specific plugin for Java web application development using the Vaadin + jOOQ technology stack.
-Requires **core** for the methodology skills.
+Requires **aiup-core** for the methodology skills.
 
 #### Skills
 
@@ -104,7 +105,7 @@ When enabled, a plugin's components become available in your Claude Code session
 A **skill** is a specialized behavior defined in a `SKILL.md` file. Skills can be invoked explicitly as slash
 commands (e.g., `/requirements`) or triggered automatically by Claude when it recognizes a matching task. Each skill
 can include supporting files like templates and reference documents. Skills are namespaced by their plugin
-(e.g., `core:requirements`).
+(e.g., `aiup-core:requirements`).
 
 ### Agent
 

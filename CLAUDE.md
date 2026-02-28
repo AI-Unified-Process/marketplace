@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-AI Unified Process Marketplace is a collection of plugins for Claude Code that implement the AI Unified Process methodology.
+AI Unified Process Marketplace is a collection of plugins for Claude Code that implement the AI Unified Process
+methodology.
 The repository is structured as a marketplace with a two-layer architecture: a stack-agnostic core and
 technology-specific plugins.
 
@@ -14,7 +15,7 @@ technology-specific plugins.
 marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace metadata listing all plugins
-├── core/                    # Stack-agnostic core methodology
+├── aiup-core/                    # Stack-agnostic core methodology
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # context7
@@ -23,7 +24,7 @@ marketplace/
 │       ├── entity-model/
 │       ├── use-case-diagram/
 │       └── use-case-spec/
-├── vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
+├── vaadin-jooq/                  # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
@@ -39,7 +40,7 @@ marketplace/
 
 ### Two-Layer Design
 
-- **core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
+- **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
 - **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
 
 ### Marketplace Configuration

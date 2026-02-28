@@ -7,8 +7,8 @@
   },
   "plugins": [
     {
-      "name": "ai-unified-process-core",
-      "source": "./core",
+      "name": "aiup-core",
+      "source": "./aiup-core",
       "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)"
     },
     {
