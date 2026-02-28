@@ -12,8 +12,8 @@
       "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)"
     },
     {
-      "name": "vaadin-jooq",
-      "source": "./vaadin-jooq",
+      "name": "aiup-vaadin-jooq",
+      "source": "./aiup-vaadin-jooq",
       "description": "AI Unified Process plugin for the Vaadin/jOOQ stack"
     }
   ]

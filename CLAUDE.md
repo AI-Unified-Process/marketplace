@@ -24,7 +24,7 @@ marketplace/
 │       ├── entity-model/
 │       ├── use-case-diagram/
 │       └── use-case-spec/
-├── vaadin-jooq/                  # Vaadin + jOOQ technology stack plugin
+├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright

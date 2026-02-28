@@ -14,21 +14,21 @@ project.
 The marketplace is organized in two layers:
 
 - **aiup-core** — Stack-agnostic methodology (requirements, entity model, use cases). Works with any tech stack.
-- **vaadin-jooq** — Stack-specific implementation and testing for the Vaadin + jOOQ technology stack.
+- **aiup-vaadin-jooq** — Stack-specific implementation and testing for the Vaadin + jOOQ technology stack.
 
 Skills follow the [AI Unified Process phases](https://unifiedprocess.dev) (based on the Rational Unified Process):
 
-|                 | Inception       | Elaboration                            | Construction                                                                | Transition |
-|-----------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
-| **core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                            |            |
-| **vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/karibu-test`<br>`/playwright-test` |            |
+|                      | Inception       | Elaboration                            | Construction                                                                | Transition |
+|----------------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
+| **aiup-core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                            |            |
+| **aiup-vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/karibu-test`<br>`/playwright-test` |            |
 
 ## Installation
 
 ```
 /plugin marketplace add ai-unified-process/marketplace
 /plugin install aiup-core
-/plugin install vaadin-jooq
+/plugin install aiup-vaadin-jooq
 ```
 
 ## Available Plugins
@@ -52,7 +52,7 @@ Stack-agnostic core methodology plugin. Use this for any project, regardless of 
 |--------------|--------------------------------------|
 | **context7** | General library documentation lookup |
 
-### vaadin-jooq
+### aiup-vaadin-jooq
 
 Stack-specific plugin for Java web application development using the Vaadin + jOOQ technology stack.
 Requires **aiup-core** for the methodology skills.
