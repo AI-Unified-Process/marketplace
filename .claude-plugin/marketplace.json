@@ -7,7 +7,7 @@
   },
   "plugins": [
     {
-      "name": "core",
+      "name": "ai-unified-process-core",
       "source": "./core",
       "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)"
     },
