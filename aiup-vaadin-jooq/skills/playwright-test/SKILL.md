@@ -71,6 +71,14 @@ public String getView() {
 
 The base class automatically navigates to this view and waits for Vaadin to be ready before each test.
 
+### Drama Finder
+
+Find information about the Drama Finder library:
+https://parttio-dramafinder-4.mintlify.app
+
+Drama Finder API:
+https://parttio-dramafinder-4.mintlify.app/api/
+
 ### Locate Vaadin Components
 
 Drama Finder uses ARIA roles and accessible names to find elements — not CSS selectors:
