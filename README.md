@@ -1,19 +1,22 @@
 # AI Unified Process Marketplace
 
-A collection of Claude Code plugins that automate the **AI Unified Process (AIUP)** — a structured workflow for taking a
-software project from raw vision to fully implemented, tested code, with requirements at the center at every step.
+A collection of Claude Code plugins that automate the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) — a
+structured workflow for taking a software project from raw vision to fully implemented, tested code, with requirements
+at the center at every step.
 
 ## What is the AI Unified Process?
 
-AIUP is a disciplined AI-assisted development methodology where every project starts with a written vision, proceeds
+AI Unified Process is a disciplined AI-assisted development methodology where every project starts with a written
+vision, proceeds
 through requirements, an entity model, and use case specifications, and only then enters implementation. Nothing gets
 built without a use case. Nothing reaches production without tests traceable to requirements.
 
 This prevents the common failure mode of AI-assisted development: jumping straight to code from a vague prompt,
 producing something that half-works and can't be maintained.
 
-The methodology is based on the phases of the Rational Unified Process — **Inception, Elaboration, Construction,
-Transition** — but adapted for AI-driven workflows.
+The methodology is based on the phases of
+the [Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process) — **Inception, Elaboration,
+Construction, Transition** — but adapted for AI-driven workflows.
 
 ## AIUP Workflow
 
