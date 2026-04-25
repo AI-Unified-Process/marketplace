@@ -70,6 +70,101 @@ If Claude begins reading `docs/vision.md` and proposing a requirements catalog, 
 
 ---
 
+## Using AIUP with other AI coding tools
+
+The AI Unified Process is a methodology, not a Claude-only product. Two of the three pieces this marketplace ships
+are portable across any AI coding tool that speaks the [Model Context Protocol](https://modelcontextprotocol.io):
+
+| Component                                        | Portable? | Notes                                                                                |
+|--------------------------------------------------|-----------|--------------------------------------------------------------------------------------|
+| MCP servers (`aiup-*/.mcp.json`)                 | Yes       | Standard MCP — reformat the config per host                                          |
+| Skill prompt bodies (Markdown below `SKILL.md` YAML frontmatter) | Yes       | Plain instructions — usable as a system prompt or `/command` template                |
+| Workflow methodology (vision → requirements → entity model → use cases → impl → tests) | Yes       | The whole point — tool-agnostic                                                      |
+| Skill auto-triggering (YAML `description`)       | No        | Claude Code-specific behaviour                                                       |
+| `/plugin marketplace add …` install              | No        | Claude Code-specific — clone this repo instead                                       |
+
+### Generic adoption recipe
+
+1. `git clone https://github.com/ai-unified-process/marketplace.git` next to your project (or add as a submodule).
+2. For each step in the workflow, take the body of the matching `SKILL.md` (everything below the `---` frontmatter)
+   and register it as a custom prompt or slash command in your tool — see per-tool subsections below.
+3. Configure the MCP servers from `aiup-core/.mcp.json` and `aiup-vaadin-jooq/.mcp.json` in your tool's MCP config file.
+4. Run the steps manually in order. The file outputs (`docs/requirements.md`, `docs/entity_model.md`,
+   `docs/use_cases.puml`, `docs/use_cases/UC-*.md`) are identical regardless of tool, so the chain still composes
+   even if you mix tools across steps.
+
+### OpenAI Codex CLI
+
+MCP servers go in `~/.codex/config.toml` under `[mcp_servers.<name>]` blocks. Translate
+`aiup-vaadin-jooq/.mcp.json` like this:
+
+```toml
+[mcp_servers.Vaadin]
+url = "https://mcp.vaadin.com/docs"
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@latest"]
+```
+
+For prompt files and the latest config keys, see the
+[Codex config reference](https://developers.openai.com/codex/config-reference).
+
+### GitHub Copilot (VS Code)
+
+- **MCP**: workspace-level `.vscode/mcp.json` (commit it for your team), or user-level via
+  *MCP: Open User Configuration*. Use `"type": "http"` for remote servers and `"command"` / `"args"` for stdio.
+- **Prompts**: workspace-level `.github/prompts/<name>.prompt.md`. Each file has optional YAML frontmatter
+  (`description`, `model`, `tools`) and a Markdown body — paste the body of the matching `SKILL.md` here. Invoke
+  with `/<name>` in the chat input.
+
+```jsonc
+// .vscode/mcp.json
+{
+  "servers": {
+    "Vaadin": { "type": "http", "url": "https://mcp.vaadin.com/docs" },
+    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] }
+  }
+}
+```
+
+### Gemini CLI
+
+- **MCP**: `~/.gemini/settings.json` `mcpServers` object — same shape as Claude's `.mcp.json`, so it is a near-direct
+  copy.
+- **Custom commands**: `<project>/.gemini/commands/<name>.toml` (or `~/.gemini/commands/` for global). The required
+  TOML key is `prompt`; subdirectories namespace the command (e.g. `aiup/requirements.toml` → `/aiup:requirements`).
+
+```toml
+# .gemini/commands/aiup/requirements.toml
+description = "Generate the requirements catalog from docs/vision.md"
+prompt = """
+<paste the body of aiup-core/skills/requirements/SKILL.md here>
+"""
+```
+
+### Cursor / Windsurf
+
+- **MCP**: project-level `.cursor/mcp.json` or global `~/.cursor/mcp.json` — uses `mcpServers` with the same shape
+  as Claude's `.mcp.json` (`url` for HTTP servers, `command` / `args` for stdio). Drop in the contents of
+  `aiup-vaadin-jooq/.mcp.json` directly.
+- **Rules / commands**: project-level `.cursor/rules/*.mdc` for always-on or auto-attached instructions; Windsurf
+  uses `.windsurfrules`. Both render Markdown bodies, so the SKILL.md content drops in unchanged.
+
+### Caveats
+
+- **Auto-triggering** (e.g. "write requirements" → `/requirements`) only works in Claude Code; on other tools the
+  user invokes the prompt by name.
+- **Argument passing** (`/use-case-spec UC-001`) works in Codex, Gemini CLI, and Cursor (via templating); for
+  Copilot, pass the ID inline in the chat message after invoking the prompt.
+- **HTTP MCP servers**: most aiup-vaadin-jooq servers are HTTP. Every tool listed above supports HTTP MCP. If you
+  use a client that is stdio-only, you need an HTTP-to-stdio MCP bridge.
+- **Methodology stays the same**: the file artefacts (`docs/*.md`, `docs/use_cases/UC-*.md`, Flyway migrations) are
+  the contract between steps. As long as a step produces the right file, the next step works regardless of which
+  tool ran the previous one.
+
+---
+
 ## How to use?
 
 Here is a complete end-to-end example of building a hotel reservation system.
