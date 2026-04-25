@@ -80,7 +80,7 @@ are portable across any AI coding tool that speaks the [Model Context Protocol](
 | MCP servers (`aiup-*/.mcp.json`)                 | Yes       | Standard MCP — reformat the config per host                                          |
 | Skill prompt bodies (Markdown below `SKILL.md` YAML frontmatter) | Yes       | Plain instructions — usable as a system prompt or `/command` template                |
 | Workflow methodology (vision → requirements → entity model → use cases → impl → tests) | Yes       | The whole point — tool-agnostic                                                      |
-| Skill auto-triggering (YAML `description`)       | No        | Claude Code-specific behaviour                                                       |
+| Skill auto-triggering (YAML `description`)       | No        | Claude Code-specific behavior                                                        |
 | `/plugin marketplace add …` install              | No        | Claude Code-specific — clone this repo instead                                       |
 
 ### Generic adoption recipe
@@ -159,7 +159,7 @@ prompt = """
   Copilot, pass the ID inline in the chat message after invoking the prompt.
 - **HTTP MCP servers**: most aiup-vaadin-jooq servers are HTTP. Every tool listed above supports HTTP MCP. If you
   use a client that is stdio-only, you need an HTTP-to-stdio MCP bridge.
-- **Methodology stays the same**: the file artefacts (`docs/*.md`, `docs/use_cases/UC-*.md`, Flyway migrations) are
+- **Methodology stays the same**: the file artifacts (`docs/*.md`, `docs/use_cases/UC-*.md`, Flyway migrations) are
   the contract between steps. As long as a step produces the right file, the next step works regardless of which
   tool ran the previous one.
 
@@ -564,7 +564,7 @@ The `/requirements` skill relies heavily on this file. Include at minimum:
 
 ## Constraints
 
-- <Regulatory, technical, organisational constraints>
+- <Regulatory, technical, organizational constraints>
 ```
 
 ---
@@ -579,7 +579,7 @@ them.
 to be reviewed and corrected by hand. Do not skip the review.
 
 **Re-run upstream skills when requirements change.** If a new functional requirement appears, re-run `/entity-model` and
-`/use-case-diagram` so the downstream artefacts stay consistent. Re-running is cheap; fixing inconsistencies later is
+`/use-case-diagram` so the downstream artifacts stay consistent. Re-running is cheap; fixing inconsistencies later is
 not.
 
 **Keep `aiup-core` even on non-Vaadin stacks.** The methodology skills are stack-agnostic — only the construction-phase
