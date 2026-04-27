@@ -73,7 +73,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 
 | Phase        | Skill (slash command) | Description                               |
 |--------------|-----------------------|-------------------------------------------|
-| Construction | `/flyway-migration`   | Create Flyway migrations                  |
-| Construction | `/implement`          | Implement use cases using Vaadin and jOOQ |
-| Construction | `/karibu-test`        | Create Karibu unit tests                  |
-| Construction | `/playwright-test`    | Create Playwright integration tests       |
+| Construction | `/flyway-migration`   | Create Flyway migrations                                 |
+| Construction | `/implement`          | Implement use cases using Vaadin and jOOQ                |
+| Construction | `/browserless-test`   | Create Vaadin Browserless unit tests (recommended)       |
+| Construction | `/karibu-test`        | Create Karibu unit tests (legacy — superseded since 25.1) |
+| Construction | `/playwright-test`    | Create Playwright integration tests                      |

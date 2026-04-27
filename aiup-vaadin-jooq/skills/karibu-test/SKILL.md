@@ -10,6 +10,11 @@ description: >
 
 # Karibu Test
 
+> **Legacy skill — no longer recommended for new code.** Since Vaadin 25.1 the official Vaadin Browserless Testing
+> framework (`com.vaadin:browserless-test-junit6`) is free and open source under Apache 2.0. It supersedes the
+> community Karibu Testing library. Prefer **`/browserless-test`** for new test classes. Use this skill only when
+> extending an existing Karibu-based test suite.
+
 ## Instructions
 
 Create Karibu unit tests for Vaadin views based on the use case $ARGUMENTS. Karibu Testing allows server-side testing of Vaadin components without a browser.

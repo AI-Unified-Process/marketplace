@@ -25,7 +25,7 @@ Inception          Elaboration                          Construction
 ─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
 /requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /flyway-migration
                                                                           ↘  /implement
-                                                                          ↘  /karibu-test
+                                                                          ↘  /browserless-test
                                                                           ↘  /playwright-test
 ```
 
@@ -36,7 +36,7 @@ inspect or manually edit these files before continuing.
 |                      | Inception       | Elaboration                            | Construction                                                                | Transition |
 |----------------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
 | **aiup-core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                            |            |
-| **aiup-vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/karibu-test`<br>`/playwright-test` |            |
+| **aiup-vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test` |            |
 
 ---
 
@@ -242,15 +242,21 @@ tests — those have dedicated skills.
 
 ---
 
-### Step 7 — Write Karibu unit tests
+### Step 7 — Write Browserless unit tests
 
 ```
-/karibu-test UC-001
+/browserless-test UC-001
 ```
 
-Claude generates server-side Vaadin tests using Karibu Testing — no browser required. Tests cover navigation, component
-interactions, form validation, grid operations, and notifications. Test data is seeded via Flyway migrations under
+Claude generates server-side Vaadin tests using the official **Vaadin Browserless** framework
+(`com.vaadin:browserless-test-junit6`) — no browser required. Tests cover navigation, component interactions, form
+validation, grid operations, and notifications. Test data is seeded via Flyway migrations under
 `src/test/resources/db/migration`; transaction boundaries are preserved (no `@Transactional` on tests).
+
+> Browserless Testing is free and open source under Apache 2.0 since Vaadin 25.1. It is the official successor to UI
+> Unit Testing (formerly part of the commercial TestBench) and replaces the community Karibu Testing library as the
+> recommended server-side testing approach. The legacy `/karibu-test` skill is still installed for existing projects
+> but is **no longer recommended** for new code — use `/browserless-test`.
 
 ---
 
@@ -415,7 +421,7 @@ requirements catalog.
 3. Implements the data access layer using jOOQ — verifies it compiles before continuing
 4. Implements the Vaadin view, wires it to the data access layer, and verifies the full implementation compiles
 5. Consults the Vaadin, jOOQ, and JavaDocs MCP servers for current API documentation
-6. Does **not** create test classes — use `/karibu-test` and `/playwright-test` for that
+6. Does **not** create test classes — use `/browserless-test` and `/playwright-test` for that
 
 **Input:** Use case ID as argument
 **Output:** Vaadin view + jOOQ data access classes
@@ -423,10 +429,43 @@ requirements catalog.
 
 ---
 
-### `/karibu-test` — Karibu Server-Side Tests
+### `/browserless-test` — Vaadin Browserless Server-Side Tests *(recommended)*
 
-**Purpose:** Creates Karibu unit tests for Vaadin views — server-side tests that exercise the full Vaadin component tree
-without launching a browser.
+**Purpose:** Creates server-side unit tests for Vaadin views using the official **Vaadin Browserless** framework
+(`com.vaadin:browserless-test-junit6`) — no browser, no WebDriver, no servlet container. Browserless Testing is free
+and open source under Apache 2.0 since Vaadin 25.1.
+
+**Usage:**
+
+```
+/browserless-test UC-001
+```
+
+**What it does:**
+
+1. Reads the use case spec to derive the test scenarios
+2. Generates a JUnit 5 test class extending `SpringBrowserlessTest` (annotated `@SpringBootTest`)
+3. Uses the `$()` / `$view()` component query API for lookups and the `test()` wrapper for interactions
+4. Seeds test data via Flyway migrations under `src/test/resources/db/migration` — never via Mockito, services, or
+   `DSLContext`
+5. Cleans up only test-created data in `@AfterEach` (does not wipe the schema)
+6. Preserves transaction boundaries — tests are not annotated `@Transactional`
+7. Reads component state through the component's Java API; reserves `test(...)` for actions
+
+**Input:** Use case ID as argument
+**Output:** Browserless test class under `src/test/java`
+**Plugin:** `aiup-vaadin-jooq`
+
+---
+
+### `/karibu-test` — Karibu Server-Side Tests *(legacy — no longer recommended)*
+
+> **Use `/browserless-test` instead for new projects.** Since Vaadin 25.1 the official Browserless Testing framework
+> is free and open source under Apache 2.0, making the community Karibu Testing library redundant. This skill is
+> retained for existing codebases that already use Karibu.
+
+**Purpose:** Creates Karibu unit tests for Vaadin views — server-side tests that exercise the full Vaadin component
+tree without launching a browser.
 
 **Usage:**
 
@@ -502,7 +541,7 @@ your-project/
 │   │           ├── V001__create_room_type_table.sql
 │   │           └── ...
 │   └── test/
-│       ├── java/                         ← produced by /karibu-test, /playwright-test
+│       ├── java/                         ← produced by /browserless-test, /playwright-test
 │       └── resources/
 │           └── db/migration/             ← test data seeds
 └── CLAUDE.md
@@ -528,7 +567,7 @@ and `docs/entity_model.md` for product context before making decisions.
 4. `/use-case-spec UC-XX` → produces `docs/use_cases/UC-XX-*.md`
 5. `/flyway-migration`    → produces `src/main/resources/db/migration/V*.sql`
 6. `/implement UC-XX`     → implements the use case (Vaadin + jOOQ)
-7. `/karibu-test UC-XX`   → server-side unit tests
+7. `/browserless-test UC-XX` → server-side unit tests (recommended, free since Vaadin 25.1)
 8. `/playwright-test UC-XX` → browser-based integration tests
 
 Never skip the spec for a use case before implementing it.
