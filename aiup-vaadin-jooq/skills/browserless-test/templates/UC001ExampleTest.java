@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ExampleViewTest extends SpringBrowserlessTest {
+class UC001ExampleTest extends SpringBrowserlessTest {
 
     @Test
     void view_displays_grid_with_data() {

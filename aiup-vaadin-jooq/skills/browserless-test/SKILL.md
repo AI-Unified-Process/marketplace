@@ -50,13 +50,33 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 | Flyway migration | src/test/resources/db/migration/V*.sql | Populate test data       |
 | Manual cleanup   | @AfterEach method                      | Remove test-created data |
 
+## Test Class Naming
+
+Name the test class after the use case it covers, using the pattern `UC{NNN}{Name}Test`:
+
+- `UC{NNN}` — the 3-digit use case ID from the use case specification (e.g. `UC-001` → `UC001`, no hyphen)
+- `{Name}` — a descriptive PascalCase name derived from the use case title
+- `Test` — required suffix
+
+Examples:
+
+| Use Case ID | Use Case Title       | Test Class Name           |
+|-------------|----------------------|---------------------------|
+| UC-001      | Manage Persons       | `UC001ManagePersonsTest`  |
+| UC-002      | Register Customer    | `UC002RegisterCustomerTest` |
+| UC-014      | Approve Order        | `UC014ApproveOrderTest`   |
+
+Do **not** name tests after the view class (e.g. avoid `PersonViewTest`) — one use case may span multiple views, and naming by use case keeps tests aligned with the specification.
+
+One test class per use case. Place it under the package matching the use case's feature area.
+
 ## Base Test Class
 
 Extend `com.vaadin.testbench.unit.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`. The base class creates the Vaadin session, UI, and component tree inside the JUnit JVM.
 
 ```java
 @SpringBootTest
-class PersonViewTest extends SpringBrowserlessTest {
+class UC001ManagePersonsTest extends SpringBrowserlessTest {
     // ...
 }
 ```
@@ -65,7 +85,7 @@ For non-Spring projects, extend `com.vaadin.testbench.unit.BrowserlessTest` inst
 
 ## Template
 
-Use [templates/ExampleViewTest.java](templates/ExampleViewTest.java) as the test class structure.
+Use [templates/UC001ExampleTest.java](templates/UC001ExampleTest.java) as the test class structure. Rename the class to match the use case you are covering (see [Test Class Naming](#test-class-naming)).
 
 ## Common Patterns
 
@@ -247,9 +267,9 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 
 ## Workflow
 
-1. Read the use case specification
+1. Read the use case specification — note its ID (e.g. `UC-001`) and title
 2. Use TodoWrite to create a task for each test scenario
-3. Create the test class using the template (extend `SpringBrowserlessTest`, annotate `@SpringBootTest`)
+3. Create the test class using the template (extend `SpringBrowserlessTest`, annotate `@SpringBootTest`), naming it `UC{NNN}{Name}Test` after the use case (see [Test Class Naming](#test-class-naming))
 4. For each test:
     - Navigate to the view with `navigate(...)`
     - Find components with `$()` / `$view()`

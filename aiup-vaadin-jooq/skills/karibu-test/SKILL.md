@@ -47,9 +47,29 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 | com.github.mvysny.kaributesting.v10.NotificationsKt     | Notification assertions          |
 | com.github.mvysny.kaributesting.v10.pro.ConfirmDialogKt | ConfirmDialog interactions       |
 
+## Test Class Naming
+
+Name the test class after the use case it covers, using the pattern `UC{NNN}{Name}Test`:
+
+- `UC{NNN}` — the 3-digit use case ID from the use case specification (e.g. `UC-001` → `UC001`, no hyphen)
+- `{Name}` — a descriptive PascalCase name derived from the use case title
+- `Test` — required suffix
+
+Examples:
+
+| Use Case ID | Use Case Title       | Test Class Name             |
+|-------------|----------------------|-----------------------------|
+| UC-001      | Manage Persons       | `UC001ManagePersonsTest`    |
+| UC-002      | Register Customer    | `UC002RegisterCustomerTest` |
+| UC-014      | Approve Order        | `UC014ApproveOrderTest`     |
+
+Do **not** name tests after the view class (e.g. avoid `PersonViewTest`) — one use case may span multiple views, and naming by use case keeps tests aligned with the specification.
+
+One test class per use case. Place it under the package matching the use case's feature area.
+
 ## Template
 
-Use [templates/ExampleViewTest.java](templates/ExampleViewTest.java) as the test class structure.
+Use [templates/UC001ExampleTest.java](templates/UC001ExampleTest.java) as the test class structure. Rename the class to match the use case you are covering (see [Test Class Naming](#test-class-naming)).
 
 ## Common Patterns
 
@@ -142,9 +162,9 @@ Use AssertJ or Karibu Testing assertions:
 
 ## Workflow
 
-1. Read the use case specification
+1. Read the use case specification — note its ID (e.g. `UC-001`) and title
 2. Use TodoWrite to create a task for each test scenario
-3. Create test class using the template
+3. Create test class using the template, naming it `UC{NNN}{Name}Test` after the use case (see [Test Class Naming](#test-class-naming))
 4. For each test:
     - Navigate to the view
     - Find components using LocatorJ
