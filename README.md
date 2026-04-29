@@ -24,19 +24,24 @@ Construction, Transition** — but adapted for AI-driven workflows.
 Inception          Elaboration                          Construction
 ─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
 /requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /flyway-migration
-                                                                          ↘  /implement
-                                                                          ↘  /browserless-test
-                                                                          ↘  /playwright-test
+                                                                          ↘  /implement   (dispatcher)
+                                                                          ↘  /test        (dispatcher — server-side)
+                                                                          ↘  /e2e         (dispatcher — browser)
 ```
+
+`/implement`, `/test`, and `/e2e` are stack-agnostic dispatchers that detect the project's build files (Maven,
+Gradle, npm) and delegate to the right stack-specific skill — `/implement-vaadin-jooq`, `/browserless-test`,
+`/playwright-test`, etc. `/test` covers in-JVM unit / integration tests; `/e2e` covers browser-driven tests. You
+can also call any stack-specific skill directly if you prefer to bypass detection.
 
 Each skill picks up where the previous one left off using the files produced along the way (`docs/vision.md`,
 `docs/requirements.md`, `docs/entity_model.md`, `docs/use_cases.puml`, `docs/use_cases/UC-*.md`). At any point you can
 inspect or manually edit these files before continuing.
 
-|                      | Inception       | Elaboration                            | Construction                                                                | Transition |
-|----------------------|-----------------|----------------------------------------|-----------------------------------------------------------------------------|------------|
-| **aiup-core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                            |            |
-| **aiup-vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test` |            |
+|                      | Inception       | Elaboration                            | Construction                                                                                                                       | Transition |
+|----------------------|-----------------|----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|------------|
+| **aiup-core**        | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`<br>`/implement` *(dispatcher)*<br>`/test` *(dispatcher — server-side)*<br>`/e2e` *(dispatcher — browser)*         |            |
+| **aiup-vaadin-jooq** |                 |                                        | `/flyway-migration`<br>`/implement-vaadin-jooq`<br>`/browserless-test`<br>`/karibu-test`<br>`/playwright-test`                     |            |
 
 ---
 
@@ -236,39 +241,62 @@ are derived from the entity model. Run `mvn flyway:migrate` to apply.
 /implement UC-001
 ```
 
-Claude reads the use case spec, the entity model, and existing code to learn your conventions, then implements the data
-access layer with jOOQ and the UI with Vaadin. It compiles after each layer and stops on errors. It does **not** write
-tests — those have dedicated skills.
+`/implement` is a stack-agnostic dispatcher. It inspects the project's build files (Maven, Gradle), detects the stack
+(currently Vaadin + jOOQ), and delegates to the matching skill — for this stack, `/implement-vaadin-jooq`. The
+downstream skill reads the use case spec, the entity model, and existing code to learn your conventions, then
+implements the data access layer with jOOQ and the UI with Vaadin. It compiles after each layer and stops on errors.
+It does **not** write tests — that's `/test`.
+
+You can also call `/implement-vaadin-jooq UC-001` directly to skip detection.
 
 ---
 
-### Step 7 — Write Browserless unit tests
+### Step 7 — Write server-side tests
 
 ```
-/browserless-test UC-001
+/test UC-001
 ```
 
-Claude generates server-side Vaadin tests using the official **Vaadin Browserless** framework
-(`com.vaadin:browserless-test-junit6`) — no browser required. Tests cover navigation, component interactions, form
-validation, grid operations, and notifications. Test data is seeded via Flyway migrations under
-`src/test/resources/db/migration`; transaction boundaries are preserved (no `@Transactional` on tests).
+`/test` is a stack-agnostic dispatcher for **server-side** tests (in-JVM, no browser). It detects which server-side
+frameworks are configured (Browserless, Karibu) and invokes the matching skill. For a typical Vaadin + jOOQ project
+that means **Vaadin Browserless unit tests**.
+
+If the project still uses the legacy Karibu library, `/test` prefers Browserless and skips Karibu — call
+`/karibu-test` directly when extending an existing Karibu suite.
 
 > Browserless Testing is free and open source under Apache 2.0 since Vaadin 25.1. It is the official successor to UI
 > Unit Testing (formerly part of the commercial TestBench) and replaces the community Karibu Testing library as the
-> recommended server-side testing approach. The legacy `/karibu-test` skill is still installed for existing projects
-> but is **no longer recommended** for new code — use `/browserless-test`.
+> recommended server-side testing approach.
+
+You can also call any server-side skill directly:
+
+```
+/browserless-test UC-001    # server-side unit tests (recommended, free since Vaadin 25.1)
+/karibu-test UC-001         # legacy Karibu (existing suites only)
+```
+
+Tests cover navigation, component interactions, form validation, grid operations, and notifications. Test data is
+seeded via Flyway migrations under `src/test/resources/db/migration`; transaction boundaries are preserved
+(no `@Transactional` on tests).
 
 ---
 
-### Step 8 — Write Playwright integration tests
+### Step 8 — Write browser-based end-to-end tests
 
 ```
-/playwright-test UC-001
+/e2e UC-001
 ```
 
-Claude generates browser-based end-to-end tests against the running application (default: `http://localhost:8080`) using
-the Drama Finder library for type-safe, accessibility-first element wrappers. Tests are written black-box — they do not
-look at the implementation — and never use raw Playwright locators or `Thread.sleep()`.
+`/e2e` is a stack-agnostic dispatcher for **browser-driven** tests. It detects which browser-test frameworks are
+configured (Playwright + Drama Finder) and invokes the matching skill. Tests run in a real browser against the
+running application (default `http://localhost:8080`) using Drama Finder for type-safe, accessibility-first element
+wrappers — never raw Playwright locators or `Thread.sleep()`.
+
+You can also call the browser-test skill directly:
+
+```
+/playwright-test UC-001     # Playwright + Drama Finder browser tests
+```
 
 ---
 
@@ -404,9 +432,10 @@ requirements catalog.
 
 ---
 
-### `/implement` — Use Case Implementation
+### `/implement` — Stack-agnostic Implementation Dispatcher
 
-**Purpose:** Implements a use case end-to-end using Vaadin for the UI layer and jOOQ for the data access layer.
+**Purpose:** Detects the project's tech stack from the build files and delegates to the matching stack-specific
+implementation skill.
 
 **Usage:**
 
@@ -416,12 +445,85 @@ requirements catalog.
 
 **What it does:**
 
+1. Inspects `pom.xml`, `build.gradle(.kts)`, `package.json`, and similar files for stack markers
+2. Matches against a routing table (e.g. Vaadin + jOOQ → `implement-vaadin-jooq`)
+3. Invokes the downstream skill with the original arguments unchanged
+4. Asks the user to choose if multiple stacks match or none match
+
+**Input:** Use case ID as argument (passed through to the downstream skill)
+**Output:** Whatever the downstream skill produces
+**Plugin:** `aiup-core`
+
+---
+
+### `/test` — Stack-agnostic Server-Side Test Dispatcher
+
+**Purpose:** Detects which **server-side** (in-JVM, no browser) test frameworks are configured and delegates to
+the matching test-creation skill. For browser-based tests, use `/e2e` instead.
+
+**Usage:**
+
+```
+/test UC-001
+```
+
+**What it does:**
+
+1. Inspects build files for server-side test framework markers (Browserless, Karibu)
+2. Prefers Browserless over Karibu when both are present (a project mid-migration)
+3. Invokes the matching downstream skill with the original arguments unchanged
+4. Surfaces any skipped framework so the choice is visible
+5. Points the user at `/e2e` if browser-test markers are detected instead
+
+**Input:** Use case ID as argument (passed through to the downstream skill)
+**Output:** Whatever the downstream skill produces
+**Plugin:** `aiup-core`
+
+---
+
+### `/e2e` — Stack-agnostic Browser-Test Dispatcher
+
+**Purpose:** Detects which **browser-driven** end-to-end test frameworks are configured and delegates to the
+matching test-creation skill. For server-side tests, use `/test` instead.
+
+**Usage:**
+
+```
+/e2e UC-001
+```
+
+**What it does:**
+
+1. Inspects build files for browser-test markers (Playwright, Drama Finder)
+2. Invokes the matching downstream skill with the original arguments unchanged
+3. Surfaces any skipped framework so the choice is visible
+4. Points the user at `/test` if only server-side-test markers are detected
+
+**Input:** Use case ID as argument (passed through to the downstream skill)
+**Output:** Whatever the downstream skill produces
+**Plugin:** `aiup-core`
+
+---
+
+### `/implement-vaadin-jooq` — Vaadin + jOOQ Implementation
+
+**Purpose:** Implements a use case end-to-end using Vaadin for the UI layer and jOOQ for the data access layer.
+Normally invoked by `/implement` after detection, but can be called directly.
+
+**Usage:**
+
+```
+/implement-vaadin-jooq UC-001
+```
+
+**What it does:**
+
 1. Reads the use case specification from `docs/use_cases/` and the entity model from `docs/entity_model.md`
 2. Reads existing code first to match conventions before creating new files
 3. Implements the data access layer using jOOQ — verifies it compiles before continuing
 4. Implements the Vaadin view, wires it to the data access layer, and verifies the full implementation compiles
 5. Consults the Vaadin, jOOQ, and JavaDocs MCP servers for current API documentation
-6. Does **not** create test classes — use `/browserless-test` and `/playwright-test` for that
+6. Does **not** create test classes — use `/test` (or a specific test skill) for that
 
 **Input:** Use case ID as argument
 **Output:** Vaadin view + jOOQ data access classes
@@ -535,13 +637,13 @@ your-project/
 │       └── ...
 ├── src/
 │   ├── main/
-│   │   ├── java/                         ← produced by /implement
+│   │   ├── java/                         ← produced by /implement (→ /implement-vaadin-jooq)
 │   │   └── resources/
 │   │       └── db/migration/             ← produced by /flyway-migration
 │   │           ├── V001__create_room_type_table.sql
 │   │           └── ...
 │   └── test/
-│       ├── java/                         ← produced by /browserless-test, /playwright-test
+│       ├── java/                         ← produced by /test (→ /browserless-test, /playwright-test)
 │       └── resources/
 │           └── db/migration/             ← test data seeds
 └── CLAUDE.md
@@ -566,9 +668,9 @@ and `docs/entity_model.md` for product context before making decisions.
 3. `/use-case-diagram`    → produces `docs/use_cases.puml`
 4. `/use-case-spec UC-XX` → produces `docs/use_cases/UC-XX-*.md`
 5. `/flyway-migration`    → produces `src/main/resources/db/migration/V*.sql`
-6. `/implement UC-XX`     → implements the use case (Vaadin + jOOQ)
-7. `/browserless-test UC-XX` → server-side unit tests (recommended, free since Vaadin 25.1)
-8. `/playwright-test UC-XX` → browser-based integration tests
+6. `/implement UC-XX`     → dispatcher; routes to the stack-specific skill (e.g. `/implement-vaadin-jooq`)
+7. `/test UC-XX`          → dispatcher; server-side tests (Browserless on Vaadin/jOOQ)
+8. `/e2e UC-XX`           → dispatcher; browser-based end-to-end tests (Playwright on Vaadin/jOOQ)
 
 Never skip the spec for a use case before implementing it.
 Always read the entity model before writing data access code.

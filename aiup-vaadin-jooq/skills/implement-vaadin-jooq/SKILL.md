@@ -1,25 +1,27 @@
 ---
-name: implement
+name: implement-vaadin-jooq
 description: >
-  Implements use cases by creating Vaadin views, forms, and grids for the UI
-  layer and jOOQ queries for the data access layer. Use when the user asks to
-  "implement a use case", "build the UI", "create a Vaadin view", "write the
-  data access layer", or mentions Vaadin implementation, jOOQ queries,
-  Java web app, or database-backed UI.
+  Stack-specific implementation skill for projects using Vaadin (UI) and jOOQ
+  (data access). Creates Vaadin views, forms, and grids and writes jOOQ queries
+  for the data access layer. Invoked by the aiup-core /implement dispatcher
+  when it detects Vaadin and jOOQ on the classpath; can also be invoked
+  directly via /implement-vaadin-jooq for projects that want to bypass
+  detection.
 ---
 
-# Implement Use Case
+# Implement Use Case (Vaadin + jOOQ)
 
 ## Instructions
 
 Implement the use case $ARGUMENTS using Vaadin for the UI layer and jOOQ for data access.
-Don't create tests – there are the `karibu-test` and `playwright-test` skills for that.
+Don't create tests – there are dedicated `/browserless-test`, `/karibu-test`, and `/playwright-test` skills for that
+(or invoke the `/test` dispatcher to pick the right one automatically).
 
 Check the Vaadin and jOOQ MCP servers for guidance.
 
 ## DO NOT
 
-- Create test classes (use dedicated testing skills instead)
+- Create test classes (use the dedicated testing skills instead)
 
 ## Workflow
 
