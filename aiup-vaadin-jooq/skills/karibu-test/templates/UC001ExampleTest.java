@@ -22,7 +22,7 @@ import static com.github.mvysny.kaributesting.v10.LocatorJ._setValue;
 import static com.github.mvysny.kaributesting.v10.NotificationsKt.expectNotifications;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ExampleViewTest extends KaribuTest {
+class UC001ExampleTest extends KaribuTest {
 
     private static Routes routes;
 

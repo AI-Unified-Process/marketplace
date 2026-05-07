@@ -47,9 +47,20 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 | com.github.mvysny.kaributesting.v10.NotificationsKt     | Notification assertions          |
 | com.github.mvysny.kaributesting.v10.pro.ConfirmDialogKt | ConfirmDialog interactions       |
 
+## Test Class Naming
+
+Name the test class after the use case it covers using the pattern **`UCxxxNameOfUcTest`**:
+
+- `UC` — fixed prefix
+- `xxx` — zero-padded use case number from the spec (e.g. `001`, `042`)
+- `NameOfUc` — PascalCase use case name (no `View` suffix)
+- `Test` — fixed suffix
+
+Examples: `UC001ManagePersonsTest`, `UC042CheckoutOrderTest`. One test class per use case — if a single view backs multiple use cases, create a separate test class for each.
+
 ## Template
 
-Use [templates/ExampleViewTest.java](templates/ExampleViewTest.java) as the test class structure.
+Use [templates/UC001ExampleTest.java](templates/UC001ExampleTest.java) as the test class structure.
 
 ## Common Patterns
 
@@ -144,7 +155,7 @@ Use AssertJ or Karibu Testing assertions:
 
 1. Read the use case specification
 2. Use TodoWrite to create a task for each test scenario
-3. Create test class using the template
+3. Create the test class using the template, named `UCxxxNameOfUcTest` after the use case
 4. For each test:
     - Navigate to the view
     - Find components using LocatorJ

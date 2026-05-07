@@ -50,13 +50,24 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 | Flyway migration | src/test/resources/db/migration/V*.sql | Populate test data       |
 | Manual cleanup   | @AfterEach method                      | Remove test-created data |
 
+## Test Class Naming
+
+Name the test class after the use case it covers using the pattern **`UCxxxNameOfUcTest`**:
+
+- `UC` — fixed prefix
+- `xxx` — zero-padded use case number from the spec (e.g. `001`, `042`)
+- `NameOfUc` — PascalCase use case name (no `View` suffix)
+- `Test` — fixed suffix
+
+Examples: `UC001ManagePersonsTest`, `UC042CheckoutOrderTest`. One test class per use case — if a single view backs multiple use cases, create a separate test class for each.
+
 ## Base Test Class
 
 Extend `com.vaadin.testbench.unit.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`. The base class creates the Vaadin session, UI, and component tree inside the JUnit JVM.
 
 ```java
 @SpringBootTest
-class PersonViewTest extends SpringBrowserlessTest {
+class UC001ManagePersonsTest extends SpringBrowserlessTest {
     // ...
 }
 ```
@@ -65,7 +76,7 @@ For non-Spring projects, extend `com.vaadin.testbench.unit.BrowserlessTest` inst
 
 ## Template
 
-Use [templates/ExampleViewTest.java](templates/ExampleViewTest.java) as the test class structure.
+Use [templates/UC001ExampleTest.java](templates/UC001ExampleTest.java) as the test class structure.
 
 ## Common Patterns
 
@@ -249,7 +260,7 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 
 1. Read the use case specification
 2. Use TodoWrite to create a task for each test scenario
-3. Create the test class using the template (extend `SpringBrowserlessTest`, annotate `@SpringBootTest`)
+3. Create the test class using the template, named `UCxxxNameOfUcTest` after the use case (extend `SpringBrowserlessTest`, annotate `@SpringBootTest`)
 4. For each test:
     - Navigate to the view with `navigate(...)`
     - Find components with `$()` / `$view()`
