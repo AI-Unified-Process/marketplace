@@ -1,0 +1,10 @@
+{
+  "name": "aiup-compose-ktor-exposed",
+  "description": "AI Unified Process plugin for the Kotlin Multiplatform / Compose / Ktor / Exposed stack",
+  "version": "1.0.0",
+  "author": {
+    "name": "Stephan Leicht Vogt",
+    "email": "stephan@fanaka.ch",
+    "url": "https://github.com/sleicht"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "KotlinDocs": {
+      "type": "http",
+      "url": "https://www.javadocs.dev/mcp"
+    }
+  }
+}
