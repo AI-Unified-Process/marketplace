@@ -1,0 +1,63 @@
+# Publishes the AIUP plugins to the Tessl registry when they change.
+#
+# Each plugin is published only when the version in its
+# .tessl-plugin/plugin.json has not already been published — so bump the
+# version (e.g. `tessl version patch ./aiup-core`) as part of any change you
+# want released. Pushes that touch a plugin without a version bump are skipped,
+# not failed.
+#
+# One-time setup:
+#   1. Create an API key in the Tessl Web UI (workspace settings → API keys).
+#   2. Add it as a repo secret named TESSL_TOKEN
+#      (Settings → Secrets and variables → Actions → New repository secret).
+name: Publish to Tessl
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'aiup-core/**'
+      - 'aiup-vaadin-jooq/**'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [aiup-core, aiup-vaadin-jooq]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: tesslio/setup-tessl@v2
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
+
+      - name: Publish ${{ matrix.plugin }} if its version is new
+        run: |
+          set -euo pipefail
+          dir="${{ matrix.plugin }}"
+
+          # Dry-run gates the real publish:
+          #   exit 0            -> version is new, publish it
+          #   "already exists"  -> nothing to release, skip cleanly
+          #   any other failure -> real error, fail the job
+          set +e
+          out=$(tessl plugin publish --dry-run "./$dir" 2>&1)
+          code=$?
+          set -e
+          echo "$out"
+
+          if [ "$code" -eq 0 ]; then
+            echo "::notice::Publishing $dir"
+            tessl plugin publish "./$dir"
+          elif echo "$out" | grep -q "already exists"; then
+            echo "::notice::$dir version already published — skipping"
+          else
+            echo "::error::Pre-publish checks failed for $dir"
+            exit 1
+          fi
