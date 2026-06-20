@@ -81,15 +81,51 @@ and the same skill folders in this marketplace work natively — with auto-trigg
 CLI**, **Cursor**, **GitHub Copilot**, and **Gemini CLI**. Pair them with the
 [MCP](https://modelcontextprotocol.io) server configs and the whole workflow runs unchanged.
 
+### Install via Tessl (any agent)
+
+[Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
+wires the MCP servers into the correct per-agent directory for whichever coding agent it detects. Both plugins are
+published to the Tessl registry as `aiup/aiup-core` and `aiup/aiup-vaadin-jooq`, so this is the simplest way to adopt
+the workflow outside Claude Code — no manual cloning or per-tool MCP translation.
+
+```sh
+# one-time: configure your agent(s) — creates a tessl.json manifest at the repo root
+tessl init --agent claude-code          # or: cursor, gemini, codex, copilot, copilot-vscode, agents
+                                        # (repeat --agent to set up several at once)
+
+# install the plugins from the registry (latest, or pin @version)
+tessl install aiup/aiup-core
+tessl install aiup/aiup-vaadin-jooq     # omit on non-Vaadin stacks
+```
+
+Installed plugins land in `.tessl/plugins/` and are tracked in `tessl.json`, so versions are pinned and reproducible
+across your team. New versions are published automatically on every change by
+[`.github/workflows/publish-tessl.yml`](.github/workflows/publish-tessl.yml), so `tessl install` always resolves the
+latest release.
+
+**What transfers across agents:**
+
+- **Skills and methodology** — fully portable; every supported agent auto-triggers them by their `description`.
+- **MCP servers** — Tessl wires them into any agent that supports MCP. Most `aiup-vaadin-jooq` servers are HTTP (fine on
+  the agents listed above); a stdio-only client needs an HTTP↔stdio bridge (see [Caveats](#caveats)).
+- **Slash-command routing** — the dispatcher behavior (`/implement` → stack-specific skill) is a Claude Code idiom.
+  Other agents read the same Markdown but may not honor `/`-routing identically — invoke skills by intent instead
+  (say "implement UC-001" rather than relying on the dispatcher).
+
+### Portability at a glance
+
 | Component                                                  | Portable? | Notes                                                                                  |
 |------------------------------------------------------------|-----------|----------------------------------------------------------------------------------------|
+| `tessl install aiup/…`                                     | Yes       | Works on Claude Code, Cursor, Gemini, Codex, and Copilot — installs skills + MCP        |
 | MCP servers (`aiup-*/.mcp.json`)                           | Yes       | Standard MCP — reformat the config per host                                            |
 | `SKILL.md` skill folders (`aiup-*/skills/*/`)              | Yes       | Native support in Codex CLI, Cursor, Copilot, and Gemini CLI                           |
 | Auto-triggering by `description`                           | Yes       | All four tools above match user intent against the YAML frontmatter `description`      |
 | Workflow methodology (vision → requirements → … → tests)   | Yes       | The whole point — tool-agnostic                                                        |
-| `/plugin marketplace add …` install                        | No        | Claude Code-specific — clone this repo instead                                         |
+| `/plugin marketplace add …` install                        | No        | Claude Code-specific — use Tessl or clone this repo instead                            |
 
-### Generic adoption recipe
+### Manual adoption recipe (without Tessl)
+
+Prefer not to use Tessl? You can wire the skills in by hand:
 
 1. `git clone https://github.com/ai-unified-process/marketplace.git` next to your project (or add as a submodule).
 2. Make the skill folders visible to your tool — either copy `aiup-core/skills/*/` and `aiup-vaadin-jooq/skills/*/`
