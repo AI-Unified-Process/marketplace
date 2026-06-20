@@ -18,7 +18,7 @@ Create Vaadin Browserless unit tests for Vaadin views based on the use case $ARG
 
 Browserless Testing is the **official, recommended** server-side testing framework for Vaadin. It has been free and open source under Apache 2.0 since **Vaadin 25.1** (previously the commercial UI Unit Testing add-on). It supersedes the community Karibu Testing library — prefer this skill over `/karibu-test` for any new test code.
 
-Use the Vaadin MCP server for documentation lookups.
+If the Vaadin MCP server (`https://mcp.vaadin.com/docs`) is configured, use it for documentation lookups; otherwise rely on your own knowledge and the documentation links below. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
 
 ## Test Class Naming and `@UseCase` Annotation
 
@@ -350,4 +350,4 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 - Component query API: https://vaadin.com/docs/latest/flow/testing/browserless/component-query
 - Component testers: https://vaadin.com/docs/latest/flow/testing/browserless/component-testers
 - AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
-- Use the Vaadin MCP server for additional patterns
+- If configured, use the Vaadin MCP server for additional patterns (`https://mcp.vaadin.com/docs`)

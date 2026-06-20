@@ -38,7 +38,7 @@ Tests extend `AbstractBasePlaywrightIT` from Drama Finder, which handles browser
 - Assume all grid rows are rendered (viewport limits visible rows)
 - Use XPath selectors (they don't pierce shadow DOM — CSS does)
 - Use `getAttribute()`/`isVisible()` directly in assertions — they don't auto-retry
-- Guess Drama Finder method signatures — always look them up via the JavaDocs MCP
+- Guess Drama Finder method signatures — look them up via the JavaDocs MCP when configured, otherwise consult the Drama Finder API docs linked below
 
 ## Test Data
 
@@ -102,7 +102,7 @@ For icon-only buttons, set `setAriaLabel("Close")` on the server side, then find
 
 ## Drama Finder API Lookup
 
-Use the **JavaDocs MCP server** to look up Drama Finder element classes, methods, and assertions. Do NOT guess method signatures — always verify with the JavaDocs.
+If the **JavaDocs MCP server** (`https://www.javadocs.dev/mcp`) is configured, use it to look up Drama Finder element classes, methods, and assertions. Do NOT guess method signatures — verify with the JavaDocs MCP when available, or with the Drama Finder API docs (linked above) otherwise. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
 
 **Maven coordinates:** groupId=`org.vaadin.addons`, artifactId=`dramafinder`, version=`1.1.0`
 
@@ -145,7 +145,7 @@ CSS selectors pierce shadow DOM automatically. XPath does NOT.
 
 1. Read the use case specification
 2. Plan test scenarios (group related tests in `@Nested` classes with `@DisplayName`)
-3. **Look up Drama Finder element APIs** via the JavaDocs MCP for each element class you will use
+3. **Look up Drama Finder element APIs** for each element class you will use — via the JavaDocs MCP if configured, otherwise via the Drama Finder API docs
 4. Create test class extending `AbstractBasePlaywrightIT` with `@SpringBootTest` and `@LocalServerPort`
 5. Override `getUrl()` (return `http://localhost:<port>/`) and `getView()` (return the route)
 6. For each test:

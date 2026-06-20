@@ -19,7 +19,7 @@ description: >
 
 Create Karibu unit tests for Vaadin views based on the use case $ARGUMENTS. Karibu Testing allows server-side testing of Vaadin components without a browser.
 
-Use the KaribuTesting MCP server for documentation and code generation.
+If the KaribuTesting MCP server (`https://karibu-testing-mcp.martinelli.ch/mcp`) is configured, use it for documentation and code generation; otherwise rely on your own knowledge and the documentation links below. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
 
 ## Test Class Naming and `@UseCase` Annotation
 
@@ -240,4 +240,4 @@ Use AssertJ or Karibu Testing assertions:
 
 - Karibu Testing documentation: https://github.com/mvysny/karibu-testing/tree/master/karibu-testing-v10
 - AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
-- Use the KaribuTesting MCP server for additional patterns
+- If configured, use the KaribuTesting MCP server for additional patterns (`https://karibu-testing-mcp.martinelli.ch/mcp`)

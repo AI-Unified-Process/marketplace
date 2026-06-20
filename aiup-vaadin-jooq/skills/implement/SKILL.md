@@ -15,7 +15,7 @@ description: >
 Implement the use case $ARGUMENTS using Vaadin for the UI layer and jOOQ for data access.
 Don't create tests – there are the `karibu-test` and `playwright-test` skills for that.
 
-Check the Vaadin and jOOQ MCP servers for guidance.
+If the Vaadin and jOOQ MCP servers are configured, check them for guidance; otherwise rely on your own knowledge and the documentation links below.
 
 ## DO NOT
 
@@ -75,6 +75,7 @@ POJO), the generated `into` mapper is fine.
 
 ## Resources
 
-- Use the Vaadin MCP server for component documentation
-- Use the jOOQ MCP server for query DSL reference
-- Use the JavaDocs MCP server for API documentation
+- If configured, use the Vaadin MCP server for component documentation (`https://mcp.vaadin.com/docs`)
+- If configured, use the jOOQ MCP server for query DSL reference (`https://jooq-mcp.martinelli.ch/mcp`)
+- If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
+- See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers
