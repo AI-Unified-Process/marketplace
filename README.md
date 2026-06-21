@@ -121,7 +121,7 @@ latest release.
 | `SKILL.md` skill folders (`aiup-*/skills/*/`)              | Yes       | Native support in Codex CLI, Cursor, Copilot, and Gemini CLI                           |
 | Auto-triggering by `description`                           | Yes       | All four tools above match user intent against the YAML frontmatter `description`      |
 | Workflow methodology (vision → requirements → … → tests)   | Yes       | The whole point — tool-agnostic                                                        |
-| `/plugin marketplace add …` install                        | No        | Claude Code-specific — use Tessl or clone this repo instead                            |
+| `/plugin marketplace add …` install                        | Partial   | Works in Claude Code and GitHub Copilot; elsewhere use Tessl or clone this repo        |
 
 ### Manual adoption recipe (without Tessl)
 
@@ -168,9 +168,19 @@ See the [Codex skills docs](https://developers.openai.com/codex/skills) and the
 
 ### GitHub Copilot
 
-- **Skills**: Copilot reads from `.github/skills/`, `.claude/skills/`, and `.agents/skills/` — pick one. Available in
-  Copilot for VS Code, Visual Studio 2026, and the cloud agent.
-- **MCP**: workspace-level `.vscode/mcp.json` (commit it for your team), or user-level via
+- **Plugin marketplace**: Copilot understands Claude Code's marketplace commands directly, so you can install the
+  plugins the same way as in Claude Code — no manual skill copying or MCP translation:
+
+  ```
+  /plugin marketplace add ai-unified-process/marketplace
+  /plugin install aiup-core
+  /plugin install aiup-vaadin-jooq
+  ```
+
+  This pulls in the skills *and* the MCP server configs from each plugin's `.mcp.json`.
+- **Skills** (manual alternative): Copilot reads from `.github/skills/`, `.claude/skills/`, and `.agents/skills/` —
+  pick one. Available in Copilot for VS Code, Visual Studio 2026, and the cloud agent.
+- **MCP** (manual alternative): workspace-level `.vscode/mcp.json` (commit it for your team), or user-level via
   *MCP: Open User Configuration*. Use `"type": "http"` for remote servers and `"command"` / `"args"` for stdio.
 
 ```jsonc
