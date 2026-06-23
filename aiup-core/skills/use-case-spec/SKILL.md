@@ -30,7 +30,7 @@ see [references/example.md](references/example.md) for a complete worked example
 
 ## Workflow
 
-1. Read the requirements document and use case diagram.
+1. Read the `docs/requirements.md` and `docs/use_case_diagram.puml`
 2. Identify the single use case to document, and assign its `UC-XXX` ID.
 3. Use TodoWrite to track progress.
 4. Write the Overview section: actor, goal, and a `Status` from the template's list.
