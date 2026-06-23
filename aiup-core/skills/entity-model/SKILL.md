@@ -20,7 +20,6 @@ The document contains an ER diagram and attribute tables.
 - Add attributes/columns to the Mermaid diagram
 - Write prose descriptions like "Key attributes: name, email..."
 - Create a "Relationships" table
-- Skip the attribute tables
 
 ## Document Structure
 
@@ -72,32 +71,10 @@ Defines categories of rooms with shared characteristics.
 - NO attributes inside entity blocks
 - Use relationship syntax: `ENTITY_A ||--o{ ENTITY_B : "relationship"`
 
-## Validation Rules Reference
+## Reference
 
-Use these values in the "Validation Rules" column (never leave empty):
-
-| Attribute Type | Validation Rules Value           |
-|----------------|----------------------------------|
-| Primary key    | Primary Key, Sequence            |
-| Required field | Not Null                         |
-| Unique field   | Not Null, Unique                 |
-| Foreign key    | Not Null, Foreign Key (TABLE.id) |
-| Optional field | Optional                         |
-| With range     | Not Null, Min: X, Max: Y         |
-| With values    | Not Null, Values: A, B, C        |
-| Email          | Not Null, Format: Email          |
-
-## Data Types Reference
-
-| Data Type | Length/Precision | Usage                 |
-|-----------|------------------|-----------------------|
-| Long      | 19               | IDs, foreign keys     |
-| String    | varies (50-500)  | Text fields           |
-| Integer   | 10               | Whole numbers         |
-| Decimal   | 10,2             | Currency, percentages |
-| Boolean   | 1                | True/false flags      |
-| Date      | -                | Date only             |
-| DateTime  | -                | Date and time         |
+See [REFERENCE.md](REFERENCE.md) for the allowed Validation Rules values (never leave the column empty)
+and the Data Types with their Length/Precision conventions.
 
 ## Multi-Column Constraints
 
@@ -121,4 +98,4 @@ If validation spans multiple columns, add after the table:
     - Every attribute table has exactly 5 columns
     - No attributes appear inside the Mermaid diagram entity blocks
     - All foreign keys reference existing entities
-    - All validation rules use values from the Validation Rules Reference
+    - All validation rules use values from [REFERENCE.md](REFERENCE.md)
