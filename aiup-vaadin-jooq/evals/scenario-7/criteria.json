@@ -1,0 +1,101 @@
+{
+  "context": "Tests whether the agent correctly sets up Vaadin Browserless server-side testing for a Spring Boot project: adding the right Maven dependency, creating the UseCase annotation with its canonical shape, naming the test class after the use case, extending the correct base class, annotating test methods properly, and using the Browserless component API correctly (not Karibu or Mockito patterns).",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Correct groupId",
+      "description": "pom.xml contains a dependency with groupId com.vaadin",
+      "max_score": 5
+    },
+    {
+      "name": "Correct artifactId",
+      "description": "pom.xml contains a dependency with artifactId browserless-test-junit6",
+      "max_score": 5
+    },
+    {
+      "name": "Test scope",
+      "description": "The browserless-test-junit6 dependency has <scope>test</scope>",
+      "max_score": 5
+    },
+    {
+      "name": "UseCase annotation exists",
+      "description": "A file defining @interface UseCase is present somewhere in src/main/java",
+      "max_score": 5
+    },
+    {
+      "name": "UseCase @Target METHOD",
+      "description": "The UseCase annotation is annotated with @Target(ElementType.METHOD)",
+      "max_score": 5
+    },
+    {
+      "name": "UseCase @Retention RUNTIME",
+      "description": "The UseCase annotation is annotated with @Retention(RetentionPolicy.RUNTIME)",
+      "max_score": 5
+    },
+    {
+      "name": "UseCase @Documented",
+      "description": "The UseCase annotation is annotated with @Documented",
+      "max_score": 4
+    },
+    {
+      "name": "UseCase id attribute",
+      "description": "The UseCase annotation declares a String id() attribute with no default",
+      "max_score": 4
+    },
+    {
+      "name": "UseCase scenario attribute",
+      "description": "The UseCase annotation declares a String scenario() attribute with default \"Main Success Scenario\"",
+      "max_score": 4
+    },
+    {
+      "name": "UseCase businessRules attribute",
+      "description": "The UseCase annotation declares a String[] businessRules() attribute with default {}",
+      "max_score": 4
+    },
+    {
+      "name": "Test class name",
+      "description": "The test class is named UC040BorrowBookTest (matching the UC<id><PascalCase>Test pattern for UC-040)",
+      "max_score": 8
+    },
+    {
+      "name": "Extends SpringBrowserlessTest",
+      "description": "The test class extends com.vaadin.testbench.unit.SpringBrowserlessTest",
+      "max_score": 8
+    },
+    {
+      "name": "@SpringBootTest on class",
+      "description": "The test class is annotated with @SpringBootTest",
+      "max_score": 5
+    },
+    {
+      "name": "@UseCase on each test method",
+      "description": "Every @Test method in the test class is also annotated with @UseCase(id = \"UC-040\", ...)",
+      "max_score": 8
+    },
+    {
+      "name": "Uses $view() or $() for component lookup",
+      "description": "Test methods use the Browserless $view() or $() API to locate components — NOT Karibu _get/_find/_click/LocatorJ",
+      "max_score": 8
+    },
+    {
+      "name": "No Mockito usage",
+      "description": "The test class does NOT import or use Mockito (no @Mock, @MockBean, Mockito.when, etc.)",
+      "max_score": 5
+    },
+    {
+      "name": "No @Transactional in test",
+      "description": "The test class and its methods do NOT use @Transactional",
+      "max_score": 4
+    },
+    {
+      "name": "Test data via Flyway",
+      "description": "Any test data is seeded via a SQL file under src/test/resources/db/migration — NOT via service/repository calls inside the test methods",
+      "max_score": 5
+    },
+    {
+      "name": "AssertJ assertions",
+      "description": "The test class uses AssertJ (assertThat(...)) for assertions — not JUnit 4 assertEquals or Hamcrest matchers",
+      "max_score": 3
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "context": "The agent must implement a jOOQ data access layer for an order-summary use case. The key instructions under test are: using Records.mapping() (not fetchInto(Dto.class)) for projected queries, matching column order to constructor parameter order, correctly applying the fetchInto exception for full-row fetches, and not creating test classes.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Records.mapping() for projection",
+      "description": "The summary list query uses Records.mapping() (or fetch(Records.mapping(...))) rather than fetchInto(OrderSummaryDto.class) or fetchInto(OrderSummaryDto::new) with reflection",
+      "max_score": 20
+    },
+    {
+      "name": "Constructor reference style",
+      "description": "Records.mapping() is called with a constructor reference of the form OrderSummaryDto::new (not a lambda that manually constructs the DTO)",
+      "max_score": 10
+    },
+    {
+      "name": "Column order matches constructor",
+      "description": "The SELECT clause lists columns in the same order as the OrderSummaryDto constructor parameters: id first, then customer_name, then item count",
+      "max_score": 20
+    },
+    {
+      "name": "Item count via aggregate",
+      "description": "The summary query uses a COUNT() aggregate (e.g. DSL.count() or ORDER_ITEM.ID.count()) joined or correlated to ORDER_ITEM to produce the item count per order",
+      "max_score": 10
+    },
+    {
+      "name": "fetchInto for full-row fetch",
+      "description": "The single-order-by-ID method uses selectFrom(ORDER).fetchInto(...) or fetchOptionalInto(...) with the generated Order POJO — NOT Records.mapping() — consistent with the full-row exception",
+      "max_score": 15
+    },
+    {
+      "name": "No fetchInto for projected query",
+      "description": "The summary list method does NOT call fetchInto(OrderSummaryDto.class) anywhere",
+      "max_score": 10
+    },
+    {
+      "name": "Sorted descending by created_at",
+      "description": "The summary list query includes an ORDER BY clause on the order creation timestamp in descending order",
+      "max_score": 5
+    },
+    {
+      "name": "No test classes created",
+      "description": "No files ending in *Test.java or *IT.java are produced",
+      "max_score": 10
+    }
+  ]
+}

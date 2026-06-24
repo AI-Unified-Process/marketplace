@@ -1,0 +1,76 @@
+{
+  "context": "Tests whether the agent creates a complete use case specification for UC-001 Place Order following the prescribed template structure, including correct file naming, all required sections, properly numbered steps, referenced alternative flows, paired postconditions, business rules with BR-XXX IDs, and business-level step language.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "File location & name",
+      "description": "Spec file is created at docs/use_cases/ and the filename starts with UC-001 in kebab-case (e.g. UC-001-place-order.md)",
+      "max_score": 8
+    },
+    {
+      "name": "Overview: UC-XXX ID",
+      "description": "Overview section includes a Use Case ID field set to UC-001",
+      "max_score": 7
+    },
+    {
+      "name": "Overview: primary actor",
+      "description": "Overview section includes a Primary Actor field (e.g. Customer)",
+      "max_score": 7
+    },
+    {
+      "name": "Overview: goal stated",
+      "description": "Overview section includes a Goal field with a non-empty description of the actor's goal",
+      "max_score": 7
+    },
+    {
+      "name": "Overview: valid Status",
+      "description": "Overview section includes a Status field set to one of the allowed values (Draft, Reviewed, Approved, Implemented, Tested, Done, Obsolete)",
+      "max_score": 5
+    },
+    {
+      "name": "Numbered steps, no gaps",
+      "description": "Main Success Scenario contains consecutively numbered steps starting at 1 with no gaps",
+      "max_score": 8
+    },
+    {
+      "name": "Main scenario ends with goal",
+      "description": "The final step of the Main Success Scenario describes the goal being achieved (e.g. order confirmed, confirmation displayed)",
+      "max_score": 7
+    },
+    {
+      "name": "At least two alternative flows",
+      "description": "The Alternative Flows section contains at least two distinct alternative flows (e.g. payment declined, out-of-stock item)",
+      "max_score": 8
+    },
+    {
+      "name": "Trigger references a step number",
+      "description": "Every alternative flow's Trigger statement references a specific main scenario step number (e.g. 'step 5' or '(step 6)')",
+      "max_score": 8
+    },
+    {
+      "name": "Alternative flow endings",
+      "description": "Every alternative flow ends with either 'Use case continues at step N' or a statement that the use case ends — not an open-ended continuation",
+      "max_score": 8
+    },
+    {
+      "name": "Success postcondition",
+      "description": "Postconditions section includes a non-empty Success Postconditions subsection",
+      "max_score": 6
+    },
+    {
+      "name": "Failure postcondition",
+      "description": "Postconditions section includes a non-empty Failure Postconditions subsection",
+      "max_score": 6
+    },
+    {
+      "name": "Business rules with BR-XXX IDs",
+      "description": "Business Rules section contains at least one rule with a BR-XXX identifier (e.g. BR-001)",
+      "max_score": 7
+    },
+    {
+      "name": "Business-level step language",
+      "description": "No step in the Main Success Scenario or any alternative flow contains technical implementation language such as SQL statements, HTTP method names (POST, GET), class names, regex patterns, or exception names",
+      "max_score": 8
+    }
+  ]
+}

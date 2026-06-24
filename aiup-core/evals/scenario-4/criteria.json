@@ -1,0 +1,76 @@
+{
+  "context": "Tests whether the agent reverse-engineers a small Express.js + Prisma codebase into the three required AIUP artifacts (use case diagram, per-use-case specs, entity model), follows the aggregation principle rather than generating one use case per endpoint, derives actors from authentication/authorization config, skips infrastructure endpoints, applies AIUP vocabulary to the entity model, and cross-validates the artifacts.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "All three artifacts",
+      "description": "All three output files are present: docs/use_cases.puml, at least one file in docs/use_cases/ matching UC-XXX-*.md, and docs/entity_model.md",
+      "max_score": 10
+    },
+    {
+      "name": "No /health use case",
+      "description": "The /health endpoint is NOT represented as a use case in the diagram or as a spec file",
+      "max_score": 8
+    },
+    {
+      "name": "Aggregated use cases",
+      "description": "Total number of use case spec files is 8 or fewer — does NOT create one file per HTTP endpoint (codebase has 11+ route handlers)",
+      "max_score": 10
+    },
+    {
+      "name": "Two actors identified",
+      "description": "The use case diagram declares at least two distinct actors (one unauthenticated or customer-level, one admin-level), derived from the auth middleware and role checks rather than invented",
+      "max_score": 6
+    },
+    {
+      "name": "PlantUML format",
+      "description": "docs/use_cases.puml contains @startuml and @enduml, uses 'left to right direction', declares actors with 'actor', and places use cases inside a 'rectangle' block",
+      "max_score": 8
+    },
+    {
+      "name": "UC IDs in diagram",
+      "description": "Every usecase block in the diagram includes a UC-XXX ID (three-digit, e.g. UC-001)",
+      "max_score": 4
+    },
+    {
+      "name": "Spec files match diagram",
+      "description": "Every UC-XXX ID that appears in docs/use_cases.puml has a corresponding file docs/use_cases/UC-XXX-*.md",
+      "max_score": 8
+    },
+    {
+      "name": "Business-level steps",
+      "description": "Use case spec steps do NOT contain HTTP verbs (POST, GET, PUT, DELETE), route paths (/orders, /auth/login), or ORM/framework method names (prisma.*, router.*, await)",
+      "max_score": 8
+    },
+    {
+      "name": "Alternative flows present",
+      "description": "At least three use case spec files each contain at least one Alternative Flow section with a Trigger referencing a numbered main-scenario step",
+      "max_score": 6
+    },
+    {
+      "name": "Entity model ER diagram",
+      "description": "docs/entity_model.md contains a Mermaid erDiagram block. The diagram shows ONLY entity names and relationships — no attributes or column lists inside the entity blocks",
+      "max_score": 8
+    },
+    {
+      "name": "AIUP data types",
+      "description": "Entity attribute tables in docs/entity_model.md use only AIUP type vocabulary (Long, String, Integer, Decimal, Boolean, Date, DateTime) — does NOT contain SQL types such as VARCHAR, bigint, Decimal(10,2), @db.Decimal, or TEXT",
+      "max_score": 8
+    },
+    {
+      "name": "Five-column attribute tables",
+      "description": "Each entity section in docs/entity_model.md has a table with exactly 5 columns: Attribute, Description, Data Type, Length/Precision, Validation Rules",
+      "max_score": 6
+    },
+    {
+      "name": "No endpoint-named use cases",
+      "description": "No use case is named after a controller class, HTTP method, or route path (e.g., names like 'POST /orders', 'OrderController', 'deleteOrder' are absent)",
+      "max_score": 6
+    },
+    {
+      "name": "Business rules numbered",
+      "description": "At least one use case spec contains a Business Rules section with at least one rule assigned a BR-XXX identifier",
+      "max_score": 4
+    }
+  ]
+}

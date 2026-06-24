@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether an agent extending an existing Karibu-based test suite follows the karibu-test skill conventions: correct class naming, @UseCase annotation on every test method, Karibu APIs (LocatorJ, GridKt, expectNotifications) for component interaction, no Mockito, no @Transactional, and @AfterEach that cleans only test-created data.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Karibu class naming",
+      "description": "The new test class is named exactly UC006ArchiveRoomTest (pattern UC<id><PascalCaseUseCaseName>Test)",
+      "max_score": 12
+    },
+    {
+      "name": "@UseCase on main scenario",
+      "description": "The test method covering the main success scenario is annotated with @UseCase(id = \"UC-006\") (scenario defaults to \"Main Success Scenario\")",
+      "max_score": 10
+    },
+    {
+      "name": "@UseCase on A1 flow",
+      "description": "The test method covering the alternative flow is annotated with @UseCase(id = \"UC-006\", scenario = \"A1: Room Has Active Reservations\")",
+      "max_score": 12
+    },
+    {
+      "name": "LocatorJ usage",
+      "description": "Uses LocatorJ methods (_get or _find) to locate Vaadin components — does NOT use raw Playwright locators or Spring injection to retrieve components",
+      "max_score": 10
+    },
+    {
+      "name": "GridKt usage",
+      "description": "Uses GridKt methods (e.g. GridKt._size, GridKt._selectRow, GridKt._getCellComponent) for grid assertions or interactions",
+      "max_score": 10
+    },
+    {
+      "name": "expectNotifications usage",
+      "description": "Uses expectNotifications(...) from NotificationsKt to assert notification messages — does NOT use generic assertion libraries to check notification text",
+      "max_score": 10
+    },
+    {
+      "name": "No Mockito",
+      "description": "Does NOT import or use Mockito (no import of org.mockito.*, no @Mock, no Mockito.when)",
+      "max_score": 10
+    },
+    {
+      "name": "No @Transactional",
+      "description": "Does NOT use @Transactional on the class or any test method",
+      "max_score": 10
+    },
+    {
+      "name": "@AfterEach scope",
+      "description": "@AfterEach cleanup removes only rows created during the test (e.g. rows inserted by the test itself) — does NOT truncate or delete the Flyway migration seed data wholesale",
+      "max_score": 8
+    },
+    {
+      "name": "UI.getCurrent().navigate",
+      "description": "Navigates to the view using UI.getCurrent().navigate(SomeView.class) — not by constructing the view directly or using a URL string",
+      "max_score": 8
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{ "description": "Browserless test setup and test authoring", "include": ["./inputs"] }

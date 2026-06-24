@@ -1,0 +1,15 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Customer" as customer
+
+rectangle "ShopStream Checkout" {
+    usecase "UC-001\nPlace Order" as UC001
+    usecase "UC-002\nApply Promo Code" as UC002
+    usecase "UC-003\nCancel Checkout" as UC003
+}
+
+customer --> UC001
+customer --> UC002
+customer --> UC003
+@enduml

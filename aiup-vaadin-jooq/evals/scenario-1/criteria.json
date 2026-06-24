@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent follows the Flyway migration skill when generating SQL migration files from an entity model. The scenario covers sequence-based primary keys, sequence naming conventions, file naming conventions, foreign key completeness, table dependency ordering, and avoiding DROP TABLE statements.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No auto-increment PKs",
+      "description": "Primary keys are NOT implemented with SERIAL, BIGSERIAL, IDENTITY, or AUTO_INCREMENT — sequences are used instead for all three entities",
+      "max_score": 12
+    },
+    {
+      "name": "Sequences created",
+      "description": "A CREATE SEQUENCE statement is present for each of the three entities (room_type, guest, reservation)",
+      "max_score": 10
+    },
+    {
+      "name": "Sequence naming: room_type",
+      "description": "The sequence for the room_type table is named exactly room_type_seq",
+      "max_score": 6
+    },
+    {
+      "name": "Sequence naming: guest",
+      "description": "The sequence for the guest table is named exactly guest_seq",
+      "max_score": 6
+    },
+    {
+      "name": "Sequence naming: reservation",
+      "description": "The sequence for the reservation table is named exactly reservation_seq",
+      "max_score": 6
+    },
+    {
+      "name": "File naming convention",
+      "description": "Every new migration file follows the pattern V<three-digit-number>__<description>.sql (three-digit zero-padded version, double underscore separator, .sql extension)",
+      "max_score": 10
+    },
+    {
+      "name": "Next version is V002",
+      "description": "The first new migration file starts at V002 (not V001, not V003), reflecting that V001 already exists",
+      "max_score": 8
+    },
+    {
+      "name": "Foreign key: room_type_id",
+      "description": "The reservation table includes a FOREIGN KEY constraint referencing the room_type table on id",
+      "max_score": 10
+    },
+    {
+      "name": "Foreign key: guest_id",
+      "description": "The reservation table includes a FOREIGN KEY constraint referencing the guest table on id",
+      "max_score": 10
+    },
+    {
+      "name": "Table dependency order",
+      "description": "The room_type and guest tables are created (in any order relative to each other) before the reservation table in the migration execution order",
+      "max_score": 12
+    },
+    {
+      "name": "No DROP TABLE",
+      "description": "No DROP TABLE (or DROP TABLE IF EXISTS) statement appears in any of the new migration files",
+      "max_score": 10
+    }
+  ]
+}

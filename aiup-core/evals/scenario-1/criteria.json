@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent correctly applies the entity-model skill's validation rule vocabulary, prescribed data types with their length/precision, multi-column constraints syntax, and structural formatting rules when generating an entity model from a requirements document for an online course enrollment platform.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Email validation rule",
+      "description": "The student's email attribute uses the validation rule 'Not Null, Format: Email' (exactly this value, not 'Not Null' alone or a custom format string)",
+      "max_score": 12
+    },
+    {
+      "name": "Decimal type for price",
+      "description": "The course price (or fee) attribute uses 'Decimal' as the Data Type (not VARCHAR, DECIMAL(10,2), NUMERIC, or any SQL type)",
+      "max_score": 10
+    },
+    {
+      "name": "Decimal precision 10,2",
+      "description": "The course price attribute has '10,2' in the Length/Precision column",
+      "max_score": 8
+    },
+    {
+      "name": "Enrollment status uses Values rule",
+      "description": "The enrollment status attribute uses a validation rule in the form 'Not Null, Values: X, Y, Z' (listing the allowed values such as Pending, Active, Completed, Cancelled)",
+      "max_score": 12
+    },
+    {
+      "name": "Multi-column constraint line",
+      "description": "A '**Constraints:**' line appears after the ENROLLMENT attribute table stating that the end date must be after the start date (or equivalent wording)",
+      "max_score": 12
+    },
+    {
+      "name": "5-column attribute tables",
+      "description": "Every entity attribute table has exactly 5 columns: Attribute, Description, Data Type, Length/Precision, Validation Rules",
+      "max_score": 8
+    },
+    {
+      "name": "No empty Validation Rules",
+      "description": "Every row in every attribute table has a non-empty Validation Rules value (no blank cells, dashes, or 'N/A')",
+      "max_score": 8
+    },
+    {
+      "name": "Allowed data types only",
+      "description": "All Data Type column values are drawn exclusively from: Long, String, Integer, Decimal, Boolean, Date, DateTime — no SQL types like VARCHAR, BIGINT, or TEXT appear",
+      "max_score": 8
+    },
+    {
+      "name": "No attributes in Mermaid diagram",
+      "description": "The Mermaid erDiagram block shows only entity names and relationship lines — no attribute lists or column definitions appear inside entity blocks",
+      "max_score": 8
+    },
+    {
+      "name": "No prose descriptions",
+      "description": "The document does NOT contain prose lines like 'Key attributes: ...' and does NOT include a 'Relationships' table section",
+      "max_score": 7
+    },
+    {
+      "name": "Uppercase entity headings",
+      "description": "Each entity section uses a ### heading with the entity name in UPPERCASE (e.g., ### STUDENT, ### COURSE, ### ENROLLMENT)",
+      "max_score": 7
+    }
+  ]
+}

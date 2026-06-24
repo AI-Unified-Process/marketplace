@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent applies the requirements skill's error-recovery procedures when given a vision document that contains a vague NFR ('user-friendly and fast'), a conflict between real-time notifications and a batch-only offline constraint, and missing stakeholder role definitions. The agent must produce a formal requirements catalog and a companion notes file that documents every issue and its resolution.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Ambiguous NFR rewritten",
+      "description": "The vague goal 'user-friendly and fast' (or equivalent) is NOT carried into docs/requirements.md as-is — it is replaced by at least one NFR containing a specific number or threshold (e.g., page load within X seconds, WCAG compliance level)",
+      "max_score": 12
+    },
+    {
+      "name": "Conflict flagged in notes",
+      "description": "docs/requirements_notes.md explicitly identifies the conflict between real-time notifications and the offline/batch constraint (e.g., references the two requirements by name or ID and states they conflict)",
+      "max_score": 12
+    },
+    {
+      "name": "Conflict resolution documented",
+      "description": "docs/requirements_notes.md explains how the conflict was resolved — either the requirement was rewritten, one was chosen over the other, or a compromise was described — and the catalog reflects that decision",
+      "max_score": 8
+    },
+    {
+      "name": "Missing roles noted",
+      "description": "docs/requirements_notes.md acknowledges that the vision did not define distinct stakeholder roles and states what default roles (e.g., User, Admin, System) were used in their place",
+      "max_score": 8
+    },
+    {
+      "name": "User story format",
+      "description": "Every row in the Functional Requirements table in docs/requirements.md uses the format 'As a [role], I want [goal] so that [benefit]' — no functional requirement is written in any other form",
+      "max_score": 10
+    },
+    {
+      "name": "All NFRs measurable",
+      "description": "Every row in the Non-Functional Requirements table contains a specific number or threshold — no NFR uses subjective language such as 'fast', 'reliable', 'user-friendly', or 'simple' without a measurable qualifier",
+      "max_score": 10
+    },
+    {
+      "name": "Separate requirement tables",
+      "description": "docs/requirements.md has three distinct Markdown tables: one for Functional Requirements, one for Non-Functional Requirements, and one for Constraints — requirement types are NOT mixed in a single table",
+      "max_score": 8
+    },
+    {
+      "name": "Correct ID prefixes",
+      "description": "Functional requirements use IDs starting with FR-, non-functional requirements use NFR-, and constraints use C- — no ID prefix is applied to the wrong requirement type",
+      "max_score": 8
+    },
+    {
+      "name": "No duplicate IDs",
+      "description": "Every requirement ID across all three tables in docs/requirements.md is unique — there are no two rows with the same ID",
+      "max_score": 6
+    },
+    {
+      "name": "Status column filled",
+      "description": "Every row in every table in docs/requirements.md has a non-empty Status value — no Status cell is blank or missing",
+      "max_score": 6
+    },
+    {
+      "name": "Assumed threshold documented",
+      "description": "For each ambiguous NFR rewritten with an assumed threshold, docs/requirements_notes.md states the assumed value (e.g., '2 seconds assumed for page load') so a reviewer can confirm or override it",
+      "max_score": 6
+    },
+    {
+      "name": "Notes file structure",
+      "description": "docs/requirements_notes.md is organized into at least two of the three categories: ambiguous/rewritten requirements, conflicts identified, missing information — not just a flat paragraph",
+      "max_score": 6
+    }
+  ]
+}

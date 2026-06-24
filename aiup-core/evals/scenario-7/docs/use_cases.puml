@@ -1,0 +1,17 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Project Manager" as pm
+actor "Team Member" as member
+
+rectangle "Project Tracker" {
+    usecase "UC-001\nCreate Project" as UC001
+    usecase "UC-002\nAssign Team Members" as UC002
+    usecase "UC-003\nUpdate Task Status" as UC003
+}
+
+pm --> UC001
+pm --> UC002
+member --> UC003
+
+@enduml

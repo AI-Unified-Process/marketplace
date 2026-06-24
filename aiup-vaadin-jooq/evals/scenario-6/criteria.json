@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether the agent follows the implement-skill workflow for a Vaadin/jOOQ use case: reading the spec and entity model, using Records.mapping() for projected queries with correct column order, using fetchInto(Order.class) only for full-row fetches, and not creating test classes.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Records.mapping() for grid query",
+      "description": "The repository method that returns order summary rows uses Records.mapping(...) (with a constructor reference) rather than fetchInto(SomeDto.class) for the projected multi-column SELECT",
+      "max_score": 20
+    },
+    {
+      "name": "No fetchInto for projected DTO",
+      "description": "The code does NOT call fetchInto(OrderSummaryDto.class) or any other DTO class (only fetchInto(Order.class) for the full-row fetch is acceptable)",
+      "max_score": 15
+    },
+    {
+      "name": "Column order matches DTO constructor",
+      "description": "The columns selected in the jOOQ projected query appear in the same order as the constructor parameters of the DTO/record used with Records.mapping()",
+      "max_score": 15
+    },
+    {
+      "name": "fetchInto(Order.class) for full-row",
+      "description": "When fetching a complete order record (e.g. for the side-panel detail), the code uses ctx.selectFrom(ORDERS).fetchInto(Order.class) or equivalent — not Records.mapping()",
+      "max_score": 10
+    },
+    {
+      "name": "No test class created",
+      "description": "No Java class with a name ending in Test or IT is produced; no file is placed under a test source directory",
+      "max_score": 10
+    },
+    {
+      "name": "Data layer separate from view",
+      "description": "A Spring @Repository class (e.g. OrderRepository) is created separately from the Vaadin view class",
+      "max_score": 10
+    },
+    {
+      "name": "Vaadin view exists",
+      "description": "A class annotated with @Route is created for the order history screen (extends VerticalLayout or similar Vaadin layout pattern)",
+      "max_score": 10
+    },
+    {
+      "name": "View wired to repository",
+      "description": "The Vaadin view class receives the repository via constructor injection (@Autowired or Spring constructor injection) and calls it to populate the grid",
+      "max_score": 5
+    },
+    {
+      "name": "Item count in projection",
+      "description": "The projected SELECT includes an aggregated item count (e.g. count(ORDER_ITEMS.ID) or DSL.count()) joining or correlating with ORDER_ITEMS",
+      "max_score": 5
+    }
+  ]
+}

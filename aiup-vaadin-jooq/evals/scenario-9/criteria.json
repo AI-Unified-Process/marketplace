@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent correctly authors Flyway migration files to add Reservation and Payment tables to an existing schema. Criteria focus on file naming conventions, use of sequences for primary keys, correct sequence naming, presence of foreign key constraints, dependency ordering, and avoiding DROP TABLE statements.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Reservation file naming",
+      "description": "The Reservation migration file uses the pattern V00N__create_reservation_table.sql with a three-digit zero-padded version and a double underscore separator",
+      "max_score": 10
+    },
+    {
+      "name": "Payment file naming",
+      "description": "The Payment migration file uses the pattern V00N__create_payment_table.sql with a three-digit zero-padded version and a double underscore separator (or both tables are in a single correctly-named file continuing from V003)",
+      "max_score": 10
+    },
+    {
+      "name": "Version follows existing migrations",
+      "description": "The first new migration version is V003 (immediately following V002, not skipping any numbers)",
+      "max_score": 10
+    },
+    {
+      "name": "Reservation sequence",
+      "description": "A sequence named exactly reservation_seq is created before or in the same file as the reservation table definition",
+      "max_score": 8
+    },
+    {
+      "name": "Payment sequence",
+      "description": "A sequence named exactly payment_seq is created before or in the same file as the payment table definition",
+      "max_score": 8
+    },
+    {
+      "name": "Reservation uses sequence PK",
+      "description": "The reservation table's primary key uses nextval('reservation_seq') — NOT SERIAL or GENERATED ALWAYS AS IDENTITY or any auto-increment syntax",
+      "max_score": 8
+    },
+    {
+      "name": "Payment uses sequence PK",
+      "description": "The payment table's primary key uses nextval('payment_seq') — NOT SERIAL or GENERATED ALWAYS AS IDENTITY or any auto-increment syntax",
+      "max_score": 8
+    },
+    {
+      "name": "Reservation FK to guest",
+      "description": "The reservation table includes a FOREIGN KEY constraint referencing the guest table (guest_id → guest(id))",
+      "max_score": 8
+    },
+    {
+      "name": "Reservation FK to room_type",
+      "description": "The reservation table includes a FOREIGN KEY constraint referencing the room_type table (room_type_id → room_type(id))",
+      "max_score": 8
+    },
+    {
+      "name": "Payment FK to reservation",
+      "description": "The payment table includes a FOREIGN KEY constraint referencing the reservation table (reservation_id → reservation(id))",
+      "max_score": 8
+    },
+    {
+      "name": "No DROP TABLE statements",
+      "description": "None of the new migration files contain a DROP TABLE statement",
+      "max_score": 7
+    },
+    {
+      "name": "Dependency order respected",
+      "description": "The reservation table is defined (or its migration file has a lower version number) before the payment table, since payment references reservation",
+      "max_score": 7
+    }
+  ]
+}

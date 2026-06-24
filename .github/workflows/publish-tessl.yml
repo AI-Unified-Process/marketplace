@@ -6,6 +6,11 @@
 # want released. Pushes that touch a plugin without a version bump are skipped,
 # not failed.
 #
+# Each plugin's evals/ directory (committed scenarios) is published with it and
+# drives a publish-time eval that produces the registry Impact score. Regenerate
+# scenarios with `tessl scenario generate ./<plugin> --workspace aiup` and
+# `tessl scenario download --last`, then commit the evals/ changes.
+#
 # One-time setup:
 #   1. Create an API key in the Tessl Web UI (workspace settings → API keys).
 #   2. Add it as a repo secret named TESSL_TOKEN
@@ -54,7 +59,11 @@ jobs:
 
           if [ "$code" -eq 0 ]; then
             echo "::notice::Publishing $dir"
-            tessl plugin publish "./$dir"
+            # Publishes the committed evals/ scenarios and runs a publish-time
+            # eval to attach the Impact score. --with-scenario-quality-check
+            # drops misleading/errored scenarios so a single empty agent run
+            # can't tank the average.
+            tessl plugin publish --with-scenario-quality-check "./$dir"
           elif echo "$out" | grep -q "already exists"; then
             echo "::notice::$dir version already published — skipping"
           else

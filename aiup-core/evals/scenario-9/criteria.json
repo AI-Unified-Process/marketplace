@@ -1,0 +1,71 @@
+{
+  "context": "Tests whether the agent writes use case specifications at the business level, avoids technical implementation language in steps, structures alternative flows correctly with step-number triggers and returns, files each use case separately with the correct naming convention, and numbers business rules globally.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "UC-001 file name",
+      "description": "The file docs/use_cases/UC-001-register-account.md exists with exactly that name (kebab-case, correct ID prefix)",
+      "max_score": 5
+    },
+    {
+      "name": "UC-002 file name",
+      "description": "The file docs/use_cases/UC-002-log-in.md exists with exactly that name (kebab-case, correct ID prefix)",
+      "max_score": 5
+    },
+    {
+      "name": "One use case per file",
+      "description": "Each file documents exactly one use case — UC-001 file does NOT contain UC-002 content and vice versa",
+      "max_score": 8
+    },
+    {
+      "name": "No SMTP/email-protocol steps",
+      "description": "Neither file contains the words 'SMTP', 'sendmail', 'email server', or similar protocol-level terms in any step",
+      "max_score": 8
+    },
+    {
+      "name": "No password-hashing steps",
+      "description": "Neither file contains 'bcrypt', 'hash', 'SHA', 'salt', or similar cryptographic terms in any step",
+      "max_score": 8
+    },
+    {
+      "name": "No JWT/token-issuance steps",
+      "description": "Neither file contains 'JWT', 'JSON Web Token', 'token expiry', 'signs a token', or similar implementation terms in any step",
+      "max_score": 8
+    },
+    {
+      "name": "No SQL/database steps",
+      "description": "Neither file contains 'INSERT', 'SELECT', 'SQL', 'database record', or similar persistence implementation terms in any step",
+      "max_score": 8
+    },
+    {
+      "name": "Alt flow trigger references step number",
+      "description": "Every alternative flow in both files has a Trigger line that references a specific numbered step (e.g., 'At step 3' or 'After step 2') rather than a vague condition",
+      "max_score": 10
+    },
+    {
+      "name": "Alt flow ending",
+      "description": "Every alternative flow in both files ends with either a return to a numbered step (e.g., 'Use case continues at step N') or an explicit ending ('Use case ends')",
+      "max_score": 10
+    },
+    {
+      "name": "At least one alt flow per use case",
+      "description": "UC-001 has at least one alternative flow AND UC-002 has at least one alternative flow",
+      "max_score": 8
+    },
+    {
+      "name": "Business rule IDs unique globally",
+      "description": "Business rule IDs (BR-XXX) do NOT restart at BR-001 in the second file — the IDs across both files are unique and non-overlapping",
+      "max_score": 10
+    },
+    {
+      "name": "Business rules present",
+      "description": "Both files contain at least one business rule each, and every business rule has a BR-XXX formatted ID",
+      "max_score": 7
+    },
+    {
+      "name": "Main scenario numbered steps",
+      "description": "The Main Success Scenario in each file uses sequentially numbered steps with no gaps",
+      "max_score": 5
+    }
+  ]
+}

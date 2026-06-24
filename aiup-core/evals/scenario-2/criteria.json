@@ -1,0 +1,61 @@
+{
+  "context": "The agent reads docs/vision.md and writes docs/requirements.md containing functional requirements (user stories), non-functional requirements (measurable quality attributes), and constraints in separate Markdown tables. The grader checks format, ID conventions, measurability, structural separation, and table completeness.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Correct output path",
+      "description": "The requirements catalog is written to docs/requirements.md (not any other path)",
+      "max_score": 5
+    },
+    {
+      "name": "FR user story format",
+      "description": "Every functional requirement row's description follows the exact format 'As a [role], I want [goal] so that [benefit]' — no plain-sentence FRs present",
+      "max_score": 15
+    },
+    {
+      "name": "NFRs are measurable",
+      "description": "Every non-functional requirement contains a numeric threshold or measurable value (e.g. '< 2 seconds', '99.9%', '10,000 concurrent users') — no vague terms like 'fast', 'reliable', or 'secure' used alone as the NFR description",
+      "max_score": 15
+    },
+    {
+      "name": "Separate tables per type",
+      "description": "Functional requirements, non-functional requirements, and constraints each appear in their own dedicated table — FR, NFR, and C rows are NOT mixed into a single combined table",
+      "max_score": 10
+    },
+    {
+      "name": "FR ID prefix",
+      "description": "All functional requirement IDs use the FR-NNN prefix (e.g. FR-001, FR-002)",
+      "max_score": 8
+    },
+    {
+      "name": "NFR ID prefix",
+      "description": "All non-functional requirement IDs use the NFR-NNN prefix (e.g. NFR-001, NFR-002)",
+      "max_score": 8
+    },
+    {
+      "name": "Constraint ID prefix",
+      "description": "All constraint IDs use the C-NNN prefix (e.g. C-001, C-002)",
+      "max_score": 8
+    },
+    {
+      "name": "No duplicate IDs",
+      "description": "No ID value appears more than once across the entire document (checked across all three tables)",
+      "max_score": 8
+    },
+    {
+      "name": "Status column filled",
+      "description": "Every row in every table has a non-empty Status column value — no blank Status cells",
+      "max_score": 8
+    },
+    {
+      "name": "NFR category column",
+      "description": "The NFR table includes a Category column and every NFR row has a non-empty category value (e.g. Performance, Scalability, Availability, Security, Accessibility)",
+      "max_score": 8
+    },
+    {
+      "name": "Singular requirements",
+      "description": "Each table row contains exactly one requirement — no row combines multiple distinct requirements with 'and' connecting separate goals",
+      "max_score": 7
+    }
+  ]
+}

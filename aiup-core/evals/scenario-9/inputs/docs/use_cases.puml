@@ -1,0 +1,12 @@
+@startuml Use Cases Overview
+left to right direction
+actor "Visitor" as visitor
+
+rectangle "User Account System" {
+    usecase "UC-001\nRegister Account" as UC001
+    usecase "UC-002\nLog In" as UC002
+}
+
+visitor --> UC001
+visitor --> UC002
+@enduml

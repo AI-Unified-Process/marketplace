@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent writes Playwright integration tests for a Vaadin Employee Management view using the Drama Finder library correctly: type-safe element wrappers instead of raw locators, proper class hierarchy, correct assertion patterns, and good test structure per the skill instructions.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Extends AbstractBasePlaywrightIT",
+      "description": "The test class extends AbstractBasePlaywrightIT from the Drama Finder library (org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT), not any other base class",
+      "max_score": 10
+    },
+    {
+      "name": "@SpringBootTest RANDOM_PORT",
+      "description": "The test class is annotated with @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)",
+      "max_score": 10
+    },
+    {
+      "name": "No raw page.locator() calls",
+      "description": "The test file contains NO calls to page.locator(...) — Drama Finder element wrappers are used exclusively for all element lookups",
+      "max_score": 10
+    },
+    {
+      "name": "Drama Finder element wrappers used",
+      "description": "At least three different Drama Finder element wrapper types are used (e.g. GridElement, ButtonElement, TextFieldElement, DialogElement, NotificationElement, ComboBoxElement)",
+      "max_score": 8
+    },
+    {
+      "name": "ARIA/label-based lookups",
+      "description": "Elements are located using Drama Finder factory methods that use accessible names or labels (e.g. getByLabel, getByText, getByHeaderText) — NOT CSS selectors passed as strings",
+      "max_score": 8
+    },
+    {
+      "name": "No XPath selectors",
+      "description": "The test file contains NO XPath expressions (no strings starting with '//' or 'xpath=')",
+      "max_score": 8
+    },
+    {
+      "name": "No Thread.sleep / waitForTimeout",
+      "description": "The test file contains NO calls to Thread.sleep() or page.waitForTimeout()",
+      "max_score": 8
+    },
+    {
+      "name": "No getAttribute/isVisible in assertions",
+      "description": "Assertions do NOT call getAttribute() or isVisible() directly — auto-retrying assert methods (assertThat, assertValue, assertOpen, assertInvalid, etc.) are used instead",
+      "max_score": 8
+    },
+    {
+      "name": "getTotalRowCount for grid count",
+      "description": "Grid row count assertions use getTotalRowCount() — NOT getRenderedRowCount() or any direct count of row elements",
+      "max_score": 8
+    },
+    {
+      "name": "@Nested with @DisplayName",
+      "description": "Related tests are grouped in at least two @Nested inner classes, each annotated with @DisplayName",
+      "max_score": 8
+    },
+    {
+      "name": "Scoped lookup inside dialog",
+      "description": "At least one element lookup inside the dialog is scoped by passing dialog.getLocator() (not page) to the element factory method",
+      "max_score": 8
+    },
+    {
+      "name": "Validation assertion uses assertInvalid",
+      "description": "The empty-form validation test uses assertInvalid() (from HasValidationPropertiesElement) to check field invalid state — not isVisible() or getAttribute()",
+      "max_score": 6
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{ "description": "Playwright tests with scoped lookups and grid row count", "include": ["./inputs", "./references"] }

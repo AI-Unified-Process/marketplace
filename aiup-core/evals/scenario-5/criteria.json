@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent applies the large-codebase reverse-engineering strategy: one-pass scan, feature clustering, end-to-end cluster processing, and late data-layer pass. Also checks entity type mapping to AIUP vocabulary, exclusion of infrastructure tables, UC ID ordering by actor then importance, and handling of partially-implemented features.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "PLAN.md exists",
+      "description": "A docs/PLAN.md file is present and non-empty",
+      "max_score": 5
+    },
+    {
+      "name": "Controller file list",
+      "description": "PLAN.md contains an explicit list of controller files found during the initial one-pass scan (e.g. AuthController, UserController, ProductController, CategoryController, OrderController, CartController, NotificationController, AdminUserController, AdminProductController, ReportController)",
+      "max_score": 10
+    },
+    {
+      "name": "Feature clustering documented",
+      "description": "PLAN.md groups the controller files into named feature clusters (e.g. auth, users, products, orders/cart, notifications, admin/reports) before any specs are written — showing that clustering happened as a pre-processing step",
+      "max_score": 10
+    },
+    {
+      "name": "Excluded tables listed",
+      "description": "PLAN.md names at least one infrastructure table excluded from the entity model (spring_session, spring_session_attributes, or audit_log) and gives a reason for exclusion",
+      "max_score": 10
+    },
+    {
+      "name": "No SQL types in entity model",
+      "description": "docs/entity_model.md does NOT contain raw SQL types such as bigint, varchar, numeric, smallint, or timestamp — only AIUP vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
+      "max_score": 10
+    },
+    {
+      "name": "AIUP types used",
+      "description": "docs/entity_model.md uses at least three of the AIUP Data Types: Long, String, Integer, Decimal, Boolean, Date, DateTime",
+      "max_score": 5
+    },
+    {
+      "name": "spring_session absent",
+      "description": "docs/entity_model.md does NOT contain an entity section for spring_session or spring_session_attributes",
+      "max_score": 10
+    },
+    {
+      "name": "audit_log absent",
+      "description": "docs/entity_model.md does NOT contain an entity section for audit_log",
+      "max_score": 5
+    },
+    {
+      "name": "UC IDs grouped by actor",
+      "description": "Use case IDs (UC-001, UC-002, …) are assigned in actor groups — all IDs for one actor are consecutive before starting the next actor's block (e.g. Visitor UCs first, then Buyer UCs, then Artisan UCs, then Admin/Manager UCs)",
+      "max_score": 10
+    },
+    {
+      "name": "Partial implementation noted",
+      "description": "At least one use case spec includes a note or Draft status where the implementation appeared partial or unclear — rather than silently omitting the use case or inventing unsubstantiated flows",
+      "max_score": 10
+    },
+    {
+      "name": "Endpoints aggregated into use cases",
+      "description": "The number of use case files is fewer than the total number of controller methods (there are ~35 endpoints across all controllers) — confirming that endpoints were grouped by goal, not one-to-one",
+      "max_score": 10
+    },
+    {
+      "name": "Entity model from migrations",
+      "description": "docs/entity_model.md includes entities derived from the SQL migration files (e.g. USER, PRODUCT, ORDER, CATEGORY, REVIEW) — not just from the Java entity class names verbatim",
+      "max_score": 5
+    }
+  ]
+}

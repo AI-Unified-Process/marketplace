@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent produces a correctly formatted entity model document from a requirements file, using the prescribed Mermaid diagram style (entities and relationships only, no attributes), the correct per-entity structure (### heading, one-sentence description, 5-column table), the allowed AIUP data types, and the exact validation rule vocabulary from REFERENCE.md.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Output path",
+      "description": "The entity model is written to docs/entity_model.md (not any other path)",
+      "max_score": 5
+    },
+    {
+      "name": "Mermaid block present",
+      "description": "The document contains an erDiagram fenced code block (```mermaid ... erDiagram ...```)",
+      "max_score": 5
+    },
+    {
+      "name": "No attributes in diagram",
+      "description": "The Mermaid erDiagram block contains NO attribute lines inside any entity block — entity blocks are empty or absent (show only entity names)",
+      "max_score": 15
+    },
+    {
+      "name": "Correct relationship syntax",
+      "description": "All relationships in the Mermaid block use the exact syntax ENTITY_A ||--o{ ENTITY_B : \"relationship\" (pipe-pipe-dash-dash-o-brace form)",
+      "max_score": 10
+    },
+    {
+      "name": "Entity ### headings uppercase",
+      "description": "Every entity section starts with a ### heading whose name is in UPPER_SNAKE_CASE (e.g., ### GUEST, ### ROOM_TYPE)",
+      "max_score": 8
+    },
+    {
+      "name": "One-sentence description per entity",
+      "description": "Each entity section has exactly one sentence of description between the ### heading and the attribute table — no multi-sentence paragraphs or prose blocks",
+      "max_score": 7
+    },
+    {
+      "name": "5-column attribute table",
+      "description": "Every entity's attribute table has exactly 5 columns: Attribute, Description, Data Type, Length/Precision, Validation Rules",
+      "max_score": 10
+    },
+    {
+      "name": "AIUP data types only",
+      "description": "The Data Type column contains only values from: Long, String, Integer, Decimal, Boolean, Date, DateTime — no SQL types such as VARCHAR, bigint, TEXT, NUMERIC, or TIMESTAMP",
+      "max_score": 10
+    },
+    {
+      "name": "Valid validation rules",
+      "description": "Every cell in the Validation Rules column uses only the allowed vocabulary: Primary Key, Sequence; Not Null; Not Null, Unique; Not Null, Foreign Key (TABLE.id); Optional; Not Null, Min: X, Max: Y; Not Null, Values: A, B, C; Not Null, Format: Email",
+      "max_score": 10
+    },
+    {
+      "name": "No empty validation rules",
+      "description": "No cell in the Validation Rules column is empty or contains a placeholder such as '-' or 'N/A'",
+      "max_score": 8
+    },
+    {
+      "name": "Multi-column constraint note",
+      "description": "The RESERVATION entity (or equivalent) includes a Constraints line after its attribute table noting that check-out date must be after check-in date",
+      "max_score": 7
+    },
+    {
+      "name": "No prose or Relationships table",
+      "description": "The document does NOT contain any prose description block like 'Key attributes: ...' and does NOT contain a separate 'Relationships' table section",
+      "max_score": 5
+    }
+  ]
+}

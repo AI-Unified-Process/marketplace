@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent writes a Vaadin Browserless test class for an inventory deletion flow that correctly uses SpringBrowserlessTest, avoids the legacy Karibu API, uses the dedicated tester for ContextMenu interactions, and applies proper @UseCase annotations matching the spec headings.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Extends SpringBrowserlessTest",
+      "description": "The test class extends com.vaadin.testbench.unit.SpringBrowserlessTest",
+      "max_score": 10
+    },
+    {
+      "name": "@SpringBootTest annotation",
+      "description": "The test class is annotated with @SpringBootTest",
+      "max_score": 8
+    },
+    {
+      "name": "Class naming convention",
+      "description": "The test class is named UC015DeleteInventoryItemTest (UC<id><PascalCaseName>Test pattern)",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase on test methods",
+      "description": "Every test method is annotated with @UseCase(id = \"UC-015\", ...)",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase scenario matches spec",
+      "description": "The scenario attribute values match headings from UC-015-delete-inventory-item.md (e.g. 'Main Success Scenario', 'A1: User Cancels', 'A2: User Archives Instead')",
+      "max_score": 8
+    },
+    {
+      "name": "ConfirmDialog found with $()",
+      "description": "ConfirmDialog is located using the $() query (e.g. $(ConfirmDialog.class).first() or similar $(ConfirmDialog.class) call)",
+      "max_score": 8
+    },
+    {
+      "name": "confirm() used for confirmation",
+      "description": "Uses test(dialog).confirm() to click the Confirm button — not a raw button lookup",
+      "max_score": 10
+    },
+    {
+      "name": "cancel() used for cancel flow",
+      "description": "Uses test(dialog).cancel() to click Cancel — not a raw button lookup",
+      "max_score": 8
+    },
+    {
+      "name": "reject() used for archive flow",
+      "description": "Uses test(dialog).reject() to click Archive Instead — not a raw button lookup",
+      "max_score": 8
+    },
+    {
+      "name": "ContextMenu via tester methods",
+      "description": "ContextMenu interaction uses the dedicated tester's clickItem() or find() method — does NOT use $() to locate the ContextMenu for interaction",
+      "max_score": 10
+    },
+    {
+      "name": "No Karibu imports",
+      "description": "The test file does NOT import LocatorJ, _get, _find, _click, GridKt, or NotificationsKt",
+      "max_score": 8
+    },
+    {
+      "name": "No Mockito usage",
+      "description": "The test file does NOT import or use Mockito (org.mockito.*)",
+      "max_score": 6
+    }
+  ]
+}

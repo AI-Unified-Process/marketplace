@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent correctly updates an existing PlantUML use case diagram when requirements change, preserving existing use cases, adding new ones for new functional requirements, introducing a new actor, and following UC-ID sequencing and PlantUML conventions.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "UC-001 preserved",
+      "description": "The updated diagram still contains UC-001 (Create Project) — existing use cases are not removed or replaced",
+      "max_score": 8
+    },
+    {
+      "name": "UC-002 preserved",
+      "description": "The updated diagram still contains UC-002 (Assign Team Members) — existing use cases are not removed or replaced",
+      "max_score": 8
+    },
+    {
+      "name": "UC-003 preserved",
+      "description": "The updated diagram still contains UC-003 (Update Task Status) — existing use cases are not removed or replaced",
+      "max_score": 8
+    },
+    {
+      "name": "No ID gaps or duplicates",
+      "description": "New use case IDs continue the existing UC sequence (e.g. UC-004, UC-005) with no gaps and no duplicate IDs",
+      "max_score": 10
+    },
+    {
+      "name": "FR-004 use case added",
+      "description": "A new use case representing the audit log viewing requirement (FR-004) is present in the diagram",
+      "max_score": 10
+    },
+    {
+      "name": "FR-005 use case added",
+      "description": "A new use case representing the audit log export requirement (FR-005) is present in the diagram",
+      "max_score": 10
+    },
+    {
+      "name": "Auditor actor declared",
+      "description": "An 'Auditor' actor (or equivalent) is declared in the diagram",
+      "max_score": 10
+    },
+    {
+      "name": "Auditor actor connected",
+      "description": "The Auditor actor is connected to at least one use case via an arrow (-->)",
+      "max_score": 10
+    },
+    {
+      "name": "Valid PlantUML structure",
+      "description": "The file contains @startuml, @enduml, and 'left to right direction' (standard structure)",
+      "max_score": 8
+    },
+    {
+      "name": "No implementation details in names",
+      "description": "Use case names do not contain HTTP methods (GET, POST, DELETE), endpoint paths, or class/method names",
+      "max_score": 9
+    },
+    {
+      "name": "All actors connected",
+      "description": "Every actor declared in the diagram (Project Manager, Team Member, Auditor) is connected to at least one use case",
+      "max_score": 9
+    }
+  ]
+}

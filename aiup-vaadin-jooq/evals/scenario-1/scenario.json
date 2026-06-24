@@ -1,0 +1,1 @@
+{ "description": "Flyway migration from entity model", "include": ["./docs", "./migrations"] }

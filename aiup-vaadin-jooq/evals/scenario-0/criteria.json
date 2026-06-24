@@ -1,0 +1,76 @@
+{
+  "context": "Tests whether the agent writes Vaadin Browserless server-side unit tests for a Product Catalog view (UC-010) following the browserless-test skill: correct class name pattern, @UseCase annotations mirroring spec headings, SpringBrowserlessTest base class, @SpringBootTest annotation, $() and test() usage patterns, AssertJ assertions, no Mockito, no @Transactional, and Flyway-based test data.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "UseCase annotation created",
+      "description": "A UseCase.java annotation interface is created with exactly the attributes: String id(), String scenario() default \"Main Success Scenario\", String[] businessRules() default {}",
+      "max_score": 7
+    },
+    {
+      "name": "UseCase annotation shape",
+      "description": "The UseCase annotation has @Target(ElementType.METHOD), @Retention(RetentionPolicy.RUNTIME), and @Documented meta-annotations",
+      "max_score": 5
+    },
+    {
+      "name": "Test class name pattern",
+      "description": "The test class is named UC010BrowseProductCatalogTest (matching the UC<id><PascalCaseUseCaseName>Test pattern for UC-010)",
+      "max_score": 9
+    },
+    {
+      "name": "Extends SpringBrowserlessTest",
+      "description": "The test class extends com.vaadin.testbench.unit.SpringBrowserlessTest",
+      "max_score": 8
+    },
+    {
+      "name": "@SpringBootTest annotation",
+      "description": "The test class is annotated with @SpringBootTest",
+      "max_score": 5
+    },
+    {
+      "name": "@UseCase on every test method",
+      "description": "Every @Test method in the test class has a @UseCase annotation with at least the id attribute set to \"UC-010\"",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase scenario matches spec",
+      "description": "At least one test method uses scenario = \"A1: Filter by Category\" or scenario = \"A2: No Products Match Filter\" — matching the alternative flow headings in the UC-010 spec",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase businessRules matches spec",
+      "description": "At least one test method includes businessRules = {\"BR-010\"} matching the BR-010 heading in the spec",
+      "max_score": 6
+    },
+    {
+      "name": "$() used to find components",
+      "description": "The test class uses the $() query method to locate Vaadin components (e.g. $(Grid.class), $(ComboBox.class))",
+      "max_score": 8
+    },
+    {
+      "name": "test() used for actions only",
+      "description": "test(component) is used for actions (click, setValue, selectItem) and NOT to read component state — state is read via component Java API (e.g. .getValue(), .isEnabled(), .size())",
+      "max_score": 9
+    },
+    {
+      "name": "AssertJ assertions",
+      "description": "Assertions use AssertJ (assertThat(...)) rather than JUnit assertTrue/assertEquals or Hamcrest matchers",
+      "max_score": 6
+    },
+    {
+      "name": "No Mockito",
+      "description": "No Mockito imports or usage (import org.mockito, @Mock, @MockBean, Mockito.when, mock()) appear anywhere in the test class",
+      "max_score": 7
+    },
+    {
+      "name": "No @Transactional",
+      "description": "The test class and its methods do NOT use the @Transactional annotation",
+      "max_score": 5
+    },
+    {
+      "name": "Flyway test migration file",
+      "description": "A SQL migration file exists under src/test/resources/db/migration/ with the Flyway naming pattern V<NNN>__*.sql that inserts product test data",
+      "max_score": 9
+    }
+  ]
+}

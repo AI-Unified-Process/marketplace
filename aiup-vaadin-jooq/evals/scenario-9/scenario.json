@@ -1,0 +1,1 @@
+{ "description": "Flyway migration extension with sequences and FKs", "include": ["./inputs"] }

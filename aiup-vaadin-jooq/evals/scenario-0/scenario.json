@@ -1,0 +1,1 @@
+{ "description": "Browserless test authoring for Vaadin view", "include": ["./inputs"] }

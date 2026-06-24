@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent writes Playwright integration tests using Drama Finder element wrappers correctly: scoped lookups for the 'Notes' dialog field, getTotalRowCount() for grid size assertions, no sleep/waitForTimeout, no getAttribute/isVisible in assertions, proper @Nested/@DisplayName grouping, and correct Drama Finder API usage throughout.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No raw locators",
+      "description": "Does NOT use raw Playwright locators such as page.locator(\"vaadin-text-field\") or page.locator(\"#id\") — uses Drama Finder element wrapper factory methods instead",
+      "max_score": 10
+    },
+    {
+      "name": "Scoped dialog lookup",
+      "description": "The 'Notes' text field inside the Edit Contract dialog is looked up using a scoped factory call — passes dialog.getLocator() (or equivalent container locator) as the scope argument, e.g. TextAreaElement.getByLabel(dialog.getLocator(), \"Notes\")",
+      "max_score": 15
+    },
+    {
+      "name": "getTotalRowCount for grid count",
+      "description": "Grid row count assertion uses getTotalRowCount() — does NOT use getRenderedRowCount(), size(), or any row-enumeration approach for the count check",
+      "max_score": 15
+    },
+    {
+      "name": "No Thread.sleep / waitForTimeout",
+      "description": "Does NOT call Thread.sleep() or page.waitForTimeout() anywhere in the test file",
+      "max_score": 10
+    },
+    {
+      "name": "No getAttribute / isVisible in assertions",
+      "description": "Does NOT use getAttribute() or isVisible() as the expression being asserted on (i.e. does not appear inside assertThat(), assertEquals(), or assertTrue() calls)",
+      "max_score": 10
+    },
+    {
+      "name": "@Nested with @DisplayName",
+      "description": "At least one @Nested inner class is present and annotated with @DisplayName",
+      "max_score": 8
+    },
+    {
+      "name": "AbstractBasePlaywrightIT base class",
+      "description": "The test class extends AbstractBasePlaywrightIT from the Drama Finder library",
+      "max_score": 8
+    },
+    {
+      "name": "@SpringBootTest annotation",
+      "description": "The test class is annotated with @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)",
+      "max_score": 7
+    },
+    {
+      "name": "getLocator vs getInputLocator distinction",
+      "description": "Uses getInputLocator() when checking native input-level attributes (value, maxlength, pattern) and getLocator() for component-level attributes (theme, invalid, opened) — does not mix them up",
+      "max_score": 7
+    },
+    {
+      "name": "Icon-only button via getByText",
+      "description": "The icon-only close button in the dialog header is located using ButtonElement.getByText(page, \"Close\") or ButtonElement.getByText(dialog.getLocator(), \"Close\") — NOT via a CSS selector or raw locator",
+      "max_score": 5
+    },
+    {
+      "name": "Drama Finder element wrappers",
+      "description": "Uses Drama Finder typed element wrappers (e.g. TextAreaElement, ButtonElement, GridElement, DialogElement, NotificationElement) for all component interactions — at least four distinct element types used",
+      "max_score": 5
+    }
+  ]
+}

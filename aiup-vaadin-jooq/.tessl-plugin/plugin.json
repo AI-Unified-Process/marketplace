@@ -1,7 +1,7 @@
 {
   "name": "aiup/aiup-vaadin-jooq",
   "description": "AI Unified Process plugin for the Vaadin/jOOQ stack",
-  "version": "2.6.5",
+  "version": "2.6.6",
   "rules": "rules",
   "author": {
     "name": "Simon Martinelli",
