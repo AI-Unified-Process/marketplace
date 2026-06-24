@@ -38,7 +38,7 @@ Tests extend `AbstractBasePlaywrightIT` from Drama Finder, which handles browser
 - Assume all grid rows are rendered (viewport limits visible rows)
 - Use XPath selectors (they don't pierce shadow DOM — CSS does)
 - Use `getAttribute()`/`isVisible()` directly in assertions — they don't auto-retry
-- Guess Drama Finder method signatures — look them up via the JavaDocs MCP when configured, otherwise consult the Drama Finder API docs linked below
+- Guess Drama Finder method signatures — use the bundled [references/dramafinder-api.md](references/dramafinder-api.md); only fall back to the JavaDocs MCP for classes it doesn't cover
 
 ## Test Data
 
@@ -50,8 +50,8 @@ Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starti
 
 ## Locating Components
 
-Drama Finder uses ARIA roles and accessible names — not CSS selectors. This makes tests resilient to DOM changes and enforces accessibility. 
-API documentation of Drama Finder: [https://parttio-dramafinder-4.mintlify.app/api/vaadin-element](https://parttio-dramafinder-4.mintlify.app/api/vaadin-element)
+Drama Finder uses ARIA roles and accessible names — not CSS selectors. This makes tests resilient to DOM changes and enforces accessibility.
+The full element-class and method reference is bundled at [references/dramafinder-api.md](references/dramafinder-api.md).
 
 ### By Label (input fields, pickers)
 
@@ -102,50 +102,22 @@ For icon-only buttons, set `setAriaLabel("Close")` on the server side, then find
 
 ## Drama Finder API Lookup
 
-If the **JavaDocs MCP server** (`https://www.javadocs.dev/mcp`) is configured, use it to look up Drama Finder element classes, methods, and assertions. Do NOT guess method signatures — verify with the JavaDocs MCP when available, or with the Drama Finder API docs (linked above) otherwise. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
+The bundled [references/dramafinder-api.md](references/dramafinder-api.md) is the authoritative API reference — element classes, factory methods, shared mixin assertions, and the locator-level rules (`getLocator()` vs `getInputLocator()`). Consult it before writing any test; do NOT guess method signatures.
 
 **Maven coordinates:** groupId=`org.vaadin.addons`, artifactId=`dramafinder`, version=`1.1.0`
 
-### Step 1: List available element classes
+If the bundled reference doesn't cover a class you need (or the dependency has been upgraded past `1.1.0`) and the **JavaDocs MCP server** is configured, look it up there and add it to the reference:
 
-Call `get_javadoc_content_list` with the coordinates above to see all available element and base classes.
+- `get_javadoc_content_list` with the coordinates above lists all element and base classes.
+- `get_javadoc_symbol_contents` with a `link` from that list returns the full API for a class (methods, parameters, return types, inherited methods).
 
-### Step 2: Look up specific element APIs
-
-Call `get_javadoc_symbol_contents` with the `link` value from step 1 to get the full API for any element class (methods, parameters, return types, inherited methods).
-
-### Step 3: Check base classes for shared methods
-
-Many assertions and behaviors are defined in base/shared classes. Look these up when you need shared functionality:
-
-- `PlaywrightElement` — core locator methods
-- `HasValidationPropertiesElement` — `assertValid()`, `assertInvalid()`, `assertErrorMessage()`
-- `HasValueElement` — `setValue()`, `getValue()`, `assertValue()`
-- `HasEnabledElement` — `assertEnabled()`, `assertDisabled()`
-- `FocusableElement` — `focus()`, `assertIsFocused()`
-- `HasThemeElement` — `assertTheme()`
-- `HasTooltipElement` — `assertTooltipHasText()`
-
-### Locator levels
-
-Each element has two locator levels:
-
-- **`getLocator()`** — the component root. Use for: `theme`, `class`, `opened`, `invalid` attributes
-- **`getInputLocator()`** — the internal input element. Use for: `value`, `maxlength`, `pattern`, `placeholder`, focus, disabled
-
-CSS selectors pierce shadow DOM automatically. XPath does NOT.
-
-### When to look up
-
-- **Before writing any test**: look up the element classes you plan to use
-- **When unsure about a method**: check the specific element class JavaDoc
-- **When you need an element for an unfamiliar Vaadin component**: list contents to find the matching element class
+See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
 
 ## Workflow
 
 1. Read the use case specification
 2. Plan test scenarios (group related tests in `@Nested` classes with `@DisplayName`)
-3. **Look up Drama Finder element APIs** for each element class you will use — via the JavaDocs MCP if configured, otherwise via the Drama Finder API docs
+3. **Look up Drama Finder element APIs** for each element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md)
 4. Create test class extending `AbstractBasePlaywrightIT` with `@SpringBootTest` and `@LocalServerPort`
 5. Override `getUrl()` (return `http://localhost:<port>/`) and `getView()` (return the route)
 6. For each test:
