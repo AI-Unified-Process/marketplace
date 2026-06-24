@@ -58,8 +58,8 @@ optional — see [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup detail
 Install from the Tessl registry (install the core plugin too, if you haven't already):
 
 ```
-tessl plugin install aiup/aiup-core
-tessl plugin install aiup/aiup-vaadin-jooq
+tessl install aiup/aiup-core
+tessl install aiup/aiup-vaadin-jooq
 ```
 
 ## Prerequisites

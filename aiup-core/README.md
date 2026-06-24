@@ -62,7 +62,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 Install from the Tessl registry:
 
 ```
-tessl plugin install aiup/aiup-core
+tessl install aiup/aiup-core
 ```
 
 ## Prerequisites
