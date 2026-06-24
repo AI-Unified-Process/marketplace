@@ -206,6 +206,16 @@ If a step would only make sense to someone who has read the code, rewrite it.
 
 ### 6. Extract the entity model
 
+> **Treat this as a dedicated pass, not an afterthought.** The entity model is
+> the artifact most often degraded when it is rushed at the end of a long
+> reverse-engineering task. Give it the same care as a standalone `/entity-model`
+> run: **every** entity gets a 5-column table (`Attribute | Description | Data
+> Type | Length/Precision | Validation Rules`), **every** type is mapped to the
+> AIUP vocabulary, and **no** raw SQL/ORM type (`VARCHAR`, `bigint`, `numeric`,
+> `int8`, `TEXT`, `Decimal(10,2)`, `@db.Decimal`, Prisma `Int`/`String?`) survives
+> into the document. If you would not ship this table from `/entity-model`, it is
+> not done.
+
 Write `docs/entity_model.md` matching the `/entity-model` format. Sources,
 in order of authority:
 

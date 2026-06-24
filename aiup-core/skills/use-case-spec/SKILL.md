@@ -75,8 +75,19 @@ see [references/example.md](references/example.md) for a complete worked example
 10. Document applicable business rules with `BR-XXX` IDs. When writing more than one
     use case in this task, keep `BR-XXX` IDs unique across all files (never restart
     at `BR-001` — see "Scope").
-11. Run the Completeness Checklist below; fix anything that fails.
-12. Mark todo complete.
+11. Write each use case to its **own** file completely before moving to the next —
+    never merge two use cases into one file, and never leave a planned file unwritten.
+12. Run the Completeness Checklist below; fix anything that fails.
+13. **Final verification (do this before declaring done):** list the contents of
+    `docs/use_cases/` and confirm every `UC-XXX` from your scope has exactly one
+    file present, named `UC-XXX-<kebab-case-name>.md` (kebab-case of the diagram
+    name — e.g. `Log In` → `UC-002-log-in.md`, never `UC-002-login.md`). Rename any
+    mismatch. Then search every file you wrote for these forbidden words and rewrite
+    the step at the business level if any appears: `SMTP`, `email server`, `JWT`,
+    `token`, `bcrypt`, `hash`, `salt`, `SHA`, `SELECT`, `INSERT`, `SQL`. A
+    registration or login use case must say "System verifies the credentials" /
+    "System confirms the account" — never how the password or session is handled.
+14. Mark todo complete.
 
 ## Completeness Checklist
 
