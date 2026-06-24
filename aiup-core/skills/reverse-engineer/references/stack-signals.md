@@ -78,6 +78,25 @@ match the project in front of you.
   - TypeORM: `@Entity` classes with `@Column`, `@OneToMany`, etc.
   - Sequelize: `Model.init({...})` calls.
   - Drizzle: `pgTable(...)` calls in `schema.ts`.
+- **Prisma → AIUP type mapping** (never copy Prisma/SQL types into the entity
+  model — translate every column):
+
+  | Prisma type                       | AIUP Data Type | Length/Precision | Validation Rules                  |
+  |-----------------------------------|----------------|------------------|-----------------------------------|
+  | `Int @id @default(autoincrement())` | `Long`       | 19               | `Primary Key, Sequence`           |
+  | `Int`                             | `Integer`      | 10               | `Not Null`                        |
+  | `String`                          | `String`       | 255 (or actual)  | `Not Null`                        |
+  | `String @unique`                  | `String`       | 255              | `Not Null, Unique`                |
+  | `String?` (optional)              | `String`       | 255              | `Optional`                        |
+  | `Decimal @db.Decimal(10, 2)`      | `Decimal`      | 10,2             | `Not Null, Min: 0`                |
+  | `Boolean`                         | `Boolean`      | —                | `Not Null`                        |
+  | `DateTime @default(now())`        | `DateTime`     | —                | `Not Null`                        |
+  | relation field `userId Int`       | `Long`         | 19               | `Not Null, Foreign Key (USER.id)` |
+
+  `@db.Decimal`, `Decimal(10,2)`, `Int`, `String?`, `bigint`, `VARCHAR` and `TEXT`
+  must **not** appear anywhere in `entity_model.md` — they are implementation
+  details, not the AIUP vocabulary. A `// "customer" or "admin"` comment on a
+  `String` column maps to `Not Null, Values: customer, admin`.
 - **Validation**: class-validator decorators, Zod schemas, Joi schemas,
   Yup schemas — these are the richest source of business rules in the
   Node ecosystem.

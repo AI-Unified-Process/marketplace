@@ -70,3 +70,12 @@
 | "System displays error message"     | "System throws ValidationException"           |
 | "User enters check-in date"         | "User populates dateField component"          |
 | "System stores the reservation"     | "System executes INSERT INTO reservations..." |
+| "System records the new account"    | "System runs INSERT INTO users / SELECT ..."  |
+| "System sends a confirmation email" | "System opens an SMTP connection to sendmail" |
+| "System securely stores the password" | "System hashes the password with bcrypt/SHA + salt" |
+| "System signs the user in"          | "System issues a JWT / signs a token with expiry" |
+
+Steps describe **what** the actor and system achieve, never **how** it is
+implemented. Keep out protocol and infrastructure terms (SMTP, JWT, bcrypt,
+hashing, SQL/INSERT/SELECT, HTTP verbs, class and exception names) — those belong
+in the implementation, not the specification.

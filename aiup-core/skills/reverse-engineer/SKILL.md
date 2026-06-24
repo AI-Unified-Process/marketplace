@@ -118,6 +118,12 @@ you are mirroring the API surface. Re-group every endpoint under the actor goal
 it serves and merge until each use case is a complete goal an actor pursues
 end-to-end.
 
+A small codebase is *not* an excuse to skip aggregation. Even a compact API with
+10–15 route handlers usually collapses to roughly 4–8 use cases — a CRUD resource
+(`list` + `get` + `create` + `update` + `delete`) is **one** "Manage X" use case,
+not five. If you are about to write more than 8 spec files for a small service,
+stop and merge: you are almost certainly enumerating endpoints, not goals.
+
 Assign each use case an ID `UC-001`, `UC-002`, … in a stable order (group
 by actor, then by importance to the system's purpose). Pick a short
 descriptive name in title case.

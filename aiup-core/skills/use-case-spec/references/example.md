@@ -1,8 +1,10 @@
 # Example Use Case Specification
 
-A complete, worked example. Use it to see how the [template](../templates/use-case.md)
+A complete, worked example. Use it to see how the [template](use-case.md)
 is filled in — actor-focused steps, alternative flows that reference specific step
-numbers, and paired success/failure postconditions.
+numbers, and paired success/failure postconditions. When several use cases are
+written together, `BR-XXX` IDs continue across files (the next use case would start
+at `BR-004` here), and never restart at `BR-001`.
 
 ---
 
