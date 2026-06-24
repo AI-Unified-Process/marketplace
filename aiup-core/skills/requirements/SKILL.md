@@ -88,6 +88,13 @@ Every requirement must pass these checks before finalizing:
   batch processing") and ask the user to resolve
 - **Missing stakeholder roles**: Default to generic roles (User, Admin, System) and note them for user review
 
+> **Format survives error recovery.** Ambiguity, conflict, and provisional
+> status never justify abandoning the user-story form. Every FR row — even one
+> you are flagging as conflicting or unconfirmed — must still read
+> "As a [role], I want [goal] so that [benefit]." Record the issue in a note or
+> in the Status column (e.g., `Conflict`, `Needs review`); never by dropping the
+> requirement to a flat statement like "Support real-time sync."
+
 ## Workflow
 
 1. Read the vision document or project brief
@@ -107,6 +114,8 @@ Every requirement must pass these checks before finalizing:
 7. Validate: run every requirement against the quality checks table above
     - No duplicate IDs across all tables
     - All Status columns filled
-    - All user stories follow "As a [role], I want [goal] so that [benefit]"
+    - **Hard gate:** every FR User Story matches "As a [role], I want [goal] so
+      that [benefit]" — scan each row; any row missing "As a", "I want", or "so
+      that" is rejected and rewritten before finalizing, no exceptions
     - All NFRs contain a measurable threshold
 8. Mark todos complete

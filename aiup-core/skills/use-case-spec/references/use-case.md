@@ -5,7 +5,7 @@
 **Use Case ID:** UC-XXX   
 **Use Case Name:** [Descriptive Name]   
 **Primary Actor:** [Role]   
-**Goal:** [What the actor wants to achieve]   
+**Goal:** [In one sentence: the observable outcome the actor achieves and why — not "use the system"]   
 **Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete
 
 ## Preconditions
@@ -22,11 +22,12 @@
 
 ### A1: [Alternative Flow Name]
 
-**Trigger:** [Condition that triggers this flow]
+**Trigger:** [Condition that triggers this flow] (step N)
 **Flow:**
 
 1. [Step that diverges from main flow]
-2. [Continuation or return to main flow]
+2. [Continuation]
+3. Use case continues at step N. *(or: Use case ends.)*
 
 ## Postconditions
 

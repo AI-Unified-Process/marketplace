@@ -102,6 +102,22 @@ the entry points and group them by goal:
 - Pure infrastructure endpoints (`/health`, `/metrics`, static asset routes,
   framework-internal callbacks) are not use cases. Skip them.
 
+**Worked example — collapse CRUD endpoints into goals, not one-per-route:**
+
+| Endpoints found                                                            | Use cases (NOT one per endpoint)              |
+|----------------------------------------------------------------------------|-----------------------------------------------|
+| `GET /books`, `GET /books/{id}`, `POST /books`, `PUT /books/{id}`, `DELETE /books/{id}` | **UC-001 Manage Catalog** (one use case) |
+| `GET /cart`, `POST /cart/items`, `DELETE /cart/items/{id}`, `POST /checkout` | **UC-002 Place Order** (one use case)        |
+| `POST /login`, `POST /logout`, `GET /me`                                   | **UC-003 Authenticate** (one use case)        |
+
+Eight endpoints above → three use cases, not eight specs.
+
+**Self-check (do this before writing any spec):** count your endpoints and
+count your use cases. If the two numbers are close, you have *not* aggregated —
+you are mirroring the API surface. Re-group every endpoint under the actor goal
+it serves and merge until each use case is a complete goal an actor pursues
+end-to-end.
+
 Assign each use case an ID `UC-001`, `UC-002`, … in a stable order (group
 by actor, then by importance to the system's purpose). Pick a short
 descriptive name in title case.
@@ -200,8 +216,38 @@ For each entity, write:
 - A `### ENTITY_NAME` heading (UPPER_SNAKE_CASE).
 - A one-sentence description of what the entity represents (not what it
   contains — that's the table).
-- A 5-column attribute table: `Attribute | Description | Data Type |
-  Length/Precision | Validation Rules`.
+- An attribute table with **exactly these 5 columns, in this order**:
+  `Attribute | Description | Data Type | Length/Precision | Validation Rules`.
+
+Match this exact shape — a Mermaid block with relationships only, followed by
+one `###` section per entity with a filled 5-column table:
+
+```markdown
+# Entity Model
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    AUTHOR ||--o{ BOOK : "writes"
+    BOOK ||--o{ ORDER_ITEM : "appears in"
+```
+
+### BOOK
+
+A title available for sale in the catalog.
+
+| Attribute | Description           | Data Type | Length/Precision | Validation Rules                  |
+|-----------|-----------------------|-----------|------------------|-----------------------------------|
+| id        | Unique identifier     | Long      | 19               | Primary Key, Sequence             |
+| title     | Title of the book     | String    | 200              | Not Null                          |
+| isbn      | ISBN-13 code          | String    | 13               | Not Null, Unique                  |
+| price     | Sale price in CHF     | Decimal   | 10,2             | Not Null, Min: 0                  |
+| author_id | Author of the book    | Long      | 19               | Not Null, Foreign Key (AUTHOR.id) |
+```
+
+Never leave the Validation Rules column empty and never emit raw SQL types
+(`VARCHAR(200)`, `bigint`, `numeric`) — map them to the AIUP vocabulary below.
 
 Map types to the AIUP type vocabulary (`Long`, `String`, `Integer`,
 `Decimal`, `Boolean`, `Date`, `DateTime`) — don't leak `VARCHAR(255)` or
@@ -238,6 +284,12 @@ Before finishing, check the three documents agree:
   `BR-002`, …).
 - The mermaid diagram has a section for every entity it names, and every
   entity section appears in the diagram.
+- **Aggregation check:** your use-case count is meaningfully smaller than your
+  endpoint count. If it is not, you mirrored the API — go back and merge.
+- **Entity-model format check:** every attribute table has exactly 5 columns
+  in the required order; no raw SQL types (`VARCHAR`, `bigint`, `numeric`,
+  `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
+  appear inside the Mermaid entity blocks.
 
 ### 8. Summarize for the user
 
