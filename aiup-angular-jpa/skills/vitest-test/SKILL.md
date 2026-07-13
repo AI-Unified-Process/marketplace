@@ -228,7 +228,7 @@ await fixture.whenStable();
     - Flush the expected `HttpTestingController` request(s) with the response
       shape the backend's real DTO produces
     - Assert on signal values and rendered DOM
-5. Run the tests to verify they pass
+5. Run the tests to verify they pass (`ng test`, or the angular-cli MCP server's `run_target` tool if configured)
 6. If a test fails:
     - Confirm the mocked URL matches exactly what the component/service requests
     - Confirm `await fixture.whenStable()` was awaited after any signal-driven
@@ -241,5 +241,7 @@ await fixture.whenStable();
 - Component testing scenarios: https://angular.dev/guide/testing/components-scenarios
 - `HttpClientTestingModule`/`HttpTestingController`: https://angular.dev/guide/http/testing
 - Vitest documentation: https://vitest.dev/guide/
-- If `aiup-core` is installed, its context7 MCP server covers Angular/RxJS/Vitest docs —
+- If configured, use the angular-cli MCP server's `search_documentation` and `get_best_practices` tools for
+  authoritative, version-aware Angular docs, and `run_target` to run `ng test` directly
+- If `aiup-core` is installed, its context7 MCP server covers RxJS/Vitest docs —
   see [the MCP setup rule](../../rules/mcp-servers.md)

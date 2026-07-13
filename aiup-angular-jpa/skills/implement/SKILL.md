@@ -15,9 +15,8 @@ description: >
 ## Instructions
 
 Implement the use case $ARGUMENTS across both halves of the stack: a Spring Boot
-
-+ Spring Data JPA backend, and an Angular page/component that calls it. This is
-  a split client/server architecture, not a single server-rendered UI — the
+and Spring Data JPA backend, and an Angular page/component that calls it. This is
+a split client/server architecture, not a single server-rendered UI — the
   backend and frontend are independent builds that only share a JSON contract
   over HTTP.
 
@@ -31,8 +30,9 @@ convention is correct; "fixing" it into textbook full hexagonal is not the job.
 Don't create tests — there are the `spring-boot-test`, `vitest-test`, and
 `playwright-test` skills for that.
 
-If the JavaDocs MCP server is configured, check it for Spring/Hibernate API
-lookups; otherwise rely on your own knowledge and the documentation links
+If the JavaDocs or angular-cli MCP servers are configured, check them for
+Spring/Hibernate API lookups and authoritative Angular docs/best-practices
+respectively; otherwise rely on your own knowledge and the documentation links
 below.
 
 ## DO NOT
@@ -292,7 +292,9 @@ public class RoomTypeController {
 - **Change-detection strategy**: default new components to
   `ChangeDetectionStrategy.OnPush` unless the project's existing components
   consistently set something else — always match what's already there rather
-  than asserting a default from scratch.
+  than asserting a default from scratch. If the angular-cli MCP server is
+  configured, its `onpush_zoneless_migration` tool can confirm what a project
+  actually already standardizes on rather than guessing from a few files.
 - **Base URL**: read from `environment.ts`; check for an existing dev proxy
   config (`proxy.conf.json`) and add an entry rather than assuming one needs
   to be created from scratch.
@@ -361,5 +363,7 @@ export class RoomTypeOverview implements OnInit {
 ## Resources
 
 - If configured, use the JavaDocs MCP server for Spring/Hibernate API documentation (`https://www.javadocs.dev/mcp`)
-- If `aiup-core` is installed, its context7 MCP server covers Angular and RxJS docs
+- If configured, use the angular-cli MCP server's `search_documentation` and `get_best_practices` tools for
+  authoritative Angular docs, and `run_target`/`devserver.start` to verify the build
+- If `aiup-core` is installed, its context7 MCP server covers RxJS and other frontend library docs
 - See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers

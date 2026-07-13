@@ -66,13 +66,15 @@ These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `doc
 
 ## MCP servers
 
-| Server     | Purpose                                                                         |
-|------------|---------------------------------------------------------------------------------|
-| JavaDocs   | Javadoc lookup for Spring/Hibernate/RestAssured/Testcontainers on the classpath |
-| Playwright | Browser automation for end-to-end tests                                         |
+| Server      | Purpose                                                                                  |
+|-------------|------------------------------------------------------------------------------------------|
+| JavaDocs    | Javadoc lookup for Spring/Hibernate/RestAssured/Testcontainers on the classpath          |
+| angular-cli | Official Angular CLI MCP server — docs, best practices, dev server, running `ng` targets |
+| Playwright  | Browser automation for end-to-end tests                                                  |
 
-Angular, RxJS, and Vitest docs are already covered by `aiup-core`'s **context7** MCP server — no separate frontend
-doc server is needed here. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+`angular-cli` ships with `@angular/cli` itself — no separate install beyond your Angular
+project's own dependencies. RxJS and Vitest docs are covered by `aiup-core`'s **context7**
+MCP server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 
 ## Installation
 

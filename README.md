@@ -1054,11 +1054,12 @@ their plugin (e.g., `aiup-core:requirements`).
 An **MCP (Model Context Protocol) server** is an external service that provides Claude with access to specialized tools
 and documentation. The plugins in this marketplace ship with the following servers:
 
-| Server            | Plugin                                                        | Description                                  |
-|-------------------|---------------------------------------------------------------|----------------------------------------------|
-| **context7**      | `aiup-core`                                                   | General library documentation lookup         |
-| **Vaadin**        | `aiup-vaadin-jooq`                                            | Vaadin component and framework documentation |
-| **KaribuTesting** | `aiup-vaadin-jooq`                                            | Karibu testing framework documentation       |
-| **jOOQ**          | `aiup-vaadin-jooq`                                            | jOOQ DSL and code generation reference       |
-| **JavaDocs**      | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Java API documentation lookup                |
-| **Playwright**    | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Browser automation for integration tests     |
+| Server            | Plugin                                                        | Description                                                                      |
+|-------------------|---------------------------------------------------------------|----------------------------------------------------------------------------------|
+| **context7**      | `aiup-core`                                                   | General library documentation lookup                                             |
+| **Vaadin**        | `aiup-vaadin-jooq`                                            | Vaadin component and framework documentation                                     |
+| **KaribuTesting** | `aiup-vaadin-jooq`                                            | Karibu testing framework documentation                                           |
+| **jOOQ**          | `aiup-vaadin-jooq`                                            | jOOQ DSL and code generation reference                                           |
+| **JavaDocs**      | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Java API documentation lookup                                                    |
+| **angular-cli**   | `aiup-angular-jpa`                                            | Official Angular CLI MCP server — docs, best practices, dev server, `ng` targets |
+| **Playwright**    | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Browser automation for integration tests                                         |
