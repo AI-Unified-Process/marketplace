@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent writes Spring Boot integration tests for the Product Catalog REST API (UC-010) following the spring-boot-test skill: correct class name pattern, @UseCase annotations mirroring spec headings, @SpringBootTest with MockMvc, no mocking of the repository/service layer, AssertJ/jsonPath assertions, and Flyway-based test data.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "UseCase annotation created",
+      "description": "A UseCase.java annotation interface is created with exactly the attributes: String id(), String scenario() default \"Main Success Scenario\", String[] businessRules() default {}",
+      "max_score": 7
+    },
+    {
+      "name": "UseCase annotation shape",
+      "description": "The UseCase annotation has @Target(ElementType.METHOD), @Retention(RetentionPolicy.RUNTIME), and @Documented meta-annotations",
+      "max_score": 5
+    },
+    {
+      "name": "Test class name pattern",
+      "description": "The test class is named UC010BrowseProductCatalogTest (matching the UC<id><PascalCaseUseCaseName>Test pattern for UC-010)",
+      "max_score": 9
+    },
+    {
+      "name": "@SpringBootTest with MockMvc",
+      "description": "The test class is annotated @SpringBootTest and @AutoConfigureMockMvc, and autowires MockMvc to drive the controller through real HTTP semantics",
+      "max_score": 9
+    },
+    {
+      "name": "@UseCase on every test method",
+      "description": "Every @Test method in the test class has a @UseCase annotation with at least the id attribute set to \"UC-010\"",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase scenario matches spec",
+      "description": "At least one test method uses scenario = \"A1: Filter by Category\" and at least one uses scenario = \"A2: No Products Match Filter\" — matching the alternative flow headings in the UC-010 spec",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase businessRules matches spec",
+      "description": "At least one test method includes businessRules = {\"BR-010\"} matching the BR-010 heading in the spec",
+      "max_score": 6
+    },
+    {
+      "name": "No mocking of repository/service",
+      "description": "No Mockito imports or usage (import org.mockito, @Mock, @MockBean, @MockitoBean, Mockito.when, mock()) appear anywhere in the test class — the real ProductRepository/ProductService are exercised",
+      "max_score": 9
+    },
+    {
+      "name": "Assertions via AssertJ / jsonPath",
+      "description": "Assertions use MockMvc's jsonPath matchers and/or AssertJ (assertThat(...)) rather than JUnit assertTrue/assertEquals or Hamcrest matchers",
+      "max_score": 6
+    },
+    {
+      "name": "Empty-list assertion for A2, not an error",
+      "description": "The A2 test asserts an empty JSON array response (200 OK with zero items), not an exception or error status",
+      "max_score": 8
+    },
+    {
+      "name": "Out-of-stock exclusion asserted",
+      "description": "At least one assertion confirms an out-of-stock product's name/id never appears in the response, covering BR-010 without a category filter applied",
+      "max_score": 8
+    },
+    {
+      "name": "Flyway test migration file",
+      "description": "A SQL migration file exists under backend/src/test/resources/db/migration/ with the Flyway naming pattern V<NNN>__*.sql that inserts product test data across multiple categories, including at least one out-of-stock product and one category with no in-stock products",
+      "max_score": 9
+    }
+  ]
+}

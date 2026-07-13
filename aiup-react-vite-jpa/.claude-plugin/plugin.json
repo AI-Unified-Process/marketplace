@@ -1,0 +1,10 @@
+{
+  "name": "aiup-react-vite-jpa",
+  "description": "AI Unified Process plugin for the React/Vite/JPA stack",
+  "version": "0.1.0",
+  "author": {
+    "name": "Marc Affolter",
+    "email": "marc_affolter@outlook.com",
+    "url": "https://unifiedprocess.ai"
+  }
+}

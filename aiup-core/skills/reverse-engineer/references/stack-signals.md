@@ -101,6 +101,65 @@ match the project in front of you.
   Yup schemas — these are the richest source of business rules in the
   Node ecosystem.
 
+## React (Vite) Frontend
+
+A React SPA has no server-side routes of its own — the "entry points" that
+define use cases are the frontend's own routes, not just the backend API it
+calls. When a project pairs a React/Vite frontend with a separate backend
+(e.g. `aiup-react-vite-jpa`'s Spring Boot API), read both sides: recover
+actors and use cases from the frontend routes, and confirm the entities
+against the backend's `@Entity`/API DTOs.
+
+- **Build files**: `vite.config.ts`, `package.json` (look for `react`,
+  `react-dom`, `react-router-dom`/`@tanstack/react-router`).
+- **Entry points**: route definitions — `<Route path="..." element={...} />`
+  (React Router), or file-based routes under `src/routes/` (TanStack Router,
+  file-based conventions). Each top-level route usually corresponds to one
+  use case; a route with nested forms/dialogs for create/edit/delete may
+  still be one use case ("Manage X") rather than three.
+- **Actors**: route guards / protected-route wrappers (`<ProtectedRoute>`,
+  `<RequireAuth>`), an auth context/provider (`AuthContext`, `useAuth()`),
+  role checks gating navigation items or routes.
+- **Entities**: the TypeScript types/interfaces the API client functions
+  return (e.g. `src/api/*.ts`) — these mirror the backend's DTOs, which in
+  turn mirror the `@Entity` classes. Prefer the backend's entity model if
+  both are present; the frontend types are a fallback when only the frontend
+  is available.
+- **Tests**: Vitest + React Testing Library files under `src/**/*.test.tsx`,
+  Playwright specs under `tests/e2e/` or `e2e/`. Tests named after a use case
+  (e.g. `UC-010-browse-product-catalog.test.tsx`) or tagged `@UC-XXX` are
+  gold — same as the Java convention, just expressed as a file-naming/tag
+  convention instead of an annotation.
+
+## Angular Frontend
+
+Same reasoning as the React section above — an Angular SPA's "entry points" are its own
+routes, not just the backend API it calls. When a project pairs an Angular frontend with
+a separate backend (e.g. `aiup-angular-jpa`'s Spring Boot API), read both sides: recover
+actors and use cases from the frontend routes, and confirm entities against the backend's
+domain/DTO shape.
+
+- **Build files**: `angular.json`, `package.json` (look for `@angular/core`,
+  `@angular/router`).
+- **Entry points**: route definitions in `app.routes.ts` (a flat `Routes` array), or
+  lazy-loaded route configs (`loadComponent`/`loadChildren`) in larger apps. Each
+  top-level route usually corresponds to one use case; a route with nested forms/dialogs
+  for create/edit/delete may still be one use case ("Manage X") rather than three.
+- **Actors**: route guards (`canActivate`, `canActivateChild`, functional guard
+  functions), an auth service/interceptor if present. Standalone-components-era Angular
+  apps often have none of these yet — don't invent actors the code doesn't distinguish.
+- **Entities**: the TypeScript interfaces in `*.model.ts` files, typically colocated with
+  the service that fetches them (e.g. `services/<entity>.ts` + `services/<entity>.model.ts`)
+  rather than a separate `models/`/`dto/` folder. These mirror the backend's domain/DTO
+  shape — prefer the backend's entity model when both are present; the frontend types are
+  a fallback when only the frontend is available.
+- **Tests**: Vitest specs under `src/**/*.spec.ts` (Angular's newer
+  `@angular/build:unit-test` builder, not the classic Jasmine/Karma default — check
+  `angular.json`'s `test` architect target to confirm which one a given project uses),
+  Playwright specs under `tests/e2e/` or `e2e/`. Tests named after a use case
+  (e.g. `UC-010-browse-product-catalog.spec.ts`) or tagged `@UC-XXX` are gold — same
+  reasoning as the React section, just expressed as Angular's own naming/tag convention.
+
 ## Ruby / Rails
 
 - **Entry points**: `config/routes.rb`, controllers under

@@ -1,0 +1,6 @@
+{
+  "description": "Hexagonal-aware /implement: add a new feature matching an existing multi-module exemplar",
+  "include": [
+    "./inputs"
+  ]
+}
