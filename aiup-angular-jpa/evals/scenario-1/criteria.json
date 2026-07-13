@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "Pure domain record with zero framework imports",
-      "description": "A Guest record is created in hotel-domain (package com.example.hotel.domain.guest or similar), using only @Builder (Lombok) with no JPA, Spring, or persistence imports anywhere in the class",
+      "description": "A Guest record is created in hotel-domain (package com.example.hotel.domain.guest or similar), a plain Java record with no JPA, Spring, Lombok, or persistence imports anywhere in the class",
       "max_score": 10
     },
     {

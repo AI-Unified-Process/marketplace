@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Routes } from '@angular/router';
 import { ProductCatalog } from './pages/product-catalog/product-catalog';
 

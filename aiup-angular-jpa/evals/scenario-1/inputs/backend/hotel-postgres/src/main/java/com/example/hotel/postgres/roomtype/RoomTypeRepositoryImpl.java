@@ -5,16 +5,18 @@ import com.example.hotel.domain.roomtype.RoomType;
 import com.example.hotel.postgres.roomtype.converter.RoomTypeConverter;
 import com.example.hotel.postgres.roomtype.converter.RoomTypeEntityConverter;
 import com.example.hotel.postgres.roomtype.query.RoomTypeJpaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
 public class RoomTypeRepositoryImpl implements RoomTypeRepository {
 
     private final RoomTypeJpaRepository jpaRepository;
+
+    public RoomTypeRepositoryImpl(RoomTypeJpaRepository jpaRepository) {
+        this.jpaRepository = jpaRepository;
+    }
 
     @Override
     public List<RoomType> findAll() {

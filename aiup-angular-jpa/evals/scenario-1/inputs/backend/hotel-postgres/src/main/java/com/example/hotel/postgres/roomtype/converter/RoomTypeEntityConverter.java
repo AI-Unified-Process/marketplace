@@ -6,12 +6,7 @@ import com.example.hotel.postgres.roomtype.model.RoomTypeEntity;
 public class RoomTypeEntityConverter {
 
     public static RoomTypeEntity toEntity(RoomType domain) {
-        return RoomTypeEntity.builder()
-            .id(domain.id())
-            .name(domain.name())
-            .description(domain.description())
-            .capacity(domain.capacity())
-            .price(domain.price())
-            .build();
+        return new RoomTypeEntity(domain.id(), domain.name(), domain.description(),
+            domain.capacity(), domain.price());
     }
 }

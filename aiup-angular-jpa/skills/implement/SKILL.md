@@ -50,6 +50,9 @@ below.
   `signal()`/`computed()` is the default unless the project already has
   something else installed
 - Generate an `NgModule` — this stack is standalone-components-only
+- Use Lombok anywhere in the backend (`@Data`, `@Builder`, `@RequiredArgsConstructor`,
+  `@AllArgsConstructor`, `@NoArgsConstructor`, etc.) — write explicit constructors and,
+  where a class genuinely needs them, explicit getters/setters instead
 
 ## Workflow
 
@@ -74,23 +77,23 @@ below.
 
 When [`references/module-layout.md`](references/module-layout.md) classifies
 the project as Hexagonal Multi-Module, implement the feature across every
-layer it applies to, illustrated end-to-end with a `RoomType` example:
+layer it applies to, illustrated end-to-end with a `RoomType` example. No
+Lombok anywhere in this stack — explicit constructors and, where a class needs
+them, explicit getters/setters:
 
-1. **Domain module** — a pure Java record, `@Builder` only, zero framework
-   imports:
+1. **Domain module** — a pure Java record, zero framework imports.
 
    ```java
    package com.example.hotel.domain.roomtype;
 
-   @Builder
    public record RoomType(Long id, String name, String description, int capacity, BigDecimal price) {}
    ```
 
-2. **Business module** — a concrete `@Service` class, the outbound port
-   interface (as a plain sibling file unless the project's existing convention
-   places it in a `port` subpackage — see `module-layout.md` step 4), a DTO
-   record, and a mapper class if one already exists in the project's
-   convention:
+2. **Business module** — a concrete `@Service` class with an explicit
+   constructor, the outbound port interface (as a plain sibling file unless
+   the project's existing convention places it in a `port` subpackage — see
+   `module-layout.md` step 4), a DTO record, and a mapper class if one already
+   exists in the project's convention:
 
    ```java
    package com.example.hotel.business.roomtype;
@@ -101,9 +104,12 @@ layer it applies to, illustrated end-to-end with a `RoomType` example:
    }
 
    @Service
-   @RequiredArgsConstructor
    public class RoomTypeService {
        private final RoomTypeRepository repository;
+
+       public RoomTypeService(RoomTypeRepository repository) {
+           this.repository = repository;
+       }
 
        public List<RoomType> findAll() {
            return repository.findAll();
@@ -123,22 +129,47 @@ layer it applies to, illustrated end-to-end with a `RoomType` example:
    ```
 
 3. **Persistence-adapter module** (e.g. `*-postgres`) — a separate JPA
-   `@Entity`, hand-written static converters (never MapStruct unless the
-   project already uses it), a Spring Data `JpaRepository`, the port
-   implementation, and the Flyway migration:
+   `@Entity` with an explicit no-args constructor (required by JPA), an
+   explicit all-args constructor, and explicit getters/setters, hand-written
+   static converters (never MapStruct unless the project already uses it), a
+   Spring Data `JpaRepository`, the port implementation, and the Flyway
+   migration:
 
    ```java
    package com.example.hotel.postgres.roomtype.model;
 
-   @Entity @Table(name = "room_type")
-   @Data @Builder @AllArgsConstructor @NoArgsConstructor
+   @Entity
+   @Table(name = "room_type")
    public class RoomTypeEntity {
-       @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_type_seq")
+       @Id
+       @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_type_seq")
        private Long id;
        private String name;
        private String description;
        private int capacity;
        private BigDecimal price;
+
+       public RoomTypeEntity() {
+       }
+
+       public RoomTypeEntity(Long id, String name, String description, int capacity, BigDecimal price) {
+           this.id = id;
+           this.name = name;
+           this.description = description;
+           this.capacity = capacity;
+           this.price = price;
+       }
+
+       public Long getId() { return id; }
+       public void setId(Long id) { this.id = id; }
+       public String getName() { return name; }
+       public void setName(String name) { this.name = name; }
+       public String getDescription() { return description; }
+       public void setDescription(String description) { this.description = description; }
+       public int getCapacity() { return capacity; }
+       public void setCapacity(int capacity) { this.capacity = capacity; }
+       public BigDecimal getPrice() { return price; }
+       public void setPrice(BigDecimal price) { this.price = price; }
    }
    ```
 
@@ -147,17 +178,15 @@ layer it applies to, illustrated end-to-end with a `RoomType` example:
 
    public class RoomTypeConverter {
        public static RoomType toDomain(RoomTypeEntity entity) {
-           return RoomType.builder().id(entity.getId()).name(entity.getName())
-               .description(entity.getDescription()).capacity(entity.getCapacity())
-               .price(entity.getPrice()).build();
+           return new RoomType(entity.getId(), entity.getName(), entity.getDescription(),
+               entity.getCapacity(), entity.getPrice());
        }
    }
 
    public class RoomTypeEntityConverter {
        public static RoomTypeEntity toEntity(RoomType domain) {
-           return RoomTypeEntity.builder().id(domain.id()).name(domain.name())
-               .description(domain.description()).capacity(domain.capacity())
-               .price(domain.price()).build();
+           return new RoomTypeEntity(domain.id(), domain.name(), domain.description(),
+               domain.capacity(), domain.price());
        }
    }
    ```
@@ -172,9 +201,12 @@ layer it applies to, illustrated end-to-end with a `RoomType` example:
    package com.example.hotel.postgres.roomtype;
 
    @Repository
-   @RequiredArgsConstructor
    public class RoomTypeRepositoryImpl implements RoomTypeRepository {
        private final RoomTypeJpaRepository jpaRepository;
+
+       public RoomTypeRepositoryImpl(RoomTypeJpaRepository jpaRepository) {
+           this.jpaRepository = jpaRepository;
+       }
 
        public List<RoomType> findAll() {
            return jpaRepository.findAll().stream().map(RoomTypeConverter::toDomain).toList();
@@ -187,18 +219,21 @@ layer it applies to, illustrated end-to-end with a `RoomType` example:
    }
    ```
 
-4. **Inbound-adapter module** (e.g. `*-api`) — a `@RestController` calling the
-   **concrete** service directly (no inbound port, unless one already exists
-   in the project):
+4. **Inbound-adapter module** (e.g. `*-api`) — a `@RestController` with an
+   explicit constructor calling the **concrete** service directly (no inbound
+   port, unless one already exists in the project):
 
    ```java
    package com.example.hotel.api.roomtype;
 
    @RestController
    @RequestMapping("/api/room-types")
-   @RequiredArgsConstructor
    public class RoomTypeController {
        private final RoomTypeService service;
+
+       public RoomTypeController(RoomTypeService service) {
+           this.service = service;
+       }
 
        @GetMapping
        public List<RoomTypeDTO> findAll() {

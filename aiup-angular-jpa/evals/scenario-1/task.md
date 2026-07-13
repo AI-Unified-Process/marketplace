@@ -6,7 +6,7 @@ A hotel booking system's backend is a Maven reactor at `backend/` with five modu
 `hotel-business`, `hotel-postgres`, `hotel-api`, `hotel-app` — following a hexagonal (ports and adapters)
 architecture. Only one feature exists so far, `RoomType`, fully wired across every module:
 
-- `hotel-domain`: `com.example.hotel.domain.roomtype.RoomType` — a pure `@Builder` record, zero
+- `hotel-domain`: `com.example.hotel.domain.roomtype.RoomType` — a pure record, zero
   framework imports.
 - `hotel-business`: `com.example.hotel.business.roomtype.RoomTypeService` (concrete `@Service`),
   `RoomTypeRepository` (the one real port — a plain interface sitting next to the service, not in a

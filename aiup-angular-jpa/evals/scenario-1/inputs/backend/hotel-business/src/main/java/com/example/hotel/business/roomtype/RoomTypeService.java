@@ -1,16 +1,18 @@
 package com.example.hotel.business.roomtype;
 
 import com.example.hotel.domain.roomtype.RoomType;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class RoomTypeService {
 
     private final RoomTypeRepository repository;
+
+    public RoomTypeService(RoomTypeRepository repository) {
+        this.repository = repository;
+    }
 
     public List<RoomType> findAll() {
         return repository.findAll();
