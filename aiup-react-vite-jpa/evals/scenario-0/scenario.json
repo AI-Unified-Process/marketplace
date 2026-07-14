@@ -1,0 +1,6 @@
+{
+  "description": "Implement backend + frontend for a use case (React/Vite/JPA)",
+  "include": [
+    "./inputs"
+  ]
+}

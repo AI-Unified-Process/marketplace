@@ -1,0 +1,6 @@
+{
+  "description": "spring-boot-test convention detection: RestAssured/Testcontainers vs MockMvc",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "JavaDocs": {
+      "type": "http",
+      "url": "https://www.javadocs.dev/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    }
+  }
+}

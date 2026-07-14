@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent implements UC-010 (Browse Product Catalog) end-to-end for a FLAT single-module backend following the implement skill's Pattern B: a JPA entity mapped onto the existing schema, a Spring Data JPA repository, a service enforcing BR-010, a REST controller returning a DTO (not the entity), and an Angular standalone component using signals and HttpClient. No test files should be created. This is the flat-fallback regression check, run alongside the hexagonal-aware scenario-1.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Product JPA entity created",
+      "description": "A Product class annotated @Entity is created, mapped onto the existing product table (fields for id, name, category, price, inStock matching the migration's columns via default Hibernate naming)",
+      "max_score": 9
+    },
+    {
+      "name": "Spring Data JPA repository created",
+      "description": "A ProductRepository interface extends JpaRepository (or CrudRepository) for the Product entity",
+      "max_score": 7
+    },
+    {
+      "name": "Service class enforces BR-010",
+      "description": "A service class contains the query/filter logic that excludes inStock = false products regardless of the category filter applied, matching business rule BR-010",
+      "max_score": 9
+    },
+    {
+      "name": "Controller returns a DTO, not the entity",
+      "description": "The @RestController method(s) return a DTO/record type rather than the Product @Entity directly",
+      "max_score": 9
+    },
+    {
+      "name": "REST endpoint exposed",
+      "description": "A @RestController class exposes a GET endpoint (e.g. under /api/products) returning the product list as JSON, with an optional category filter",
+      "max_score": 7
+    },
+    {
+      "name": "Did not fabricate a hexagonal module split",
+      "description": "The agent did not create separate domain/business/postgres/api Maven modules for this flat single-module project — all backend code stays in the single existing module",
+      "max_score": 8
+    },
+    {
+      "name": "Angular component uses signals",
+      "description": "The ProductCatalog component uses signal() for state (e.g. products, isLoading, category filter) rather than plain fields or a store library",
+      "max_score": 8
+    },
+    {
+      "name": "Standalone component, no NgModule",
+      "description": "No NgModule is created; the component remains a standalone component",
+      "max_score": 6
+    },
+    {
+      "name": "Hand-written HttpClient service",
+      "description": "A hand-written service using HttpClient (inject or constructor DI) calls the new backend endpoint; no generated OpenAPI client, no NgRx",
+      "max_score": 8
+    },
+    {
+      "name": "Category filter dropdown in the UI",
+      "description": "The component renders a category filter control (e.g. a select) that narrows the displayed products, matching alternative flow A1",
+      "max_score": 7
+    },
+    {
+      "name": "No test files created",
+      "description": "No test classes (Java) or spec files (*.spec.ts) are created as part of this task",
+      "max_score": 6
+    }
+  ]
+}

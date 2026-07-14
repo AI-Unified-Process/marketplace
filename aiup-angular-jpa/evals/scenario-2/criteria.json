@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent detects and follows an existing RestAssured + Testcontainers integration-test convention rather than defaulting to MockMvc (the sibling react-vite-jpa plugin's own default), when writing tests for the Register Guest use case (UC-020) whose implementation already exists.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Test class name pattern",
+      "description": "The test class is named UC020RegisterGuestTest (matching the UC<id><PascalCaseUseCaseName>Test pattern for UC-020), or extends the existing IntegrationTestBase with an equivalent name clearly tied to the use case",
+      "max_score": 8
+    },
+    {
+      "name": "Extends IntegrationTestBase",
+      "description": "The new test class extends the existing IntegrationTestBase rather than duplicating its Testcontainers/SpringBootTest setup",
+      "max_score": 9
+    },
+    {
+      "name": "Uses RestAssured, not MockMvc",
+      "description": "The test drives the API with RestAssured (given()...when()...then()) — no MockMvc, no @AutoConfigureMockMvc, no MockMvc import anywhere in the new test class",
+      "max_score": 10
+    },
+    {
+      "name": "Reuses the existing UseCase annotation",
+      "description": "The test uses the existing com.example.hotel.usecase.UseCase annotation rather than creating a duplicate or new annotation type",
+      "max_score": 8
+    },
+    {
+      "name": "@UseCase on every test method",
+      "description": "Every @Test method has a @UseCase annotation with id = \"UC-020\"",
+      "max_score": 7
+    },
+    {
+      "name": "@UseCase scenario matches spec",
+      "description": "At least one test method uses scenario = \"A1: Email Already Registered\" matching the alternative flow heading in the UC-020 spec",
+      "max_score": 7
+    },
+    {
+      "name": "@UseCase businessRules matches spec",
+      "description": "At least one test method includes businessRules = {\"BR-020\"} matching the BR-020 heading in the spec",
+      "max_score": 6
+    },
+    {
+      "name": "Main scenario test present",
+      "description": "A test registers a guest with valid, unique data and asserts a 200/success response containing the created guest's data",
+      "max_score": 8
+    },
+    {
+      "name": "Duplicate-email test present",
+      "description": "A test registers a guest, then attempts to register a second guest with the same email, and asserts a 400 response with an error message",
+      "max_score": 8
+    },
+    {
+      "name": "No repository/service mocking",
+      "description": "No Mockito imports or usage anywhere in the test class — the real GuestService/GuestRepository/database stack is exercised",
+      "max_score": 8
+    },
+    {
+      "name": "Cleanup via JdbcTemplate, not a separate test migration",
+      "description": "Test-created guest rows are cleaned up via JdbcTemplate/JdbcTestUtils in @AfterEach (matching the RestAssured/Testcontainers convention's seeding approach) rather than introducing a new Flyway test-migration seed file",
+      "max_score": 7
+    }
+  ]
+}
