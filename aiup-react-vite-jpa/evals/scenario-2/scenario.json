@@ -1,6 +1,0 @@
-{
-  "description": "Playwright e2e tests for the Product Catalog use case",
-  "include": [
-    "./inputs"
-  ]
-}

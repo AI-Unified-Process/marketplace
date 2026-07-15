@@ -224,8 +224,7 @@ class RoomTypeControllerTest {
 ```
 
 In this convention, test data is created using Flyway migrations in
-`src/test/resources/db/migration` — the same approach as
-`aiup-react-vite-jpa`'s `spring-boot-test` skill. Don't let this seed-file
+`src/test/resources/db/migration`. Don't let this seed-file
 convention leak into Convention A, and don't let Convention A's
 `JdbcTemplate`/API seeding leak into this one.
 

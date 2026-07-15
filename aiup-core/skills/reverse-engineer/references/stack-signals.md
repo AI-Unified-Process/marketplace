@@ -101,36 +101,6 @@ match the project in front of you.
   Yup schemas — these are the richest source of business rules in the
   Node ecosystem.
 
-## React (Vite) Frontend
-
-A React SPA has no server-side routes of its own — the "entry points" that
-define use cases are the frontend's own routes, not just the backend API it
-calls. When a project pairs a React/Vite frontend with a separate backend
-(e.g. `aiup-react-vite-jpa`'s Spring Boot API), read both sides: recover
-actors and use cases from the frontend routes, and confirm the entities
-against the backend's `@Entity`/API DTOs.
-
-- **Build files**: `vite.config.ts`, `package.json` (look for `react`,
-  `react-dom`, `react-router-dom`/`@tanstack/react-router`).
-- **Entry points**: route definitions — `<Route path="..." element={...} />`
-  (React Router), or file-based routes under `src/routes/` (TanStack Router,
-  file-based conventions). Each top-level route usually corresponds to one
-  use case; a route with nested forms/dialogs for create/edit/delete may
-  still be one use case ("Manage X") rather than three.
-- **Actors**: route guards / protected-route wrappers (`<ProtectedRoute>`,
-  `<RequireAuth>`), an auth context/provider (`AuthContext`, `useAuth()`),
-  role checks gating navigation items or routes.
-- **Entities**: the TypeScript types/interfaces the API client functions
-  return (e.g. `src/api/*.ts`) — these mirror the backend's DTOs, which in
-  turn mirror the `@Entity` classes. Prefer the backend's entity model if
-  both are present; the frontend types are a fallback when only the frontend
-  is available.
-- **Tests**: Vitest + React Testing Library files under `src/**/*.test.tsx`,
-  Playwright specs under `tests/e2e/` or `e2e/`. Tests named after a use case
-  (e.g. `UC-010-browse-product-catalog.test.tsx`) or tagged `@UC-XXX` are
-  gold — same as the Java convention, just expressed as a file-naming/tag
-  convention instead of an annotation.
-
 ## Angular Frontend
 
 Same reasoning as the React section above — an Angular SPA's "entry points" are its own

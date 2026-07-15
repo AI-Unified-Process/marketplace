@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent detects and follows an existing RestAssured + Testcontainers integration-test convention rather than defaulting to MockMvc (the sibling react-vite-jpa plugin's own default), when writing tests for the Register Guest use case (UC-020) whose implementation already exists.",
+  "context": "Tests whether the agent detects and follows an existing RestAssured + Testcontainers integration-test convention rather than defaulting to different conventions such as MockMvc, when writing tests for the Register Guest use case (UC-020) whose implementation already exists.",
   "type": "weighted_checklist",
   "checklist": [
     {

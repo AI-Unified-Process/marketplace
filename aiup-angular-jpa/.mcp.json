@@ -4,15 +4,6 @@
       "type": "http",
       "url": "https://www.javadocs.dev/mcp"
     },
-    "angular-cli": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@angular/cli",
-        "mcp"
-      ]
-    },
     "playwright": {
       "type": "stdio",
       "command": "npx",

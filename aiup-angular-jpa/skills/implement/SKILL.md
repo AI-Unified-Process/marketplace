@@ -30,10 +30,8 @@ convention is correct; "fixing" it into textbook full hexagonal is not the job.
 Don't create tests — there are the `spring-boot-test`, `vitest-test`, and
 `playwright-test` skills for that.
 
-If the JavaDocs or angular-cli MCP servers are configured, check them for
-Spring/Hibernate API lookups and authoritative Angular docs/best-practices
-respectively; otherwise rely on your own knowledge and the documentation links
-below.
+If the JavaDocs is configured, check them for Spring/Hibernate API lookups; otherwise rely on your own knowledge and the 
+documentation links below.
 
 ## DO NOT
 
@@ -254,8 +252,7 @@ them, explicit getters/setters:
 
 ## Backend — Pattern B: Flat Single-Module (fallback)
 
-When no confident hexagonal split is detected, use this flat pattern (matches
-`aiup-react-vite-jpa`'s backend approach):
+When no confident hexagonal split is detected, use this existing flat pattern.
 
 1. `@Entity` class mapped onto the table the `flyway-migration` skill already
    created — field names in `camelCase`, matching the migration's `snake_case`
@@ -327,9 +324,7 @@ public class RoomTypeController {
 - **Change-detection strategy**: default new components to
   `ChangeDetectionStrategy.OnPush` unless the project's existing components
   consistently set something else — always match what's already there rather
-  than asserting a default from scratch. If the angular-cli MCP server is
-  configured, its `onpush_zoneless_migration` tool can confirm what a project
-  actually already standardizes on rather than guessing from a few files.
+  than asserting a default from scratch.
 - **Base URL**: read from `environment.ts`; check for an existing dev proxy
   config (`proxy.conf.json`) and add an entry rather than assuming one needs
   to be created from scratch.
@@ -398,7 +393,5 @@ export class RoomTypeOverview implements OnInit {
 ## Resources
 
 - If configured, use the JavaDocs MCP server for Spring/Hibernate API documentation (`https://www.javadocs.dev/mcp`)
-- If configured, use the angular-cli MCP server's `search_documentation` and `get_best_practices` tools for
-  authoritative Angular docs, and `run_target`/`devserver.start` to verify the build
 - If `aiup-core` is installed, its context7 MCP server covers RxJS and other frontend library docs
 - See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers

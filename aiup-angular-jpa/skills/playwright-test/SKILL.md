@@ -17,9 +17,6 @@ $ARGUMENTS. Tests run in a real browser against the running application — both
 the Angular dev server (frontend) and the Spring Boot backend must be up,
 since this is a split client/server architecture and the browser only ever
 talks to the frontend origin, which proxies API calls to the backend.
-If the angular-cli MCP server is configured, its `devserver.start`/`devserver.wait_for_build`
-tools can launch the Angular dev server and confirm it finished building before tests run,
-instead of assuming it's already up.
 
 Use Playwright's own locators (`getByRole`, `getByLabelText`, `getByText`) —
 they are accessibility-first by default and work directly against Angular's
@@ -187,6 +184,4 @@ state with a plain boolean check.
 
 - Playwright documentation: https://playwright.dev/docs/intro
 - If configured, use the playwright MCP server for browser automation assistance
-- If configured, use the angular-cli MCP server's `devserver.start`/`.stop`/`.wait_for_build`
-  to manage the Angular dev server, and `search_documentation` for Angular-specific questions
 - See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers

@@ -61,7 +61,6 @@ forward workflow would have produced, giving you a documented baseline to work f
 |-------------------------|-----------------|----------------------------------------|----------------------------------------------------------------------------------------------------|------------|
 | **aiup-core**           | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                                                   |            |
 | **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test`                   |            |
-| **aiup-react-vite-jpa** |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
 | **aiup-angular-jpa**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
 
 ---
@@ -73,8 +72,6 @@ forward workflow would have produced, giving you a documented baseline to work f
   goals (the `/requirements` skill reads this file to derive your requirements catalog — the richer it is, the better
   the results)
 - For the Vaadin/jOOQ plugin: a Maven or Gradle project with Vaadin and jOOQ already on the classpath
-- For the React/Vite/JPA plugin: a Maven or Gradle backend project with Spring Boot, Spring Data JPA, and Flyway,
-  plus a separate Vite + React (TypeScript) frontend project
 - For the Angular/JPA plugin: a Maven or Gradle backend project with Spring Boot, Spring Data JPA, and Flyway
   (flat single module or a hexagonal domain/business/postgres/api/app-style multi-module layout), plus a
   separate Angular (standalone components) frontend project
@@ -85,7 +82,6 @@ forward workflow would have produced, giving you a documented baseline to work f
 /plugin marketplace add ai-unified-process/marketplace
 /plugin install aiup-core
 /plugin install aiup-vaadin-jooq        # for a Vaadin + jOOQ project
-/plugin install aiup-react-vite-jpa     # for a React + Vite + JPA project
 /plugin install aiup-angular-jpa        # for an Angular + JPA project
 ```
 
@@ -115,7 +111,7 @@ CLI**, **Cursor**, **GitHub Copilot**, **Gemini CLI**, and **OpenCode**. Pair th
 
 [Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
 wires the MCP servers into the correct per-agent directory for whichever coding agent it detects. All plugins are
-published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, `aiup/aiup-react-vite-jpa`, and
+published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, and
 `aiup/aiup-angular-jpa`, so
 this is the simplest way to adopt
 the workflow outside Claude Code — no manual cloning or per-tool MCP translation.
@@ -128,7 +124,6 @@ tessl init --agent claude-code          # or: cursor, gemini, codex, copilot, co
 # install the plugins from the registry (latest, or pin @version)
 tessl install aiup/aiup-core
 tessl install aiup/aiup-vaadin-jooq     # for a Vaadin + jOOQ project
-tessl install aiup/aiup-react-vite-jpa  # for a React + Vite + JPA project
 tessl install aiup/aiup-angular-jpa     # for an Angular + JPA project
 ```
 
@@ -208,7 +203,7 @@ See the [Codex skills docs](https://developers.openai.com/codex/skills) and the
   ```
   /plugin marketplace add ai-unified-process/marketplace
   /plugin install aiup-core
-  /plugin install aiup-vaadin-jooq        # or: aiup-react-vite-jpa, aiup-angular-jpa
+  /plugin install aiup-vaadin-jooq        # or: aiup-angular-jpa
   ```
 
   This pulls in the skills *and* the MCP server configs from each plugin's `.mcp.json`.
@@ -383,7 +378,7 @@ look at the implementation — and never use raw Playwright locators or `Thread.
 
 ## Skills Reference
 
-### `/requirements` — Requirements Catalog
+### `/requirements` — Requirements Catalog *(plugin-agnostic)*
 
 **Purpose:** Turns a `docs/vision.md` document into a structured `docs/requirements.md` catalog with functional
 requirements, non-functional requirements, and constraints.
@@ -410,7 +405,7 @@ requirements, non-functional requirements, and constraints.
 
 ---
 
-### `/entity-model` — Entity Model
+### `/entity-model` — Entity Model *(plugin-agnostic)*
 
 **Purpose:** Designs the domain entity model with a Mermaid ER diagram and per-entity attribute tables.
 
@@ -435,7 +430,7 @@ requirements, non-functional requirements, and constraints.
 
 ---
 
-### `/use-case-diagram` — Use Case Diagram
+### `/use-case-diagram` — Use Case Diagram *(plugin-agnostic)*
 
 **Purpose:** Generates a PlantUML use case diagram showing actors, use cases, and their relationships derived from the
 requirements catalog.
@@ -460,7 +455,7 @@ requirements catalog.
 
 ---
 
-### `/use-case-spec` — Use Case Specification
+### `/use-case-spec` — Use Case Specification *(plugin-agnostic)*
 
 **Purpose:** Writes detailed specifications for one or more use cases, each as a separate document under
 `docs/use_cases/`.
@@ -487,7 +482,7 @@ requirements catalog.
 
 ---
 
-### `/reverse-engineer` — Reverse Engineer Existing Project
+### `/reverse-engineer` — Reverse Engineer Existing Project *(plugin-agnostic)*
 
 **Purpose:** Recovers AIUP artifacts (use case diagram, per-use-case specifications, entity model) from an existing
 codebase so legacy projects can join the AIUP workflow without rewriting documentation by hand.
@@ -516,7 +511,7 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
 
 ---
 
-### `/flyway-migration` — Flyway Database Migrations
+### `/flyway-migration` — Flyway Database Migrations *(in aiup-vaadin-jooq)*
 
 **Purpose:** Generates versioned Flyway migration scripts (`V*.sql`) that create the schema described in
 `docs/entity_model.md`.
@@ -567,7 +562,7 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
 
 ---
 
-### `/browserless-test` — Vaadin Browserless Server-Side Tests *(recommended)*
+### `/browserless-test` — Vaadin Browserless Server-Side Tests *(recommended, in aiup-vaadin-jooq)*
 
 **Purpose:** Creates server-side unit tests for Vaadin views using the official **Vaadin Browserless** framework
 (`com.vaadin:browserless-test-junit6`) — no browser, no WebDriver, no servlet container. Browserless Testing is free
@@ -596,7 +591,7 @@ and open source under Apache 2.0 since Vaadin 25.1.
 
 ---
 
-### `/karibu-test` — Karibu Server-Side Tests *(legacy — no longer recommended)*
+### `/karibu-test` — Karibu Server-Side Tests *(legacy — no longer recommended, in aiup-vaadin-jooq)*
 
 > **Use `/browserless-test` instead for new projects.** Since Vaadin 25.1 the official Browserless Testing framework
 > is free and open source under Apache 2.0, making the community Karibu Testing library redundant. This skill is
@@ -627,7 +622,7 @@ tree without launching a browser.
 
 ---
 
-### `/playwright-test` — Playwright Integration Tests
+### `/playwright-test` — Playwright Integration Tests *(in aiup-vaadin-jooq)*
 
 **Purpose:** Creates browser-based end-to-end tests for Vaadin views using Playwright with the Drama Finder library for
 type-safe, accessibility-first element wrappers.
@@ -656,129 +651,7 @@ type-safe, accessibility-first element wrappers.
 
 ---
 
-### `/flyway-migration` — Flyway Database Migrations *(React/Vite/JPA)*
-
-**Purpose:** Generates versioned Flyway migration scripts (`V*.sql`) that create the schema described in
-`docs/entity_model.md`, using `snake_case` column names so they match Hibernate's default JPA field mapping.
-
-**Usage:**
-
-```
-/flyway-migration
-```
-
-**Input:** `docs/entity_model.md`
-**Output:** `backend/src/main/resources/db/migration/V*.sql`
-**Plugin:** `aiup-react-vite-jpa`
-
----
-
-### `/implement` — Use Case Implementation *(React/Vite/JPA)*
-
-**Purpose:** Implements a use case end-to-end across a split client/server architecture — a Spring Data JPA + REST
-backend and a React frontend that calls it.
-
-**Usage:**
-
-```
-/implement UC-001
-```
-
-**What it does:**
-
-1. Reads the use case specification from `docs/use_cases/` and the entity model from `docs/entity_model.md`
-2. Reads existing backend and frontend code first to match conventions
-3. Implements the backend: `@Entity`, Spring Data JPA repository, service, and `@RestController` returning DTOs —
-   verifies it compiles
-4. Implements the frontend: a React (TypeScript) page/component calling the REST endpoint — verifies it builds
-5. Does **not** create test classes — use `/spring-boot-test`, `/vitest-test`, and `/playwright-test` for that
-
-**Input:** Use case ID as argument
-**Output:** Spring Data JPA + REST backend classes, plus a React page/component
-**Plugin:** `aiup-react-vite-jpa`
-
----
-
-### `/spring-boot-test` — Spring Boot Backend Tests
-
-**Purpose:** Creates integration tests for REST controllers and Spring Data JPA repositories that exercise the real
-controller → service → repository → database stack — no mocking of the data layer.
-
-**Usage:**
-
-```
-/spring-boot-test UC-001
-```
-
-**What it does:**
-
-1. Reads the use case spec to derive the test scenarios
-2. Generates a JUnit 5 test class annotated `@SpringBootTest` (with `@AutoConfigureMockMvc` for REST-layer tests, or
-   `@DataJpaTest` for repository-only tests)
-3. Seeds test data via Flyway migrations under `src/test/resources/db/migration` — never via Mockito
-4. Cleans up only test-created data in `@AfterEach`
-5. Asserts on the DTO/JSON shape actually returned, via AssertJ and MockMvc's `jsonPath`
-
-**Input:** Use case ID as argument
-**Output:** Spring Boot test class under `backend/src/test/java`
-**Plugin:** `aiup-react-vite-jpa`
-
----
-
-### `/vitest-test` — React Component Tests *(recommended)*
-
-**Purpose:** Creates Vitest + React Testing Library component tests for React views, with network requests mocked at
-the HTTP boundary via MSW so real request/response parsing is still exercised.
-
-**Usage:**
-
-```
-/vitest-test UC-001
-```
-
-**What it does:**
-
-1. Reads the use case spec to derive the test scenarios
-2. Generates a test file named `UC-XXX-<slug>.test.tsx`, colocated with the component, with a top-level `describe`
-   block named after the use case
-3. Sets up MSW request handlers matching the backend's real response shape
-4. Locates elements the way a user/screen-reader would (`getByRole`, `getByLabelText`, `getByText`)
-5. Drives interactions with `@testing-library/user-event`, not raw `fireEvent`
-
-**Input:** Use case ID as argument
-**Output:** Vitest test file colocated with the component (`frontend/src/**/*.test.tsx`)
-**Plugin:** `aiup-react-vite-jpa`
-
----
-
-### `/playwright-test` — Playwright End-to-End Tests *(React/Vite/JPA)*
-
-**Purpose:** Creates browser-based end-to-end tests for React views using Playwright's native accessibility-first
-locators — no wrapper library needed, since React's plain HTML/ARIA output already works with Playwright's
-`getByRole`/`getByLabelText`/`getByText` directly.
-
-**Usage:**
-
-```
-/playwright-test UC-001
-```
-
-**What it does:**
-
-1. Reads the use case spec to derive the test scenarios
-2. Generates a test file grouping scenarios in a `test.describe` block per use case, tagged `{ tag: "@UC-XXX" }`
-3. Writes black-box tests against the running frontend (default: `http://localhost:5173`) and backend — does not
-   consult the implementation
-4. Uses Playwright's own locators exclusively — never CSS selectors, XPath, or `waitForTimeout()`
-5. Reuses existing test data from Flyway migrations; cleans up only test-created data in an `afterEach` hook
-
-**Input:** Use case ID as argument
-**Output:** Playwright test file under `frontend/tests/e2e/`
-**Plugin:** `aiup-react-vite-jpa`
-
----
-
-### `/flyway-migration` — Flyway Database Migrations *(Angular/JPA)*
+### `/flyway-migration` — Flyway Database Migrations *(in aiup-angular-jpa)*
 
 **Purpose:** Generates versioned Flyway migration scripts (`V*.sql`) that create the schema described in
 `docs/entity_model.md`, using `snake_case` column names so they match Hibernate's default JPA field mapping.
@@ -799,7 +672,7 @@ hexagonal layout).
 
 ---
 
-### `/implement` — Use Case Implementation *(Angular/JPA)*
+### `/implement` — Use Case Implementation *(in aiup-angular-jpa)*
 
 **Purpose:** Implements a use case end-to-end across a Spring Boot backend — flat single-module or hexagonal
 multi-module (ports and adapters enforced at the Maven-module boundary) — and an Angular frontend.
@@ -857,7 +730,7 @@ MockMvc — rather than assuming one.
 
 ---
 
-### `/vitest-test` — Angular Component Tests *(recommended)*
+### `/vitest-test` — Angular Component Tests *(in aiup-angular-jpa)*
 
 **Purpose:** Creates Vitest component tests for Angular views using Angular's own testing idioms — `TestBed`,
 `ComponentFixture`, and `HttpTestingController` — rather than porting React Testing Library patterns.
@@ -882,7 +755,7 @@ MockMvc — rather than assuming one.
 
 ---
 
-### `/playwright-test` — Playwright End-to-End Tests *(Angular/JPA)*
+### `/playwright-test` — Playwright End-to-End Tests *(in aiup-angular-jpa)*
 
 **Purpose:** Creates browser-based end-to-end tests for Angular views using Playwright's native
 accessibility-first locators — no wrapper library needed. Since these projects typically have no existing
@@ -937,8 +810,7 @@ your-project/
 └── CLAUDE.md
 ```
 
-The tree above shows the Vaadin/jOOQ shape. `aiup-react-vite-jpa` splits `backend/`/`frontend/` directories
-instead of one `src/` tree; `aiup-angular-jpa` supports that same flat split *or* a hexagonal multi-module
+The tree above shows the Vaadin/jOOQ shape. `aiup-angular-jpa` supports that same flat split *or* a hexagonal multi-module
 Maven reactor (`domain`/`business`/`postgres`/`api`/`app`), detected automatically. See each plugin's own
 README for its exact project-structure tree.
 
@@ -1054,12 +926,11 @@ their plugin (e.g., `aiup-core:requirements`).
 An **MCP (Model Context Protocol) server** is an external service that provides Claude with access to specialized tools
 and documentation. The plugins in this marketplace ship with the following servers:
 
-| Server            | Plugin                                                        | Description                                                                      |
-|-------------------|---------------------------------------------------------------|----------------------------------------------------------------------------------|
-| **context7**      | `aiup-core`                                                   | General library documentation lookup                                             |
-| **Vaadin**        | `aiup-vaadin-jooq`                                            | Vaadin component and framework documentation                                     |
-| **KaribuTesting** | `aiup-vaadin-jooq`                                            | Karibu testing framework documentation                                           |
-| **jOOQ**          | `aiup-vaadin-jooq`                                            | jOOQ DSL and code generation reference                                           |
-| **JavaDocs**      | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Java API documentation lookup                                                    |
-| **angular-cli**   | `aiup-angular-jpa`                                            | Official Angular CLI MCP server — docs, best practices, dev server, `ng` targets |
-| **Playwright**    | `aiup-vaadin-jooq`, `aiup-react-vite-jpa`, `aiup-angular-jpa` | Browser automation for integration tests                                         |
+| Server            | Plugin                                   | Description                                                                      |
+|-------------------|------------------------------------------|----------------------------------------------------------------------------------|
+| **context7**      | `aiup-core`                              | General library documentation lookup                                             |
+| **Vaadin**        | `aiup-vaadin-jooq`                       | Vaadin component and framework documentation                                     |
+| **KaribuTesting** | `aiup-vaadin-jooq`                       | Karibu testing framework documentation                                           |
+| **jOOQ**          | `aiup-vaadin-jooq`                       | jOOQ DSL and code generation reference                                           |
+| **JavaDocs**      | `aiup-vaadin-jooq`, `aiup-angular-jpa`   | Java API documentation lookup                                                    |
+| **Playwright**    | `aiup-vaadin-jooq`, `aiup-angular-jpa`   | Browser automation for integration tests                                         |

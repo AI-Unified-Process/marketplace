@@ -1,6 +1,0 @@
-{
-  "description": "Spring Boot backend tests for the Product Catalog use case",
-  "include": [
-    "./inputs"
-  ]
-}

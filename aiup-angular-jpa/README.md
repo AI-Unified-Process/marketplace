@@ -13,13 +13,11 @@ stack.
 Unlike a server-rendered UI framework, this is a **split client/server architecture**: the backend and frontend are
 independent builds that only share a JSON contract over HTTP. Every skill in this plugin reflects that split.
 
-## What makes this plugin different from `aiup-react-vite-jpa`
-
+## What makes this plugin different from `aiup-vaadin-jooq`
 Besides the obvious frontend swap, this plugin's backend skills (`/implement`, `/flyway-migration`,
 `/spring-boot-test`) **detect and support two backend shapes**, rather than assuming one:
 
-- **Flat single-module** — one Spring Boot project with `@Entity`/repository/service/controller together, the
-  same shape `aiup-react-vite-jpa` assumes.
+- **Flat single-module** — one Spring Boot project with `@Entity`/repository/service/controller together.
 - **Hexagonal multi-module** — a Maven reactor with separate `domain` / `business` / persistence-adapter /
   inbound-adapter / composition-root modules (ports and adapters enforced at the module boundary, not just by
   package naming). This is a common, deliberate architectural choice for larger Spring Boot backends, and the
@@ -36,7 +34,7 @@ migrations, backend and frontend implementation, and testing on both sides — w
 a use case (`UC-*`).
 
 It is meant to be used **together with `aiup/aiup-core`**, which produces the upstream `docs/entity_model.md` and
-`docs/use_cases/UC-*.md` artifacts these skills read.
+`docs/use_cases/UC-*.md` artifacts these skills read. It is **not meant to be used together with `aiup/aiup-vaadin-jooq**,
 
 ## Skills
 
@@ -69,11 +67,9 @@ These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `doc
 | Server      | Purpose                                                                                  |
 |-------------|------------------------------------------------------------------------------------------|
 | JavaDocs    | Javadoc lookup for Spring/Hibernate/RestAssured/Testcontainers on the classpath          |
-| angular-cli | Official Angular CLI MCP server — docs, best practices, dev server, running `ng` targets |
 | Playwright  | Browser automation for end-to-end tests                                                  |
 
-`angular-cli` ships with `@angular/cli` itself — no separate install beyond your Angular
-project's own dependencies. RxJS and Vitest docs are covered by `aiup-core`'s **context7**
+RxJS and Vitest docs are covered by `aiup-core`'s **context7**
 MCP server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 
 ## Installation
