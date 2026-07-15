@@ -29,24 +29,20 @@ Inception          Elaboration                          Construction
                                                                           ↘  /playwright-test
 ```
 
-For a React/Vite/JPA project, the Construction phase branches differently — a split backend/frontend
-architecture instead of a single server-rendered UI:
+For an Angular/JPA project, the inception and elaboration parts look the same, as they are part of the aiup-
+core plugin. The construction, however, is optimized for tech stack SpringBoot with JPA and Angular in frontend.
+It tests the frontend with Angular vitest unittests, the backend with spring-boot integrations tests and the whole
+app with playwright e2e tests. Further it takes existing backend architecture, a hexagonal multi-module Maven 
+reactor rather than a single flat module into consideration.
 
 ```
-/flyway-migration  →  /implement  →  /spring-boot-test
-                                  ↘  /vitest-test
-                                  ↘  /playwright-test
-```
-
-For an Angular/JPA project, the Construction phase has the same shape (a split backend/frontend
-architecture) but the backend may additionally be organized as a hexagonal multi-module Maven reactor rather
-than a single flat module — `/implement`, `/flyway-migration`, and `/spring-boot-test` detect which shape a
-project uses and follow it:
-
-```
-/flyway-migration  →  /implement  →  /spring-boot-test
-                                  ↘  /vitest-test
-                                  ↘  /playwright-test
+Inception          Elaboration                          Construction
+─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /flyway-migration
+                                                                          ↘  /implement
+                                                                          ↘  /spring-boot-test
+                                                                          ↘  /vitest-test
+                                                                          ↘  /playwright-test
 ```
 
 Each skill picks up where the previous one left off using the files produced along the way (`docs/vision.md`,
