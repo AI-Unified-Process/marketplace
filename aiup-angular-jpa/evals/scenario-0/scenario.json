@@ -1,0 +1,6 @@
+{
+  "description": "Implement backend + frontend for a use case (flat module, Angular/JPA)",
+  "include": [
+    "./inputs"
+  ]
+}

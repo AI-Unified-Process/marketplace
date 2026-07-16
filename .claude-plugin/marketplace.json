@@ -15,6 +15,11 @@
       "name": "aiup-vaadin-jooq",
       "source": "./aiup-vaadin-jooq",
       "description": "AI Unified Process plugin for the Vaadin/jOOQ stack"
+    },
+    {
+      "name": "aiup-angular-jpa",
+      "source": "./aiup-angular-jpa",
+      "description": "AI Unified Process plugin for the Angular/JPA stack"
     }
   ]
 }

@@ -1,0 +1,71 @@
+{
+  "context": "Tests whether the agent correctly detects a hexagonal multi-module Maven backend and implements a new feature (Guest, UC-020) by imitating the existing RoomType exemplar's exact conventions, rather than inventing a flat structure or 'fixing' the asymmetric hexagonal pattern into textbook full hexagonal. This is the single highest-risk behavior of the aiup-angular-jpa plugin's implement skill.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Pure domain record with zero framework imports",
+      "description": "A Guest record is created in hotel-domain (package com.example.hotel.domain.guest or similar), a plain Java record with no JPA, Spring, Lombok, or persistence imports anywhere in the class",
+      "max_score": 10
+    },
+    {
+      "name": "No JPA/Spring leakage into hotel-domain",
+      "description": "Nothing added to the hotel-domain module contains @Entity, @Service, @Repository, @RestController, or any javax/jakarta.persistence or org.springframework import",
+      "max_score": 9
+    },
+    {
+      "name": "Outbound port as plain sibling interface, not a port subpackage",
+      "description": "A GuestRepository interface is created directly in the business-module guest package (e.g. com.example.hotel.business.guest), matching where RoomTypeRepository sits — NOT in a business.guest.port or business.port.out subpackage",
+      "max_score": 10
+    },
+    {
+      "name": "No inbound port/use-case interface invented",
+      "description": "No new interface is created for the controller to depend on (e.g. no GuestUseCase, no GuestServicePort, no inbound port of any kind) — none exists anywhere in the reactor for RoomType either",
+      "max_score": 10
+    },
+    {
+      "name": "Controller depends on the concrete service",
+      "description": "GuestController in hotel-api directly autowires/injects the concrete GuestService class (not an interface), matching RoomTypeController's dependency on the concrete RoomTypeService",
+      "max_score": 9
+    },
+    {
+      "name": "DTO factory method on the DTO record itself",
+      "description": "GuestDTO is a record with a static fromBusiness(Guest) method converting from the domain type, matching RoomTypeDTO's exact pattern — not a separate mapper class for this conversion",
+      "max_score": 8
+    },
+    {
+      "name": "Hand-written static converters, not MapStruct",
+      "description": "GuestConverter (entity->domain) and GuestEntityConverter (domain->entity) are hand-written static-method classes in postgres.guest.converter, matching RoomTypeConverter/RoomTypeEntityConverter — no MapStruct annotations or generated mapper interfaces introduced",
+      "max_score": 8
+    },
+    {
+      "name": "Separate JPA entity from the domain record",
+      "description": "GuestEntity is a distinct @Entity class in hotel-postgres (postgres.guest.model package), not a reuse or annotation of the domain Guest record",
+      "max_score": 8
+    },
+    {
+      "name": "Spring Data repository + port implementation in hotel-postgres",
+      "description": "A GuestJpaRepository extends JpaRepository<GuestEntity, Long> in postgres.guest.query, and a GuestRepositoryImpl in postgres.guest implements the business module's GuestRepository port",
+      "max_score": 8
+    },
+    {
+      "name": "Flyway migration placed in the persistence-adapter module",
+      "description": "The new migration (e.g. V2__create_guest.sql) is placed under hotel-postgres/src/main/resources/db/migration — not under hotel-app, hotel-api, or a generic top-level backend/ path",
+      "max_score": 9
+    },
+    {
+      "name": "Email uniqueness enforced at the database level",
+      "description": "The Guest table migration includes a UNIQUE constraint on the email column, matching BR-020",
+      "max_score": 6
+    },
+    {
+      "name": "Correct module for each new file",
+      "description": "Every new file is placed in the module matching its architectural role (domain record in hotel-domain, service/port/DTO in hotel-business, entity/converters/JPA repo/port-impl/migration in hotel-postgres, controller in hotel-api) — no file crosses into the wrong module",
+      "max_score": 8
+    },
+    {
+      "name": "No test files created",
+      "description": "No test classes are created as part of this task",
+      "max_score": 5
+    }
+  ]
+}
