@@ -53,9 +53,9 @@ One sentence describing the entity.
 
 Every entity MUST have:
 
-1. A ### heading with ENTITY_NAME
+1. A ### heading with the entity name in UPPERCASE (UPPER_SNAKE_CASE, e.g. `### ROOM_TYPE` — never `### Room Type` or `## Entity: Room Type`)
 2. One sentence description
-3. An attribute table with exactly 5 columns
+3. An attribute table with exactly these 5 columns in this order: Attribute, Description, Data Type, Length/Precision, Validation Rules
 
 ### Example Entity
 
@@ -77,10 +77,46 @@ Defines categories of rooms with shared characteristics.
 - NO attributes inside entity blocks
 - Use relationship syntax: `ENTITY_A ||--o{ ENTITY_B : "relationship"`
 
-## Reference
+## Data Types (use only these)
 
-See [references/REFERENCE.md](references/REFERENCE.md) for the allowed Validation Rules values (never leave the column empty)
-and the Data Types with their Length/Precision conventions.
+The Data Type column must use exactly these values — never SQL or ORM types such as
+VARCHAR, TEXT, CHAR, bigint, numeric, serial, smallint, UUID, Timestamp, or Enum:
+
+| Data Type | Length/Precision | Usage                 |
+|-----------|------------------|-----------------------|
+| Long      | 19               | IDs, foreign keys     |
+| String    | varies (50-500)  | Text fields           |
+| Integer   | 10               | Whole numbers         |
+| Decimal   | 10,2             | Currency, percentages |
+| Boolean   | 1                | True/false flags      |
+| Date      | -                | Date only             |
+| DateTime  | -                | Date and time         |
+
+The Length/Precision column holds the bare value (e.g. `10,2`) — never a type
+expression like `DECIMAL(10,2)`.
+
+## Validation Rules (use only these values)
+
+Compose every Validation Rules cell from this vocabulary, using the exact wording —
+never a prose description, and never an empty cell, dash, or "N/A":
+
+| Attribute Type | Validation Rules Value           |
+|----------------|----------------------------------|
+| Primary key    | Primary Key, Sequence            |
+| Required field | Not Null                         |
+| Unique field   | Not Null, Unique                 |
+| Foreign key    | Not Null, Foreign Key (TABLE.id) |
+| Optional field | Optional                         |
+| With range     | Not Null, Min: X, Max: Y         |
+| With values    | Not Null, Values: A, B, C        |
+| Email          | Not Null, Format: Email          |
+
+Examples: an email attribute is `Not Null, Format: Email` — never "must be a valid
+email address". A status attribute with a fixed set of states is
+`Not Null, Values: Pending, Active, Completed, Cancelled` — never "must be one of
+Pending, Active, Completed, Cancelled".
+
+The same tables are available in [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Multi-Column Constraints
 
@@ -104,4 +140,6 @@ If validation spans multiple columns, add after the table:
     - Every attribute table has exactly 5 columns
     - No attributes appear inside the Mermaid diagram entity blocks
     - All foreign keys reference existing entities
-    - All validation rules use values from [references/REFERENCE.md](references/REFERENCE.md)
+    - Every entity heading is `###` with the name in UPPERCASE
+    - All Data Type values come from the Data Types table above (no SQL types anywhere)
+    - All validation rules use values from the Validation Rules table above
