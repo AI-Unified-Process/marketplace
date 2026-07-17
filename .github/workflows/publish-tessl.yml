@@ -23,6 +23,8 @@ on:
     paths:
       - 'aiup-core/**'
       - 'aiup-vaadin-jooq/**'
+      - 'aiup-angular-jpa/**'
+      - '.github/workflows/publish-tessl.yml'
   workflow_dispatch:
 
 jobs:
@@ -34,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plugin: [aiup-core, aiup-vaadin-jooq]
+        plugin: [aiup-core, aiup-vaadin-jooq, aiup-angular-jpa]
     steps:
       - uses: actions/checkout@v6
 
