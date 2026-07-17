@@ -103,7 +103,7 @@ match the project in front of you.
 
 ## Angular Frontend
 
-Same reasoning as the React section above — an Angular SPA's "entry points" are its own
+An Angular SPA's "entry points" are its own
 routes, not just the backend API it calls. When a project pairs an Angular frontend with
 a separate backend (e.g. `aiup-angular-jpa`'s Spring Boot API), read both sides: recover
 actors and use cases from the frontend routes, and confirm entities against the backend's
@@ -127,8 +127,8 @@ domain/DTO shape.
   `@angular/build:unit-test` builder, not the classic Jasmine/Karma default — check
   `angular.json`'s `test` architect target to confirm which one a given project uses),
   Playwright specs under `tests/e2e/` or `e2e/`. Tests named after a use case
-  (e.g. `UC-010-browse-product-catalog.spec.ts`) or tagged `@UC-XXX` are gold — same
-  reasoning as the React section, just expressed as Angular's own naming/tag convention.
+  (e.g. `UC-010-browse-product-catalog.spec.ts`) or tagged `@UC-XXX` are gold — they
+  encode the success scenario and alternative flows already.
 
 ## Ruby / Rails
 
