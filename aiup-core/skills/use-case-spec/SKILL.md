@@ -5,7 +5,12 @@ description: >
   main success scenarios, alternative flows, postconditions, and business rules.
   Use when the user asks to "write a use case", "specify a use case", "document
   system behavior", "define scenarios", "write a functional spec", or mentions
-  use case specification, acceptance criteria, or user scenarios.
+  use case specification, acceptance criteria, or user scenarios. Also trigger
+  whenever the task is to write use case specification documents for the use
+  cases in a use case diagram (e.g. docs/use_cases.puml) — including phrasings
+  like "detailed use case specifications before writing any code", "one file
+  per use case", or a request to cover the happy path, alternative flows,
+  postconditions, and business rules for each use case.
 ---
 
 # Use Case Specification

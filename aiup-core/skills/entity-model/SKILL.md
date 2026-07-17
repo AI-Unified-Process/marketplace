@@ -6,6 +6,12 @@ description: >
   Use when the user asks to "create an entity model", "design a data model",
   "draw an ERD", "define database schema", "model entities", or mentions
   entity-relationship diagram, ER diagram, database design, or data modeling.
+  Also trigger whenever the task is to produce, write, or design an entity
+  model or data model document (e.g. docs/entity_model.md) from a requirements
+  catalog — including phrasings like "data model design", "the team needs an
+  entity model before development", or a request to document entities with
+  attributes, data types, precision, and validation or cross-attribute
+  constraints.
 ---
 
 # Entity Model
