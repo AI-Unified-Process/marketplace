@@ -30,6 +30,34 @@ for the rest of the AI Unified Process workflow:
 The forward-engineering skills derive these from a vision/requirements
 document; you derive them from code, configuration, schema, and tests.
 
+## Format contract — read this before writing any artifact
+
+These are hard requirements, not style preferences. Reverse-engineered
+documents that break them are rejected exactly like forward-engineered ones:
+
+1. **Aggregate use cases.** The spec-file count must be meaningfully smaller
+   than the endpoint count; a small service collapses to roughly 4–8 use
+   cases. One CRUD resource = one "Manage X" use case.
+2. **Spec files** are named `UC-XXX-<kebab-case-name>.md` — three-digit ID,
+   lowercase kebab-case, no underscores or PascalCase.
+3. **Steps stay at the business level** — no SQL, HTTP verbs, framework
+   methods, hashing, tokens, or protocol names in any step.
+4. **`BR-XXX` IDs are unique globally** across all spec files — they never
+   restart at `BR-001` in the next file.
+5. **The Mermaid ER diagram shows relationships only** — no attributes inside
+   entity blocks.
+6. **Every attribute table has exactly these 5 columns, in this order:**
+   `Attribute | Description | Data Type | Length/Precision | Validation Rules`.
+7. **Data types come from the closed AIUP list** — `Long`, `String`,
+   `Integer`, `Decimal`, `Boolean`, `Date`, `DateTime` — and nothing else.
+   Raw SQL/ORM types (`VARCHAR`, `bigint`, `numeric`, `TEXT`) are banned, and
+   so are invented "business types" (`Money`, `Email Address`, `Identifier`,
+   `Timestamp`, `Quantity`, `PersonName`, `Text`). An email column is
+   `String` with validation `Not Null, Format: Email`; a price is
+   `Decimal` with `10,2`.
+8. **Validation Rules cells use only the `/entity-model` vocabulary** and are
+   never empty.
+
 ## How to think about this task
 
 You are not transcribing the code. You are recovering the *intent* the code
@@ -275,7 +303,11 @@ Never leave the Validation Rules column empty and never emit raw SQL types
 
 Map types to the AIUP type vocabulary (`Long`, `String`, `Integer`,
 `Decimal`, `Boolean`, `Date`, `DateTime`) — don't leak `VARCHAR(255)` or
-`bigint` into the document. Map validation to the AIUP vocabulary too
+`bigint` into the document, and don't substitute descriptive "business types"
+of your own (`Money`, `Email Address`, `Hashed String`, `Timestamp`,
+`Identifier`, `Positive Integer`): the seven AIUP types are the complete
+list, and semantics belong in the Description and Validation Rules columns,
+not the Data Type column. Map validation to the AIUP vocabulary too
 (`Primary Key, Sequence`, `Not Null`, `Not Null, Unique`, `Not Null,
 Foreign Key (TABLE.id)`, `Optional`, `Not Null, Min: X, Max: Y`,
 `Not Null, Values: A, B, C`, `Not Null, Format: Email`).

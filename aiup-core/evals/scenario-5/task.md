@@ -10,7 +10,7 @@ The codebase is in the `inputs/` directory. It contains a `pom.xml`, Spring Secu
 
 ## Your Task
 
-Each artifact must conform exactly to the standard AIUP document format — diagram layout, spec structure, and entity model attribute tables using the AIUP data-type and validation-rule vocabulary (business-level types, never raw SQL types). Documents that deviate from the standard format will be rejected during review.
+Each artifact must conform exactly to the standard AIUP document format — diagram layout, spec structure, and entity model attribute tables using the AIUP data-type and validation-rule vocabulary (a fixed list of seven data types — never raw SQL types and never ad-hoc descriptive types). Documents that deviate from the standard format will be rejected during review.
 
 Reverse-engineer the ArtisanShop codebase into the three AIUP artifacts:
 

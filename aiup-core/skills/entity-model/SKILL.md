@@ -116,6 +116,12 @@ email address". A status attribute with a fixed set of states is
 `Not Null, Values: Pending, Active, Completed, Cancelled` — never "must be one of
 Pending, Active, Completed, Cancelled".
 
+This table is a **closed set**: every Validation Rules cell is exactly one row
+from it. Do not combine rows into new patterns (`Not Null, Unique, Format: Email`
+is invalid — pick the one rule that matters most, here `Not Null, Format: Email`),
+and never write `Min:` without its matching `Max:` (`Not Null, Min: 0` alone is
+invalid — use `Not Null, Min: 0, Max: <upper bound>` or just `Not Null`).
+
 The same tables are available in [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Multi-Column Constraints
