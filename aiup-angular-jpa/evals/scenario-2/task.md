@@ -27,8 +27,9 @@ Produce a Spring Boot integration test class for UC-020 at
 `backend/src/test/java/com/example/hotel/guest/<ClassName>.java`, following the naming convention for
 this type of test and matching the project's **existing** test convention exactly (extend
 `IntegrationTestBase`, drive the API with RestAssured, assert with Hamcrest/AssertJ) — do **not**
-introduce MockMvc, even though it's a common alternative, since this project has already established a
-different convention.
+introduce MockMvc, RestTestClient, or MockMvcTester, even though some of these are common alternatives
+(and RestTestClient/MockMvcTester are this skill's own newer defaults), since this project has already
+established a different convention.
 
 The test class should cover:
 

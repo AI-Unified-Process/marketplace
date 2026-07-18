@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent detects and follows an existing RestAssured + Testcontainers integration-test convention rather than defaulting to different conventions such as MockMvc, when writing tests for the Register Guest use case (UC-020) whose implementation already exists.",
+  "context": "Tests whether the agent detects and follows an existing RestAssured + Testcontainers integration-test convention rather than defaulting to different conventions such as MockMvc, MockMvcTester, or RestTestClient, when writing tests for the Register Guest use case (UC-020) whose implementation already exists.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -13,8 +13,8 @@
       "max_score": 9
     },
     {
-      "name": "Uses RestAssured, not MockMvc",
-      "description": "The test drives the API with RestAssured (given()...when()...then()) — no MockMvc, no @AutoConfigureMockMvc, no MockMvc import anywhere in the new test class",
+      "name": "Uses RestAssured, not MockMvc/MockMvcTester/RestTestClient",
+      "description": "The test drives the API with RestAssured (given()...when()...then()) \u2014 no MockMvc, no MockMvcTester, no RestTestClient, no @AutoConfigureMockMvc, no @AutoConfigureRestTestClient import anywhere in the new test class",
       "max_score": 10
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "name": "No repository/service mocking",
-      "description": "No Mockito imports or usage anywhere in the test class — the real GuestService/GuestRepository/database stack is exercised",
+      "description": "No Mockito imports or usage anywhere in the test class \u2014 the real GuestService/GuestRepository/database stack is exercised",
       "max_score": 8
     },
     {

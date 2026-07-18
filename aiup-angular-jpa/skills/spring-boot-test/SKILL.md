@@ -2,22 +2,27 @@
 name: spring-boot-test
 description: >
   Creates Spring Boot tests for REST controllers and Spring Data JPA
-  repositories, detecting and following whichever integration-test convention
-  a project already uses (RestAssured + Testcontainers, or MockMvc). Use when
-  the user asks to "write backend tests", "test the REST API", "test the
-  controller", "write a Spring Boot test", "test the JPA repository", or
-  mentions MockMvc, RestAssured, Testcontainers, @SpringBootTest, or
-  server-side Java testing for this stack.
+  repositories. Defaults to MockMvcTester and RestTestClient + Testcontainers
+  for new projects (asking the user to confirm on the very first backend
+  test), but detects and follows whichever convention a project already uses
+  — including legacy MockMvc or RestAssured + Testcontainers — rather than
+  migrating it. Use when the user asks to "write backend tests", "test the
+  REST API", "test the controller", "write a Spring Boot test", "test the
+  JPA repository", or mentions MockMvc, MockMvcTester, RestAssured,
+  RestTestClient, Testcontainers, @SpringBootTest, or server-side Java
+  testing for this stack.
 ---
 
 # Spring Boot Test
 
 ## Instructions
 
-Create Spring Boot tests for the use case $ARGUMENTS. This skill supports two
-established conventions and **detects which one a project already uses rather
-than defaulting blindly** — always match what's already there over this
-skill's own preference.
+Create Spring Boot tests for the use case $ARGUMENTS. This skill has default
+tooling (MockMvcTester, and RestTestClient + Testcontainers) but **detects
+which convention a project already uses rather than defaulting blindly** —
+always match what's already there, including a legacy MockMvc or RestAssured
+convention, over this skill's own preference. If nothing exists yet, ask the
+user before choosing (Step 0).
 
 If the JavaDocs MCP server is configured, use it for Spring Boot Test /
 RestAssured / Testcontainers / AssertJ API lookups; otherwise rely on your own
@@ -35,23 +40,73 @@ they can review it.
 
 ## Step 0: Detect the Existing Convention
 
-Before writing anything, search the backend's test sources:
+Before writing anything, search the backend's test sources, newest tooling
+first:
 
-- If `@AutoConfigureMockMvc` / `MockMvc` appears anywhere → use **MockMvc**
-  for the new test, matching the existing pattern exactly.
-- If `@Testcontainers` / `RestAssured` / `RANDOM_PORT` appears anywhere → use
-  **RestAssured + Testcontainers**, reusing any existing abstract base class
-  (e.g. `IntegrationTestBase`) rather than duplicating its setup.
-- **If neither exists yet (first test in the project), default to RestAssured
-    + Testcontainers, not MockMvc.** This exercises the real HTTP wire format
-      across genuine module/process boundaries — important once `domain`,
-      `business`, `postgres`, and `api` are separate Maven modules glued together
-      only by the composition-root module — and it runs against a real Postgres
-      container instead of H2, avoiding SQL-dialect drift from Postgres-targeted
-      Flyway migrations.
+- If `RestTestClient` / `@AutoConfigureRestTestClient` appears anywhere → use
+  **RestTestClient + Testcontainers** (Convention A), reusing any existing
+  abstract base class (e.g. `IntegrationTestBase`) rather than duplicating
+  its setup.
+- If `MockMvcTester` appears anywhere (and no RestTestClient) → use
+  **MockMvcTester** (Convention B) for the new test, matching the existing
+  pattern exactly.
+- If `@Testcontainers` / `RestAssured` / `RANDOM_PORT` appears anywhere and
+  no `RestTestClient` is present → use **RestAssured + Testcontainers**
+  (Convention A, legacy), reusing the existing base class. Do **not**
+  migrate it to RestTestClient just because this skill now prefers it.
+- If `@AutoConfigureMockMvc` / `MockMvc` appears anywhere and no
+  `MockMvcTester` is present → use **MockMvc** (Convention B, legacy),
+  matching the existing pattern exactly. Do **not** migrate it to
+  MockMvcTester just because this skill now prefers it.
+- **If none of the above exists yet (first backend test in the project), do
+  not default silently — ask the user first.** See "First Test in a
+  Project: Ask Before Defaulting" below.
 
 Never switch an existing project's already-established convention mid-stream
-because this skill "prefers" the other one.
+because this skill prefers a different one — this applies equally to legacy
+tooling (MockMvc, RestAssured) and to this skill's own newer defaults
+(MockMvcTester, RestTestClient): once a project has picked one, match it.
+
+### First Test in a Project: Ask Before Defaulting
+
+If Step 0 found none of the four conventions above, this is genuinely the
+first backend test in the project — the one moment this choice is
+undetermined. Stop and ask the user before writing any test code; do not
+pick a default silently. (This question only needs to be asked once per
+project: the moment the first test file exists, Step 0's detection above
+finds it automatically on every later invocation, so there is nothing to
+track or remember between sessions.)
+
+Before asking, check the project's Maven `pom.xml`
+(`spring-boot-starter-parent` version, or the Spring Boot BOM version
+imported by a multi-module parent POM) or Gradle build file
+(`org.springframework.boot` plugin version) to determine the Spring Boot
+version — this determines which defaults are actually usable, since
+`RestTestClient` requires Spring Boot 4.0+ / Spring Framework 7+ and is not
+available on earlier versions.
+
+Then ask the user directly, for example:
+
+> This project has no existing Spring Boot test convention yet, so I need to
+> pick one before writing the first test. My default is **MockMvcTester**
+> for tests that don't need a running server, and **RestTestClient +
+> Testcontainers** for tests that exercise the real HTTP wire against a live
+> server and a real Postgres container — this matters once `domain`,
+> `business`, `postgres`, and `api` are separate Maven modules glued together
+> only by the composition-root module, and it avoids SQL-dialect drift from
+> Postgres-targeted Flyway migrations by testing against real Postgres
+> instead of H2.
+>
+> *(if the detected Spring Boot version is below 4.0)* Note: this project is
+> on Spring Boot `<detected version>`. `RestTestClient` requires Spring Boot
+> 4.0+, so for the live-server case I'd use RestAssured + Testcontainers
+> instead — it has no such version requirement.
+>
+> Should I proceed with these defaults, or would you prefer classic
+> MockMvc/RestAssured, or a different combination? I won't write any test
+> code until you confirm.
+
+Proceed to the rest of this skill's workflow only after the user responds.
 
 ## Test Class Naming and `@UseCase` Annotation
 
@@ -154,13 +209,79 @@ void registration_fails_when_email_already_exists() { ...}
 - Assert on the JPA `@Entity` directly when the controller returns a DTO —
   assert on the response body / DTO shape actually returned over the wire
 - Switch an existing project's established test convention (MockMvc ↔
-  RestAssured) because this skill has its own default preference
+  MockMvcTester, or RestAssured ↔ RestTestClient) because this skill has a
+  newer default preference — matching what's already there always wins
+- Default to MockMvcTester/RestTestClient (or to any other convention)
+  without asking the user first, when this is the first backend test in the
+  project — see Step 0
 
-## Convention A: RestAssured + Testcontainers
+## Convention A: Live-Server HTTP Integration Tests
+
+Exercises the real HTTP wire against a running server and a real Postgres
+container. Two tool generations exist — use whichever Step 0 selected.
+
+### RestTestClient + Testcontainers (default for new projects, requires Spring Boot 4.0+)
 
 Test data is seeded via `JdbcTemplate` or the API itself against the **real**
 Flyway migrations run automatically when the container starts — there is no
-separate test-only migration file in this convention.
+separate test-only migration file in this convention. `RestTestClient`
+requires the `org.springframework.boot:spring-boot-resttestclient`
+test-scope dependency and is auto-bound to the running server's random port
+by `@AutoConfigureRestTestClient` — no manual `@LocalServerPort`/base-URL
+wiring is needed.
+
+```java
+
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestTestClient
+@ActiveProfiles("integration-test")
+abstract class IntegrationTestBase {
+
+    @Container
+    protected static final PostgreSQLContainer<?> postgresContainer =
+            new PostgreSQLContainer<>("postgres:17-alpine");
+
+    @DynamicPropertySource
+    static void dataSourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+    }
+
+    @Autowired
+    protected RestTestClient restClient;
+}
+```
+
+```java
+class RoomTypeIntegrationTest extends IntegrationTestBase {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Test
+    @UseCase(id = "UC-001")
+    void lists_all_room_types() {
+        restClient.get().uri("/api/room-types")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].name").isEqualTo("Deluxe Suite");
+    }
+
+    @AfterEach
+    void cleanUp() {
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "room_type");
+    }
+}
+```
+
+### RestAssured + Testcontainers (legacy — match only if the project already uses it)
+
+Follow this exactly as shown if Step 0 detected it already in place; do not
+introduce it in a new (Spring Boot 4.0+) project where RestTestClient is
+usable, and do not migrate an existing RestAssured project to RestTestClient.
 
 ```java
 
@@ -213,7 +334,37 @@ class RoomTypeIntegrationTest extends IntegrationTestBase {
 }
 ```
 
-## Convention B: MockMvc
+## Convention B: Mock-Server Tests (No Live HTTP Server)
+
+### MockMvcTester (default for new projects, Spring Boot 3.4+)
+
+```java
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class RoomTypeControllerTest {
+
+    @Autowired
+    private MockMvcTester mockMvc;
+
+    @Test
+    @UseCase(id = "UC-001")
+    void lists_all_room_types() {
+        assertThat(mockMvc.get().uri("/api/room-types"))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$[0].name")
+                .asString()
+                .isEqualTo("Deluxe Suite");
+    }
+}
+```
+
+### MockMvc (legacy — match only if the project already uses it)
+
+Follow this exactly as shown if Step 0 detected classic MockMvc already in
+place; do not introduce MockMvcTester in a new project's first test if the
+project already has this convention, and do not migrate it.
 
 ```java
 
@@ -236,21 +387,23 @@ class RoomTypeControllerTest {
 
 In this convention, test data is created using Flyway migrations in
 `src/test/resources/db/migration`. Don't let this seed-file
-convention leak into Convention A, and don't let Convention A's
-`JdbcTemplate`/API seeding leak into this one.
+convention leak into any RestTestClient/RestAssured Convention A variant,
+and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
 
 ## Assertions Reference
 
-| Assertion Type    | Convention A (RestAssured)               | Convention B (MockMvc)                                 |
-|-------------------|------------------------------------------|--------------------------------------------------------|
-| HTTP status       | `.then().statusCode(200)`                | `.andExpect(status().isOk())`                          |
-| JSON field value  | `.body("name", equalTo("Deluxe Suite"))` | `.andExpect(jsonPath("$.name").value("Deluxe Suite"))` |
-| JSON array size   | `.body("size()", is(3))`                 | `.andExpect(jsonPath("$", hasSize(3)))`                |
-| Repository result | `assertThat(result).hasSize(3)`          | `assertThat(result).hasSize(3)`                        |
+| Assertion Type     | A · RestTestClient (default)                                  | A · RestAssured (legacy)                 | B · MockMvcTester (default)                                                | B · MockMvc (legacy)                                    |
+|---------------------|----------------------------------------------------------------|--------------------------------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
+| HTTP status         | `.expectStatus().isOk()`                                       | `.then().statusCode(200)`                | `.hasStatusOk()`                                                             | `.andExpect(status().isOk())`                             |
+| JSON field value    | `.expectBody().jsonPath("$.name").isEqualTo("Deluxe Suite")`   | `.body("name", equalTo("Deluxe Suite"))` | `.bodyJson().extractingPath("$.name").asString().isEqualTo("Deluxe Suite")` | `.andExpect(jsonPath("$.name").value("Deluxe Suite"))`    |
+| JSON array size     | `.expectBody().jsonPath("$.length()").isEqualTo(3)`             | `.body("size()", is(3))`                 | `.bodyJson().extractingPath("$").asArray().hasSize(3)`                      | `.andExpect(jsonPath("$", hasSize(3)))`                   |
+| Repository result   | `assertThat(result).hasSize(3)`                                 | `assertThat(result).hasSize(3)`          | `assertThat(result).hasSize(3)`                                             | `assertThat(result).hasSize(3)`                            |
 
 ## Workflow
 
-1. Detect the existing test convention (Step 0)
+1. Detect the existing test convention, or — if this is the first backend
+   test in the project — ask the user which convention to use before
+   writing anything (Step 0)
 2. Read the use case specification (`docs/use-cases/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
@@ -262,16 +415,23 @@ convention leak into Convention A, and don't let Convention A's
 5. For each test method:
     - Annotate with `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-…"})`
       mirroring the spec headings
-    - Drive the request through the detected convention's HTTP client
-    - Assert outcomes with AssertJ / RestAssured `.body(...)` or MockMvc `jsonPath`
+    - Drive the request through the detected (or user-confirmed) convention's
+      HTTP client
+    - Assert outcomes with the detected convention's own style: RestTestClient
+      `.expectBody().jsonPath(...)`, RestAssured `.body(...)`, MockMvcTester
+      `.bodyJson()`, or MockMvc `jsonPath`
     - Clean up test data if created during the test, via the detected
       convention's own approach
 6. Run the tests to verify they pass
 7. If a test fails:
-    - Confirm the correct convention was actually followed (not mixed)
-    - For Convention A, confirm the Testcontainers Postgres instance actually
-      started and Flyway migrated it
-    - For Convention B, verify the Flyway test migration seeded the expected rows
+    - Confirm the correct convention was actually followed (not mixed, and
+      not silently upgraded from a legacy tool to this skill's newer default)
+    - For Convention A (RestTestClient or RestAssured), confirm the
+      Testcontainers Postgres instance actually started and Flyway migrated
+      it, and — for RestTestClient — that `spring-boot-resttestclient` is on
+      the test classpath and the project is on Spring Boot 4.0+
+    - For Convention B legacy (MockMvc), verify the Flyway test migration
+      seeded the expected rows
     - Verify the JSON path/field matches the DTO's actual field names (not the
       entity's)
 
@@ -279,8 +439,10 @@ convention leak into Convention A, and don't let Convention A's
 
 - Spring Boot Testing documentation: https://docs.spring.io/spring-boot/reference/testing/index.html
 - Testcontainers documentation: https://testcontainers.com/guides/testing-spring-boot-rest-api-using-testcontainers/
-- RestAssured documentation: https://rest-assured.io/
-- MockMvc reference: https://docs.spring.io/spring-framework/reference/testing/spring-mvc-test-framework.html
+- RestTestClient reference (Spring Boot 4.0+): https://docs.spring.io/spring-framework/reference/testing/resttestclient.html
+- MockMvcTester / AssertJ integration reference (Spring Boot 3.4+): https://docs.spring.io/spring-framework/reference/testing/mockmvc/assertj.html
+- RestAssured documentation (legacy convention): https://rest-assured.io/
+- MockMvc reference (legacy convention): https://docs.spring.io/spring-framework/reference/testing/spring-mvc-test-framework.html
 - AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation
   contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the JavaDocs MCP server for additional API lookups (`https://www.javadocs.dev/mcp`)
