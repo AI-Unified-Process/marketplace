@@ -1,0 +1,31 @@
+@page "/catalog"
+@attribute [Authorize]
+@inject AppDbContext Db
+
+<h3>Product Catalog</h3>
+
+@if (products == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var p in products)
+        {
+            <div class="product-card">
+                <h4>@p.Name</h4>
+                <p>Price: $@p.Price</p>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Product>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Db.Products.Where(p => p.InStock).ToListAsync();
+    }
+}

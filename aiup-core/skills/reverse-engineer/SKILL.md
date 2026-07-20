@@ -187,7 +187,7 @@ admin --> UC002
 @enduml
 ```
 
-- Use the actual system name from `pom.xml` / `package.json` / project README.
+- Use the actual system name from `pom.xml` / `build.gradle` / `package.json` / `*.csproj` / `*.sln` / project README.
 - Each `usecase` block contains the ID and the use case name on two lines.
 - Connect every actor to at least one use case; every use case to at least
   one actor.

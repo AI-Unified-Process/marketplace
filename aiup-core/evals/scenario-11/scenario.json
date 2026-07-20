@@ -1,0 +1,6 @@
+{
+  "description": "Reverse-engineer a C# / Blazor .NET 10 project into AIUP artifacts",
+  "include": [
+    "./inputs"
+  ]
+}
