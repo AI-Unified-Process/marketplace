@@ -13,7 +13,7 @@ Use the Drama Finder element library — the API reference is provided in `refer
 Produce a single Java test file:
 
 ```
-src/test/java/com/example/app/e2e/OrderFulfillmentE2EIT.java
+src/test/java/com/example/app/e2e/TC001OrderFulfillmentIT.java
 ```
 
 The file must contain one complete, runnable Playwright test class that executes the whole TC-001 test case — all four Flow steps in order, followed by the two Validation checks — and cleans up the data the test created. The test must be executable with `./mvnw verify -Pit`.

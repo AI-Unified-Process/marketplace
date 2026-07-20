@@ -56,6 +56,11 @@
       "name": "Drama Finder element wrappers",
       "description": "Uses Drama Finder typed element wrappers (e.g. TextAreaElement, ButtonElement, GridElement, DialogElement, NotificationElement) for all component interactions — at least four distinct element types used",
       "max_score": 5
+    },
+    {
+      "name": "Test class naming convention",
+      "description": "The test class is named UC050ManageContractsIT (matching the UC<id><PascalCaseUseCaseName>IT pattern for UC-050)",
+      "max_score": 5
     }
   ]
 }

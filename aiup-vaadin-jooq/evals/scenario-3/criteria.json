@@ -61,6 +61,11 @@
       "name": "Validation assertion uses assertInvalid",
       "description": "The empty-form validation test uses assertInvalid() (from HasValidationPropertiesElement) to check field invalid state — not isVisible() or getAttribute()",
       "max_score": 6
+    },
+    {
+      "name": "Test class naming convention",
+      "description": "The test class is named UC030ManageEmployeesIT (matching the UC<id><PascalCaseUseCaseName>IT pattern for UC-030)",
+      "max_score": 5
     }
   ]
 }

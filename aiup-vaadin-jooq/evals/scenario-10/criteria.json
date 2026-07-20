@@ -66,6 +66,11 @@
       "name": "Idempotent cleanup of test-created data only",
       "description": "An @AfterEach method removes the order created by the test case (and only that data), and is written to tolerate a test that failed midway (checks existence before deleting; does NOT wipe all data)",
       "max_score": 8
+    },
+    {
+      "name": "Test class naming convention",
+      "description": "The test class is named TC001OrderFulfillmentIT (matching the TC<id><PascalCaseTestCaseName>IT pattern for TC-001)",
+      "max_score": 5
     }
   ]
 }

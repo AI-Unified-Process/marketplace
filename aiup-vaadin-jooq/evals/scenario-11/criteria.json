@@ -66,6 +66,11 @@
       "name": "getTotalRowCount for grid counts",
       "description": "Any grid count assertion uses getTotalRowCount() — NOT getRenderedRowCount() or a count of rendered row elements",
       "max_score": 6
+    },
+    {
+      "name": "Test class naming convention",
+      "description": "The test class is named TC002PatientIntakeIT (matching the TC<id><PascalCaseTestCaseName>IT pattern for TC-002)",
+      "max_score": 5
     }
   ]
 }

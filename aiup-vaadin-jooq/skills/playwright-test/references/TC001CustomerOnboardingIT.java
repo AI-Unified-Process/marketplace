@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * test case document is a private step method, called in order.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class CustomerOnboardingE2EIT extends AbstractBasePlaywrightIT {
+class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
 
     private static final String CUSTOMER_NAME = "Jane Doe";
 

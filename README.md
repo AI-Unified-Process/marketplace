@@ -363,12 +363,18 @@ validation, grid operations, and notifications. Test data is seeded via Flyway m
 ### Step 8 — Write Playwright integration tests
 
 ```
-/playwright-test UC-001
+/playwright-test UC-001     # use case test — integration tests for one view
+/playwright-test TC-001     # test case journey — one end-to-end flow across views
 ```
 
-Claude generates browser-based end-to-end tests against the running application (default: `http://localhost:8080`) using
+Claude generates browser-based tests against the running application (default: `http://localhost:8080`) using
 the Drama Finder library for type-safe, accessibility-first element wrappers. Tests are written black-box — they do not
 look at the implementation — and never use raw Playwright locators or `Thread.sleep()`.
+
+The skill dispatches on the argument: a `UC-*` ID produces integration tests for a single view derived from the use
+case specification, while a `TC-*` ID reads a test case document from `docs/test_cases/TC-*.md` (a hand-written user
+journey chaining several use cases) and produces one journey test class walking the whole flow. Test classes are named
+after the artifact: `UC-001` → `UC001CreateReservationIT`, `TC-001` → `TC001CustomerOnboardingIT`.
 
 ---
 
@@ -618,31 +624,43 @@ tree without launching a browser.
 
 ---
 
-### `/playwright-test` — Playwright Integration Tests *(in aiup-vaadin-jooq)*
+### `/playwright-test` — Playwright Tests *(in aiup-vaadin-jooq)*
 
-**Purpose:** Creates browser-based end-to-end tests for Vaadin views using Playwright with the Drama Finder library for
-type-safe, accessibility-first element wrappers.
+**Purpose:** Creates browser-based tests for Vaadin views using Playwright with the Drama Finder library for
+type-safe, accessibility-first element wrappers. Covers two test types, dispatched on the argument:
+
+| Input | Artifact | Test type |
+|-------|----------|-----------|
+| `UC-*` | Use case specification (`docs/use_cases/UC-*.md`) | **Use case test** — integration tests for one view, grouped in `@Nested` classes |
+| `TC-*` | Test case document (`docs/test_cases/TC-*.md`) | **Test case journey** — one end-to-end test walking the whole flow across views |
 
 **Usage:**
 
 ```
-/playwright-test UC-001
+/playwright-test UC-001     # integration tests for one view
+/playwright-test TC-001     # end-to-end journey test across views
 ```
 
 **What it does:**
 
-1. Reads the use case spec to derive the test scenarios
-2. Generates an integration test extending `AbstractBasePlaywrightIT` (handles browser lifecycle, page creation, and
+1. Decides the test type from the argument (`UC-*` vs `TC-*`), then reads the matching document to derive the tests
+2. Generates a test extending `AbstractBasePlaywrightIT` (handles browser lifecycle, page creation, and
    Vaadin synchronization automatically)
-3. Writes black-box tests against the running application (default: `http://localhost:8080`) — does not consult the
+3. For a use case: covers the main success scenario, alternative flows, and validation rules in `@Nested` classes
+4. For a test case journey: implements the whole **Flow** as a single `@Test` method with one private step method per
+   flow row, navigating between views through the UI like a user would — one test class per test case
+5. Names the test class after the artifact: `UC<id><PascalCaseName>IT` for use cases
+   (e.g. `UC-001-create-reservation.md` → `UC001CreateReservationIT`) and `TC<id><PascalCaseName>IT` for test cases
+   (e.g. `TC-001-customer-onboarding.md` → `TC001CustomerOnboardingIT`)
+6. Writes black-box tests against the running application (default: `http://localhost:8080`) — does not consult the
    implementation
-4. Uses Drama Finder element wrappers exclusively — never raw Playwright locators, XPath, `Thread.sleep()`, or
+7. Uses Drama Finder element wrappers exclusively — never raw Playwright locators, XPath, `Thread.sleep()`, or
    `page.waitForTimeout()`
-5. Reuses existing test data from Flyway migrations; cleans up only test-created data in `@AfterEach`
-6. Looks up Drama Finder method signatures via the JavaDocs MCP server rather than guessing
+8. Reuses existing test data from Flyway migrations; cleans up only test-created data in `@AfterEach`
+9. Looks up Drama Finder method signatures via the bundled API reference, falling back to the JavaDocs MCP server
 
-**Input:** Use case ID as argument
-**Output:** Playwright integration test under `src/test/java` (named `*IT.java`)
+**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument
+**Output:** Playwright test under `src/test/java` — `UC*IT.java` for use case tests, `TC*IT.java` for journeys
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -788,10 +806,12 @@ your-project/
 │   ├── requirements.md                   ← produced by /requirements
 │   ├── entity_model.md                   ← produced by /entity-model
 │   ├── use_cases.puml                    ← produced by /use-case-diagram
-│   └── use_cases/                        ← produced by /use-case-spec
-│       ├── UC-001-create-reservation.md
-│       ├── UC-002-cancel-reservation.md
-│       └── ...
+│   ├── use_cases/                        ← produced by /use-case-spec
+│   │   ├── UC-001-create-reservation.md
+│   │   ├── UC-002-cancel-reservation.md
+│   │   └── ...
+│   └── test_cases/                       ← you maintain these — journeys for /playwright-test TC-*
+│       └── TC-001-book-and-check-in.md
 ├── src/
 │   ├── main/
 │   │   ├── java/                         ← produced by /implement
@@ -831,7 +851,7 @@ and `docs/entity_model.md` for product context before making decisions.
 5. `/flyway-migration`    → produces `src/main/resources/db/migration/V*.sql`
 6. `/implement UC-XX`     → implements the use case (Vaadin + jOOQ)
 7. `/browserless-test UC-XX` → server-side unit tests (recommended, free since Vaadin 25.1)
-8. `/playwright-test UC-XX` → browser-based integration tests
+8. `/playwright-test UC-XX` → browser-based integration tests (or `TC-XX` for an end-to-end journey)
 
 Never skip the spec for a use case before implementing it.
 Always read the entity model before writing data access code.

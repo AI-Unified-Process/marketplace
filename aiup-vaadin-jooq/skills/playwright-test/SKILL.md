@@ -68,13 +68,15 @@ Use existing test data from Flyway migrations in `src/test/resources/db/migratio
 
 Integration tests for one view. Read the use case specification, plan the tests, and group related tests in `@Nested` classes with `@DisplayName`. Cover the main success scenario, alternative flows, and validation rules.
 
+One use case → one test class named `UC<id><PascalCaseName>IT` (e.g. `UC-001-create-reservation.md` → `UC001CreateReservationIT`).
+
 Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starting point for new test classes.
 
 ## Test Case Journeys (TC-*)
 
 A test case document (`docs/test_cases/TC-*.md`, sections **Overview**, **Roles**, **Preconditions**, **Flow**, **Validation**) describes a user journey that chains several use cases across views, carrying state from step to step. Don't re-test per-use-case details here (every validation message, every column) — the journey and its end state are the subject.
 
-One test case document → one test class, named after the test case (e.g. `TC-001-customer-onboarding.md` → `CustomerOnboardingE2EIT`).
+One test case document → one test class named `TC<id><PascalCaseName>IT` (e.g. `TC-001-customer-onboarding.md` → `TC001CustomerOnboardingIT`).
 
 | Test case section | Test code |
 |-------------------|-----------|
@@ -90,7 +92,7 @@ Implement the whole flow as **one `@Test` method** — the steps share state (da
 
 A test case usually crosses several views. Navigate like the user would — through the UI (side navigation, buttons, links) — and fall back to direct navigation only when the UI offers no path: `page.navigate(getUrl() + "orders")`. `getView()` returns the route of the **first** Flow step; later steps navigate onward.
 
-Use [references/ExampleE2EIT.java](references/ExampleE2EIT.java) as the starting point for new journey test classes.
+Use [references/TC001CustomerOnboardingIT.java](references/TC001CustomerOnboardingIT.java) as the starting point for new journey test classes.
 
 ## Locating Components
 

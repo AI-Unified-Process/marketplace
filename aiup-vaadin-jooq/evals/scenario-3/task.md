@@ -13,7 +13,7 @@ The view is served at the path `/employees` on a locally running Spring Boot ser
 Produce a single Java test file:
 
 ```
-src/test/java/com/example/app/views/EmployeeManagementViewIT.java
+src/test/java/com/example/app/views/UC030ManageEmployeesIT.java
 ```
 
 The file must contain Playwright integration tests that cover:
