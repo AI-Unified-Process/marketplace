@@ -26,6 +26,30 @@ When testing from a fork, avoid installing from the upstream repository (`ai-uni
 # Install core and blazor plugins
 /plugin install aiup-core
 /plugin install aiup-blazor-dotnet
+### Option C: Tessl CLI — Installing from Local Filesystem
+Tessl can install plugins directly from local directories without publishing to the central registry:
+```bash
+# In your target project directory:
+tessl init --agent claude-code   # or cursor, gemini, codex, copilot
+
+# Install plugins using relative or absolute filesystem paths
+tessl install /path/to/marketplace/aiup-core
+tessl install /path/to/marketplace/aiup-blazor-dotnet
+```
+
+### Option D: Tessl CLI — Publishing to Your Forked Tessl Workspace
+If you have a Tessl account/workspace (e.g. `carljmosca`), publish to your personal workspace:
+```bash
+# 1. Update the name in tessl.json and .tessl-plugin/plugin.json:
+#    "name": "carljmosca/aiup-blazor-dotnet"
+
+# 2. Publish from your fork
+tessl plugin publish ./aiup-core
+tessl plugin publish ./aiup-blazor-dotnet
+
+# 3. Install on any machine/agent from your registry workspace
+tessl install carljmosca/aiup-core
+tessl install carljmosca/aiup-blazor-dotnet
 ```
 
 ---
