@@ -46,7 +46,8 @@ Inception          Elaboration                          Construction
 ```
 
 Each skill picks up where the previous one left off using the files produced along the way (`docs/vision.md`,
-`docs/requirements.md`, `docs/entity_model.md`, `docs/use_cases.puml`, `docs/use_cases/UC-*.md`). At any point you can
+`docs/requirements.md`, `docs/entity_model.md`, `docs/use_cases.puml`, `docs/use_cases/UC-*.md`,
+`docs/test_cases/TC-*.md`). At any point you can
 inspect or manually edit these files before continuing.
 
 **Inheriting a legacy codebase?** Start with `/reverse-engineer` — it walks the existing code, configuration, and
@@ -55,7 +56,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 
 |                         | Inception       | Elaboration                            | Construction                                                                                       | Transition |
 |-------------------------|-----------------|----------------------------------------|----------------------------------------------------------------------------------------------------|------------|
-| **aiup-core**           | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`                                                                                   |            |
+| **aiup-core**           | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`<br>`/test-case`                                                                   |            |
 | **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test`                   |            |
 | **aiup-angular-jpa**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
 
@@ -372,8 +373,8 @@ the Drama Finder library for type-safe, accessibility-first element wrappers. Te
 look at the implementation — and never use raw Playwright locators or `Thread.sleep()`.
 
 The skill dispatches on the argument: a `UC-*` ID produces integration tests for a single view derived from the use
-case specification, while a `TC-*` ID reads a test case document from `docs/test_cases/TC-*.md` (a hand-written user
-journey chaining several use cases) and produces one journey test class walking the whole flow. Test classes are named
+case specification, while a `TC-*` ID reads a test case document from `docs/test_cases/TC-*.md` (a user journey
+chaining several use cases, created with `/test-case`) and produces one journey test class walking the whole flow. Test classes are named
 after the artifact: `UC-001` → `UC001CreateReservationIT`, `TC-001` → `TC001CustomerOnboardingIT`.
 
 ---
@@ -480,6 +481,36 @@ requirements catalog.
 
 **Input:** Use case ID(s) as argument
 **Output:** `docs/use_cases/UC-XXX-*.md` (one file per use case)
+**Plugin:** `aiup-core`
+
+---
+
+### `/test-case` — End-to-End Test Case Document *(plugin-agnostic)*
+
+**Purpose:** Writes an end-to-end test case document (`TC-*.md`) that chains several use cases into one user journey —
+the input that `/playwright-test TC-XXX` automates as a journey test.
+
+**Usage:**
+
+```
+/test-case UC-001 UC-004     # journey chaining the listed use cases
+```
+
+**What it does:**
+
+1. Reads the specification of every listed use case from `docs/use_cases/` (and refuses to chain unspecified ones)
+2. Assigns the next free `TC-XXX` ID and names the file after the journey's goal
+   (e.g. `docs/test_cases/TC-001-customer-onboarding.md`)
+3. Writes the document with a fixed template: Overview (ID, Goal, Priority, Status), Roles, Preconditions (each
+   naming its seeded data source), a Flow table (`Step | Name | Description | Test Data | Use Case`), Validation,
+   and Postconditions (the data the journey leaves behind — the automated test's cleanup contract)
+4. Orders the Flow as the business journey, inserts verification steps between actions, links each action step to its
+   use case spec, and uses literal test data values so the document is executable
+5. Keeps per-use-case detail out — field-level validations belong to the use case tests; the journey and its end
+   state are the subject
+
+**Input:** Use case IDs as arguments
+**Output:** `docs/test_cases/TC-XXX-*.md` (one journey per file)
 **Plugin:** `aiup-core`
 
 ---
@@ -810,7 +841,7 @@ your-project/
 │   │   ├── UC-001-create-reservation.md
 │   │   ├── UC-002-cancel-reservation.md
 │   │   └── ...
-│   └── test_cases/                       ← you maintain these — journeys for /playwright-test TC-*
+│   └── test_cases/                       ← produced by /test-case — journeys for /playwright-test TC-*
 │       └── TC-001-book-and-check-in.md
 ├── src/
 │   ├── main/

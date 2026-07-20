@@ -4,6 +4,7 @@
 
 **ID:** TC-001   
 **Goal:** A clerk creates a new order and a warehouse operator ships it — verifying the order lifecycle from creation to shipment end-to-end.   
+**Priority:** Critical   
 **Status:** Approved
 
 ## Roles
@@ -29,3 +30,8 @@
 
 1. **Order count**: After the flow, the orders grid contains exactly one more order than before the test case started.
 2. **Final status**: The order created in step 1 has status "Shipped" in the orders grid.
+
+## Postconditions
+
+- One order for "Acme Corp" (Widget, quantity 5) with status "Shipped" exists.
+- The seeded customer "Acme Corp" and product "Widget" remain untouched.

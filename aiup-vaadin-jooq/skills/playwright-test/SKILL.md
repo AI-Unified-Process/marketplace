@@ -62,7 +62,7 @@ Tests extend `AbstractBasePlaywrightIT` from Drama Finder, which handles browser
 
 ## Test Data
 
-Use existing test data from Flyway migrations in `src/test/resources/db/migration`. If your test creates data, clean up in `@AfterEach` — through the UI or targeted deletes, and make cleanup idempotent (the test may have failed midway, leaving only part of the data behind). Test case **Preconditions** should be satisfied by the Flyway test data; if they aren't, extend the test migrations rather than inserting through back doors.
+Use existing test data from Flyway migrations in `src/test/resources/db/migration`. If your test creates data, clean up in `@AfterEach` — through the UI or targeted deletes, and make cleanup idempotent (the test may have failed midway, leaving only part of the data behind). Test case **Preconditions** should be satisfied by the Flyway test data; if they aren't, extend the test migrations rather than inserting through back doors. For test case journeys, the document's **Postconditions** section is the cleanup contract — remove exactly the records it lists, in the stated order.
 
 ## Use Case Tests (UC-*)
 
@@ -74,7 +74,7 @@ Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starti
 
 ## Test Case Journeys (TC-*)
 
-A test case document (`docs/test_cases/TC-*.md`, sections **Overview**, **Roles**, **Preconditions**, **Flow**, **Validation**) describes a user journey that chains several use cases across views, carrying state from step to step. Don't re-test per-use-case details here (every validation message, every column) — the journey and its end state are the subject.
+A test case document (`docs/test_cases/TC-*.md`, sections **Overview**, **Roles**, **Preconditions**, **Flow**, **Validation**, **Postconditions**) describes a user journey that chains several use cases across views, carrying state from step to step. Don't re-test per-use-case details here (every validation message, every column) — the journey and its end state are the subject.
 
 One test case document → one test class named `TC<id><PascalCaseName>IT` (e.g. `TC-001-customer-onboarding.md` → `TC001CustomerOnboardingIT`).
 
@@ -87,6 +87,7 @@ One test case document → one test class named `TC<id><PascalCaseName>IT` (e.g.
 | Flow **Use Case** column | Read the linked `UC-*.md` specs — they define the routes, labels, and expected messages the step interacts with |
 | Flow **Test Data** column | The literal values the step enters |
 | **Validation** | Final assertions after the flow (or at the step where the rule becomes observable) |
+| **Postconditions** | The `@AfterEach` cleanup: delete exactly the listed records, in the stated order (dependent records before their parents); older documents without this section — derive the created data from the Flow instead |
 
 Implement the whole flow as **one `@Test` method** — the steps share state (data created in step 1 is used in step 3), and independent `@Test` methods would each get a fresh page and break the chain. Keep each step small and named after the Flow row so a failure pinpoints the step.
 

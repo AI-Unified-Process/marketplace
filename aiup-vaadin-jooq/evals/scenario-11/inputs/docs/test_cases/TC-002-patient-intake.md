@@ -4,6 +4,7 @@
 
 **ID:** TC-002   
 **Goal:** A receptionist registers a new patient and books their first appointment — verifying the intake journey from registration to a confirmed appointment end-to-end.   
+**Priority:** Critical   
 **Status:** Approved
 
 ## Roles
@@ -27,3 +28,9 @@
 
 1. **Appointment listed**: The appointments grid contains an appointment for the patient with the practitioner from step 3.
 2. **Patient activated**: Back on the patients grid, the patient's status is "Active" after the first appointment is booked.
+
+## Postconditions
+
+- Patient "Erika Muster" (erika.muster@example.com) with status "Active" exists.
+- One appointment for "Erika Muster" with "Dr. Smith" exists.
+- The appointment must be deleted before the patient it belongs to (BR-041); the seeded practitioner "Dr. Smith" remains untouched.
