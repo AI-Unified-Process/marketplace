@@ -81,8 +81,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/implement-vaadin-jooq` | Implement use cases using Vaadin and jOOQ                 |
 | Construction | `/browserless-test`      | Create Vaadin Browserless unit tests (recommended)        |
 | Construction | `/karibu-test`           | Create Karibu unit tests (legacy — superseded since 25.1) |
-| Construction | `/playwright-test`       | Create Playwright integration tests for a use case        |
-| Construction | `/playwright-e2e`        | Create Playwright end-to-end tests for a test case (TC-*) |
+| Construction | `/playwright-test`       | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
 
 The core `/implement`, `/test`, and `/e2e` skills inspect the project's build files (`pom.xml`, `build.gradle`,
 `package.json`, etc.) to choose which stack-specific skill to invoke. New stack plugins (e.g. a future

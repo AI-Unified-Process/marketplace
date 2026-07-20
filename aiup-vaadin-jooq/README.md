@@ -26,8 +26,7 @@ Each skill is also available as a slash command.
 | Construction | `/implement`          | Implement use cases as Vaadin views/forms/grids plus jOOQ data access    |
 | Construction | `/browserless-test`   | Create Vaadin Browserless server-side unit tests (recommended)           |
 | Construction | `/karibu-test`        | Create Karibu server-side unit tests (legacy — superseded since Vaadin 25.1) |
-| Construction | `/playwright-test`    | Create Playwright browser-based integration tests for a use case (Drama Finder) |
-| Construction | `/playwright-e2e`     | Create Playwright end-to-end tests for a test case (TC-*) spanning multiple use cases |
+| Construction | `/playwright-test`    | Create Playwright browser-based tests (Drama Finder) — use case integration tests (UC-*) or end-to-end test case journeys (TC-*) |
 
 ### Workflow
 
@@ -35,13 +34,11 @@ Each skill is also available as a slash command.
 Construction
 ────────────────────────────────────────────────────
 /flyway-migration  →  /implement  →  /browserless-test
-                                  ↘  /playwright-test
-                                  ↘  /playwright-e2e
+                                  ↘  /playwright-test  (UC-* or TC-*)
 ```
 
 These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
-`docs/test_cases/TC-*.md` for `/playwright-e2e`) produced by `aiup/aiup-core` and write code and tests into your
-Maven/Gradle project.
+`docs/test_cases/TC-*.md`) produced by `aiup/aiup-core` and write code and tests into your Maven/Gradle project.
 
 ## MCP servers
 
