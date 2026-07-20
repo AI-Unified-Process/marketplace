@@ -1,0 +1,6 @@
+{
+  "description": "Implement a use case in C# / Blazor .NET 10 (Vertical Slice Architecture)",
+  "include": [
+    "./inputs"
+  ]
+}

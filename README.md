@@ -59,6 +59,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 | **aiup-core**           | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`<br>`/test-case`                                                                   |            |
 | **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test`                   |            |
 | **aiup-angular-jpa**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
+| **aiup-blazor-dotnet**  |                 |                                        | `/ef-migration`<br>`/implement`<br>`/bunit-test`<br>`/dotnet-test`<br>`/playwright-test`          |            |
 
 ---
 
@@ -72,6 +73,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 - For the Angular/JPA plugin: a Maven or Gradle backend project with Spring Boot, Spring Data JPA, and Flyway
   (flat single module or a hexagonal domain/business/postgres/api/app-style multi-module layout), plus a
   separate Angular (standalone components) frontend project
+- For the C#/Blazor .NET 10 plugin: a .NET 10 solution (`.csproj`/`.sln`) using Blazor and Entity Framework Core
 
 ## Installation
 
@@ -80,6 +82,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 /plugin install aiup-core
 /plugin install aiup-vaadin-jooq        # for a Vaadin + jOOQ project
 /plugin install aiup-angular-jpa        # for an Angular + JPA project
+/plugin install aiup-blazor-dotnet      # for a C# + Blazor .NET 10 project
 ```
 
 Install only `aiup-core` if you are using a different tech stack — the methodology skills are stack-agnostic.

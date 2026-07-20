@@ -154,14 +154,34 @@ domain/DTO shape.
 
 ## C# / .NET
 
-- **Entry points**: `[ApiController]` classes, Razor Pages, Blazor
-  components with `@page` directive, minimal-API `app.MapGet(...)`,
-  `IHostedService` background services.
-- **Actors**: `[Authorize(Roles = "...")]`, ASP.NET Identity roles,
-  authorization policies in `Program.cs`.
-- **Entities**: EF Core `DbContext` with `DbSet<T>` properties; entity
-  classes with `[Key]`, `[Required]`, `[ForeignKey]` attributes; or
-  fluent config in `OnModelCreating`. Migrations under `Migrations/`.
+- **Build files**: `*.csproj`, `*.sln`, `Program.cs`. Look for package references to confirm components in use (`Microsoft.EntityFrameworkCore.*`, `Microsoft.AspNetCore.Components.Web`, `bunit`, `Microsoft.Playwright.Xunit`, etc.).
+- **Entry points**:
+  - Blazor components: `.razor` files with `@page "/..."` directive (and optional `@rendermode`).
+  - Web API / Minimal API: `app.MapGet(...)`, `app.MapPost(...)`, `[ApiController]` classes.
+  - Background services: `IHostedService` or `BackgroundService` implementations.
+- **Actors**:
+  - `[Authorize(Roles = "...")]` attributes on controllers or Razor pages.
+  - `<AuthorizeView Roles="...">` or `<AuthorizeView Policy="...">` components in Blazor templates.
+  - ASP.NET Identity claims/roles, custom `AuthorizationHandler<T>`, and policy registrations in `Program.cs`.
+- **Entities**:
+  - EF Core: `DbContext` classes with `DbSet<T>` properties.
+  - Entity classes annotated with `[Key]`, `[Required]`, `[ForeignKey]`, `[MaxLength]`, or configured via Fluent API (`IEntityTypeConfiguration<T>` implementations or `OnModelCreating`).
+  - Migrations under `Migrations/` directory.
+- **C# → AIUP type mapping**:
+
+  | C# / .NET type                       | AIUP Data Type | Length/Precision | Validation Rules                  |
+  |--------------------------------------|----------------|------------------|-----------------------------------|
+  | `long` / `long?`                     | `Long`         | 19               | `Primary Key` (if ID) / `Not Null`|
+  | `int` / `int?`                       | `Integer`      | 10               | `Not Null`                        |
+  | `string`                             | `String`       | 255 (or actual)  | `Not Null`                        |
+  | `decimal`                            | `Decimal`      | 10,2             | `Not Null, Min: 0`                |
+  | `bool`                               | `Boolean`      | —                | `Not Null`                        |
+  | `DateTime` / `DateTimeOffset`        | `DateTime`     | —                | `Not Null`                        |
+  | `DateOnly`                           | `Date`         | —                | `Not Null`                        |
+  | Foreign Key `long CustomerId`        | `Long`         | 19               | `Not Null, Foreign Key (CUSTOMER.id)` |
+
+- **Tests**: `bUnit` tests (`TestContext`, `RenderComponent<T>`), `xUnit` / `NUnit` specs, and Playwright tests (`PageTest` subclasses) under `*.Tests/` or `*.Tests.E2E/`.
+
 
 ## Database-only signals (regardless of stack)
 

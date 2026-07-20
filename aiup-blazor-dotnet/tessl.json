@@ -1,0 +1,5 @@
+{
+  "name": "aiup/aiup-blazor-dotnet",
+  "mode": "vendored",
+  "dependencies": {}
+}

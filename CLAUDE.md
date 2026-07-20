@@ -24,14 +24,16 @@ marketplace/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
 │       └── use-case-spec/
-├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
+├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
+├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
-│   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
+│   ├── .mcp.json                 # MicrosoftLearn, bUnitDocs, Playwright
 │   └── skills/                   # All workflow steps as skills (slash commands)
-│       ├── flyway-migration/
+│       ├── ef-migration/
 │       ├── implement/
-│       ├── karibu-test/
+│       ├── bunit-test/
+│       ├── dotnet-test/
 │       └── playwright-test/
 └── README.md
 ```
@@ -41,7 +43,9 @@ marketplace/
 ### Two-Layer Design
 
 - **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
-- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
+- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack.
+- **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack.
+- **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10.
 
 ### Marketplace Configuration
 
@@ -73,6 +77,16 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/implement`          | Stack-agnostic dispatcher — detects the stack and delegates          |
 | Construction | `/test`               | Stack-agnostic dispatcher — server-side unit / integration tests     |
 | Construction | `/e2e`                | Stack-agnostic dispatcher — browser-based end-to-end tests           |
+
+### C# / Blazor .NET 10 (stack-specific)
+
+| Phase        | Skill (slash command)    | Description                                                           |
+|--------------|--------------------------|-----------------------------------------------------------------------|
+| Construction | `/ef-migration`          | Create native EF Core C# migrations                                   |
+| Construction | `/implement`             | Implement use cases using C# Vertical Slice Architecture              |
+| Construction | `/bunit-test`            | Create bUnit component tests for Blazor `.razor` pages                |
+| Construction | `/dotnet-test`           | Create backend integration tests for EF Core and domain handlers      |
+| Construction | `/playwright-test`       | Create native C# Playwright E2E tests (`Microsoft.Playwright.Xunit`)  |
 
 ### Vaadin/jOOQ (stack-specific — invoked by the core dispatchers)
 
