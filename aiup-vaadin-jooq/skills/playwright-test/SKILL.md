@@ -7,7 +7,8 @@ description: >
   integration tests", "test in the browser", "write IT tests", or mentions
   end-to-end testing, browser tests, UI integration tests, Playwright for Vaadin,
   or Drama Finder. Also trigger when the user references a use case (UC-*) and
-  asks for Playwright or E2E tests.
+  asks for Playwright or E2E tests. For end-to-end tests of a whole test
+  scenario (TS-*) spanning multiple use cases, use playwright-e2e instead.
 ---
 
 # Playwright Tests with Drama Finder

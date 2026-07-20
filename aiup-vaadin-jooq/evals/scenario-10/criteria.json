@@ -1,0 +1,71 @@
+{
+  "context": "Tests whether the agent automates a documented test scenario (TS-001) as a single Playwright end-to-end test using Drama Finder: one test method walking all Flow steps in order across two views, the scenario's Validation section asserted at the end, traceability to the TS/UC ids, and idempotent cleanup — as opposed to per-use-case integration tests split into independent test methods.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Extends AbstractBasePlaywrightIT",
+      "description": "The test class extends AbstractBasePlaywrightIT from the Drama Finder library (org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT), not any other base class",
+      "max_score": 10
+    },
+    {
+      "name": "@SpringBootTest RANDOM_PORT",
+      "description": "The test class is annotated with @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) and injects the port via @LocalServerPort",
+      "max_score": 8
+    },
+    {
+      "name": "Single test method for the whole flow",
+      "description": "The complete scenario flow (create order, verify listed, ship order, verify shipment) is executed inside ONE @Test method — NOT split into multiple @Test methods that depend on each other's state or on execution order",
+      "max_score": 10
+    },
+    {
+      "name": "Step methods traceable to Flow rows",
+      "description": "Each Flow table row is implemented as its own private step method (or clearly delimited step block with a comment naming the step), called in the same order as the scenario's Flow table",
+      "max_score": 8
+    },
+    {
+      "name": "Scenario ID in @DisplayName",
+      "description": "The @Test or class-level @DisplayName references the scenario ID TS-001 and its goal for traceability",
+      "max_score": 6
+    },
+    {
+      "name": "getView returns first Flow step route",
+      "description": "getView() returns the route of the first Flow step's view (\"orders\"), and getUrl() returns http://localhost:<port>/",
+      "max_score": 6
+    },
+    {
+      "name": "Navigates to the second view mid-flow",
+      "description": "The shipping step navigates from the Orders view to the Shipping view (route \"shipping\") during the flow — via in-app navigation or page.navigate(getUrl() + \"shipping\")",
+      "max_score": 8
+    },
+    {
+      "name": "Test Data values used verbatim",
+      "description": "The step methods use the literal values from the scenario's Test Data column: customer \"Acme Corp\", product \"Widget\", quantity 5",
+      "max_score": 6
+    },
+    {
+      "name": "Validation section asserted",
+      "description": "Both Validation entries are asserted: the orders grid count increased by exactly one (captured before vs after, using getTotalRowCount()), and the created order's status is \"Shipped\" in the orders grid",
+      "max_score": 10
+    },
+    {
+      "name": "No raw page.locator() calls",
+      "description": "The test file contains NO calls to page.locator(...) and no XPath — Drama Finder element wrappers (GridElement, ButtonElement, ComboBoxElement, DialogElement, NotificationElement, etc.) are used exclusively",
+      "max_score": 8
+    },
+    {
+      "name": "No Thread.sleep / waitForTimeout",
+      "description": "The test file contains NO calls to Thread.sleep() or page.waitForTimeout() — auto-retrying Drama Finder assertions are used instead",
+      "max_score": 6
+    },
+    {
+      "name": "Scoped lookups inside dialogs",
+      "description": "Element lookups inside the \"New Order\" and \"Confirm Shipment\" dialogs are scoped by passing dialog.getLocator() (not page) to the element factory methods",
+      "max_score": 6
+    },
+    {
+      "name": "Idempotent cleanup of scenario data only",
+      "description": "An @AfterEach method removes the order created by the scenario (and only that data), and is written to tolerate a scenario that failed midway (checks existence before deleting; does NOT wipe all data)",
+      "max_score": 8
+    }
+  ]
+}
