@@ -24,6 +24,7 @@ marketplace/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
 │       └── use-case-spec/
+├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 ├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
 ├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
