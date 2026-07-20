@@ -1,8 +1,8 @@
-# Test Scenario: Order Fulfillment
+# Test Case: Order Fulfillment
 
 ## Overview
 
-**ID:** TS-001   
+**ID:** TC-001   
 **Goal:** A clerk creates a new order and a warehouse operator ships it — verifying the order lifecycle from creation to shipment end-to-end.   
 **Status:** Approved
 
@@ -27,5 +27,5 @@
 
 ## Validation
 
-1. **Order count**: After the scenario, the orders grid contains exactly one more order than before the scenario started.
+1. **Order count**: After the flow, the orders grid contains exactly one more order than before the test case started.
 2. **Final status**: The order created in step 1 has status "Shipped" in the orders grid.

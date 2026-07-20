@@ -1,1 +1,1 @@
-{ "description": "Playwright end-to-end test automating a multi-use-case test scenario (TS-001)", "include": ["./inputs"] }
+{ "description": "Playwright end-to-end test automating a multi-use-case test case (TC-001)", "include": ["./inputs"] }

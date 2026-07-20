@@ -1,4 +1,4 @@
-package com.example.app.scenarios;
+package com.example.app.e2e;
 
 import java.util.List;
 
@@ -20,14 +20,14 @@ import org.vaadin.addons.dramafinder.element.textfield.TextFieldElement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Executes test scenario TS-001 (docs/test_scenario/TS-001-customer-onboarding.md):
+ * Executes test case TC-001 (docs/test_cases/TC-001-customer-onboarding.md):
  * a new customer is created (UC-001) and places a first order (UC-004).
  *
- * One scenario = one test class = one test method; each Flow row from the
- * scenario document is a private step method, called in order.
+ * One test case = one test class = one test method; each Flow row from the
+ * test case document is a private step method, called in order.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class CustomerOnboardingScenarioIT extends AbstractBasePlaywrightIT {
+class CustomerOnboardingE2EIT extends AbstractBasePlaywrightIT {
 
     private static final String CUSTOMER_NAME = "Jane Doe";
 
@@ -46,8 +46,8 @@ class CustomerOnboardingScenarioIT extends AbstractBasePlaywrightIT {
     }
 
     @Test
-    @DisplayName("TS-001: New customer can be onboarded and place a first order")
-    void customer_onboarding_scenario() {
+    @DisplayName("TC-001: New customer can be onboarded and place a first order")
+    void customer_onboarding() {
         // Step 1: Create customer (UC-001)
         createCustomer(CUSTOMER_NAME, "jane.doe@example.com");
 
@@ -109,9 +109,9 @@ class CustomerOnboardingScenarioIT extends AbstractBasePlaywrightIT {
     }
 
     @AfterEach
-    void cleanUpScenarioData() {
-        // Idempotent: the scenario may have failed midway, so remove only
-        // what actually exists — and only data this scenario created
+    void cleanUpTestCaseData() {
+        // Idempotent: the test may have failed midway, so remove only
+        // what actually exists — and only data this test case created
         deleteOrderIfPresent(CUSTOMER_NAME);
         deleteCustomerIfPresent(CUSTOMER_NAME);
     }

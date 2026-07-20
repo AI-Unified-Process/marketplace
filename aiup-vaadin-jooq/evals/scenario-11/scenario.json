@@ -1,1 +1,1 @@
-{ "description": "Playwright end-to-end journey test for a patient-intake scenario with scoped-label and cleanup-order traps", "include": ["./inputs"] }
+{ "description": "Playwright end-to-end journey test for a patient-intake test case with scoped-label and cleanup-order traps", "include": ["./inputs"] }

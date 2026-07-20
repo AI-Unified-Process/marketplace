@@ -8,7 +8,7 @@ description: >
   end-to-end testing, browser tests, UI integration tests, Playwright for Vaadin,
   or Drama Finder. Also trigger when the user references a use case (UC-*) and
   asks for Playwright or E2E tests. For end-to-end tests of a whole test
-  scenario (TS-*) spanning multiple use cases, use playwright-e2e instead.
+  case (TC-*) spanning multiple use cases, use playwright-e2e instead.
 ---
 
 # Playwright Tests with Drama Finder
@@ -117,7 +117,7 @@ See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional 
 ## Workflow
 
 1. Read the use case specification
-2. Plan test scenarios (group related tests in `@Nested` classes with `@DisplayName`)
+2. Plan the tests (group related tests in `@Nested` classes with `@DisplayName`)
 3. **Look up Drama Finder element APIs** for each element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md)
 4. Create test class extending `AbstractBasePlaywrightIT` with `@SpringBootTest` and `@LocalServerPort`
 5. Override `getUrl()` (return `http://localhost:<port>/`) and `getView()` (return the route)

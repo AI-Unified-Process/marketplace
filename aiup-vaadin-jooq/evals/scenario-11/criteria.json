@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent automates a documented patient-intake test scenario (TS-002) as a single Playwright end-to-end journey using Drama Finder, handling two documented traps: an ambiguous \"Name\" label (page filter vs dialog field) that requires scoped lookups, and a foreign-key-style constraint that cleanup must delete the appointment before the patient.",
+  "context": "Tests whether the agent automates a documented patient-intake test case (TC-002) as a single Playwright end-to-end journey using Drama Finder, handling two documented traps: an ambiguous \"Name\" label (page filter vs dialog field) that requires scoped lookups, and a foreign-key-style constraint that cleanup must delete the appointment before the patient.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -9,17 +9,17 @@
     },
     {
       "name": "Single test method for the whole journey",
-      "description": "The complete scenario flow (register patient, verify listed, book appointment, verify confirmation) runs inside ONE @Test method — NOT split into multiple @Test methods that depend on each other's state or on execution order",
+      "description": "The complete test case flow (register patient, verify listed, book appointment, verify confirmation) runs inside ONE @Test method — NOT split into multiple @Test methods that depend on each other's state or on execution order",
       "max_score": 10
     },
     {
       "name": "Flow order and step traceability",
-      "description": "The four Flow rows are implemented in the scenario's order as private step methods or clearly delimited step blocks with comments naming each step",
+      "description": "The four Flow rows are implemented in the test case's order as private step methods or clearly delimited step blocks with comments naming each step",
       "max_score": 8
     },
     {
-      "name": "Scenario ID in @DisplayName",
-      "description": "The @Test or class-level @DisplayName references the scenario ID TS-002 for traceability",
+      "name": "Test case ID in @DisplayName",
+      "description": "The @Test or class-level @DisplayName references the test case ID TC-002 for traceability",
       "max_score": 6
     },
     {
@@ -29,7 +29,7 @@
     },
     {
       "name": "Test Data values used verbatim",
-      "description": "The steps use the literal scenario values: patient \"Erika Muster\", email \"erika.muster@example.com\", birth date 12/04/1985, practitioner \"Dr. Smith\", reason \"Checkup\"",
+      "description": "The steps use the literal test case values: patient \"Erika Muster\", email \"erika.muster@example.com\", birth date 12/04/1985, practitioner \"Dr. Smith\", reason \"Checkup\"",
       "max_score": 6
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "name": "Cleanup deletes appointment before patient",
-      "description": "An @AfterEach cleanup removes the created appointment FIRST and the created patient SECOND (per BR-041), tolerates a scenario that failed midway (existence checks), and removes only data this scenario created",
+      "description": "An @AfterEach cleanup removes the created appointment FIRST and the created patient SECOND (per BR-041), tolerates a test that failed midway (existence checks), and removes only data this test case created",
       "max_score": 8
     },
     {

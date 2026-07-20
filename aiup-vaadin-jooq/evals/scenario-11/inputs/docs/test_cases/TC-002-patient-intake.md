@@ -1,8 +1,8 @@
-# Test Scenario: Patient Intake
+# Test Case: Patient Intake
 
 ## Overview
 
-**ID:** TS-002   
+**ID:** TC-002   
 **Goal:** A receptionist registers a new patient and books their first appointment — verifying the intake journey from registration to a confirmed appointment end-to-end.   
 **Status:** Approved
 

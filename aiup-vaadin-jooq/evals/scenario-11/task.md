@@ -1,10 +1,10 @@
-# End-to-End Test for the Patient Intake User Journey (TS-002)
+# End-to-End Test for the Patient Intake User Journey (TC-002)
 
 ## Problem/Feature Description
 
-The clinic's Vaadin application has a documented end-to-end test scenario for its most important user journey: **TS-002 Patient Intake**, in `docs/test_scenario/TS-002-patient-intake.md`. A receptionist registers a new patient on the Patients view (UC-020) and books the patient's first appointment on the Appointments view (UC-021); booking the first appointment activates the patient.
+The clinic's Vaadin application has a documented end-to-end test case for its most important user journey: **TC-002 Patient Intake**, in `docs/test_cases/TC-002-patient-intake.md`. A receptionist registers a new patient on the Patients view (UC-020) and books the patient's first appointment on the Appointments view (UC-021); booking the first appointment activates the patient.
 
-Automate this test scenario in the browser with Playwright. The scenario document is the authority: follow its Flow table step by step with the exact values from the Test Data column, and assert its Validation section at the end. The linked use case specifications in `docs/use_cases/` define each view's routes, labels, buttons, and notifications.
+Automate this test case in the browser with Playwright. The test case document is the authority: follow its Flow table step by step with the exact values from the Test Data column, and assert its Validation section at the end. The linked use case specifications in `docs/use_cases/` define each view's routes, labels, buttons, and notifications.
 
 Two complications are documented in the use case specs:
 
@@ -18,9 +18,9 @@ Use the Drama Finder element library — the API reference is provided in `refer
 Produce a single Java test file:
 
 ```
-src/test/java/com/example/clinic/scenarios/PatientIntakeScenarioIT.java
+src/test/java/com/example/clinic/e2e/PatientIntakeE2EIT.java
 ```
 
-The file must contain one complete, runnable Playwright test class that walks the whole TS-002 journey — all four Flow steps in order across both views, followed by the two Validation checks — and cleans up the data the journey created in the correct order. The test must be executable with `./mvnw verify -Pit`.
+The file must contain one complete, runnable Playwright test class that walks the whole TC-002 journey — all four Flow steps in order across both views, followed by the two Validation checks — and cleans up the data the journey created in the correct order. The test must be executable with `./mvnw verify -Pit`.
 
 Do NOT include a `pom.xml` or any build file — the test class only.
