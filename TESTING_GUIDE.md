@@ -21,7 +21,7 @@ When testing from a fork, avoid installing from the upstream repository (`ai-uni
 ### Option B: Installing from Local Filesystem (Local Clone)
 ```bash
 # Add local directory path as marketplace source
-/plugin marketplace add /Users/moscac/dev/moscait/marketplace
+/plugin marketplace add ~/dev/moscait/marketplace
 
 # Install core and blazor plugins
 /plugin install aiup-core
