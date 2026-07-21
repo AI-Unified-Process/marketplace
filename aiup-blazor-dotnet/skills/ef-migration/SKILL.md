@@ -28,3 +28,7 @@ Create a native EF Core C# Migration (`dotnet ef migrations add <MigrationName>`
 5. **DO NOT**:
    - Execute destructive schema drops on production environments.
    - Hardcode connection strings in source code; use `appsettings.json` or environment variables.
+
+6. **Next Step Guidance**:
+   - Conclude your response by summarizing the migration created and guiding the user to implementation:
+   > "Next step: Run `/implement UC-XXX` (e.g. `/implement UC-001`) to construct your vertical slice feature."

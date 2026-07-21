@@ -25,3 +25,6 @@ Generate unit and integration tests for Blazor `.razor` UI components using the 
    - Assert DOM changes: `cut.Find(".alert-success").MarkupMatches("<div class=\"alert-success\">Order Placed!</div>");`
 4. **Verification**:
    - Execute `dotnet test` to confirm tests pass.
+5. **Next Step Guidance**:
+   - Conclude your response by guiding the user on E2E testing:
+   > "Next step: Run `/playwright-test` to generate native C# end-to-end browser tests for your use cases."

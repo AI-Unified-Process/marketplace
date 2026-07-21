@@ -24,4 +24,7 @@ Generate unit and integration tests for non-UI C# code (EF Core `DbContext`, han
    - Act: Call the handler/service method under test.
    - Assert: Verify expected outcome, exceptions, or database state.
 4. **Verification**:
-   - Execute `dotnet test` to confirm test suite execution.
+   - Execute `dotnet test` to confirm tests pass.
+5. **Next Step Guidance**:
+   - Conclude your response by guiding the user on E2E testing:
+   > "Next step: Run `/playwright-test` to generate native C# end-to-end browser tests for your use cases."
