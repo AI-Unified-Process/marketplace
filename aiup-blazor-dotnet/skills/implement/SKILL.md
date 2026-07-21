@@ -52,9 +52,13 @@ Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application fo
    - Put raw SQL string concatenation into queries — use EF Core LINQ.
    - Create test files directly (use `bunit-test` and `dotnet-test` skills).
 
-5. **Compilation Verification**:
+5. **Template Boilerplate Cleanup & Navigation**:
+   - **Remove Default Sample Pages**: Remove default `dotnet new blazor` boilerplate sample pages (`Counter.razor`, `Weather.razor`) and their links from `NavMenu.razor` when implementing initial features.
+   - **Update Layout Navigation**: Register the new use case page route in `Components/Layout/NavMenu.razor` (or project navigation layout) using styled `NavLink` elements matching the app theme.
+
+6. **Compilation Verification**:
    - Run `dotnet build` to verify clean compilation.
 
-6. **Next Step Guidance**:
+7. **Next Step Guidance**:
    - Conclude your response by summarizing the implemented feature files and guiding the user to the testing phase:
    > "Next step: Run `/bunit-test` to write component UI tests, or `/dotnet-test` to write backend integration tests, followed by `/playwright-test` to generate end-to-end browser tests."
