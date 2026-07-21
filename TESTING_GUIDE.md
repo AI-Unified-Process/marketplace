@@ -137,3 +137,21 @@ To verify the end-to-end workflow on a new .NET 10 Blazor project:
 7. Run `/bunit-test` and `/dotnet-test` to generate component & handler tests.
 8. Run `/playwright-test` to generate C# E2E tests.
 9. Execute `dotnet test` to run all generated test suites.
+
+---
+
+## 6. Unattended / Autonomous Execution with `/goal`
+
+You can run the entire AIUP workflow to generate, implement, compile, and test a C# / Blazor .NET 10 application **100% unattended** using the `/goal` command.
+
+### Why `/goal` is the Idiomatic Approach
+* **Leverages Published Marketplace Skills:** Uses existing `/requirements`, `/entity-model`, `/use-case-spec`, `/ef-migration`, `/implement`, `/bunit-test`, `/dotnet-test`, and `/playwright-test` skills without duplicating prompt logic.
+* **Self-Healing Compilation & Test Loop:** Automatically runs `dotnet build` and `dotnet test` after implementing each use case. If compilation or tests fail, the goal engine inspects errors and fixes C# code before proceeding.
+* **Artifact Traceability:** Produces standard committed Markdown specs in `docs/` (`requirements.md`, `entity_model.md`, `UC-*.md`), maintaining full auditability.
+
+### Idiomatic Unattended Command
+To trigger an autonomous, spec-driven Blazor build from scratch:
+
+```bash
+/goal Build a fully implemented .NET 10 Blazor app starting from docs/vision.md using the AIUP workflow skills (/requirements -> /entity-model -> /use-case-diagram -> /use-case-spec -> /ef-migration -> /implement per UC -> /bunit-test -> /dotnet-test -> /playwright-test). Compile and run tests after each use case.
+```
