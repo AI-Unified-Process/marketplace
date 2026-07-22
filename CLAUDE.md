@@ -23,9 +23,28 @@ marketplace/
 │       ├── entity-model/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
-│       └── use-case-spec/
+│       ├── use-case-spec/
+│       └── test-case/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── flyway-migration/
+│       ├── implement/
+│       ├── browserless-test/
+│       ├── karibu-test/
+│       └── playwright-test/
 ├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── .mcp.json                 # JavaDocs, Playwright
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── flyway-migration/
+│       ├── implement/
+│       ├── vitest-test/
+│       ├── spring-boot-test/
+│       └── playwright-test/
 ├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
