@@ -63,9 +63,9 @@ marketplace/
 ### Two-Layer Design
 
 - **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
-- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack.
-- **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack.
-- **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10.
+- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
+- **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack. Requires core.
+- **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10. Requires core.
 
 ### Marketplace Configuration
 
@@ -97,6 +97,16 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/implement`          | Stack-agnostic dispatcher — detects the stack and delegates          |
 | Construction | `/test`               | Stack-agnostic dispatcher — server-side unit / integration tests     |
 | Construction | `/e2e`                | Stack-agnostic dispatcher — browser-based end-to-end tests           |
+
+### Angular / JPA (stack-specific)
+
+| Phase        | Skill (slash command)    | Description                                                           |
+|--------------|--------------------------|-----------------------------------------------------------------------|
+| Construction | `/flyway-migration`      | Create Flyway migrations                                              |
+| Construction | `/implement`             | Implement use cases using Angular and Spring Boot JPA                 |
+| Construction | `/spring-boot-test`      | Create Spring Boot backend unit and integration tests                 |
+| Construction | `/vitest-test`           | Create Vitest component and unit tests for Angular                    |
+| Construction | `/playwright-test`       | Create Playwright E2E browser tests for Angular + Spring Boot         |
 
 ### C# / Blazor .NET 10 (stack-specific)
 
