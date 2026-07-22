@@ -36,8 +36,10 @@ Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application fo
 3. **C# & Blazor Guidelines (.NET 10)**:
    - Use file-scoped namespaces (`namespace MyApp.Features.UC001;`).
    - Use modern C# features (primary constructors, `required` properties, pattern matching, collection expressions `[]`).
-   - Use `@rendermode InteractiveServer` or `@rendermode InteractiveAuto` for interactive Blazor components as required by project conventions.
+   - Use `@rendermode InteractiveServer` or `@rendermode InteractiveAuto` for interactive Blazor components as required by project conventions, or Static SSR (`@attribute [StreamRendering]`) for read-heavy pages.
    - Inject dependencies via standard ASP.NET Core DI (`[Inject]` or `@inject`).
+   - **DbContext Scoping in Blazor**: In Blazor Interactive Server, components are circuit-scoped. Use `IDbContextFactory<AppDbContext>` or delegate data access to transient/scoped MediatR or command handlers to prevent `DbContext` concurrency exceptions.
+   - Pass `CancellationToken` from Blazor component events and lifecycle methods to async handlers.
    - Map domain entities to ViewModels/DTOs before presenting to UI.
 
 4. **UI Design & Styling Standards**:
@@ -47,18 +49,19 @@ Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application fo
    - **Interactive States & Feedback**: Include hover effects, active states, loading spinners, empty states, and validation error highlights.
    - **Responsive & Accessible**: Build flex/grid responsive layouts with ARIA accessibility tags.
 
-4. **DO NOT**:
+5. **DO NOT**:
    - Place business logic directly inside `.razor` markup files — delegate to handlers or code-behind `.razor.cs`.
+   - Inject a raw scoped `DbContext` directly into interactive Blazor components — use `IDbContextFactory` or handler abstraction instead.
    - Put raw SQL string concatenation into queries — use EF Core LINQ.
    - Create test files directly (use `bunit-test` and `dotnet-test` skills).
 
-5. **Template Boilerplate Cleanup & Navigation**:
+6. **Template Boilerplate Cleanup & Navigation**:
    - **Remove Default Sample Pages**: Remove default `dotnet new blazor` boilerplate sample pages (`Counter.razor`, `Weather.razor`) and their links from `NavMenu.razor` when implementing initial features.
    - **Update Layout Navigation**: Register the new use case page route in `Components/Layout/NavMenu.razor` (or project navigation layout) using styled `NavLink` elements matching the app theme.
 
-6. **Compilation Verification**:
+7. **Compilation Verification**:
    - Run `dotnet build` to verify clean compilation.
 
-7. **Next Step Guidance**:
+8. **Next Step Guidance**:
    - Conclude your response by summarizing the implemented feature files and guiding the user to the testing phase:
    > "Next step: Run `/bunit-test` to write component UI tests, or `/dotnet-test` to write backend integration tests, followed by `/playwright-test` to generate end-to-end browser tests."

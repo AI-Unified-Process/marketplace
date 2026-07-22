@@ -19,11 +19,12 @@ Create a native EF Core C# Migration (`dotnet ef migrations add <MigrationName>`
 1. **Read `docs/entity_model.md`** to inspect the required entities, attributes, relationships, and validation constraints.
 2. **Inspect existing `DbContext` and Entity Classes** under the project solution (`.csproj`).
 3. **Generate/Update Entity Classes & Configurations**:
-   - Represent entities as C# classes with file-scoped namespaces and modern properties (e.g. `public required string Name { get; set; }`).
-   - Implement `IEntityTypeConfiguration<T>` for Fluent API mappings (table names, column types, precision, foreign keys, unique indexes).
-   - Register configurations in `OnModelCreating(ModelBuilder modelBuilder)`.
+   - Represent entities as C# classes with file-scoped namespaces and modern properties (`public required string Name { get; set; }`).
+   - Declare navigation properties safely for Nullable Reference Types (e.g. `public List<OrderItem> Items { get; set; } = [];` or `public Customer Customer { get; set; } = null!;`).
+   - Implement `IEntityTypeConfiguration<T>` for Fluent API mappings (table names, column types, `HasPrecision(18, 2)` for decimal fields, `HasConversion<string>()` for enums, foreign keys, and unique indexes).
+   - Register configurations in `OnModelCreating(ModelBuilder modelBuilder)` (or use `modelBuilder.ApplyConfigurationsFromAssembly(...)`).
 4. **Generate EF Core Migration**:
-   - Run `dotnet ef migrations add UCXXX_Description` using CLI.
+   - Run `dotnet ef migrations add UCXXX_Description` using CLI. For multi-project solutions, specify project flags (e.g. `dotnet ef migrations add UCXXX_Description --project src/MyApp.Data --startup-project src/MyApp.Web`).
    - Verify the generated migration class under `Migrations/`.
 5. **DO NOT**:
    - Execute destructive schema drops on production environments.

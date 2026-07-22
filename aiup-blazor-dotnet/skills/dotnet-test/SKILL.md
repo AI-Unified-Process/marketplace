@@ -18,11 +18,11 @@ Generate unit and integration tests for non-UI C# code (EF Core `DbContext`, han
 1. **Identify Target Service/Handler**:
    - Locate the target handler or EF Core repository (e.g. `PlaceOrderHandler.cs`).
 2. **Setup Test Database Context**:
-   - Use `DbContextOptionsBuilder` with `UseInMemoryDatabase` or `UseSqlite("DataSource=:memory:")`.
-3. **Execute & Assert**:
-   - Arrange test data into the `DbContext`.
-   - Act: Call the handler/service method under test.
-   - Assert: Verify expected outcome, exceptions, or database state.
+   - **Prefer SQLite in-memory or Testcontainers**: Use `UseSqlite("DataSource=:memory:")` (keeping connection open during test execution) or `Testcontainers` for realistic relational database behavior. Avoid `UseInMemoryDatabase` for EF Core tests as it does not enforce relational constraints or raw SQL behavior.
+3. **Execute & Assert (AAA Pattern with Fresh DbContext Instances)**:
+   - **Arrange**: Seed test data using an initial `DbContext` instance, then dispose or save changes.
+   - **Act**: Execute the handler or service method using a *new, separate* `DbContext` instance to prevent EF Core change tracking from masking bugs.
+   - **Assert**: Verify expected outcome, returned DTOs, or database state using a *third* fresh `DbContext` instance.
 4. **Verification**:
    - Execute `dotnet test` to confirm tests pass.
 5. **Next Step Guidance**:
