@@ -20,6 +20,11 @@
       "name": "aiup-angular-jpa",
       "source": "./aiup-angular-jpa",
       "description": "AI Unified Process plugin for the Angular/JPA stack"
+    },
+    {
+      "name": "aiup-blazor-dotnet",
+      "source": "./aiup-blazor-dotnet",
+      "description": "AI Unified Process plugin for the C# / Blazor .NET 10 stack"
     }
   ]
 }

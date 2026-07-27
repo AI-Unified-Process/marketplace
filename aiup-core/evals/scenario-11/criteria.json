@@ -1,0 +1,41 @@
+{
+  "context": "Tests whether the agent reverse-engineers a C# / Blazor .NET 10 solution into AIUP artifacts: feature clustering in PLAN.md, mapping C# EF Core entities to AIUP vocabulary (Long, String, Decimal, etc.), discovering actors from Blazor AuthorizeView/[Authorize], and grouping Blazor @page endpoints into use cases.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "PLAN.md exists",
+      "description": "A docs/PLAN.md file is present and non-empty",
+      "max_score": 10
+    },
+    {
+      "name": "Blazor entry points listed",
+      "description": "PLAN.md contains an explicit list of Blazor .razor page components found during initial scan",
+      "max_score": 15
+    },
+    {
+      "name": "Feature clustering documented",
+      "description": "PLAN.md groups entry points into feature clusters before specs are written",
+      "max_score": 15
+    },
+    {
+      "name": "No C# or SQL types in entity model",
+      "description": "docs/entity_model.md does NOT contain raw C# or SQL types (long, string, decimal, int, bigint, varchar) — only AIUP vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
+      "max_score": 20
+    },
+    {
+      "name": "AIUP types used",
+      "description": "docs/entity_model.md uses AIUP Data Types (Long, String, Decimal, etc.) mapped from EF Core entity properties",
+      "max_score": 10
+    },
+    {
+      "name": "UC IDs grouped by actor",
+      "description": "Use case IDs (UC-001, UC-002, …) are assigned in actor groups",
+      "max_score": 15
+    },
+    {
+      "name": "Endpoints aggregated into use cases",
+      "description": "The number of use case files is fewer than the total number of .razor pages — confirming endpoints were aggregated by goal",
+      "max_score": 15
+    }
+  ]
+}

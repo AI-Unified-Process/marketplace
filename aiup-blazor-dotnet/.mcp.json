@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "MicrosoftLearn": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "bUnitDocs": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -23,7 +23,8 @@ marketplace/
 │       ├── entity-model/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
-│       └── use-case-spec/
+│       ├── use-case-spec/
+│       └── test-case/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json
@@ -31,7 +32,28 @@ marketplace/
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
+│       ├── browserless-test/
 │       ├── karibu-test/
+│       └── playwright-test/
+├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── .mcp.json                 # JavaDocs, Playwright
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── flyway-migration/
+│       ├── implement/
+│       ├── vitest-test/
+│       ├── spring-boot-test/
+│       └── playwright-test/
+├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── .mcp.json                 # MicrosoftLearn, bUnitDocs, Playwright
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── ef-migration/
+│       ├── implement/
+│       ├── bunit-test/
+│       ├── dotnet-test/
 │       └── playwright-test/
 └── README.md
 ```
@@ -42,6 +64,8 @@ marketplace/
 
 - **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
 - **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
+- **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack. Requires core.
+- **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10. Requires core.
 
 ### Marketplace Configuration
 
@@ -73,6 +97,26 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/implement`          | Stack-agnostic dispatcher — detects the stack and delegates          |
 | Construction | `/test`               | Stack-agnostic dispatcher — server-side unit / integration tests     |
 | Construction | `/e2e`                | Stack-agnostic dispatcher — browser-based end-to-end tests           |
+
+### Angular / JPA (stack-specific)
+
+| Phase        | Skill (slash command)    | Description                                                           |
+|--------------|--------------------------|-----------------------------------------------------------------------|
+| Construction | `/flyway-migration`      | Create Flyway migrations                                              |
+| Construction | `/implement`             | Implement use cases using Angular and Spring Boot JPA                 |
+| Construction | `/spring-boot-test`      | Create Spring Boot backend unit and integration tests                 |
+| Construction | `/vitest-test`           | Create Vitest component and unit tests for Angular                    |
+| Construction | `/playwright-test`       | Create Playwright E2E browser tests for Angular + Spring Boot         |
+
+### C# / Blazor .NET 10 (stack-specific)
+
+| Phase        | Skill (slash command)    | Description                                                           |
+|--------------|--------------------------|-----------------------------------------------------------------------|
+| Construction | `/ef-migration`          | Create native EF Core C# migrations                                   |
+| Construction | `/implement`             | Implement use cases using C# Vertical Slice Architecture              |
+| Construction | `/bunit-test`            | Create bUnit component tests for Blazor `.razor` pages                |
+| Construction | `/dotnet-test`           | Create backend integration tests for EF Core and domain handlers      |
+| Construction | `/playwright-test`       | Create native C# Playwright E2E tests (`Microsoft.Playwright.Xunit`)  |
 
 ### Vaadin/jOOQ (stack-specific — invoked by the core dispatchers)
 

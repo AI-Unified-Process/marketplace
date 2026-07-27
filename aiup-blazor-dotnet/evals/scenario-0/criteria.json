@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the agent implements UC-010 (Browse Product Catalog) end-to-end for a .NET 10 Blazor application following Vertical Slice Architecture: EF Core entity configuration, Query/Handler pattern, business rule BR-010 enforcement, and a Blazor .razor page component.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Product EF Core entity created",
+      "description": "Product entity and EF Core configuration created with fields for Id, Name, Category, Price, and InStock",
+      "max_score": 15
+    },
+    {
+      "name": "Vertical Slice feature folder created",
+      "description": "Code is organized cleanly under Features/UC010_BrowseProductCatalog/",
+      "max_score": 15
+    },
+    {
+      "name": "Query and Handler enforce BR-010",
+      "description": "Query handler filters out inStock = false items matching business rule BR-010",
+      "max_score": 25
+    },
+    {
+      "name": "Blazor component created",
+      "description": "BrowseProductCatalogPage.razor component renders product catalog with category filter",
+      "max_score": 25
+    },
+    {
+      "name": "No test files created",
+      "description": "No test classes or test files are created as part of this task",
+      "max_score": 20
+    }
+  ]
+}
