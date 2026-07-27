@@ -45,6 +45,21 @@ Inception          Elaboration                          Construction
                                                                           ↘  /playwright-test
 ```
 
+For a C#/Blazor project the inception and elaboration parts are again the aiup-core ones. The construction phase
+targets .NET 10 with Blazor and Entity Framework Core, organizing each use case as a Vertical Slice
+(`Features/UCXXX_<FeatureName>/`). It tests Blazor components with bUnit, the backend handlers and EF Core code with
+xUnit, and the whole app with native C# Playwright tests.
+
+```
+Inception          Elaboration                          Construction
+─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /ef-migration
+                                                                          ↘  /implement
+                                                                          ↘  /bunit-test
+                                                                          ↘  /dotnet-test
+                                                                          ↘  /playwright-test
+```
+
 Each skill picks up where the previous one left off using the files produced along the way (`docs/vision.md`,
 `docs/requirements.md`, `docs/entity_model.md`, `docs/use_cases.puml`, `docs/use_cases/UC-*.md`,
 `docs/test_cases/TC-*.md`). At any point you can
@@ -111,8 +126,8 @@ CLI**, **Cursor**, **GitHub Copilot**, **Gemini CLI**, and **OpenCode**. Pair th
 
 [Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
 wires the MCP servers into the correct per-agent directory for whichever coding agent it detects. All plugins are
-published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, and
-`aiup/aiup-angular-jpa`, so
+published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, `aiup/aiup-angular-jpa`, and
+`aiup/aiup-blazor-dotnet`, so
 this is the simplest way to adopt
 the workflow outside Claude Code — no manual cloning or per-tool MCP translation.
 
@@ -125,6 +140,7 @@ tessl init --agent claude-code          # or: cursor, gemini, codex, copilot, co
 tessl install aiup/aiup-core
 tessl install aiup/aiup-vaadin-jooq     # for a Vaadin + jOOQ project
 tessl install aiup/aiup-angular-jpa     # for an Angular + JPA project
+tessl install aiup/aiup-blazor-dotnet   # for a C# + Blazor .NET 10 project
 ```
 
 Installed plugins land in `.tessl/plugins/` and are tracked in `tessl.json`, so versions are pinned and reproducible
@@ -203,7 +219,7 @@ See the [Codex skills docs](https://developers.openai.com/codex/skills) and the
   ```
   /plugin marketplace add ai-unified-process/marketplace
   /plugin install aiup-core
-  /plugin install aiup-vaadin-jooq        # or: aiup-angular-jpa
+  /plugin install aiup-vaadin-jooq        # or: aiup-angular-jpa, aiup-blazor-dotnet
   ```
 
   This pulls in the skills *and* the MCP server configs from each plugin's `.mcp.json`.
@@ -829,6 +845,147 @@ e2e tooling, the skill checks for a conflicting framework (Cypress, Protractor) 
 
 ---
 
+### `/ef-migration` — EF Core Database Migrations *(in aiup-blazor-dotnet)*
+
+**Purpose:** Generates native EF Core C# migrations and the entity classes/configurations behind them from
+`docs/entity_model.md`.
+
+**Usage:**
+
+```
+/ef-migration
+```
+
+**What it does:**
+
+1. Reads `docs/entity_model.md` and inspects the existing `DbContext` and entity classes in the solution
+2. Writes entity classes with file-scoped namespaces, `required` properties, and nullable-reference-safe
+   navigation properties
+3. Adds `IEntityTypeConfiguration<T>` Fluent API mappings (table/column names, `HasPrecision`, enum
+   `HasConversion<string>()`, foreign keys, unique indexes) and registers them in `OnModelCreating`
+4. Runs `dotnet ef migrations add UCXXX_Description` (with `--project` / `--startup-project` flags for
+   multi-project solutions) and verifies the generated migration class
+5. Never drops production schema and never hardcodes connection strings — those live in `appsettings.json`
+   or environment variables
+
+**Input:** `docs/entity_model.md`
+**Output:** Entity classes, `IEntityTypeConfiguration<T>` files, and a migration class under `Migrations/`
+**Plugin:** `aiup-blazor-dotnet`
+
+---
+
+### `/implement` — Use Case Implementation *(in aiup-blazor-dotnet)*
+
+**Purpose:** Implements a use case as a Vertical Slice in a C# / Blazor .NET 10 application.
+
+**Usage:**
+
+```
+/implement UC-001
+```
+
+**What it does:**
+
+1. Reads the use case spec, `docs/requirements.md` (including UI/UX constraints, styling directives, and
+   accessibility NFRs), and `docs/entity_model.md`
+2. Creates a feature folder `Features/UCXXX_<FeatureName>/` holding the Blazor page (`.razor`), its code-behind
+   (`.razor.cs`), scoped CSS (`.razor.css`), the Command/Query, the Handler, and the Validator
+3. Uses modern C# (file-scoped namespaces, primary constructors, `required` properties, collection expressions)
+   and picks the right render mode (`InteractiveServer` / `InteractiveAuto`, or static SSR for read-heavy pages)
+4. Accesses data through `IDbContextFactory<AppDbContext>` or handler abstractions — never a raw scoped
+   `DbContext` in an interactive component — and flows `CancellationToken` through async calls
+5. Styles the UI properly: design tokens, typography, hover/loading/empty/error states, responsive layouts, ARIA tags
+6. Removes `dotnet new blazor` boilerplate (`Counter.razor`, `Weather.razor`) and registers the new route in
+   `NavMenu.razor`
+7. Runs `dotnet build` to verify compilation; does **not** create test files — use `/bunit-test`, `/dotnet-test`,
+   and `/playwright-test`
+
+**Input:** Use case ID as argument
+**Output:** A vertical slice under `Features/UCXXX_<FeatureName>/` plus navigation wiring
+**Plugin:** `aiup-blazor-dotnet`
+
+---
+
+### `/bunit-test` — bUnit Component Tests *(in aiup-blazor-dotnet)*
+
+**Purpose:** Creates bUnit component tests for Blazor `.razor` pages — full component rendering and interaction
+without a browser.
+
+**Usage:**
+
+```
+/bunit-test UC-001
+```
+
+**What it does:**
+
+1. Locates the Blazor component under test in its feature folder
+2. Generates an xUnit test class based on `Bunit.TestContext`, registering mock services via the bUnit DI
+   container and setting up authorization (`AddTestAuthorization()`) and JSInterop where the component needs them
+3. Renders with `RenderComponent<T>()`, interacts through `cut.Find(...)`, and asserts on markup
+4. Handles async lifecycle work (`OnInitializedAsync`, data fetching) with `WaitForState` / `WaitForAssertion`
+   instead of arbitrary delays
+5. Runs `dotnet test` to confirm the tests pass
+
+**Input:** Use case ID as argument
+**Output:** bUnit test class in the test project
+**Plugin:** `aiup-blazor-dotnet`
+
+---
+
+### `/dotnet-test` — Backend Unit & Integration Tests *(in aiup-blazor-dotnet)*
+
+**Purpose:** Creates xUnit tests for non-UI C# code — EF Core `DbContext` access, vertical slice handlers, and
+domain logic.
+
+**Usage:**
+
+```
+/dotnet-test UC-001
+```
+
+**What it does:**
+
+1. Locates the target handler, repository, or domain service
+2. Backs the test with SQLite in-memory (connection held open) or Testcontainers — deliberately **not**
+   `UseInMemoryDatabase`, which enforces neither relational constraints nor raw SQL behavior
+3. Follows the AAA pattern with a *fresh `DbContext` per phase* — one to seed, a second to act, a third to
+   assert — so EF Core change tracking cannot mask bugs
+4. Runs `dotnet test` to confirm the tests pass
+
+**Input:** Use case ID as argument
+**Output:** xUnit test class in the test project
+**Plugin:** `aiup-blazor-dotnet`
+
+---
+
+### `/playwright-test` — Native C# Playwright E2E Tests *(in aiup-blazor-dotnet)*
+
+**Purpose:** Creates end-to-end browser tests in native C# using `Microsoft.Playwright.Xunit`, in a dedicated
+`*.Tests.E2E` project.
+
+**Usage:**
+
+```
+/playwright-test UC-001     # use case journey
+/playwright-test TC-001     # test case journey across views
+```
+
+**What it does:**
+
+1. Reads `docs/use_cases/UC-XXX-*.md` or `docs/test_cases/TC-XXX-*.md` to derive the journey
+2. Generates a test class inheriting from `Microsoft.Playwright.Xunit.PageTest`, hosted by a
+   `WebApplicationFactory<Program>`-style fixture on a dynamic port (or a configured base URL)
+3. Uses web-first locators (`GetByRole`, `GetByLabel`, `GetByTestId`) with async `Expect(...)` assertions, allowing
+   Blazor interactive hydration to complete before interacting
+4. Runs `dotnet test` to execute the suite against the application
+
+**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument
+**Output:** Playwright test class in the `*.Tests.E2E` project
+**Plugin:** `aiup-blazor-dotnet`
+
+---
+
 ## Project Structure
 
 After running the full workflow for a project, your tree will look like this:
@@ -861,8 +1018,11 @@ your-project/
 ```
 
 The tree above shows the Vaadin/jOOQ shape. `aiup-angular-jpa` supports that same flat split *or* a hexagonal multi-module
-Maven reactor (`domain`/`business`/`postgres`/`api`/`app`), detected automatically. See each plugin's own
-README for its exact project-structure tree.
+Maven reactor (`domain`/`business`/`postgres`/`api`/`app`), detected automatically. `aiup-blazor-dotnet` keeps the same
+`docs/` tree but organizes code as vertical slices — one `Features/UCXXX_<FeatureName>/` folder per use case holding
+the Blazor page, code-behind, scoped CSS, command/query, handler, and validator — with EF Core migrations under
+`Migrations/` and tests split across a bUnit/xUnit project and a `*.Tests.E2E` Playwright project. See each plugin's
+own README for its exact project-structure tree.
 
 ---
 
@@ -976,11 +1136,13 @@ their plugin (e.g., `aiup-core:requirements`).
 An **MCP (Model Context Protocol) server** is an external service that provides Claude with access to specialized tools
 and documentation. The plugins in this marketplace ship with the following servers:
 
-| Server            | Plugin                                   | Description                                                                      |
-|-------------------|------------------------------------------|----------------------------------------------------------------------------------|
-| **context7**      | `aiup-core`                              | General library documentation lookup                                             |
-| **Vaadin**        | `aiup-vaadin-jooq`                       | Vaadin component and framework documentation                                     |
-| **KaribuTesting** | `aiup-vaadin-jooq`                       | Karibu testing framework documentation                                           |
-| **jOOQ**          | `aiup-vaadin-jooq`                       | jOOQ DSL and code generation reference                                           |
-| **JavaDocs**      | `aiup-vaadin-jooq`, `aiup-angular-jpa`   | Java API documentation lookup                                                    |
-| **Playwright**    | `aiup-vaadin-jooq`, `aiup-angular-jpa`   | Browser automation for integration tests                                         |
+| Server             | Plugin                                                        | Description                                        |
+|--------------------|---------------------------------------------------------------|----------------------------------------------------|
+| **context7**       | `aiup-core`                                                   | General library documentation lookup               |
+| **Vaadin**         | `aiup-vaadin-jooq`                                            | Vaadin component and framework documentation       |
+| **KaribuTesting**  | `aiup-vaadin-jooq`                                            | Karibu testing framework documentation             |
+| **jOOQ**           | `aiup-vaadin-jooq`                                            | jOOQ DSL and code generation reference             |
+| **JavaDocs**       | `aiup-vaadin-jooq`, `aiup-angular-jpa`                        | Java API documentation lookup                      |
+| **MicrosoftLearn** | `aiup-blazor-dotnet`                                          | .NET, Blazor, and EF Core documentation lookup     |
+| **bUnitDocs**      | `aiup-blazor-dotnet`                                          | bUnit component testing documentation              |
+| **Playwright**     | `aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`  | Browser automation for integration tests           |
