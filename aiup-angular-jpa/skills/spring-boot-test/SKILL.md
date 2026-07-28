@@ -110,6 +110,11 @@ Proceed to the rest of this skill's workflow only after the user responds.
 
 ## If Tests for This Use Case Already Exist
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line means the
+scenario it described was dropped: delete the tests that exist only for it instead of keeping them
+as passing extras.
+
 Before writing new tests, look for an existing test class for this use case — search for
 `UC<id>*Test` and for methods annotated `@UseCase(id = "UC-XXX")`. If one exists, **update it to
 match the current specification instead of creating a second test class**:

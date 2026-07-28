@@ -59,6 +59,11 @@ describe('UC-010: Browse Room Type Catalog', () => {
 
 ## If Tests for This Use Case Already Exist
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line means the
+scenario it described was dropped: delete the tests that exist only for it instead of keeping them
+as passing extras.
+
 Before writing new tests, look for an existing spec file for this use case — search for
 `UC-XXX-*.spec.ts` and for `describe('UC-XXX: …')` blocks. If one exists, **update it to match the
 current specification instead of creating a second spec file**:

@@ -15,6 +15,11 @@ Generate unit and integration tests for non-UI C# code (EF Core `DbContext`, han
 
 ## If Tests for This Handler Already Exist
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line means the
+scenario it described was dropped: delete the tests that exist only for it instead of keeping them
+as passing extras.
+
 Before writing new tests, look for an existing test class for this handler / repository (e.g.
 `PlaceOrderHandlerTests.cs`). If one exists, **update it to match the current specification and
 implementation instead of creating a second test class**:

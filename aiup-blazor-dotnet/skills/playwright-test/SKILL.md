@@ -15,6 +15,11 @@ Write end-to-end browser tests in native C# using `Microsoft.Playwright.Xunit` i
 
 ## If Tests for This Use Case / Test Case Already Exist
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line means the
+scenario it described was dropped: delete the tests that exist only for it instead of keeping them
+as passing extras.
+
 Before writing new tests, look in the `*.Tests.E2E` project for an existing test class covering this
 use case or test case (e.g. `PlaceOrderE2ETest.cs`, or any class referencing the UC-XXX / TC-XXX ID).
 If one exists, **update it to match the current specification instead of creating a second class**:

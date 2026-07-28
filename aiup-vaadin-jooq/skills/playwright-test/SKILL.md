@@ -62,6 +62,11 @@ Tests extend `AbstractBasePlaywrightIT` from Drama Finder, which handles browser
 
 ## If Tests for This Artifact Already Exist
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line means the
+scenario it described was dropped: delete the tests that exist only for it instead of keeping them
+as passing extras.
+
 Before writing new tests, look for an existing test class for this use case or test case — search
 for `UC<id>*IT` / `TC<id>*IT` and for the spec ID in existing test sources. If one exists, **update
 it to match the current specification instead of creating a second test class**:

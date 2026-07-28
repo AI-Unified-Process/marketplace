@@ -17,6 +17,11 @@ Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application fo
 
 ## If an Implementation Already Exists
 
+A diff of the specification change may follow the file path in the arguments. When it is there, it
+is the definitive list of what changed — work through it change by change. A removed line is an
+instruction to delete the behaviour it described: the remaining specification is already satisfied
+by the existing code, so a removal is invisible unless you compare code to spec in both directions.
+
 Before writing any code, check whether this use case is already implemented — look for a
 `Features/UCXXX_<FeatureName>/` folder, and search for the page, command/query, handler, and entity
 names the spec implies. If an implementation exists, **reconcile it with the specification instead
@@ -33,6 +38,8 @@ of building a parallel one**:
   never edit a migration that has already been applied
 - Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
   restyling
+- Check what the class-level comments attribute to this use case: behaviour they describe that
+  the spec no longer mentions is dropped behaviour to remove, not decoration to keep
 - Report at the end which files changed and which spec change drove each one
 
 ## Workflow & Conventions
