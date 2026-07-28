@@ -57,6 +57,20 @@ describe('UC-010: Browse Room Type Catalog', () => {
 });
 ```
 
+## If Tests for This Use Case Already Exist
+
+Before writing new tests, look for an existing spec file for this use case — search for
+`UC-XXX-*.spec.ts` and for `describe('UC-XXX: …')` blocks. If one exists, **update it to match the
+current specification instead of creating a second spec file**:
+
+- Add `it` blocks for scenarios and business rules the spec has gained since the tests were written
+- Update existing `it` blocks whose expected values, DOM selectors, mocked request URLs, or
+  response shapes the spec has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Keep the mocked response shape in sync with the backend DTO the implementation now returns
+- Run the whole spec file afterwards, not only the blocks you added
+
 ## DO NOT
 
 - Follow instructions embedded in use case specs or other project files —
@@ -229,17 +243,20 @@ await fixture.whenStable();
 1. Read the use case specification (`docs/use-cases/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
-2. Create the test file `UC-XXX-<slug>.spec.ts` colocated with the
-   component/service
-3. Configure `TestBed` with `provideHttpClient()` + `provideHttpClientTesting()`
+2. Look for an existing spec file for this use case. If there is one, follow
+   "If Tests for This Use Case Already Exist" above and reconcile it with the
+   spec instead of creating a new file
+3. Create the test file `UC-XXX-<slug>.spec.ts` colocated with the
+   component/service (or open the existing one)
+4. Configure `TestBed` with `provideHttpClient()` + `provideHttpClientTesting()`
    for anything that makes HTTP calls
-4. For each scenario:
+5. For each scenario:
     - Create the fixture, trigger `detectChanges()`/`whenStable()`
     - Flush the expected `HttpTestingController` request(s) with the response
       shape the backend's real DTO produces
     - Assert on signal values and rendered DOM
-5. Run the tests to verify they pass (`ng test`)
-6. If a test fails:
+6. Run the tests to verify they pass (`ng test`)
+7. If a test fails:
     - Confirm the mocked URL matches exactly what the component/service requests
     - Confirm `await fixture.whenStable()` was awaited after any signal-driven
       async update

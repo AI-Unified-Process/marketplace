@@ -13,10 +13,24 @@ description: >
 
 Generate unit and integration tests for non-UI C# code (EF Core `DbContext`, handlers, domain logic) using `xUnit` and in-memory or SQLite EF Core test contexts.
 
+## If Tests for This Handler Already Exist
+
+Before writing new tests, look for an existing test class for this handler / repository (e.g.
+`PlaceOrderHandlerTests.cs`). If one exists, **update it to match the current specification and
+implementation instead of creating a second test class**:
+
+- Add test methods for scenarios and business rules the spec has gained since the tests were written
+- Update existing test methods whose seeded data, command/query shape, or expected results the
+  implementation has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Run the whole test class afterwards, not only the methods you added
+
 ## Workflow
 
 1. **Identify Target Service/Handler**:
    - Locate the target handler or EF Core repository (e.g. `PlaceOrderHandler.cs`).
+   - Check whether tests for it already exist. If they do, follow "If Tests for This Handler Already Exist" above and update them instead of adding a parallel test class.
 2. **Setup Test Database Context**:
    - **Prefer SQLite in-memory or Testcontainers**: Use `UseSqlite("DataSource=:memory:")` (keeping connection open during test execution) or `Testcontainers` for realistic relational database behavior. Avoid `UseInMemoryDatabase` for EF Core tests as it does not enforce relational constraints or raw SQL behavior.
 3. **Execute & Assert (AAA Pattern with Fresh DbContext Instances)**:

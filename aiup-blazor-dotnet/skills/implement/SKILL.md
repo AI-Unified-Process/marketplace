@@ -15,6 +15,26 @@ description: >
 
 Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application following Vertical Slice Architecture principles.
 
+## If an Implementation Already Exists
+
+Before writing any code, check whether this use case is already implemented — look for a
+`Features/UCXXX_<FeatureName>/` folder, and search for the page, command/query, handler, and entity
+names the spec implies. If an implementation exists, **reconcile it with the specification instead
+of building a parallel one**:
+
+- Read the existing slice end to end and compare it against the current spec
+- Change only what the spec now requires — added or renamed fields, changed validation rules,
+  new alternative flows, different labels or messages
+- Edit the existing files in place; never create a second feature folder, page, handler, or
+  command/query for the same use case
+- Propagate a changed field through the whole slice (entity → EF configuration → command/query →
+  handler → validator → ViewModel → `.razor` markup)
+- Remove code the spec no longer calls for, and add a new EF Core migration for schema changes —
+  never edit a migration that has already been applied
+- Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
+  restyling
+- Report at the end which files changed and which spec change drove each one
+
 ## Workflow & Conventions
 
 1. **Read Specifications & Design Requirements**:
@@ -22,6 +42,7 @@ Implement the specified use case (`UC-XXX.md`) in a C# and Blazor application fo
    - Read `docs/requirements.md` to extract relevant Non-Functional Requirements (NFRs), UI/UX design constraints (`C-XXX`), styling/theme directives, color palettes, and accessibility requirements.
    - Read the entity model `docs/entity_model.md`.
    - Read `docs/vision.md` if additional visual identity or brand guidelines are needed.
+   - Check whether the use case is already implemented. If it is, follow "If an Implementation Already Exists" above and update the existing slice instead of creating new files.
 
 2. **Vertical Slice Folder Structure**:
    - Organize code into feature folders: `Features/UCXXX_<FeatureName>/`.

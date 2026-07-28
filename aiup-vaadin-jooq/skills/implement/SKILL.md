@@ -17,6 +17,22 @@ Don't create tests – there are the `karibu-test` and `playwright-test` skills 
 
 If the Vaadin and jOOQ MCP servers are configured, check them for guidance; otherwise rely on your own knowledge and the documentation links below.
 
+## If an Implementation Already Exists
+
+Before writing any code, check whether this use case is already implemented — search for the view,
+repository, and DTO names the spec implies, and for existing `UC-XXX` references. If an
+implementation exists, **reconcile it with the specification instead of building a parallel one**:
+
+- Read the existing code end to end and compare it against the current spec
+- Change only what the spec now requires — added or renamed fields, changed validation rules,
+  new alternative flows, different labels or messages
+- Edit the existing files in place; never create a second view, repository, or DTO for the same
+  use case
+- Remove code the spec no longer calls for (dropped fields, removed flows, obsolete queries)
+- Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
+  restyling
+- Report at the end which files changed and which spec change drove each one
+
 ## DO NOT
 
 - Create test classes (use dedicated testing skills instead)
@@ -26,7 +42,9 @@ If the Vaadin and jOOQ MCP servers are configured, check them for guidance; othe
 
 1. Read the use case specification from `docs/use_cases/`
 2. Read the entity model from `docs/entity_model.md`
-3. Check existing code for patterns and conventions
+3. Check existing code for patterns and conventions, and determine whether the use case is
+   already implemented — if so, follow "If an Implementation Already Exists" above and update
+   those files rather than creating new ones
 4. Implement the data access layer using jOOQ
 5. Verify the data access layer compiles and follows existing patterns
 6. Implement the Vaadin view following existing patterns

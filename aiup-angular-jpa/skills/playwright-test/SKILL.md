@@ -62,6 +62,20 @@ it.
 - Reference component internals (class names, file paths) in test code or
   assertions — this is a blackbox test against the rendered page
 
+## If Tests for This Use Case Already Exist
+
+Before writing new tests, look for an existing e2e file for this use case — search the e2e test
+directory for the `@UC-XXX` tag and for a `test.describe` block named after the use case. If one
+exists, **update it to match the current specification instead of creating a second file**:
+
+- Add tests for scenarios and alternative flows the spec has gained since the tests were written
+- Update existing tests whose expected values, labels, routes, or step order the spec has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Update the Flyway test data and the `test.afterEach` cleanup when the spec's data requirements
+  changed
+- Run the whole file afterwards, not only the tests you added
+
 ## Test Data
 
 Use existing test data from Flyway migrations (backend project — location
@@ -166,17 +180,20 @@ state with a plain boolean check.
 
 1. Check for an existing e2e framework before assuming Playwright is unclaimed
 2. Read the use case specification
-3. Plan test scenarios (group related tests in a `test.describe` block per use case)
-4. Create the test file
-5. For each test:
+3. Look for an existing e2e file for this use case. If there is one, follow "If
+   Tests for This Use Case Already Exist" above and reconcile it with the spec
+   instead of creating a new file
+4. Plan test scenarios (group related tests in a `test.describe` block per use case)
+5. Create the test file (or open the existing one)
+6. For each test:
     - Tag it with `{ tag: "@UC-XXX" }`
     - Navigate with `page.goto(...)`
     - Locate elements with role/label/text locators
     - Perform interactions (`fill`, `click`, `selectOption`, `check`)
     - Assert outcomes using auto-retrying `expect(locator)` assertions
     - Clean up test-created data in `test.afterEach`, ideally via the API
-6. Run tests with `npx playwright test` to verify
-7. On failure: confirm both the backend and Angular dev server are running,
+7. Run tests with `npx playwright test` to verify
+8. On failure: confirm both the backend and Angular dev server are running,
    verify test data exists in the Flyway migrations, use
    `npx playwright test --debug` or `--headed` for visual debugging
 

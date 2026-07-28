@@ -20,6 +20,20 @@ Browserless Testing is the **official, recommended** server-side testing framewo
 
 If the Vaadin MCP server (`https://mcp.vaadin.com/docs`) is configured, use it for documentation lookups; otherwise rely on your own knowledge and the documentation links below. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
 
+## If Tests for This Use Case Already Exist
+
+Before writing new tests, look for an existing test class for this use case — search for
+`UC<id>*Test` and for methods annotated `@UseCase(id = "UC-XXX")`. If one exists, **update it to
+match the current specification instead of creating a second test class**:
+
+- Add test methods for scenarios and business rules the spec has gained since the tests were written
+- Update existing test methods whose expected values, labels, component captions, or flows the spec
+  has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Update the test data (Flyway test migrations) when the spec's data requirements changed
+- Run the whole test class afterwards, not only the methods you added
+
 ## Test Class Naming and `@UseCase` Annotation
 
 Browserless tests are **use case tests**. Each test class verifies the behavior of exactly one use
@@ -324,10 +338,12 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
    scenario, alternative flows (A1, A2, …), and referenced business rules (BR-XXX)
 2. Check whether a `UseCase` annotation type already exists in the project. If not, create
    `UseCase.java` with the canonical shape shown above
-3. Use TodoWrite to create a task for each test scenario (one task per scenario / alternative flow)
-4. Create the test class named `UC<id><PascalCaseUseCaseName>Test`, extending
-   `SpringBrowserlessTest` and annotated `@SpringBootTest`
-5. For each test method:
+3. Look for an existing test class for this use case. If there is one, follow "If Tests for This
+   Use Case Already Exist" above and reconcile it with the spec instead of creating a new class
+4. Use TodoWrite to create a task for each test scenario (one task per scenario / alternative flow)
+5. Create the test class named `UC<id><PascalCaseUseCaseName>Test`, extending
+   `SpringBrowserlessTest` and annotated `@SpringBootTest` (or open the existing one)
+6. For each test method:
     - Annotate with `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-…"})`
       mirroring the spec headings
     - Navigate to the view with `navigate(...)`
@@ -335,13 +351,13 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
     - Perform interactions through `test(component)`
     - Assert outcomes against the component's Java API
     - Clean up test data if created during the test
-6. Run tests to verify they pass
-7. If a test fails:
+7. Run tests to verify they pass
+8. If a test fails:
     - Use `$()...exists()` to verify the component is in the tree
     - Use `getCurrentView()` to confirm navigation succeeded
     - Verify test data exists in the Flyway test migrations
     - For overlay components, use the dedicated tester (`ContextMenuTester`, `MenuBarTester`) — `$()` won't see them
-8. Mark todos complete
+9. Mark todos complete
 
 ## Resources
 

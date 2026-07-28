@@ -1,7 +1,7 @@
 {
   "name": "aiup/aiup-angular-jpa",
   "description": "AI Unified Process plugin for the Angular/JPA stack",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "rules": "rules",
   "author": {
     "name": "Marc Affolter",

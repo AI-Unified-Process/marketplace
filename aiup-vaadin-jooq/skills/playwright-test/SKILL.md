@@ -60,6 +60,21 @@ Tests extend `AbstractBasePlaywrightIT` from Drama Finder, which handles browser
 - Use `getAttribute()`/`isVisible()` directly in assertions — they don't auto-retry
 - Guess Drama Finder method signatures — use the bundled [references/dramafinder-api.md](references/dramafinder-api.md); only fall back to the JavaDocs MCP for classes it doesn't cover
 
+## If Tests for This Artifact Already Exist
+
+Before writing new tests, look for an existing test class for this use case or test case — search
+for `UC<id>*IT` / `TC<id>*IT` and for the spec ID in existing test sources. If one exists, **update
+it to match the current specification instead of creating a second test class**:
+
+- Add tests for scenarios, alternative flows, or Flow rows the spec has gained since the tests were
+  written
+- Update existing tests whose expected values, labels, routes, or step order the spec has changed
+- Delete tests for scenarios or Flow rows the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Update the Flyway test migrations and the `@AfterEach` cleanup when the spec's Preconditions or
+  Postconditions changed
+- Run the whole test class afterwards, not only the tests you added
+
 ## Test Data
 
 Use existing test data from Flyway migrations in `src/test/resources/db/migration`. If your test creates data, clean up in `@AfterEach` — through the UI or targeted deletes, and make cleanup idempotent (the test may have failed midway, leaving only part of the data behind). Test case **Preconditions** should be satisfied by the Flyway test data; if they aren't, extend the test migrations rather than inserting through back doors. For test case journeys, the document's **Postconditions** section is the cleanup contract — remove exactly the records it lists, in the stated order.
@@ -164,17 +179,18 @@ See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional 
 
 1. Decide the test type from $ARGUMENTS: use case test (UC-*) or test case journey (TC-*)
 2. Read the specification — for a test case, also read every use case spec linked in its Flow table
-3. Plan the tests: for a use case, group related tests in `@Nested` classes with `@DisplayName`; for a test case, one private step method per Flow row, called in order from a single `@Test`
-4. **Look up Drama Finder element APIs** for each element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md)
-5. Create the test class extending `AbstractBasePlaywrightIT` with `@SpringBootTest` and `@LocalServerPort`
-6. Override `getUrl()` (return `http://localhost:<port>/`) and `getView()` (the view's route; for a test case, the route of the first Flow step)
-7. For each test:
+3. Look for an existing test class for this artifact. If there is one, follow "If Tests for This Artifact Already Exist" above and reconcile it with the spec instead of creating a new class
+4. Plan the tests: for a use case, group related tests in `@Nested` classes with `@DisplayName`; for a test case, one private step method per Flow row, called in order from a single `@Test`
+5. **Look up Drama Finder element APIs** for each element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md)
+6. Create the test class extending `AbstractBasePlaywrightIT` with `@SpringBootTest` and `@LocalServerPort` (or open the existing one)
+7. Override `getUrl()` (return `http://localhost:<port>/`) and `getView()` (the view's route; for a test case, the route of the first Flow step)
+8. For each test:
    - Use Drama Finder element wrappers to locate components by label/text/ID
    - Perform interactions (setValue, click, selectItem, check)
    - Assert outcomes using auto-retry assertions — for a test case, assert the Validation section's expectations at the end of the flow
    - Clean up test-created data in `@AfterEach`
-8. Run tests with `./mvnw verify -Pit` to verify
-9. On failure: check view loaded, verify test data in Flyway migrations, use `isGreaterThan()` for grid counts, add `waitForGridToStopLoading()` for async grids
+9. Run tests with `./mvnw verify -Pit` to verify
+10. On failure: check view loaded, verify test data in Flyway migrations, use `isGreaterThan()` for grid counts, add `waitForGridToStopLoading()` for async grids
 
 ## Troubleshooting
 

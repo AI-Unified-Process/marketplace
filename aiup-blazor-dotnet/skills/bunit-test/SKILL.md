@@ -12,10 +12,25 @@ description: >
 
 Generate unit and integration tests for Blazor `.razor` UI components using the `bUnit` testing library and `xUnit`.
 
+## If Tests for This Component Already Exist
+
+Before writing new tests, look for an existing test class for this use case / component (e.g.
+`UC001_PlaceOrderPageTests.cs`, or any test that renders the component). If one exists, **update it
+to match the current specification and implementation instead of creating a second test class**:
+
+- Add test methods for scenarios and business rules the spec has gained since the tests were written
+- Update existing test methods whose expected markup, element selectors, or mocked service
+  behavior the component has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Keep the registered mock services in sync with the component's current DI dependencies
+- Run the whole test class afterwards, not only the methods you added
+
 ## Workflow
 
 1. **Locate Target Component**:
    - Identify the Blazor component under test (e.g. `Features/UC001_PlaceOrder/PlaceOrderPage.razor`).
+   - Check whether tests for it already exist. If they do, follow "If Tests for This Component Already Exist" above and update them instead of adding a parallel test class.
 2. **Setup bUnit Test Class**:
    - Inherit from `Bunit.TestContext` (or use `bUnit` test fixture).
    - Register mock services using `Services.AddSingleton` or `Services.AddScoped`.

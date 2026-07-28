@@ -108,6 +108,21 @@ Then ask the user directly, for example:
 
 Proceed to the rest of this skill's workflow only after the user responds.
 
+## If Tests for This Use Case Already Exist
+
+Before writing new tests, look for an existing test class for this use case — search for
+`UC<id>*Test` and for methods annotated `@UseCase(id = "UC-XXX")`. If one exists, **update it to
+match the current specification instead of creating a second test class**:
+
+- Add test methods for scenarios and business rules the spec has gained since the tests were written
+- Update existing test methods whose expected values, JSON fields, status codes, or flows the spec
+  has changed
+- Delete tests for scenarios the spec no longer contains
+- Leave passing tests the spec still requires untouched
+- Keep the existing class's convention (Convention A or B) even if it isn't this skill's default —
+  never silently migrate an existing suite to a newer tool
+- Run the whole test class afterwards, not only the methods you added
+
 ## Test Class Naming and `@UseCase` Annotation
 
 These are **use case tests**. Each test class verifies the behavior of exactly
@@ -410,9 +425,12 @@ and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
 3. Check whether a `UseCase` annotation type already exists in the project. If
    not, create `UseCase.java` with the canonical shape shown above, in the
    correct module for the detected layout
-4. Create the test class named `UC<id><PascalCaseUseCaseName>Test`, in the
-   correct module for the detected layout
-5. For each test method:
+4. Look for an existing test class for this use case. If there is one, follow
+   "If Tests for This Use Case Already Exist" above and reconcile it with the
+   spec instead of creating a new class
+5. Create the test class named `UC<id><PascalCaseUseCaseName>Test`, in the
+   correct module for the detected layout (or open the existing one)
+6. For each test method:
     - Annotate with `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-…"})`
       mirroring the spec headings
     - Drive the request through the detected (or user-confirmed) convention's
@@ -422,8 +440,8 @@ and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
       `.bodyJson()`, or MockMvc `jsonPath`
     - Clean up test data if created during the test, via the detected
       convention's own approach
-6. Run the tests to verify they pass
-7. If a test fails:
+7. Run the tests to verify they pass
+8. If a test fails:
     - Confirm the correct convention was actually followed (not mixed, and
       not silently upgraded from a legacy tool to this skill's newer default)
     - For Convention A (RestTestClient or RestAssured), confirm the
