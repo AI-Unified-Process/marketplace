@@ -1,42 +1,53 @@
 # Versioning of the AIUP generate workflow
 
-The AI-assisted generation runs on two files:
+The AI-assisted generation runs on a thin stub per project repository and a shared implementation in this repository —
+per Git provider one of each:
 
-- **The dispatch stub** — `.github/workflows/aiup-generate.yml` in every project repository. The AIUP Studio writes it
-  during setup (UC-042). It only receives the `workflow_dispatch` from the Studio and passes the inputs on; it never
-  changes when a skill or plugin is added.
-- **The reusable workflow** — [`.github/workflows/aiup-generate.yml`](../.github/workflows/aiup-generate.yml) in this
-  repository. Everything the run does — the specification diff, the skill, the status advance and the pull request —
-  lives here.
+- **The dispatch stubs** — written by the AIUP Studio during setup (UC-042); they never change when a skill or plugin
+  is added. On GitHub it is `.github/workflows/aiup-generate.yml`, which only receives the `workflow_dispatch` and
+  passes the inputs on. On Bitbucket it is the custom pipeline `aiup-generate` in `bitbucket-pipelines.yml`, which
+  only clones this marketplace at the tag and runs its script.
+- **The shared implementation** — everything the run does (the specification diff, the skill, the status advance and
+  the result) lives here: for GitHub in the reusable workflow
+  [`.github/workflows/aiup-generate.yml`](../.github/workflows/aiup-generate.yml), for Bitbucket in the script
+  [`pipelines/aiup-generate.sh`](../pipelines/aiup-generate.sh). The two mirror each other — the catalogue of allowed
+  plugin/skill pairs is the same list in both, and a new skill changes both in the same pull request.
 
-The stub calls the reusable workflow **by tag**:
+Both stubs reference the shared implementation **by tag**:
 
 ```yaml
 uses: ai-unified-process/marketplace/.github/workflows/aiup-generate.yml@v1
 ```
 
+```yaml
+- git clone --quiet --depth 1 --branch v1 https://github.com/AI-Unified-Process/marketplace.git /tmp/aiup-marketplace
+- bash /tmp/aiup-marketplace/pipelines/aiup-generate.sh
+```
+
 ## The `v1` tag
 
-`v1` is a **moving tag**, not a release: it always points at the commit of this repository whose reusable workflow the
-project repositories should run. Evolving the workflow and moving the tag updates every repository at once; the stubs
-stay as they are. A breaking change to the contract between stub and workflow (inputs, secrets, permissions) would get
-a new major tag (`v2`) and a new stub template in the Studio instead.
+`v1` is a **moving tag**, not a release: it always points at the commit of this repository whose shared
+implementation the project repositories should run — the reusable workflow and the pipelines script move together.
+Evolving them and moving the tag updates every repository at once; the stubs stay as they are. A breaking change to
+the contract between stub and implementation (inputs, secrets, permissions) would get a new major tag (`v2`) and new
+stub templates in the Studio instead.
 
-The tag must exist — GitHub resolves the `uses:` reference at dispatch time, and if it doesn't, **every** generate run
-fails before it starts (see [Troubleshooting](#troubleshooting) below).
+The tag must exist — GitHub resolves the `uses:` reference at dispatch time, and the Bitbucket stub clones the tag at
+the start of the run; if it doesn't, **every** generate run fails before the skill starts (see
+[Troubleshooting](#troubleshooting) below).
 
-### Moving the tag after a workflow change
+### Moving the tag after a change
 
-After changing the reusable workflow on `main`:
+After changing the reusable workflow or the pipelines script on `main`:
 
 ```bash
 git tag -f v1 <commit>
 git push -f origin v1
 ```
 
-Commits that do not touch the reusable workflow (skills, docs) do not require moving the tag — the project
-repositories check out the marketplace at the tag's commit only for the workflow definition itself; the plugins and
-skills are installed at their published version inside the run.
+Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
+repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins
+and skills are installed at their published version inside the run.
 
 ## Troubleshooting
 
