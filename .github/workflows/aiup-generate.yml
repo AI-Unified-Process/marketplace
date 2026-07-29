@@ -4,7 +4,8 @@
 # every repository it sets up (UC-042). The stub receives the workflow_dispatch and
 # calls this workflow by tag; everything the run does - the specification diff, the
 # skill, the status advance and the pull request - happens here. Evolving this file and
-# moving the tag updates every repository at once; the stubs stay as they are.
+# moving the tag updates every repository at once; the stubs stay as they are. How the
+# v1 tag works and how to move it: docs/generate-workflow-versioning.md.
 #
 # It runs the chosen skill of the chosen plugin and provides the result as a pull
 # request; nothing is ever written to a branch directly.
