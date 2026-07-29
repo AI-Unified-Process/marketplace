@@ -1,0 +1,302 @@
+# AIUP Studio - AI-assisted generation, the shared implementation.
+#
+# This is the reusable workflow behind the dispatch stub the AIUP Studio writes into
+# every repository it sets up (UC-042). The stub receives the workflow_dispatch and
+# calls this workflow by tag; everything the run does - the specification diff, the
+# skill, the status advance and the pull request - happens here. Evolving this file and
+# moving the tag updates every repository at once; the stubs stay as they are.
+#
+# It runs the chosen skill of the chosen plugin and provides the result as a pull
+# request; nothing is ever written to a branch directly.
+name: AIUP Generate
+
+on:
+  workflow_call:
+    inputs:
+      plugin:
+        description: Plugin the skill belongs to
+        required: true
+        type: string
+      skill:
+        description: Skill to run
+        required: true
+        type: string
+      subject:
+        description: Artifact or use case id the skill applies to
+        required: false
+        type: string
+      correlation_id:
+        description: Id of the run from the Studio
+        required: true
+        type: string
+      model:
+        description: Model Claude Code runs with
+        required: false
+        default: claude-sonnet-5
+        type: string
+      max_turns:
+        description: Upper limit of turns in Claude Code
+        required: false
+        default: "40"
+        type: string
+      timeout_minutes:
+        description: Upper limit of the run time in minutes
+        required: false
+        default: "30"
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    # After this, a run without a result counts as failed. The Studio applies the same
+    # deadline, so the run stops costing at the moment the Studio gives up on it.
+    timeout-minutes: ${{ fromJSON(inputs.timeout_minutes) }}
+    steps:
+      # The stub accepts plugin and skill as free text so that a new skill does not
+      # force an update of every repository. The guarantee its former choice lists gave
+      # moves here: only a combination of this catalogue reaches a prompt. The
+      # catalogue mirrors the plugins of this marketplace - the name alone would not
+      # do, because flyway-migration, implement and playwright-test exist in both stack
+      # plugins and mean different work in each - and a new skill changes it in the
+      # same pull request that adds the skill.
+      - name: Check the plugin and the skill against the catalogue
+        env:
+          # through the environment, not into the script: both values are free text
+          PLUGIN: ${{ inputs.plugin }}
+          SKILL: ${{ inputs.skill }}
+        run: |
+          set -euo pipefail
+          case "$PLUGIN/$SKILL" in
+            aiup-core/requirements) ;;
+            aiup-core/entity-model) ;;
+            aiup-core/use-case-diagram) ;;
+            aiup-core/use-case-spec) ;;
+            aiup-core/test-case) ;;
+            aiup-core/reverse-engineer) ;;
+            aiup-vaadin-jooq/flyway-migration) ;;
+            aiup-vaadin-jooq/implement) ;;
+            aiup-vaadin-jooq/browserless-test) ;;
+            aiup-vaadin-jooq/playwright-test) ;;
+            aiup-angular-jpa/flyway-migration) ;;
+            aiup-angular-jpa/implement) ;;
+            aiup-angular-jpa/spring-boot-test) ;;
+            aiup-angular-jpa/vitest-test) ;;
+            aiup-angular-jpa/playwright-test) ;;
+            *)
+              echo "::error::'$SKILL' of '$PLUGIN' is not in the catalogue of this marketplace"
+              exit 1 ;;
+          esac
+
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # A specification edit that only removes a requirement is invisible to the skill:
+      # the remaining text is already satisfied by the existing code, so the run finds
+      # nothing to do and the dropped behaviour survives. The diff against the default
+      # branch makes every change explicit - removals included - and travels with the
+      # prompt so the skill reconciles the code with the change instead of re-checking
+      # a specification it already fulfils.
+      - name: Determine the change of the specification
+        id: spec_change
+        if: inputs.subject != ''
+        env:
+          SKILL: ${{ inputs.skill }}
+          # through the environment, not into the script: the subject is free text
+          SUBJECT: ${{ inputs.subject }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          # Only the skills that turn a specification into code or tests care how the
+          # specification moved; the document skills rewrite their artifact as a whole.
+          case "$SKILL" in
+            implement | browserless-test | spring-boot-test | vitest-test | playwright-test) ;;
+            *) exit 0 ;;
+          esac
+          # The subject of these skills is the path of the specification. A subject that
+          # is an id names no file and has no history to diff.
+          if [ ! -f "$SUBJECT" ]; then
+            exit 0
+          fi
+          # The checkout is shallow; the tip of the default branch is enough for a
+          # two-point diff of a single file. FETCH_HEAD instead of a remote ref because
+          # actions/checkout narrows the fetch refspec to the dispatched ref.
+          git fetch --quiet --depth=1 origin "refs/heads/$DEFAULT_BRANCH"
+          diff=$(git diff FETCH_HEAD HEAD -- "$SUBJECT")
+          if [ -z "$diff" ]; then
+            echo "The specification matches \`$DEFAULT_BRANCH\`; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # A diff of a single specification is small. Anything larger is not a
+          # specification edit and would drown the prompt - better no hint than a
+          # truncated one that misleads.
+          if [ "${#diff}" -gt 20000 ]; then
+            echo "The diff of \`$SUBJECT\` is too large for the prompt; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # The delimiter carries the commit id, so no line of the diff can match it.
+          # Tildes fence the diff because a Markdown specification may itself contain
+          # backtick fences.
+          {
+            echo "hint<<AIUP-DIFF-$GITHUB_SHA"
+            echo ""
+            echo "The specification named above was changed on this branch. Its diff against \`$DEFAULT_BRANCH\`:"
+            echo ""
+            echo '~~~diff'
+            printf '%s\n' "$diff"
+            echo '~~~'
+            echo ""
+            echo "Reconcile the result with every change in this diff, not only with the current text of the specification. A removed line means the behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour."
+            echo "AIUP-DIFF-$GITHUB_SHA"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run the skill
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Two ways to the AI access, one of them is enough: an API key from the
+          # Anthropic Console or - with a Claude subscription - the token from
+          # `claude setup-token`. The secrets live in the calling repository and arrive
+          # through `secrets: inherit`; whichever is not set stays empty and is ignored
+          # by the action.
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The Studio dispatches the workflow with the token of its GitHub App, so the
+          # actor is a bot (`aiup-studio[bot]`, or whatever the app of a self-hosted
+          # Studio is called) and the action would refuse to start. The name of the app
+          # is not fixed, hence every bot is allowed: the only trigger is
+          # workflow_dispatch, and GitHub grants that to write access only.
+          allowed_bots: "*"
+          plugin_marketplaces: https://github.com/AI-Unified-Process/marketplace.git
+          # All plugins are installed, only the chosen one runs: telling them apart
+          # would cost an extra step to save a few seconds of installation time.
+          plugins: |
+            aiup-core@ai-unified-process-marketplace
+            aiup-vaadin-jooq@ai-unified-process-marketplace
+            aiup-angular-jpa@ai-unified-process-marketplace
+          # The diff of the specification follows the slash command; an empty hint
+          # leaves the prompt as the bare command. Everything after the command name
+          # reaches the skill as its arguments, and the skills expect the diff there.
+          # Plugin and skill were checked against the catalogue above; nothing else
+          # ever stands before the colon or the space.
+          prompt: |
+            /${{ inputs.plugin }}:${{ inputs.skill }} ${{ inputs.subject }}
+            ${{ steps.spec_change.outputs.hint }}
+          # The permission mode has to be set here: the action only grants it in its tag
+          # mode (@claude in a comment), and a workflow_dispatch run is its agent mode,
+          # where nothing but these arguments applies. Without it the skill is allowed to
+          # read but not to write, and the run ends successfully without a single changed
+          # file. Bypassing rather than accepting the edits because the code and test
+          # skills verify their result with Maven, and that is a Bash call.
+          #
+          # git stays blocked: the changes are meant to stay in the working directory so
+          # that the next step can turn them into a pull request. The deny rule outranks
+          # the permission mode, so the block holds.
+          claude_args: |
+            --model ${{ inputs.model }}
+            --max-turns ${{ inputs.max_turns }}
+            --permission-mode bypassPermissions
+            --disallowedTools Bash(git:*)
+
+      # The status of the specification follows the merge: the new status travels in the
+      # same pull request as the code it describes, so the artifact says Implemented or
+      # Tested at the very moment the proposal is taken over
+      # - and says nothing new while the pull request is only open or is rejected. Nobody
+      # has to watch the pull request afterwards and no second commit follows the merge.
+      - name: Advance the status of the specification
+        if: inputs.subject != ''
+        env:
+          SKILL: ${{ inputs.skill }}
+          # through the environment, not into the script: the subject is free text
+          SUBJECT: ${{ inputs.subject }}
+        run: |
+          set -euo pipefail
+          # Only the two steps that move the status of a use case. The end-to-end test
+          # follows a test case, not a use case, and moves nothing.
+          case "$SKILL" in
+            implement)
+              target=3; english=Implemented; german=Implementiert ;;
+            browserless-test | spring-boot-test | vitest-test)
+              target=4; english=Tested; german=Getestet ;;
+            *)
+              exit 0 ;;
+          esac
+          # The subject of these steps is the path of the specification. A subject that
+          # is an id names no file and is left alone.
+          if [ ! -f "$SUBJECT" ]; then
+            echo "No specification at \`$SUBJECT\`; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # A run that produced nothing has no result to take over; without this check the
+          # pull request would carry the new status and nothing else.
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "The skill changed nothing; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
+            -e '/^\*\*Status:\*\*/q' "$SUBJECT")
+          # The AIUP status values in their order, English and German.
+          # LC_ALL=C keeps the lowercasing to ASCII, so the umlaut of "Geprüft" survives.
+          case "$(printf '%s' "$current" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
+            draft | entwurf) rank=0 ;;
+            reviewed | geprüft) rank=1 ;;
+            approved | genehmigt) rank=2 ;;
+            implemented | implementiert) rank=3 ;;
+            tested | getestet) rank=4 ;;
+            done | abgeschlossen) rank=5 ;;
+            # Obsolete, a value the format does not know, or no status line at all: none
+            # of them is a state this run may advance out of.
+            *) rank=-1 ;;
+          esac
+          # Forward only, and only out of a status the step is allowed at: below
+          # Approved neither the implementation nor the tests are a step of the AIUP
+          # process, and a status already at or beyond the one this run stands for never
+          # moves backwards.
+          if [ "$rank" -lt 2 ] || [ "$rank" -ge "$target" ]; then
+            echo "Status \`$current\` of \`$SUBJECT\` was left alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # A specification is written back in the language it is written in.
+          if grep -qE '^\*\*Use-Case-ID:\*\*|^## Übersicht' "$SUBJECT"; then
+            value=$german
+          else
+            value=$english
+          fi
+          # Only the first status line, and the trailing spaces of a Markdown hard break
+          # are kept - dropping them would join the line with the one below it.
+          sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*\([[:space:]]*\)\$/\1 $value\2/" "$SUBJECT"
+          echo "Status of \`$SUBJECT\`: $current -> $value" >> "$GITHUB_STEP_SUMMARY"
+
+      # Title and description name the artifact the run was set on. The subject is not
+      # decoration - without it the pull request reads as "AIUP: implement" next to every
+      # other one, and nobody can tell which change to which use case led to which
+      # proposal.
+      #
+      # The branch keeps its shape `aiup/<skill>-<correlation id>`: the Studio rebuilds
+      # that name to find the pull request of a run again, so the subject must not enter
+      # it.
+      - name: Provide the result as a pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: aiup/${{ inputs.skill }}-${{ inputs.correlation_id }}
+          delete-branch: true
+          # The subject is passed through as it stands - a path or an id, depending on the
+          # skill. Parsing an id out of it would be guesswork: an AIUP id may itself
+          # carry hyphens, so `UC-007-place-an-order` cannot be split reliably.
+          title: "${{ inputs.subject != '' && format('AIUP: {0} {1}', inputs.skill, inputs.subject) || format('AIUP: {0}', inputs.skill) }}"
+          commit-message: "${{ inputs.subject != '' && format('AIUP: {0} {1}', inputs.skill, inputs.subject) || format('AIUP: {0}', inputs.skill) }}"
+          body: |
+            Generated by the AIUP Studio with the skill `${{ inputs.plugin }}:${{ inputs.skill }}`.
+
+            ${{ inputs.subject != '' && format('Basis: `{0}`', inputs.subject) || 'The skill works on the repository as a whole; there is no single basis artifact.' }}
+
+            The content is a proposal and is to be reviewed before it is taken over.
+
+            aiup-run: ${{ inputs.correlation_id }}
+
+      - name: Summarise the result
+        run: |
+          if [ -n "${{ steps.pr.outputs.pull-request-number }}" ]; then
+            echo "Pull request #${{ steps.pr.outputs.pull-request-number }}: ${{ steps.pr.outputs.pull-request-url }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The skill produced no changes; no pull request was created." >> "$GITHUB_STEP_SUMMARY"
+          fi
