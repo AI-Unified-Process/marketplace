@@ -45,6 +45,17 @@ on:
         required: false
         default: "30"
         type: string
+    # Declared instead of `secrets: inherit`: GitHub only inherits secrets when caller
+    # and called workflow live in the same organization, and the project repositories
+    # live anywhere. A declared secret arrives from every caller. Both stay optional
+    # because one of the two is enough.
+    secrets:
+      ANTHROPIC_API_KEY:
+        description: API key from the Anthropic Console
+        required: false
+      CLAUDE_CODE_OAUTH_TOKEN:
+        description: Token from `claude setup-token` of a Claude subscription
+        required: false
 
 jobs:
   generate:
@@ -155,9 +166,9 @@ jobs:
         with:
           # Two ways to the AI access, one of them is enough: an API key from the
           # Anthropic Console or - with a Claude subscription - the token from
-          # `claude setup-token`. The secrets live in the calling repository and arrive
-          # through `secrets: inherit`; whichever is not set stays empty and is ignored
-          # by the action.
+          # `claude setup-token`. The secrets live in the calling repository and are
+          # passed explicitly by the stub; whichever is not set stays empty and is
+          # ignored by the action.
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # The Studio dispatches the workflow with the token of its GitHub App, so the

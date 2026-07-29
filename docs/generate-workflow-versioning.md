@@ -52,3 +52,13 @@ git tag v1 origin/main && git push origin v1                        # restore if
 ```
 
 The dispatch succeeds again immediately; nothing in the project repository or the Studio needs to change.
+
+**The run starts but "Run the skill" fails with "Environment variable validation failed — Either ANTHROPIC_API_KEY,
+CLAUDE_CODE_OAUTH_TOKEN, … is required", although the secret exists in the project repository.**
+
+The secret did not reach the reusable workflow. GitHub only inherits secrets (`secrets: inherit`) when the calling and
+the called workflow live in the **same organization**, and the project repositories live anywhere — which is why the
+stub passes the two secrets explicitly and the reusable workflow declares them under `on.workflow_call.secrets`. A
+stub still using `secrets: inherit` predates that fix; the Studio offers the updated stub on the project page.
+Whether the secrets arrived is visible in the run log: the `with:` block of the `Run the skill` step lists
+`claude_code_oauth_token: ***` when the value came through and omits the line entirely when it stayed empty.
