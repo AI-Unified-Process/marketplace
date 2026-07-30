@@ -1,7 +1,7 @@
 # UC-040: Borrow Book
 
-**Use Case ID:** UC-040
-**Use Case Name:** Borrow Book
+**Use Case ID:** UC-040  
+**Use Case Name:** Borrow Book  
 **Actor:** Library Member
 
 ## Description

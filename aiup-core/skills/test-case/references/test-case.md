@@ -2,9 +2,9 @@
 
 ## Overview
 
-**ID:** TC-XXX   
-**Goal:** [In one sentence: who does what across the journey and which outcome is verified end-to-end]   
-**Priority:** Critical | High | Medium | Low   
+**ID:** TC-XXX  
+**Goal:** [In one sentence: who does what across the journey and which outcome is verified end-to-end]  
+**Priority:** Critical | High | Medium | Low  
 **Status:** Draft | Reviewed | Approved | Automated | Obsolete
 
 ## Roles

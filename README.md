@@ -421,8 +421,8 @@ requirements, non-functional requirements, and constraints.
 4. Extracts constraints (technical, regulatory, business) with stable IDs (CON-001, CON-002, …)
 5. Writes all three as separate tables in `docs/requirements.md` — never mixing requirement types in one table
 
-**Input:** `docs/vision.md`
-**Output:** `docs/requirements.md`
+**Input:** `docs/vision.md`  
+**Output:** `docs/requirements.md`  
 **Plugin:** `aiup-core`
 
 ---
@@ -446,8 +446,8 @@ requirements, non-functional requirements, and constraints.
    and validation rules (Primary Key, Sequence, NOT NULL, UNIQUE, foreign keys, check constraints)
 4. Writes the result to `docs/entity_model.md`
 
-**Input:** `docs/requirements.md`
-**Output:** `docs/entity_model.md`
+**Input:** `docs/requirements.md`  
+**Output:** `docs/entity_model.md`  
 **Plugin:** `aiup-core`
 
 ---
@@ -471,8 +471,8 @@ requirements catalog.
    boundary
 4. Uses standard PlantUML syntax only — no implementation details in use case names
 
-**Input:** `docs/requirements.md`
-**Output:** `docs/use_cases.puml`
+**Input:** `docs/requirements.md`  
+**Output:** `docs/use_cases.puml`  
 **Plugin:** `aiup-core`
 
 ---
@@ -498,8 +498,8 @@ requirements catalog.
 3. Keeps flow steps free of implementation details
 4. Refuses to bundle multiple use cases into a single document
 
-**Input:** Use case ID(s) as argument
-**Output:** `docs/use_cases/UC-XXX-*.md` (one file per use case)
+**Input:** Use case ID(s) as argument  
+**Output:** `docs/use_cases/UC-XXX-*.md` (one file per use case)  
 **Plugin:** `aiup-core`
 
 ---
@@ -528,8 +528,8 @@ the input that `/playwright-test TC-XXX` automates as a journey test.
 5. Keeps per-use-case detail out — field-level validations belong to the use case tests; the journey and its end
    state are the subject
 
-**Input:** Use case IDs as arguments
-**Output:** `docs/test_cases/TC-XXX-*.md` (one journey per file)
+**Input:** Use case IDs as arguments  
+**Output:** `docs/test_cases/TC-XXX-*.md` (one journey per file)  
 **Plugin:** `aiup-core`
 
 ---
@@ -557,8 +557,8 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
    referenced in a spec exists in the model)
 6. Reports gaps honestly — endpoints it couldn't classify, use cases where the success scenario was hard to recover
 
-**Input:** Existing source tree
-**Output:** `docs/use_cases.puml`, `docs/use_cases/UC-XXX-*.md`, `docs/entity_model.md`
+**Input:** Existing source tree  
+**Output:** `docs/use_cases.puml`, `docs/use_cases/UC-XXX-*.md`, `docs/entity_model.md`  
 **Plugin:** `aiup-core`
 
 ---
@@ -583,8 +583,8 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
 5. Writes scripts to `src/main/resources/db/migration`
 6. Will not drop existing tables without explicit confirmation
 
-**Input:** `docs/entity_model.md`
-**Output:** `src/main/resources/db/migration/V*.sql`
+**Input:** `docs/entity_model.md`  
+**Output:** `src/main/resources/db/migration/V*.sql`  
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -608,8 +608,8 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
 5. Consults the Vaadin, jOOQ, and JavaDocs MCP servers for current API documentation
 6. Does **not** create test classes — use `/browserless-test` and `/playwright-test` for that
 
-**Input:** Use case ID as argument
-**Output:** Vaadin view + jOOQ data access classes
+**Input:** Use case ID as argument  
+**Output:** Vaadin view + jOOQ data access classes  
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -637,8 +637,8 @@ and open source under Apache 2.0 since Vaadin 25.1.
 6. Preserves transaction boundaries — tests are not annotated `@Transactional`
 7. Reads component state through the component's Java API; reserves `test(...)` for actions
 
-**Input:** Use case ID as argument
-**Output:** Browserless test class under `src/test/java`
+**Input:** Use case ID as argument  
+**Output:** Browserless test class under `src/test/java`  
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -668,8 +668,8 @@ tree without launching a browser.
 5. Preserves transaction boundaries — tests are not annotated `@Transactional`
 6. Uses the KaribuTesting MCP server for documentation and code generation
 
-**Input:** Use case ID as argument
-**Output:** Karibu test class under `src/test/java`
+**Input:** Use case ID as argument  
+**Output:** Karibu test class under `src/test/java`  
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -709,8 +709,8 @@ type-safe, accessibility-first element wrappers. Covers two test types, dispatch
 8. Reuses existing test data from Flyway migrations; cleans up only test-created data in `@AfterEach`
 9. Looks up Drama Finder method signatures via the bundled API reference, falling back to the JavaDocs MCP server
 
-**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument
-**Output:** Playwright test under `src/test/java` — `UC*IT.java` for use case tests, `TC*IT.java` for journeys
+**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument  
+**Output:** Playwright test under `src/test/java` — `UC*IT.java` for use case tests, `TC*IT.java` for journeys  
 **Plugin:** `aiup-vaadin-jooq`
 
 ---
@@ -729,9 +729,9 @@ hexagonal layout).
 /flyway-migration
 ```
 
-**Input:** `docs/entity_model.md`
+**Input:** `docs/entity_model.md`  
 **Output:** `backend/src/main/resources/db/migration/V*.sql` (flat) or
-`<persistence-adapter-module>/src/main/resources/db/migration/V*.sql` (hexagonal)
+`<persistence-adapter-module>/src/main/resources/db/migration/V*.sql` (hexagonal)  
 **Plugin:** `aiup-angular-jpa`
 
 ---
@@ -760,8 +760,8 @@ multi-module (ports and adapters enforced at the Maven-module boundary) — and 
    `HttpClient` service with a colocated `*.model.ts`
 5. Does **not** create test classes — use `/spring-boot-test`, `/vitest-test`, and `/playwright-test` for that
 
-**Input:** Use case ID as argument
-**Output:** Backend classes per detected pattern, plus an Angular page/component
+**Input:** Use case ID as argument  
+**Output:** Backend classes per detected pattern, plus an Angular page/component  
 **Plugin:** `aiup-angular-jpa`
 
 ---
@@ -788,8 +788,8 @@ MockMvc — rather than assuming one.
    in the persistence-adapter module (the only one with the JPA classpath)
 4. Never mocks the repository/service layer with Mockito
 
-**Input:** Use case ID as argument
-**Output:** Spring Boot test class under the composition-root (hexagonal) or `backend/src/test/java` (flat)
+**Input:** Use case ID as argument  
+**Output:** Spring Boot test class under the composition-root (hexagonal) or `backend/src/test/java` (flat)  
 **Plugin:** `aiup-angular-jpa`
 
 ---
@@ -813,8 +813,8 @@ MockMvc — rather than assuming one.
 3. Mocks HTTP calls via `provideHttpClientTesting()`/`HttpTestingController`, verified with `httpMock.verify()`
 4. Reads state via signal getters and asserts on rendered DOM via native Angular queries
 
-**Input:** Use case ID as argument
-**Output:** Vitest spec file colocated with the component (`frontend/src/**/*.spec.ts`)
+**Input:** Use case ID as argument  
+**Output:** Vitest spec file colocated with the component (`frontend/src/**/*.spec.ts`)  
 **Plugin:** `aiup-angular-jpa`
 
 ---
@@ -839,8 +839,8 @@ e2e tooling, the skill checks for a conflicting framework (Cypress, Protractor) 
 4. Writes black-box tests against the running Angular dev server (default: `http://localhost:4200`) and backend
 5. Uses Playwright's own locators exclusively — never CSS selectors, XPath, or `waitForTimeout()`
 
-**Input:** Use case ID as argument
-**Output:** Playwright test file under `frontend/tests/e2e/`
+**Input:** Use case ID as argument  
+**Output:** Playwright test file under `frontend/tests/e2e/`  
 **Plugin:** `aiup-angular-jpa`
 
 ---
@@ -868,8 +868,8 @@ e2e tooling, the skill checks for a conflicting framework (Cypress, Protractor) 
 5. Never drops production schema and never hardcodes connection strings — those live in `appsettings.json`
    or environment variables
 
-**Input:** `docs/entity_model.md`
-**Output:** Entity classes, `IEntityTypeConfiguration<T>` files, and a migration class under `Migrations/`
+**Input:** `docs/entity_model.md`  
+**Output:** Entity classes, `IEntityTypeConfiguration<T>` files, and a migration class under `Migrations/`  
 **Plugin:** `aiup-blazor-dotnet`
 
 ---
@@ -900,8 +900,8 @@ e2e tooling, the skill checks for a conflicting framework (Cypress, Protractor) 
 7. Runs `dotnet build` to verify compilation; does **not** create test files — use `/bunit-test`, `/dotnet-test`,
    and `/playwright-test`
 
-**Input:** Use case ID as argument
-**Output:** A vertical slice under `Features/UCXXX_<FeatureName>/` plus navigation wiring
+**Input:** Use case ID as argument  
+**Output:** A vertical slice under `Features/UCXXX_<FeatureName>/` plus navigation wiring  
 **Plugin:** `aiup-blazor-dotnet`
 
 ---
@@ -927,8 +927,8 @@ without a browser.
    instead of arbitrary delays
 5. Runs `dotnet test` to confirm the tests pass
 
-**Input:** Use case ID as argument
-**Output:** bUnit test class in the test project
+**Input:** Use case ID as argument  
+**Output:** bUnit test class in the test project  
 **Plugin:** `aiup-blazor-dotnet`
 
 ---
@@ -953,8 +953,8 @@ domain logic.
    assert — so EF Core change tracking cannot mask bugs
 4. Runs `dotnet test` to confirm the tests pass
 
-**Input:** Use case ID as argument
-**Output:** xUnit test class in the test project
+**Input:** Use case ID as argument  
+**Output:** xUnit test class in the test project  
 **Plugin:** `aiup-blazor-dotnet`
 
 ---
@@ -980,8 +980,8 @@ domain logic.
    Blazor interactive hydration to complete before interacting
 4. Runs `dotnet test` to execute the suite against the application
 
-**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument
-**Output:** Playwright test class in the `*.Tests.E2E` project
+**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument  
+**Output:** Playwright test class in the `*.Tests.E2E` project  
 **Plugin:** `aiup-blazor-dotnet`
 
 ---
