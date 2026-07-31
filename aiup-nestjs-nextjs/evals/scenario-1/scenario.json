@@ -1,0 +1,4 @@
+{
+  "description": "Add an entity and change a field via the Drizzle schema and a generated migration",
+  "include": ["./inputs"]
+}
