@@ -60,6 +60,24 @@ Inception          Elaboration                          Construction
                                                                           ↘  /playwright-test
 ```
 
+For a NestJS/Next.js project the inception and elaboration parts are again the aiup-core ones. The construction
+phase targets a NestJS backend with Drizzle ORM over PostgreSQL and a Next.js App Router frontend — a split
+client/server architecture sharing only a JSON contract. It tests the backend with Vitest unit specs and Supertest
+end-to-end specs against a real PostgreSQL in Testcontainers, the frontend with Vitest and React Testing Library,
+and the whole app with Playwright. Being the first TypeScript-native stack here, it also encodes two failure modes
+the JVM and .NET plugins don't have: ESM/NodeNext `.js` import specifiers, and NestJS decorator metadata silently
+vanishing under a Vitest transformer that isn't SWC.
+
+```
+Inception          Elaboration                          Construction
+─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /drizzle-migration
+                                                                          ↘  /implement
+                                                                          ↘  /nest-test
+                                                                          ↘  /react-test
+                                                                          ↘  /playwright-test
+```
+
 Each skill picks up where the previous one left off using the files produced along the way (`docs/vision.md`,
 `docs/requirements.md`, `docs/entity_model.md`, `docs/use_cases.puml`, `docs/use_cases/UC-*.md`,
 `docs/test_cases/TC-*.md`). At any point you can
@@ -75,6 +93,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 | **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test`                   |            |
 | **aiup-angular-jpa**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
 | **aiup-blazor-dotnet**  |                 |                                        | `/ef-migration`<br>`/implement`<br>`/bunit-test`<br>`/dotnet-test`<br>`/playwright-test`          |            |
+| **aiup-nestjs-nextjs**  |                 |                                        | `/drizzle-migration`<br>`/implement`<br>`/nest-test`<br>`/react-test`<br>`/playwright-test`      |            |
 
 ---
 
@@ -89,6 +108,9 @@ forward workflow would have produced, giving you a documented baseline to work f
   (flat single module or a hexagonal domain/business/postgres/api/app-style multi-module layout), plus a
   separate Angular (standalone components) frontend project
 - For the C#/Blazor .NET 10 plugin: a .NET 10 solution (`.csproj`/`.sln`) using Blazor and Entity Framework Core
+- For the NestJS/Next.js plugin: a NestJS backend using Drizzle ORM over PostgreSQL (with `drizzle.config.ts`
+  present) and a Next.js App Router frontend — an npm workspace or two separate projects — plus Docker running
+  for the Testcontainers-backed e2e tests
 
 ## Installation
 
@@ -98,6 +120,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 /plugin install aiup-vaadin-jooq        # for a Vaadin + jOOQ project
 /plugin install aiup-angular-jpa        # for an Angular + JPA project
 /plugin install aiup-blazor-dotnet      # for a C# + Blazor .NET 10 project
+/plugin install aiup-nestjs-nextjs      # for a NestJS + Next.js project
 ```
 
 Install only `aiup-core` if you are using a different tech stack — the methodology skills are stack-agnostic.
@@ -126,8 +149,8 @@ CLI**, **Cursor**, **GitHub Copilot**, **Gemini CLI**, and **OpenCode**. Pair th
 
 [Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
 wires the MCP servers into the correct per-agent directory for whichever coding agent it detects. All plugins are
-published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, `aiup/aiup-angular-jpa`, and
-`aiup/aiup-blazor-dotnet`, so
+published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, `aiup/aiup-angular-jpa`,
+`aiup/aiup-blazor-dotnet`, and `aiup/aiup-nestjs-nextjs`, so
 this is the simplest way to adopt
 the workflow outside Claude Code — no manual cloning or per-tool MCP translation.
 
@@ -141,6 +164,7 @@ tessl install aiup/aiup-core
 tessl install aiup/aiup-vaadin-jooq     # for a Vaadin + jOOQ project
 tessl install aiup/aiup-angular-jpa     # for an Angular + JPA project
 tessl install aiup/aiup-blazor-dotnet   # for a C# + Blazor .NET 10 project
+tessl install aiup/aiup-nestjs-nextjs   # for a NestJS + Next.js project
 ```
 
 Installed plugins land in `.tessl/plugins/` and are tracked in `tessl.json`, so versions are pinned and reproducible
@@ -219,7 +243,7 @@ See the [Codex skills docs](https://developers.openai.com/codex/skills) and the
   ```
   /plugin marketplace add ai-unified-process/marketplace
   /plugin install aiup-core
-  /plugin install aiup-vaadin-jooq        # or: aiup-angular-jpa, aiup-blazor-dotnet
+  /plugin install aiup-vaadin-jooq        # or: aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs
   ```
 
   This pulls in the skills *and* the MCP server configs from each plugin's `.mcp.json`.
@@ -986,6 +1010,146 @@ domain logic.
 
 ---
 
+### `/drizzle-migration` — Drizzle Schema & Migrations *(in aiup-nestjs-nextjs)*
+
+**Purpose:** Turns `docs/entity_model.md` into Drizzle ORM schema definitions and generated PostgreSQL
+migrations.
+
+**Usage:**
+
+```
+/drizzle-migration
+```
+
+**What it does:**
+
+1. Reads `docs/entity_model.md` and locates `drizzle.config.ts` to resolve the project's `schema` and `out` paths
+2. Edits the schema file with `pg-core` definitions, mapping entity attributes to column types and turning
+   validation rules into CHECK, UNIQUE, and index constraints
+3. Detects the project's existing money-column convention (`numeric` returns strings through `pg`,
+   `doublePrecision` returns numbers) and follows it rather than imposing one
+4. Runs `drizzle-kit generate` and reviews the emitted SQL — migrations are never hand-written, and an
+   already-applied migration is never edited
+5. Detects a desynchronised migration history (a hand-edited migration with a stale snapshot) and stops to
+   report it rather than generating DDL that could drop a populated column
+
+**Input:** `docs/entity_model.md`
+**Output:** Updated Drizzle schema plus a generated migration and journal entry under the configured `out` directory
+**Plugin:** `aiup-nestjs-nextjs`
+
+---
+
+### `/implement` — Use Case Implementation *(in aiup-nestjs-nextjs)*
+
+**Purpose:** Implements a use case across a NestJS + Drizzle backend and a Next.js App Router frontend.
+
+**Usage:**
+
+```
+/implement UC-010
+```
+
+**What it does:**
+
+1. Detects the project layout — app roots, ESM/NodeNext, router style, route indirection, shared contract
+   package — before writing any code
+2. Creates a NestJS feature module (module, controller, service, repository, DTOs) with all SQL confined to the
+   repository and a mapped response DTO instead of raw database rows
+3. Adds `.js` suffixes to every relative import where the backend is NodeNext, and registers the module in the
+   root application module
+4. Implements the Next.js page, calling relative `/api/...` paths through the project's rewrite and using its
+   existing fetch client, component library, and shared types where present
+5. Reconciles an existing implementation with a changed specification instead of creating a parallel one
+
+**Input:** Use case ID as argument, `docs/use_cases/UC-XXX-*.md`, `docs/entity_model.md`
+**Output:** NestJS feature module under `src/<feature>/` and a Next.js page under `src/app/<route>/`
+**Plugin:** `aiup-nestjs-nextjs`
+
+---
+
+### `/nest-test` — Backend Unit & E2E Tests *(in aiup-nestjs-nextjs)*
+
+**Purpose:** Creates Vitest unit specs and Supertest end-to-end specs that run against a real PostgreSQL
+database in Testcontainers.
+
+**Usage:**
+
+```
+/nest-test UC-010
+```
+
+**What it does:**
+
+1. Verifies `vitest.config.ts` registers `unplugin-swc` — without it NestJS dependency injection silently fails,
+   because Vitest's default transformer does not emit decorator metadata — and that `oxc: false` is set on Vite 8+
+2. Creates or verifies the Testcontainers global setup: one shared PostgreSQL container per run, with the schema
+   dropped and recreated per test file
+3. Writes unit specs with repositories stubbed against their real signatures, asserting mapping logic
+4. Writes Supertest e2e specs that boot the application in `beforeAll`, covering the main scenario, every
+   alternative flow, and each business rule, asserting status codes *and* response bodies
+5. Names `describe` blocks `UC-XXX: <Use Case Name>` so tests trace back to the specification
+
+**Input:** Use case ID as argument, `docs/use_cases/UC-XXX-*.md`
+**Output:** Unit specs under `src/**/*.spec.ts` and e2e specs under `test/**/*.e2e-spec.ts`
+**Plugin:** `aiup-nestjs-nextjs`
+
+---
+
+### `/react-test` — React Component Tests *(in aiup-nestjs-nextjs)*
+
+**Purpose:** Creates Vitest + React Testing Library component tests for Next.js pages in jsdom.
+
+**Usage:**
+
+```
+/react-test UC-010
+```
+
+**What it does:**
+
+1. Identifies the real target component — where routes delegate to view components, the route file is a thin
+   wrapper that asserts nothing
+2. Mocks the project's fetch-client module rather than global `fetch`, so the test breaks when the client
+   contract changes
+3. Queries by role and accessible label, so a page failing the test also fails an accessibility audit
+4. Handles shadcn/Radix controls, which render comboboxes rather than native `<select>` elements
+5. Falls back to `fireEvent` when `@testing-library/user-event` is not a project dependency, rather than
+   importing a package that isn't installed
+
+**Input:** Use case ID as argument, `docs/use_cases/UC-XXX-*.md`
+**Output:** Component test file colocated with the component under test
+**Plugin:** `aiup-nestjs-nextjs`
+
+---
+
+### `/playwright-test` — Browser E2E Tests *(in aiup-nestjs-nextjs)*
+
+**Purpose:** Creates Playwright end-to-end tests driving the Next.js frontend against a live NestJS API.
+
+**Usage:**
+
+```
+/playwright-test UC-010
+/playwright-test TC-001     # test case journey across several use cases
+```
+
+**What it does:**
+
+1. Reads `docs/test_cases/TC-XXX-*.md` where one covers the request, following its flow table step by step;
+   otherwise falls back to the use case's scenarios
+2. Configures `webServer` to boot both applications, waiting on a readiness endpoint rather than a bare port
+3. Uses accessibility-first locators (`getByRole`, `getByLabel`, `getByText`) and auto-retrying
+   `expect(locator)` assertions — never CSS selectors, XPath, or `waitForTimeout()`
+4. Reuses the project's existing authenticated `storageState` instead of logging in inside every test
+5. Creates test data through the API and removes exactly that data in `test.afterEach`, keeping tests
+   parallel-safe when they mutate application-wide state
+
+**Input:** Use case ID (`UC-*`) or test case ID (`TC-*`) as argument
+**Output:** Playwright spec under the project's e2e directory
+**Plugin:** `aiup-nestjs-nextjs`
+
+---
+
 ## Project Structure
 
 After running the full workflow for a project, your tree will look like this:
@@ -1021,7 +1185,11 @@ The tree above shows the Vaadin/jOOQ shape. `aiup-angular-jpa` supports that sam
 Maven reactor (`domain`/`business`/`postgres`/`api`/`app`), detected automatically. `aiup-blazor-dotnet` keeps the same
 `docs/` tree but organizes code as vertical slices — one `Features/UCXXX_<FeatureName>/` folder per use case holding
 the Blazor page, code-behind, scoped CSS, command/query, handler, and validator — with EF Core migrations under
-`Migrations/` and tests split across a bUnit/xUnit project and a `*.Tests.E2E` Playwright project. See each plugin's
+`Migrations/` and tests split across a bUnit/xUnit project and a `*.Tests.E2E` Playwright project.
+`aiup-nestjs-nextjs` keeps the same `docs/` tree over a split TypeScript workspace — a NestJS API whose features are
+folders of module/controller/service/repository/DTOs with Drizzle migrations under `drizzle/migrations/`, and a
+Next.js App Router frontend — with tests split across Vitest unit specs, Supertest e2e specs on Testcontainers,
+React Testing Library component tests, and Playwright. See each plugin's
 own README for its exact project-structure tree.
 
 ---
@@ -1145,4 +1313,4 @@ and documentation. The plugins in this marketplace ship with the following serve
 | **JavaDocs**       | `aiup-vaadin-jooq`, `aiup-angular-jpa`                        | Java API documentation lookup                      |
 | **MicrosoftLearn** | `aiup-blazor-dotnet`                                          | .NET, Blazor, and EF Core documentation lookup     |
 | **bUnitDocs**      | `aiup-blazor-dotnet`                                          | bUnit component testing documentation              |
-| **Playwright**     | `aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`  | Browser automation for integration tests           |
+| **Playwright**     | `aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs` | Browser automation for integration tests |
