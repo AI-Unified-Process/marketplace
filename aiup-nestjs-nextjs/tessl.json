@@ -1,0 +1,5 @@
+{
+  "name": "aiup/aiup-nestjs-nextjs",
+  "mode": "vendored",
+  "dependencies": {}
+}
