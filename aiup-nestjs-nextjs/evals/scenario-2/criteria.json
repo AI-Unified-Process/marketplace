@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether the agent writes both tiers of NestJS tests for an already-implemented products feature, and — critically — notices that the project's Vitest config lacks unplugin-swc, without which NestJS dependency injection silently fails to resolve providers under Vitest. No e2e infrastructure exists yet, so the Testcontainers global setup and per-file schema reset must also be created. The task deliberately does not mention unplugin-swc, decorator metadata, or Testcontainers by name.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "unplugin-swc added to the Vitest config",
+      "description": "vitest.config.ts gains the unplugin-swc plugin and the package is added to devDependencies, so decorator metadata is emitted and NestJS DI resolves under Vitest",
+      "max_score": 20
+    },
+    {
+      "name": "Oxc interaction addressed",
+      "description": "The config sets oxc: false, or the agent explicitly explains why it is unnecessary for the installed Vite version, rather than ignoring the interaction between Oxc and SWC entirely",
+      "max_score": 8
+    },
+    {
+      "name": "Unit spec with a stubbed repository",
+      "description": "A unit spec under src/products/ tests ProductsService with a stubbed ProductsRepository and no database, asserting the mapping to the response shape",
+      "max_score": 14
+    },
+    {
+      "name": "e2e spec boots the app with Supertest",
+      "description": "An e2e spec boots the Nest application and drives GET /api/products over HTTP with Supertest rather than calling the service directly",
+      "max_score": 14
+    },
+    {
+      "name": "Testcontainers PostgreSQL, not a mock",
+      "description": "The e2e setup starts a real PostgreSQL container; the database is not mocked, stubbed, or replaced with SQLite or an in-memory store",
+      "max_score": 16
+    },
+    {
+      "name": "One shared container, reset per file",
+      "description": "A single container is started in Vitest global setup and shared across test files, rather than one container started per test file",
+      "max_score": 10
+    },
+    {
+      "name": "App lifecycle in beforeAll/afterAll",
+      "description": "The e2e spec boots the application in beforeAll and closes it in afterAll, rather than per individual test",
+      "max_score": 6
+    },
+    {
+      "name": "BR-010 covered",
+      "description": "A test asserts that out-of-stock products are excluded from the response",
+      "max_score": 6
+    },
+    {
+      "name": "Alternative flow A1 covered",
+      "description": "A test asserts the category filter behaviour described in alternative flow A1",
+      "max_score": 4
+    },
+    {
+      "name": "Use case traceability in test names",
+      "description": "Top-level describe blocks are named 'UC-010: Browse Product Catalog' or equivalent, so the tests trace back to the specification",
+      "max_score": 2
+    }
+  ]
+}

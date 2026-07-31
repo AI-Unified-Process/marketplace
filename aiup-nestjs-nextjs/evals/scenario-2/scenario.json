@@ -1,0 +1,4 @@
+{
+  "description": "Write unit and e2e tests for an implemented NestJS feature",
+  "include": ["./inputs"]
+}
