@@ -23,7 +23,8 @@ Each skill is also available as a slash command.
 | Phase        | Skill / command       | Description                                                              |
 |--------------|-----------------------|--------------------------------------------------------------------------|
 | Construction | `/flyway-migration`   | Create versioned Flyway migration scripts (`V*.sql`) from the entity model |
-| Construction | `/implement`          | Implement use cases as Vaadin views/forms/grids plus jOOQ data access    |
+| Construction | `/implement`          | Implement use cases as Vaadin Flow views/forms/grids plus jOOQ data access |
+| Construction | `/implement-hilla`    | Implement use cases as Hilla views (React + `@BrowserCallable`) plus jOOQ data access |
 | Construction | `/browserless-test`   | Create Vaadin Browserless server-side unit tests (recommended)           |
 | Construction | `/karibu-test`        | Create Karibu server-side unit tests (legacy — superseded since Vaadin 25.1) |
 | Construction | `/playwright-test`    | Create Playwright browser-based tests (Drama Finder) — use case integration tests (UC-*) or end-to-end test case journeys (TC-*) |
@@ -36,6 +37,9 @@ Construction
 /flyway-migration  →  /implement  →  /browserless-test
                                   ↘  /playwright-test  (UC-* or TC-*)
 ```
+
+Use `/implement` for Vaadin Flow (server-side Java) views and `/implement-hilla` for Hilla
+(React/TypeScript) views — both share the same jOOQ data access conventions.
 
 These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
 `docs/test_cases/TC-*.md`) produced by `aiup/aiup-core` and write code and tests into your Maven/Gradle project.

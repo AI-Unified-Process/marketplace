@@ -72,7 +72,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 |                         | Inception       | Elaboration                            | Construction                                                                                       | Transition |
 |-------------------------|-----------------|----------------------------------------|----------------------------------------------------------------------------------------------------|------------|
 | **aiup-core**           | `/requirements` | `/entity-model`<br>`/use-case-diagram` | `/use-case-spec`<br>`/test-case`                                                                   |            |
-| **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/browserless-test`<br>`/playwright-test`                   |            |
+| **aiup-vaadin-jooq**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/implement-hilla`<br>`/browserless-test`<br>`/playwright-test` |            |
 | **aiup-angular-jpa**    |                 |                                        | `/flyway-migration`<br>`/implement`<br>`/spring-boot-test`<br>`/vitest-test`<br>`/playwright-test` |            |
 | **aiup-blazor-dotnet**  |                 |                                        | `/ef-migration`<br>`/implement`<br>`/bunit-test`<br>`/dotnet-test`<br>`/playwright-test`          |            |
 
@@ -610,6 +610,33 @@ codebase so legacy projects can join the AIUP workflow without rewriting documen
 
 **Input:** Use case ID as argument
 **Output:** Vaadin view + jOOQ data access classes
+**Plugin:** `aiup-vaadin-jooq`
+
+---
+
+### `/implement-hilla` — Use Case Implementation (Hilla)
+
+**Purpose:** Implements a use case end-to-end using Hilla — React/TypeScript views with file-based routing — for the
+UI layer and jOOQ for the data access layer.
+
+**Usage:**
+
+```
+/implement-hilla UC-001
+```
+
+**What it does:**
+
+1. Reads the use case specification from `docs/use_cases/` and the entity model from `docs/entity_model.md`
+2. Reads existing code first to match conventions before creating new files
+3. Implements the data access layer using jOOQ — verifies it compiles before continuing
+4. Implements a `@BrowserCallable` service delegating to the data access layer, then the React view as a `.tsx` file
+   under `src/main/frontend/views/`, calling the generated type-safe TypeScript client
+5. Consults the Vaadin, jOOQ, and JavaDocs MCP servers for current API documentation
+6. Does **not** create test classes — use the dedicated testing skills for that
+
+**Input:** Use case ID as argument
+**Output:** Hilla React view + `@BrowserCallable` service + jOOQ data access classes
 **Plugin:** `aiup-vaadin-jooq`
 
 ---

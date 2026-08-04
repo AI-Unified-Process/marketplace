@@ -1,0 +1,1 @@
+{ "description": "Hilla React view with @BrowserCallable service over jOOQ", "include": ["./inputs"] }

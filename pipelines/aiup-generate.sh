@@ -40,6 +40,7 @@ case "$PLUGIN/$SKILL" in
   aiup-core/reverse-engineer) ;;
   aiup-vaadin-jooq/flyway-migration) ;;
   aiup-vaadin-jooq/implement) ;;
+  aiup-vaadin-jooq/implement-hilla) ;;
   aiup-vaadin-jooq/browserless-test) ;;
   aiup-vaadin-jooq/playwright-test) ;;
   aiup-angular-jpa/flyway-migration) ;;
@@ -61,7 +62,7 @@ esac
 # specification it already fulfils.
 hint=""
 case "$SKILL" in
-  implement | browserless-test | spring-boot-test | vitest-test | playwright-test)
+  implement | implement-hilla | browserless-test | spring-boot-test | vitest-test | playwright-test)
     # Only the skills that turn a specification into code or tests care how the
     # specification moved; the document skills rewrite their artifact as a whole.
     # The subject of these skills is the path of the specification. A subject that
@@ -132,7 +133,7 @@ advance_status() {
   # follows a test case, not a use case, and moves nothing.
   local target english german
   case "$SKILL" in
-    implement)
+    implement | implement-hilla)
       target=3; english=Implemented; german=Implementiert ;;
     browserless-test | spring-boot-test | vitest-test)
       target=4; english=Tested; german=Getestet ;;

@@ -7,11 +7,11 @@ agent. They are advisory only; nothing in these skills hard-requires them.
 
 ## Servers
 
-| Server          | Type  | URL / command                                        | Used by                                   |
-|-----------------|-------|------------------------------------------------------|-------------------------------------------|
-| Vaadin          | http  | `https://mcp.vaadin.com/docs`                        | `implement`, `browserless-test`           |
-| jOOQ            | http  | `https://jooq-mcp.martinelli.ch/mcp`                 | `implement`                               |
-| JavaDocs        | http  | `https://www.javadocs.dev/mcp`                       | `implement`, `playwright-test`            |
+| Server          | Type  | URL / command                                        | Used by                                                |
+|-----------------|-------|------------------------------------------------------|--------------------------------------------------------|
+| Vaadin          | http  | `https://mcp.vaadin.com/docs`                        | `implement`, `implement-hilla`, `browserless-test`     |
+| jOOQ            | http  | `https://jooq-mcp.martinelli.ch/mcp`                 | `implement`, `implement-hilla`                         |
+| JavaDocs        | http  | `https://www.javadocs.dev/mcp`                       | `implement`, `implement-hilla`, `playwright-test`      |
 | KaribuTesting   | http  | `https://karibu-testing-mcp.martinelli.ch/mcp`       | `karibu-test`                             |
 | Playwright      | stdio | `npx @playwright/mcp@latest`                         | `playwright-test` (running browser tests) |
 

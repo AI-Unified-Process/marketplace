@@ -32,6 +32,7 @@ marketplace/
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
+│       ├── implement-hilla/
 │       ├── browserless-test/
 │       ├── karibu-test/
 │       └── playwright-test/
@@ -123,7 +124,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Phase        | Skill (slash command)    | Description                                               |
 |--------------|--------------------------|-----------------------------------------------------------|
 | Construction | `/flyway-migration`      | Create Flyway migrations                                  |
-| Construction | `/implement-vaadin-jooq` | Implement use cases using Vaadin and jOOQ                 |
+| Construction | `/implement-vaadin-jooq` | Implement use cases using Vaadin Flow and jOOQ            |
+| Construction | `/implement-hilla`       | Implement use cases using Hilla (React) and jOOQ          |
 | Construction | `/browserless-test`      | Create Vaadin Browserless unit tests (recommended)        |
 | Construction | `/karibu-test`           | Create Karibu unit tests (legacy — superseded since 25.1) |
 | Construction | `/playwright-test`       | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |

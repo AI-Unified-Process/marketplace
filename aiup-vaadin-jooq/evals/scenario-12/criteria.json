@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether the agent follows the implement-hilla-skill workflow for a Hilla/jOOQ use case: a @BrowserCallable service delegating to a jOOQ repository, Records.mapping() for projected queries with correct column order, a .tsx view under src/main/frontend/views/ calling the generated TypeScript client, and no test classes.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "@BrowserCallable service delegating to repository",
+      "description": "A ProductService class annotated with @BrowserCallable (com.vaadin.hilla.BrowserCallable) and an access annotation (@AnonymousAllowed, @PermitAll, or @RolesAllowed) is created, and it delegates to the repository rather than using DSLContext directly",
+      "max_score": 15
+    },
+    {
+      "name": "Records.mapping() for grid query",
+      "description": "The repository method that returns product summary rows uses Records.mapping(...) (with a constructor reference) rather than fetchInto(SomeDto.class) for the projected multi-column SELECT",
+      "max_score": 15
+    },
+    {
+      "name": "React view under src/main/frontend/views/",
+      "description": "A products.tsx file is created under src/main/frontend/views/ using Hilla file-based routing, with a default-exported React component rendering a Grid of the product rows",
+      "max_score": 15
+    },
+    {
+      "name": "View uses generated TypeScript client",
+      "description": "The .tsx view calls the generated type-safe client of the browser-callable service (e.g. imported from Frontend/generated/endpoints); no hand-written fetch/axios call and no hand-written REST controller is produced",
+      "max_score": 15
+    },
+    {
+      "name": "No fetchInto for projected DTO",
+      "description": "The code does NOT call fetchInto(ProductSummaryDto.class) or any other DTO class (only fetchInto(Product.class) for the full-row fetch is acceptable)",
+      "max_score": 10
+    },
+    {
+      "name": "Column order matches DTO constructor",
+      "description": "The columns selected in the jOOQ projected query appear in the same order as the constructor parameters of the DTO/record used with Records.mapping()",
+      "max_score": 10
+    },
+    {
+      "name": "No test class created",
+      "description": "No Java class with a name ending in Test or IT and no frontend .test/.spec file is produced; no file is placed under a test source directory",
+      "max_score": 10
+    },
+    {
+      "name": "fetchInto(Product.class) for full-row",
+      "description": "When fetching a complete product record (e.g. for the detail panel), the code uses ctx.selectFrom(PRODUCTS).fetchInto(Product.class) or equivalent — not Records.mapping()",
+      "max_score": 5
+    },
+    {
+      "name": "Data layer separate from service and view",
+      "description": "A Spring @Repository class (e.g. ProductRepository) is created separately from the browser-callable service, and the jOOQ code lives only in the repository",
+      "max_score": 5
+    }
+  ]
+}
