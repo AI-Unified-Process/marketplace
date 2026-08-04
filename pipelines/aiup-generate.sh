@@ -48,6 +48,16 @@ case "$PLUGIN/$SKILL" in
   aiup-angular-jpa/spring-boot-test) ;;
   aiup-angular-jpa/vitest-test) ;;
   aiup-angular-jpa/playwright-test) ;;
+  aiup-blazor-dotnet/ef-migration) ;;
+  aiup-blazor-dotnet/implement) ;;
+  aiup-blazor-dotnet/dotnet-test) ;;
+  aiup-blazor-dotnet/bunit-test) ;;
+  aiup-blazor-dotnet/playwright-test) ;;
+  aiup-nestjs-nextjs/drizzle-migration) ;;
+  aiup-nestjs-nextjs/implement) ;;
+  aiup-nestjs-nextjs/nest-test) ;;
+  aiup-nestjs-nextjs/react-test) ;;
+  aiup-nestjs-nextjs/playwright-test) ;;
   *)
     echo "ERROR: '$SKILL' of '$PLUGIN' is not in the catalogue of this marketplace" >&2
     exit 1 ;;
@@ -62,7 +72,7 @@ esac
 # specification it already fulfils.
 hint=""
 case "$SKILL" in
-  implement | implement-hilla | browserless-test | spring-boot-test | vitest-test | playwright-test)
+  implement | implement-hilla | browserless-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test | playwright-test)
     # Only the skills that turn a specification into code or tests care how the
     # specification moved; the document skills rewrite their artifact as a whole.
     # The subject of these skills is the path of the specification. A subject that
@@ -100,6 +110,8 @@ claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.
 claude plugin install aiup-core@ai-unified-process-marketplace
 claude plugin install aiup-vaadin-jooq@ai-unified-process-marketplace
 claude plugin install aiup-angular-jpa@ai-unified-process-marketplace
+claude plugin install aiup-blazor-dotnet@ai-unified-process-marketplace
+claude plugin install aiup-nestjs-nextjs@ai-unified-process-marketplace
 
 # The diff of the specification follows the slash command; an empty hint leaves the
 # prompt as the bare command. Everything after the command name reaches the skill as
@@ -135,7 +147,7 @@ advance_status() {
   case "$SKILL" in
     implement | implement-hilla)
       target=3; english=Implemented; german=Implementiert ;;
-    browserless-test | spring-boot-test | vitest-test)
+    browserless-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test)
       target=4; english=Tested; german=Getestet ;;
     *)
       return 0 ;;
