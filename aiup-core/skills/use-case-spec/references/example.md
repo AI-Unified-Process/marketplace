@@ -12,10 +12,10 @@ at `BR-004` here), and never restart at `BR-001`.
 
 ## Overview
 
-**Use Case ID:** UC-001
-**Use Case Name:** Create Reservation
-**Primary Actor:** Front Desk Clerk
-**Goal:** Create a new room reservation for a guest
+**Use Case ID:** UC-001  
+**Use Case Name:** Create Reservation  
+**Primary Actor:** Front Desk Clerk  
+**Goal:** Create a new room reservation for a guest  
 **Status:** Approved
 
 ## Preconditions
@@ -39,7 +39,7 @@ at `BR-004` here), and never restart at `BR-001`.
 
 ### A1: Guest Already Exists
 
-**Trigger:** Guest email matches existing record (step 3)
+**Trigger:** Guest email matches existing record (step 3)  
 **Flow:**
 
 1. System displays existing guest information.
@@ -48,7 +48,7 @@ at `BR-004` here), and never restart at `BR-001`.
 
 ### A2: No Rooms Available
 
-**Trigger:** No rooms available for selected dates (step 5)
+**Trigger:** No rooms available for selected dates (step 5)  
 **Flow:**
 
 1. System displays "No availability" message.
@@ -57,7 +57,7 @@ at `BR-004` here), and never restart at `BR-001`.
 
 ### A3: Payment Required
 
-**Trigger:** Business rule requires deposit (step 8)
+**Trigger:** Business rule requires deposit (step 8)  
 **Flow:**
 
 1. System prompts for payment information.

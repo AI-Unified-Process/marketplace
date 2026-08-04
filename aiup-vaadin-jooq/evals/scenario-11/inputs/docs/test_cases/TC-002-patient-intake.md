@@ -2,9 +2,9 @@
 
 ## Overview
 
-**ID:** TC-002   
-**Goal:** A receptionist registers a new patient and books their first appointment — verifying the intake journey from registration to a confirmed appointment end-to-end.   
-**Priority:** Critical   
+**ID:** TC-002  
+**Goal:** A receptionist registers a new patient and books their first appointment — verifying the intake journey from registration to a confirmed appointment end-to-end.  
+**Priority:** Critical  
 **Status:** Approved
 
 ## Roles

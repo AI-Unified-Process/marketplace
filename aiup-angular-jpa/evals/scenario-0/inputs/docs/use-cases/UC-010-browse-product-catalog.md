@@ -1,7 +1,7 @@
-**Use Case ID:** UC-010
-**Name:** Browse Product Catalog
-**Primary Actor:** Shopper
-**Goal:** View available products and narrow them down by category
+**Use Case ID:** UC-010  
+**Name:** Browse Product Catalog  
+**Primary Actor:** Shopper  
+**Goal:** View available products and narrow them down by category  
 **Status:** Approved
 
 ## Preconditions

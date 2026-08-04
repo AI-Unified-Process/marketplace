@@ -2,10 +2,10 @@
 
 ## Overview
 
-**Use Case ID:** UC-005   
-**Use Case Name:** Register Student   
-**Primary Actor:** Administrator   
-**Goal:** The administrator registers a new student so the student can enroll in courses.   
+**Use Case ID:** UC-005  
+**Use Case Name:** Register Student  
+**Primary Actor:** Administrator  
+**Goal:** The administrator registers a new student so the student can enroll in courses.  
 **Status:** Approved
 
 ## Preconditions
@@ -27,7 +27,7 @@
 
 ### A1: Required field missing
 
-**Trigger:** A required field is empty when the administrator clicks "Save" (step 5)
+**Trigger:** A required field is empty when the administrator clicks "Save" (step 5)  
 **Flow:**
 
 1. The system marks the empty fields with the error "must not be empty" and keeps the dialog open.
@@ -35,7 +35,7 @@
 
 ### A2: Duplicate email
 
-**Trigger:** The entered email already belongs to a student (step 5)
+**Trigger:** The entered email already belongs to a student (step 5)  
 **Flow:**
 
 1. The system shows the error "A student with this email already exists" on the Email field and keeps the dialog open.

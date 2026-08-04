@@ -2,9 +2,9 @@
 
 ## Overview
 
-**ID:** TC-001   
-**Goal:** A clerk creates a new order and a warehouse operator ships it — verifying the order lifecycle from creation to shipment end-to-end.   
-**Priority:** Critical   
+**ID:** TC-001  
+**Goal:** A clerk creates a new order and a warehouse operator ships it — verifying the order lifecycle from creation to shipment end-to-end.  
+**Priority:** Critical  
 **Status:** Approved
 
 ## Roles

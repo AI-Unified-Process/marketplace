@@ -1,7 +1,7 @@
-**Use Case ID:** UC-020
-**Name:** Register Guest
-**Primary Actor:** Front Desk Agent
-**Goal:** Register a new guest so they can be assigned to a reservation
+**Use Case ID:** UC-020  
+**Name:** Register Guest  
+**Primary Actor:** Front Desk Agent  
+**Goal:** Register a new guest so they can be assigned to a reservation  
 **Status:** Approved
 
 ## Preconditions

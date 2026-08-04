@@ -2,10 +2,10 @@
 
 ## Overview
 
-**Use Case ID:** UC-006   
-**Use Case Name:** Enroll in Course   
-**Primary Actor:** Administrator   
-**Goal:** The administrator enrolls a registered student in a course so the student can attend it.   
+**Use Case ID:** UC-006  
+**Use Case Name:** Enroll in Course  
+**Primary Actor:** Administrator  
+**Goal:** The administrator enrolls a registered student in a course so the student can attend it.  
 **Status:** Approved
 
 ## Preconditions
@@ -29,7 +29,7 @@
 
 ### A1: Course is full
 
-**Trigger:** The selected course has no free capacity (step 5)
+**Trigger:** The selected course has no free capacity (step 5)  
 **Flow:**
 
 1. The system shows the error "Course is full" and keeps the dialog open.
@@ -37,7 +37,7 @@
 
 ### A2: Student already enrolled
 
-**Trigger:** The student is already enrolled in the selected course (step 5)
+**Trigger:** The student is already enrolled in the selected course (step 5)  
 **Flow:**
 
 1. The system shows the error "Student is already enrolled in this course" and keeps the dialog open.
