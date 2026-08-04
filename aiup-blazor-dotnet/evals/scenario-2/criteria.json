@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether the agent writes EF Core handler tests the way the dotnet-test skill prescribes: a SQLite in-memory connection kept open for the test (not the EF InMemory provider, which enforces no relational constraints), fresh DbContext instances for Arrange/Act/Assert so change tracking cannot mask bugs, and scenario coverage derived from the UC-010 spec including BR-010.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "SQLite in-memory, not UseInMemoryDatabase",
+      "description": "The test database is EF Core SQLite in-memory (UseSqlite with DataSource=:memory: or equivalent) with the SqliteConnection explicitly opened and kept open for the duration of each test; Microsoft.EntityFrameworkCore.InMemory / UseInMemoryDatabase is not referenced or used anywhere",
+      "max_score": 25
+    },
+    {
+      "name": "Schema created before use",
+      "description": "The schema is created on the open connection (EnsureCreated or Migrate) before seeding, so the Product table exists in the in-memory database",
+      "max_score": 5
+    },
+    {
+      "name": "Fresh DbContext per AAA phase",
+      "description": "Each test uses separate DbContext instances for Arrange (seeding), Act (handler execution via the context factory), and Assert (verification where the database is re-read) — the handler is never handed the same tracked context that seeded the data",
+      "max_score": 20
+    },
+    {
+      "name": "Handler exercised through its real API",
+      "description": "Tests invoke BrowseProductCatalogHandler.HandleAsync with a BrowseProductCatalogQuery and a real IDbContextFactory<AppDbContext> implementation backed by the SQLite connection — the handler and DbContext are not mocked with Moq/NSubstitute",
+      "max_score": 10
+    },
+    {
+      "name": "Main scenario test present",
+      "description": "A test seeds several in-stock products and asserts the handler returns all of them (and only them)",
+      "max_score": 10
+    },
+    {
+      "name": "BR-010 test present",
+      "description": "A test seeds at least one product with InStock = false alongside in-stock products and asserts the out-of-stock product is absent from the result",
+      "max_score": 15
+    },
+    {
+      "name": "Category filter tests present (A1 and A2)",
+      "description": "One test asserts filtering by category returns only that category's in-stock products (A1), and another asserts a category with no in-stock products yields an empty result (A2)",
+      "max_score": 10
+    },
+    {
+      "name": "Backend tests only",
+      "description": "No bUnit/component tests, no Playwright/browser tests, and no changes to the production code under ShopCatalog/ are made",
+      "max_score": 5
+    }
+  ]
+}

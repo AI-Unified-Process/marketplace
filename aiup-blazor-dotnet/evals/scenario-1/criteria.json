@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether the agent extends an EF Core model from docs/entity_model.md the way the ef-migration skill prescribes: modern NRT-safe entity classes, Fluent API mappings via IEntityTypeConfiguration<T> (including decimal precision, enum-to-string conversion, and unique indexes), and a dotnet ef migrations add command following the UCXXX_Description naming convention.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Customer and Order entity classes created",
+      "description": "Customer and Order are C# classes under Domain/ with file-scoped namespaces, required string properties for non-null strings, and NRT-safe navigation properties (e.g. List<Order> initialized to [] on Customer, Customer navigation declared = null! on Order) — no nullable-warning-suppressing #pragma or disabled nullability",
+      "max_score": 15
+    },
+    {
+      "name": "Fluent API via IEntityTypeConfiguration",
+      "description": "Both new entities are mapped through IEntityTypeConfiguration<T> implementations under Data/ (matching the existing ProductConfiguration convention) rather than data annotations or inline OnModelCreating code, and DbSet properties for Customer and Order are exposed on AppDbContext",
+      "max_score": 15
+    },
+    {
+      "name": "Decimal precision configured",
+      "description": "Order.Total is configured with HasPrecision(18, 2) (or an equivalent explicit decimal(18,2) column type) matching the 18,2 precision in the entity model",
+      "max_score": 15
+    },
+    {
+      "name": "Enums stored as text",
+      "description": "Customer.LoyaltyLevel and Order.Status are C# enums configured with HasConversion<string>() so they are stored as text, with max lengths and/or defaults consistent with the entity model — not left as integer columns",
+      "max_score": 15
+    },
+    {
+      "name": "Unique email index and string lengths",
+      "description": "Customer.Email has a unique index (HasIndex(...).IsUnique()) and both Name (120) and Email (254) have the max lengths from the entity model",
+      "max_score": 15
+    },
+    {
+      "name": "Customer-Order relationship mapped",
+      "description": "The one-to-many Customer/Order relationship is configured with a required foreign key on Order (customer FK not null), consistent with the Relationships section of the entity model",
+      "max_score": 10
+    },
+    {
+      "name": "UC-prefixed migration command",
+      "description": "The response states the exact CLI command dotnet ef migrations add UC020_<Description> (a UCXXX_Description-style migration name tied to UC-020), rather than a generic name like AddCustomerAndOrder or InitialCreate",
+      "max_score": 10
+    },
+    {
+      "name": "No hardcoded credentials and no test files",
+      "description": "No connection strings or database credentials appear in C# source (configuration stays in appsettings.json), and no test classes or test files are created",
+      "max_score": 5
+    }
+  ]
+}

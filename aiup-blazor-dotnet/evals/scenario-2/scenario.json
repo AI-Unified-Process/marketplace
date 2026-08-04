@@ -1,0 +1,6 @@
+{
+  "description": "Backend handler tests: SQLite in-memory EF Core context and fresh-DbContext AAA discipline",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Extend an EF Core model per the entity model and prepare the UC-prefixed migration",
+  "include": [
+    "./inputs"
+  ]
+}
