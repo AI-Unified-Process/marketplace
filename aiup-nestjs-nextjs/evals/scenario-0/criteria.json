@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent implements UC-010 (Browse Product Catalog) end-to-end on a NestJS/Drizzle + Next.js workspace: a feature module whose repository owns all SQL, a service enforcing BR-010, a controller returning a response DTO, and a Next.js App Router page calling a relative /api path. The existing `categories` feature is the convention exemplar the agent should imitate, including its ESM .js import specifiers. No test files should be created.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Feature module created with the full anatomy",
+      "description": "A src/products/ folder contains products.module.ts, products.controller.ts, products.service.ts and products.repository.ts, matching the shape of the existing categories feature",
+      "max_score": 12
+    },
+    {
+      "name": "Repository owns all database access",
+      "description": "Every Drizzle query (db.select/insert/update/delete) lives in products.repository.ts; no query appears in the service or the controller",
+      "max_score": 14
+    },
+    {
+      "name": "Service enforces BR-010",
+      "description": "Out-of-stock products are excluded from the results regardless of whether a category filter is applied",
+      "max_score": 12
+    },
+    {
+      "name": "Controller returns a response DTO, not a raw row",
+      "description": "The controller's return type is a mapped response shape rather than the Drizzle row type; in_stock is not exposed in the response",
+      "max_score": 10
+    },
+    {
+      "name": "ESM .js import suffixes",
+      "description": "Every relative import in newly created API files ends in .js, matching the NodeNext tsconfig and the existing categories feature",
+      "max_score": 12
+    },
+    {
+      "name": "Module registered in app.module.ts",
+      "description": "ProductsModule is added to the imports array of the root application module",
+      "max_score": 6
+    },
+    {
+      "name": "Query parameter validated by a DTO",
+      "description": "The optional category filter is bound through a class-validator DTO rather than a bare string parameter",
+      "max_score": 7
+    },
+    {
+      "name": "Frontend page implemented at the existing route",
+      "description": "apps/web/src/app/products/page.tsx is filled in rather than a new route being created elsewhere",
+      "max_score": 8
+    },
+    {
+      "name": "Relative /api path, no hardcoded origin",
+      "description": "The frontend calls /api/products; no absolute backend origin such as http://localhost:3001 appears anywhere in frontend code",
+      "max_score": 11
+    },
+    {
+      "name": "Category filter control rendered",
+      "description": "The page renders an accessible, labelled category filter that narrows the displayed products, matching alternative flow A1",
+      "max_score": 5
+    },
+    {
+      "name": "No test files created",
+      "description": "No *.spec.ts, *.e2e-spec.ts or *.test.tsx files are created as part of this task",
+      "max_score": 3
+    }
+  ]
+}

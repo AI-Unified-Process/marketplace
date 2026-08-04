@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "type": "module",
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "class-validator": "^0.14.0",
+    "drizzle-orm": "^0.38.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0"
+  }
+}

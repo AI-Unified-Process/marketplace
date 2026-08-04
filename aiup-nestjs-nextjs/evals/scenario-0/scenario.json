@@ -1,0 +1,4 @@
+{
+  "description": "Implement backend + frontend for a use case (NestJS/Drizzle + Next.js)",
+  "include": ["./inputs"]
+}
