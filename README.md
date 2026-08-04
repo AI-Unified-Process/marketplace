@@ -20,6 +20,8 @@ Construction, Transition** — but adapted for AI-driven workflows.
 
 ## AIUP Workflow
 
+### Vaadin / jOOQ
+
 ```
 Inception          Elaboration                          Construction
 ─────────────────  ──────────────────────────────────   ────────────────────────────────────────────────
@@ -28,6 +30,8 @@ Inception          Elaboration                          Construction
                                                                           ↘  /browserless-test
                                                                           ↘  /playwright-test
 ```
+
+### Angular / JPA
 
 For an Angular/JPA project, the inception and elaboration parts look the same, as they are part of the aiup-
 core plugin. The construction, however, is optimized for tech stack SpringBoot with JPA and Angular in frontend.
@@ -45,6 +49,8 @@ Inception          Elaboration                          Construction
                                                                           ↘  /playwright-test
 ```
 
+### C# / Blazor .NET 10
+
 For a C#/Blazor project the inception and elaboration parts are again the aiup-core ones. The construction phase
 targets .NET 10 with Blazor and Entity Framework Core, organizing each use case as a Vertical Slice
 (`Features/UCXXX_<FeatureName>/`). It tests Blazor components with bUnit, the backend handlers and EF Core code with
@@ -59,6 +65,8 @@ Inception          Elaboration                          Construction
                                                                           ↘  /dotnet-test
                                                                           ↘  /playwright-test
 ```
+
+### NestJS / Next.js
 
 For a NestJS/Next.js project the inception and elaboration parts are again the aiup-core ones. The construction
 phase targets a NestJS backend with Drizzle ORM over PostgreSQL and a Next.js App Router frontend — a split
