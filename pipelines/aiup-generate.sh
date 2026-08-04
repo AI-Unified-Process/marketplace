@@ -110,6 +110,8 @@ claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.
 claude plugin install aiup-core@ai-unified-process-marketplace
 claude plugin install aiup-vaadin-jooq@ai-unified-process-marketplace
 claude plugin install aiup-angular-jpa@ai-unified-process-marketplace
+claude plugin install aiup-blazor-dotnet@ai-unified-process-marketplace
+claude plugin install aiup-nestjs-nextjs@ai-unified-process-marketplace
 
 # The diff of the specification follows the slash command; an empty hint leaves the
 # prompt as the bare command. Everything after the command name reaches the skill as
