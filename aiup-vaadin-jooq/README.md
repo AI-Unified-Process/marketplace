@@ -5,7 +5,7 @@
 
 `aiup-vaadin-jooq` is the **technology-specific** layer of the AI Unified Process for applications built with
 [Vaadin](https://vaadin.com) (UI) and [jOOQ](https://www.jooq.org) (data access). It takes the artifacts produced by
-[`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) — the entity model and use case specifications — and turns
+[`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model and use case specifications — and turns
 them into database migrations, Vaadin views, jOOQ queries, and a full test suite.
 
 ## What it does
@@ -13,7 +13,7 @@ them into database migrations, Vaadin views, jOOQ queries, and a full test suite
 This plugin covers the **Construction** phase of the AI Unified Process for the Vaadin/jOOQ stack: schema migrations,
 implementation, and testing — with every artifact traceable back to a use case (`UC-*`).
 
-It is meant to be used **together with `aiup/aiup-core`**, which produces the upstream `docs/entity_model.md` and
+It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream `docs/entity_model.md` and
 `docs/use_cases/UC-*.md` artifacts these skills read.
 
 ## Skills
@@ -42,7 +42,7 @@ Use `/implement` for Vaadin Flow (server-side Java) views and `/implement-hilla`
 (React/TypeScript) views — both share the same jOOQ data access conventions.
 
 These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
-`docs/test_cases/TC-*.md`) produced by `aiup/aiup-core` and write code and tests into your Maven/Gradle project.
+`docs/test_cases/TC-*.md`) produced by `ai-unified-process/aiup-core` and write code and tests into your Maven/Gradle project.
 
 ## MCP servers
 
@@ -62,13 +62,13 @@ optional — see [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup detail
 Install from the Tessl registry (install the core plugin too, if you haven't already):
 
 ```
-tessl install aiup/aiup-core
-tessl install aiup/aiup-vaadin-jooq
+tessl install ai-unified-process/aiup-core
+tessl install ai-unified-process/aiup-vaadin-jooq
 ```
 
 ## Prerequisites
 
-- [`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) installed, with use case specifications and an entity
+- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with use case specifications and an entity
   model already produced under `docs/`
 - A Maven or Gradle project with Vaadin and jOOQ on the classpath
 - Optional MCP servers (Vaadin, jOOQ, etc.) configured per [`rules/mcp-servers.md`](rules/mcp-servers.md)

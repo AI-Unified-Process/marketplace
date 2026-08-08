@@ -1,5 +1,5 @@
 {
-  "name": "aiup/aiup-blazor-dotnet",
+  "name": "ai-unified-process/aiup-blazor-dotnet",
   "description": "AI Unified Process plugin for C# and Blazor on .NET 10",
   "version": "0.3.0",
   "rules": "rules",

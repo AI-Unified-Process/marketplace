@@ -5,7 +5,7 @@
 
 `aiup-core` is the foundation plugin of the AI Unified Process. It is **technology-independent**: it works with any
 language, framework, or stack because it stops at the specification boundary. Implementation and testing are handled by
-stack-specific plugins (e.g. [`aiup/aiup-vaadin-jooq`](https://registry.tessl.io/aiup/aiup-vaadin-jooq)) that build on
+stack-specific plugins (e.g. [`ai-unified-process/aiup-vaadin-jooq`](https://registry.tessl.io/ai-unified-process/aiup-vaadin-jooq)) that build on
 the artifacts this plugin produces.
 
 ## What it does
@@ -62,7 +62,7 @@ forward workflow would have produced, giving you a documented baseline to work f
 Install from the Tessl registry:
 
 ```
-tessl install aiup/aiup-core
+tessl install ai-unified-process/aiup-core
 ```
 
 ## Prerequisites
@@ -74,7 +74,7 @@ tessl install aiup/aiup-core
 ## Next step
 
 Once your use case specifications exist, add a stack-specific plugin to implement and test them — for example
-[`aiup/aiup-vaadin-jooq`](https://registry.tessl.io/aiup/aiup-vaadin-jooq) for the Vaadin + jOOQ stack.
+[`ai-unified-process/aiup-vaadin-jooq`](https://registry.tessl.io/ai-unified-process/aiup-vaadin-jooq) for the Vaadin + jOOQ stack.
 
 ## License
 

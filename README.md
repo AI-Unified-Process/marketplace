@@ -157,8 +157,8 @@ CLI**, **Cursor**, **GitHub Copilot**, **Gemini CLI**, and **OpenCode**. Pair th
 
 [Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
 wires the MCP servers into the correct per-agent directory for whichever coding agent it detects. All plugins are
-published to the Tessl registry as `aiup/aiup-core`, `aiup/aiup-vaadin-jooq`, `aiup/aiup-angular-jpa`,
-`aiup/aiup-blazor-dotnet`, and `aiup/aiup-nestjs-nextjs`, so
+published to the Tessl registry as `ai-unified-process/aiup-core`, `ai-unified-process/aiup-vaadin-jooq`, `ai-unified-process/aiup-angular-jpa`,
+`ai-unified-process/aiup-blazor-dotnet`, and `ai-unified-process/aiup-nestjs-nextjs`, so
 this is the simplest way to adopt
 the workflow outside Claude Code — no manual cloning or per-tool MCP translation.
 
@@ -168,11 +168,11 @@ tessl init --agent claude-code          # or: cursor, gemini, codex, copilot, co
                                         # (repeat --agent to set up several at once)
 
 # install the plugins from the registry (latest, or pin @version)
-tessl install aiup/aiup-core
-tessl install aiup/aiup-vaadin-jooq     # for a Vaadin + jOOQ project
-tessl install aiup/aiup-angular-jpa     # for an Angular + JPA project
-tessl install aiup/aiup-blazor-dotnet   # for a C# + Blazor .NET 10 project
-tessl install aiup/aiup-nestjs-nextjs   # for a NestJS + Next.js project
+tessl install ai-unified-process/aiup-core
+tessl install ai-unified-process/aiup-vaadin-jooq     # for a Vaadin + jOOQ project
+tessl install ai-unified-process/aiup-angular-jpa     # for an Angular + JPA project
+tessl install ai-unified-process/aiup-blazor-dotnet   # for a C# + Blazor .NET 10 project
+tessl install ai-unified-process/aiup-nestjs-nextjs   # for a NestJS + Next.js project
 ```
 
 Installed plugins land in `.tessl/plugins/` and are tracked in `tessl.json`, so versions are pinned and reproducible
@@ -193,7 +193,7 @@ latest release.
 
 | Component                                                  | Portable? | Notes                                                                                  |
 |------------------------------------------------------------|-----------|----------------------------------------------------------------------------------------|
-| `tessl install aiup/…`                                     | Yes       | Works on Claude Code, Cursor, Gemini, Codex, and Copilot — installs skills + MCP        |
+| `tessl install ai-unified-process/…`                                     | Yes       | Works on Claude Code, Cursor, Gemini, Codex, and Copilot — installs skills + MCP        |
 | MCP servers (`aiup-*/.mcp.json`)                           | Yes       | Standard MCP — reformat the config per host                                            |
 | `SKILL.md` skill folders (`aiup-*/skills/*/`)              | Yes       | Native support in Codex CLI, Cursor, Copilot, Gemini CLI, and OpenCode                 |
 | Auto-triggering by `description`                           | Yes       | All tools above match user intent against the YAML frontmatter `description`           |

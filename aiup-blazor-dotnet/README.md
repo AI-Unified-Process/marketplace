@@ -19,7 +19,7 @@
 Install from the Tessl registry:
 
 ```bash
-tessl install aiup/aiup-blazor-dotnet
+tessl install ai-unified-process/aiup-blazor-dotnet
 ```
 
 Or via Claude Code marketplace:

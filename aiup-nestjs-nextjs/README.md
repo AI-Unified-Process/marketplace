@@ -6,7 +6,7 @@
 `aiup-nestjs-nextjs` is the **technology-specific** layer of the AI Unified Process for
 applications with a [NestJS](https://nestjs.com) backend using [Drizzle ORM](https://orm.drizzle.team)
 over PostgreSQL, and a [Next.js](https://nextjs.org) App Router frontend. It takes the artifacts
-produced by [`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) — the entity model, use
+produced by [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model, use
 case specifications, and test cases — and turns them into schema migrations, a REST API, a
 Next.js UI, and a full test suite across both halves of the stack.
 
@@ -42,10 +42,10 @@ This plugin covers the **Construction** phase of the AI Unified Process for the 
 stack: schema migrations, backend and frontend implementation, and testing on both sides — with
 every artifact traceable back to a use case (`UC-*`).
 
-It is meant to be used **together with `aiup/aiup-core`**, which produces the upstream
+It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream
 `docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/test_cases/TC-*.md` artifacts these
 skills read. Install exactly one stack plugin — this one is **not** meant to be used alongside
-`aiup/aiup-vaadin-jooq`, `aiup/aiup-angular-jpa`, or `aiup/aiup-blazor-dotnet`.
+`ai-unified-process/aiup-vaadin-jooq`, `ai-unified-process/aiup-angular-jpa`, or `ai-unified-process/aiup-blazor-dotnet`.
 
 ## Skills
 
@@ -89,13 +89,13 @@ demand. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 Install from the Tessl registry (install the core plugin too, if you haven't already):
 
 ```
-tessl install aiup/aiup-core
-tessl install aiup/aiup-nestjs-nextjs
+tessl install ai-unified-process/aiup-core
+tessl install ai-unified-process/aiup-nestjs-nextjs
 ```
 
 ## Prerequisites
 
-- [`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) installed, with an entity model and
+- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with an entity model and
   use case specifications already produced under `docs/`
 - A NestJS backend using Drizzle ORM over PostgreSQL, with `drizzle.config.ts` present
 - A Next.js frontend using the App Router

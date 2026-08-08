@@ -6,7 +6,7 @@
 `aiup-angular-jpa` is the **technology-specific** layer of the AI Unified Process for applications with a
 [Spring Boot](https://spring.io/projects/spring-boot) + [JPA/Hibernate](https://hibernate.org) backend and an
 [Angular](https://angular.dev) frontend. It takes the artifacts produced by
-[`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) — the entity model and use case specifications — and
+[`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model and use case specifications — and
 turns them into database migrations, a REST API, an Angular UI, and a full test suite across both halves of the
 stack.
 
@@ -33,8 +33,8 @@ This plugin covers the **Construction** phase of the AI Unified Process for the 
 migrations, backend and frontend implementation, and testing on both sides — with every artifact traceable back to
 a use case (`UC-*`).
 
-It is meant to be used **together with `aiup/aiup-core`**, which produces the upstream `docs/entity_model.md` and
-`docs/use_cases/UC-*.md` artifacts these skills read. It is **not meant to be used together with `aiup/aiup-vaadin-jooq**,
+It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream `docs/entity_model.md` and
+`docs/use_cases/UC-*.md` artifacts these skills read. It is **not meant to be used together with `ai-unified-process/aiup-vaadin-jooq**,
 
 ## Skills
 
@@ -59,7 +59,7 @@ Construction
 ```
 
 These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`) produced by
-`aiup/aiup-core` and write code and tests into your backend (Maven/Gradle, flat or multi-module) and frontend
+`ai-unified-process/aiup-core` and write code and tests into your backend (Maven/Gradle, flat or multi-module) and frontend
 (npm/Angular CLI) projects.
 
 ## MCP servers
@@ -77,13 +77,13 @@ MCP server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details
 Install from the Tessl registry (install the core plugin too, if you haven't already):
 
 ```
-tessl install aiup/aiup-core
-tessl install aiup/aiup-angular-jpa
+tessl install ai-unified-process/aiup-core
+tessl install ai-unified-process/aiup-angular-jpa
 ```
 
 ## Prerequisites
 
-- [`aiup/aiup-core`](https://registry.tessl.io/aiup/aiup-core) installed, with use case specifications and an
+- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with use case specifications and an
   entity model already produced under `docs/`
 - A Maven or Gradle backend project with Spring Boot, Spring Data JPA, and Flyway — either a flat single module,
   or a hexagonal `domain`/`business`/persistence-adapter/inbound-adapter/composition-root-style multi-module

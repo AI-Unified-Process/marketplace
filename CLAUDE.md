@@ -137,7 +137,7 @@ dispatcher's routing table.
 
 ## Releasing to the Tessl Registry
 
-Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registry/aiup) via
+Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registry/ai-unified-process) via
 `.github/workflows/publish-tessl.yml`. Key facts:
 
 - **Each plugin has two version files that must be bumped together**: `.claude-plugin/plugin.json`
