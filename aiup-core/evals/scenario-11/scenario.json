@@ -1,5 +1,5 @@
 {
-  "description": "Reverse-engineer a C# / Blazor .NET 10 project into AIUP artifacts",
+  "description": "Reverse-engineer a C# / Blazor .NET 10 project into AI Unified Process artifacts",
   "include": [
     "./inputs"
   ]

@@ -31,7 +31,7 @@ it.
 ## Test Naming and Use Case Traceability
 
 These are **use case tests**, same intent as the backend's `@UseCase`
-annotation — but TypeScript has no annotation mechanism the AIUP IntelliJ
+annotation — but TypeScript has no annotation mechanism the AI Unified Process IntelliJ
 Navigator plugin resolves, so don't claim that integration. Use a plain naming
 convention instead:
 

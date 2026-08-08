@@ -1,4 +1,4 @@
-# Publishes the AIUP plugins to the Tessl registry when they change.
+# Publishes the AI Unified Process plugins to the Tessl registry when they change.
 #
 # Each plugin is published only when the version in its
 # .tessl-plugin/plugin.json has not already been published — so bump the

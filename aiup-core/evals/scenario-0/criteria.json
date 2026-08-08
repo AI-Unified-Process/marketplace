@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent produces a correctly formatted entity model document from a requirements file, using the prescribed Mermaid diagram style (entities and relationships only, no attributes), the correct per-entity structure (### heading, one-sentence description, 5-column table), the allowed AIUP data types, and the exact validation rule vocabulary from REFERENCE.md.",
+  "context": "Tests whether the agent produces a correctly formatted entity model document from a requirements file, using the prescribed Mermaid diagram style (entities and relationships only, no attributes), the correct per-entity structure (### heading, one-sentence description, 5-column table), the allowed AI Unified Process data types, and the exact validation rule vocabulary from REFERENCE.md.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -38,7 +38,7 @@
       "max_score": 10
     },
     {
-      "name": "AIUP data types only",
+      "name": "AI Unified Process data types only",
       "description": "The Data Type column contains only values from: Long, String, Integer, Decimal, Boolean, Date, DateTime — no SQL types such as VARCHAR, bigint, TEXT, NUMERIC, or TIMESTAMP",
       "max_score": 10
     },

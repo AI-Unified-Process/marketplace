@@ -6,7 +6,7 @@ description: >
   and an entity model with a Mermaid ER diagram. Use when the user asks to
   "reverse engineer this codebase", "extract use cases from existing code",
   "document the system we already have", "generate use case specs from
-  controllers", "derive an entity model from the database", "create AIUP
+  controllers", "derive an entity model from the database", "create AI Unified Process
   artifacts from a legacy project", or mentions reverse engineering, legacy
   documentation, or onboarding an inherited codebase. Trigger this skill
   whenever a user wants to produce use cases, an ER diagram, or a use case
@@ -14,7 +14,7 @@ description: >
   document — even if they don't say "reverse engineer" explicitly.
 ---
 
-# Reverse Engineer Project to AIUP Artifacts
+# Reverse Engineer Project to AI Unified Process Artifacts
 
 ## Goal
 
@@ -48,8 +48,8 @@ documents that break them are rejected exactly like forward-engineered ones:
    entity blocks.
 6. **Every attribute table has exactly these 5 columns, in this order:**
    `Attribute | Description | Data Type | Length/Precision | Validation Rules`.
-7. **Data types come from the closed AIUP list** — `Long`, `String`,
-   `Integer`, `Decimal`, `Boolean`, `Date`, `DateTime` — and nothing else.
+7. **Data types come from the closed AI Unified Process list** — `Long`, `String`,
+   `Integer`, `Decimal`, `Boolean`, `Date`, `DateTime`, 'BLOB' — and nothing else.
    Raw SQL/ORM types (`VARCHAR`, `bigint`, `numeric`, `TEXT`) are banned, and
    so are invented "business types" (`Money`, `Email Address`, `Identifier`,
    `Timestamp`, `Quantity`, `PersonName`, `Text`). An email column is
@@ -247,7 +247,7 @@ If a step would only make sense to someone who has read the code, rewrite it.
 > reverse-engineering task. Give it the same care as a standalone `/entity-model`
 > run: **every** entity gets a 5-column table (`Attribute | Description | Data
 > Type | Length/Precision | Validation Rules`), **every** type is mapped to the
-> AIUP vocabulary, and **no** raw SQL/ORM type (`VARCHAR`, `bigint`, `numeric`,
+> AI Unified Process vocabulary, and **no** raw SQL/ORM type (`VARCHAR`, `bigint`, `numeric`,
 > `int8`, `TEXT`, `Decimal(10,2)`, `@db.Decimal`, Prisma `Int`/`String?`) survives
 > into the document. If you would not ship this table from `/entity-model`, it is
 > not done.
@@ -299,15 +299,15 @@ A title available for sale in the catalog.
 ```
 
 Never leave the Validation Rules column empty and never emit raw SQL types
-(`VARCHAR(200)`, `bigint`, `numeric`) — map them to the AIUP vocabulary below.
+(`VARCHAR(200)`, `bigint`, `numeric`) — map them to the AI Unified Process vocabulary below.
 
-Map types to the AIUP type vocabulary (`Long`, `String`, `Integer`,
+Map types to the AI Unified Process type vocabulary (`Long`, `String`, `Integer`,
 `Decimal`, `Boolean`, `Date`, `DateTime`) — don't leak `VARCHAR(255)` or
 `bigint` into the document, and don't substitute descriptive "business types"
 of your own (`Money`, `Email Address`, `Hashed String`, `Timestamp`,
-`Identifier`, `Positive Integer`): the seven AIUP types are the complete
+`Identifier`, `Positive Integer`): the seven v types are the complete
 list, and semantics belong in the Description and Validation Rules columns,
-not the Data Type column. Map validation to the AIUP vocabulary too
+not the Data Type column. Map validation to the AI Unified Process vocabulary too
 (`Primary Key, Sequence`, `Not Null`, `Not Null, Unique`, `Not Null,
 Foreign Key (TABLE.id)`, `Optional`, `Not Null, Min: X, Max: Y`,
 `Not Null, Values: A, B, C`, `Not Null, Format: Email`).
@@ -369,7 +369,7 @@ those are the ones most likely to need a human pass.
 - Put attributes inside the Mermaid entity blocks (the `/entity-model` skill
   forbids this — keep the ER diagram showing relationships only).
 - Skip writing the entity model because "the migrations already exist". The
-  whole point is to translate the schema into the AIUP vocabulary.
+  whole point is to translate the schema into the AI Unified Process vocabulary.
 - Write multi-paragraph descriptions of "what the system does" outside the
   three artifact files. The artifacts *are* the documentation.
 

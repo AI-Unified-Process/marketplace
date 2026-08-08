@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# AIUP Studio - AI-assisted generation, the shared implementation for Bitbucket Pipelines.
+# AI Unified Process Studio - AI-assisted generation, the shared implementation for Bitbucket Pipelines.
 #
 # This is the Bitbucket counterpart of the reusable workflow in
-# .github/workflows/aiup-generate.yml. The stub the AIUP Studio writes into every
+# .github/workflows/aiup-generate.yml. The stub the AI Unified Process Studio writes into every
 # repository (bitbucket-pipelines.yml, UC-042) clones this marketplace at the v1 tag
 # and runs this script; everything the run does - the specification diff, the skill
 # and the status advance - happens here. Evolving this script and moving the tag
@@ -167,7 +167,7 @@ advance_status() {
   local current rank value
   current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
     -e '/^\*\*Status:\*\*/q' "$SUBJECT")
-  # The AIUP status values in their order, English and German.
+  # The AI Unified Process status values in their order, English and German.
   # LC_ALL=C keeps the lowercasing to ASCII, so the umlaut of "Geprüft" survives.
   case "$(printf '%s' "$current" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
     draft | entwurf) rank=0 ;;
@@ -181,7 +181,7 @@ advance_status() {
     *) rank=-1 ;;
   esac
   # Forward only, and only out of a status the step is allowed at: below Approved
-  # neither the implementation nor the tests are a step of the AIUP process, and a
+  # neither the implementation nor the tests are a step of the AI Unified Process process, and a
   # status already at or beyond the one this run stands for never moves backwards.
   if [ "$rank" -lt 2 ] || [ "$rank" -ge "$target" ]; then
     echo "Status '$current' of '$SUBJECT' was left alone."

@@ -69,7 +69,7 @@ Construction
                                    ↘  /playwright-test
 ```
 
-All five skills read the AIUP artifacts under `docs/` and share one layout-detection reference,
+All five skills read the AI Unified Process artifacts under `docs/` and share one layout-detection reference,
 [`skills/implement/references/project-layout.md`](skills/implement/references/project-layout.md),
 which resolves where the two applications live and which conventions the project already follows
 before any code is written.

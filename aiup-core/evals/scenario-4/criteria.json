@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent reverse-engineers a small Express.js + Prisma codebase into the three required AIUP artifacts (use case diagram, per-use-case specs, entity model), follows the aggregation principle rather than generating one use case per endpoint, derives actors from authentication/authorization config, skips infrastructure endpoints, applies AIUP vocabulary to the entity model, and cross-validates the artifacts.",
+  "context": "Tests whether the agent reverse-engineers a small Express.js + Prisma codebase into the three required AI Unified Process artifacts (use case diagram, per-use-case specs, entity model), follows the aggregation principle rather than generating one use case per endpoint, derives actors from authentication/authorization config, skips infrastructure endpoints, applies AI Unified Process vocabulary to the entity model, and cross-validates the artifacts.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -53,8 +53,8 @@
       "max_score": 8
     },
     {
-      "name": "AIUP data types",
-      "description": "Entity attribute tables in docs/entity_model.md use only AIUP type vocabulary (Long, String, Integer, Decimal, Boolean, Date, DateTime) — does NOT contain SQL types such as VARCHAR, bigint, Decimal(10,2), @db.Decimal, or TEXT",
+      "name": "AI Unified Process data types",
+      "description": "Entity attribute tables in docs/entity_model.md use only AI Unified Process type vocabulary (Long, String, Integer, Decimal, Boolean, Date, DateTime) — does NOT contain SQL types such as VARCHAR, bigint, Decimal(10,2), @db.Decimal, or TEXT",
       "max_score": 8
     },
     {

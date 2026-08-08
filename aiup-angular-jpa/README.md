@@ -58,7 +58,7 @@ Construction
                                   ↘  /playwright-test
 ```
 
-These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`) produced by
+These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`) produced by
 `aiup/aiup-core` and write code and tests into your backend (Maven/Gradle, flat or multi-module) and frontend
 (npm/Angular CLI) projects.
 

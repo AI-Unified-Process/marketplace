@@ -1,8 +1,7 @@
 # Stack signals — where to find actors, use cases, and entities
 
-This is a lookup, not a script. Use it after you've identified the project's
-stack from build files. Sections are independent — read only the ones that
-match the project in front of you.
+This is a lookup, not a script. Use it after you've identified the project's stack from build files. Sections are
+independent — read only the ones that match the project in front of you.
 
 ## Java / Spring Boot
 
@@ -10,41 +9,40 @@ match the project in front of you.
   dependencies to confirm modules in use (`-web`, `-security`, `-data-jpa`,
   `-jooq`, `-thymeleaf`, etc.).
 - **Entry points**:
-  - `@RestController`, `@Controller` classes.
-  - Vaadin views: classes annotated `@Route(...)` or extending `Component` /
-    `VerticalLayout` and reachable from a router layout.
-  - Scheduled jobs: `@Scheduled`.
-  - Message listeners: `@KafkaListener`, `@RabbitListener`, `@JmsListener`,
-    `@EventListener`.
+    - `@RestController`, `@Controller` classes.
+    - Vaadin views: classes annotated `@Route(...)` or extending `Component` /
+      `VerticalLayout` and reachable from a router layout.
+    - Scheduled jobs: `@Scheduled`.
+    - Message listeners: `@KafkaListener`, `@RabbitListener`, `@JmsListener`,
+      `@EventListener`.
 - **Actors**:
-  - `SecurityFilterChain` configuration — `requestMatchers(...).hasRole("X")`,
-    `.authenticated()`, `.permitAll()`.
-  - Method-level `@RolesAllowed`, `@PreAuthorize`, `@Secured`.
-  - Custom `UserDetailsService` and any role/authority enum.
+    - `SecurityFilterChain` configuration — `requestMatchers(...).hasRole("X")`,
+      `.authenticated()`, `.permitAll()`.
+    - Method-level `@RolesAllowed`, `@PreAuthorize`, `@Secured`.
+    - Custom `UserDetailsService` and any role/authority enum.
 - **Entities**:
-  - JPA: `@Entity` classes (relationships from `@OneToMany`, `@ManyToOne`,
-    `@OneToOne`, `@ManyToMany`).
-  - jOOQ: schema is in Flyway migrations (`src/main/resources/db/migration/V*.sql`)
-    rather than annotated classes; the generated classes mirror the DDL.
-  - Validation: Bean Validation annotations (`@NotNull`, `@Size`, `@Email`,
-    `@Min`, `@Max`, `@Pattern`).
-- **Tests**: `@SpringBootTest`, `@WebMvcTest`, Vaadin Browserless / Karibu
-  view tests, Playwright tests under `src/test/`. Tests named after a use
-  case (e.g. `UC001NameOfUcTest`) are gold — they encode the success
-  scenario and alternative flows already.
+    - JPA: `@Entity` classes (relationships from `@OneToMany`, `@ManyToOne`,
+      `@OneToOne`, `@ManyToMany`).
+    - jOOQ: schema is in Flyway migrations (`src/main/resources/db/migration/V*.sql`)
+      rather than annotated classes; the generated classes mirror the DDL.
+    - Validation: Bean Validation annotations (`@NotNull`, `@Size`, `@Email`,
+      `@Min`, `@Max`, `@Pattern`).
+- **Tests**: `@SpringBootTest`, `@WebMvcTest`, Vaadin Browserless / Karibu view tests, Playwright tests under
+  `src/test/`. Tests named after a use case (e.g. `UC001NameOfUcTest`) are gold — they encode the success scenario and
+  alternative flows already.
 
 ## Python / Django
 
 - **Build files**: `requirements.txt`, `pyproject.toml`, `manage.py`.
-- **Entry points**: `urls.py` (URL conf), view functions and class-based
-  views (`View`, `ListView`, `CreateView`, etc.), DRF `ViewSet`s and
+- **Entry points**: `urls.py` (URL conf), view functions and class-based views (`View`, `ListView`, `CreateView`, etc.),
+  DRF `ViewSet`s and
   `APIView`s, Celery tasks (`@shared_task`).
 - **Actors**:
-  - `auth` app's groups and permissions (`Group`, `Permission`).
-  - `LoginRequiredMixin`, `PermissionRequiredMixin`, `@login_required`,
-    `@permission_required`.
-  - DRF permission classes (`IsAuthenticated`, custom `BasePermission`
-    subclasses).
+    - `auth` app's groups and permissions (`Group`, `Permission`).
+    - `LoginRequiredMixin`, `PermissionRequiredMixin`, `@login_required`,
+      `@permission_required`.
+    - DRF permission classes (`IsAuthenticated`, custom `BasePermission`
+      subclasses).
 - **Entities**: `models.py` files. Relationships from `ForeignKey`,
   `OneToOneField`, `ManyToManyField`. Validation from `validators=[...]`,
   `null=`, `blank=`, `unique=`, `choices=`. Migrations under
@@ -55,34 +53,32 @@ match the project in front of you.
 
 - **Entry points**: `@app.route(...)` (Flask), `@app.get/post/...`
   (FastAPI), Blueprint registrations, `APIRouter` includes.
-- **Actors**: Flask-Login `@login_required`, FastAPI dependencies that
-  resolve a user (`Depends(get_current_user)`), custom decorators.
-- **Entities**: SQLAlchemy `Base` subclasses, Pydantic models if used as
-  the persistence layer. Migrations in Alembic (`migrations/versions/`).
+- **Actors**: Flask-Login `@login_required`, FastAPI dependencies that resolve a user (`Depends(get_current_user)`),
+  custom decorators.
+- **Entities**: SQLAlchemy `Base` subclasses, Pydantic models if used as the persistence layer. Migrations in Alembic
+  (`migrations/versions/`).
 
 ## Node.js / TypeScript / Express
 
 - **Build files**: `package.json`. Look for `express`, `koa`, `fastify`,
   `nestjs`, `next`.
 - **Entry points**:
-  - Express: `app.get/post/...`, `router.use(...)`.
-  - NestJS: `@Controller(...)`, `@Get`, `@Post`, etc.; `@MessagePattern`
-    for microservices.
-  - Next.js: `pages/api/*` (pages router), `app/**/route.ts` (app router),
-    server actions in `app/**/page.tsx`.
+    - Express: `app.get/post/...`, `router.use(...)`.
+    - NestJS: `@Controller(...)`, `@Get`, `@Post`, etc.; `@MessagePattern`
+      for microservices.
+    - Next.js: `pages/api/*` (pages router), `app/**/route.ts` (app router), server actions in `app/**/page.tsx`.
 - **Actors**: middleware that sets `req.user`, NestJS `@UseGuards(...)`
   with `RolesGuard`, NextAuth session callbacks, custom JWT middleware.
 - **Entities**:
-  - Prisma: `schema.prisma` is the source of truth for entities and
-    relationships.
-  - TypeORM: `@Entity` classes with `@Column`, `@OneToMany`, etc.
-  - Sequelize: `Model.init({...})` calls.
-  - Drizzle: `pgTable(...)` calls in `schema.ts`.
-- **Prisma → AIUP type mapping** (never copy Prisma/SQL types into the entity
-  model — translate every column):
+    - Prisma: `schema.prisma` is the source of truth for entities and relationships.
+    - TypeORM: `@Entity` classes with `@Column`, `@OneToMany`, etc.
+    - Sequelize: `Model.init({...})` calls.
+    - Drizzle: `pgTable(...)` calls in `schema.ts`.
+- **Prisma → AI Unified Process type mapping** (never copy Prisma/SQL types into the entity model — translate every
+  column):
 
-  | Prisma type                       | AIUP Data Type | Length/Precision | Validation Rules                  |
-  |-----------------------------------|----------------|------------------|-----------------------------------|
+  | Prisma type                       | AI Unified Process Data Type | Length/Precision | Validation Rules                  |
+      |-----------------------------------|----------------|------------------|-----------------------------------|
   | `Int @id @default(autoincrement())` | `Long`       | 19               | `Primary Key, Sequence`           |
   | `Int`                             | `Integer`      | 10               | `Not Null`                        |
   | `String`                          | `String`       | 255 (or actual)  | `Not Null`                        |
@@ -94,48 +90,43 @@ match the project in front of you.
   | relation field `userId Int`       | `Long`         | 19               | `Not Null, Foreign Key (USER.id)` |
 
   `@db.Decimal`, `Decimal(10,2)`, `Int`, `String?`, `bigint`, `VARCHAR` and `TEXT`
-  must **not** appear anywhere in `entity_model.md` — they are implementation
-  details, not the AIUP vocabulary. A `// "customer" or "admin"` comment on a
+  must **not** appear anywhere in `entity_model.md` — they are implementation details, not the AI Unified Process
+  vocabulary. A
+  `// "customer" or "admin"` comment on a
   `String` column maps to `Not Null, Values: customer, admin`.
-- **Validation**: class-validator decorators, Zod schemas, Joi schemas,
-  Yup schemas — these are the richest source of business rules in the
-  Node ecosystem.
+- **Validation**: class-validator decorators, Zod schemas, Joi schemas, Yup schemas — these are the richest source of
+  business rules in the Node ecosystem.
 
 ## Angular Frontend
 
-An Angular SPA's "entry points" are its own
-routes, not just the backend API it calls. When a project pairs an Angular frontend with
-a separate backend (e.g. `aiup-angular-jpa`'s Spring Boot API), read both sides: recover
-actors and use cases from the frontend routes, and confirm entities against the backend's
-domain/DTO shape.
+An Angular SPA's "entry points" are its own routes, not just the backend API it calls. When a project pairs an Angular
+frontend with a separate backend (e.g. `aiup-angular-jpa`'s Spring Boot API), read both sides: recover actors and use
+cases from the frontend routes, and confirm entities against the backend's domain/DTO shape.
 
 - **Build files**: `angular.json`, `package.json` (look for `@angular/core`,
   `@angular/router`).
-- **Entry points**: route definitions in `app.routes.ts` (a flat `Routes` array), or
-  lazy-loaded route configs (`loadComponent`/`loadChildren`) in larger apps. Each
-  top-level route usually corresponds to one use case; a route with nested forms/dialogs
-  for create/edit/delete may still be one use case ("Manage X") rather than three.
-- **Actors**: route guards (`canActivate`, `canActivateChild`, functional guard
-  functions), an auth service/interceptor if present. Standalone-components-era Angular
-  apps often have none of these yet — don't invent actors the code doesn't distinguish.
-- **Entities**: the TypeScript interfaces in `*.model.ts` files, typically colocated with
-  the service that fetches them (e.g. `services/<entity>.ts` + `services/<entity>.model.ts`)
-  rather than a separate `models/`/`dto/` folder. These mirror the backend's domain/DTO
-  shape — prefer the backend's entity model when both are present; the frontend types are
-  a fallback when only the frontend is available.
+- **Entry points**: route definitions in `app.routes.ts` (a flat `Routes` array), or lazy-loaded route configs
+  (`loadComponent`/`loadChildren`) in larger apps. Each top-level route usually corresponds to one use case; a route
+  with nested forms/dialogs for create/edit/delete may still be one use case ("Manage X") rather than three.
+- **Actors**: route guards (`canActivate`, `canActivateChild`, functional guard functions), an auth service/interceptor
+  if present. Standalone-components-era Angular apps often have none of these yet — don't invent actors the code doesn't
+  distinguish.
+- **Entities**: the TypeScript interfaces in `*.model.ts` files, typically colocated with the service that fetches them
+  (e.g. `services/<entity>.ts` + `services/<entity>.model.ts`)
+  rather than a separate `models/`/`dto/` folder. These mirror the backend's domain/DTO shape — prefer the backend's
+  entity model when both are present; the frontend types are a fallback when only the frontend is available.
 - **Tests**: Vitest specs under `src/**/*.spec.ts` (Angular's newer
   `@angular/build:unit-test` builder, not the classic Jasmine/Karma default — check
-  `angular.json`'s `test` architect target to confirm which one a given project uses),
-  Playwright specs under `tests/e2e/` or `e2e/`. Tests named after a use case
-  (e.g. `UC-010-browse-product-catalog.spec.ts`) or tagged `@UC-XXX` are gold — they
-  encode the success scenario and alternative flows already.
+  `angular.json`'s `test` architect target to confirm which one a given project uses), Playwright specs under
+  `tests/e2e/` or `e2e/`. Tests named after a use case (e.g. `UC-010-browse-product-catalog.spec.ts`) or tagged
+  `@UC-XXX` are gold — they encode the success scenario and alternative flows already.
 
 ## Ruby / Rails
 
 - **Entry points**: `config/routes.rb`, controllers under
   `app/controllers/`, ActionMailer mailers, ActiveJob jobs.
-- **Actors**: `before_action :authenticate_user!` (Devise), Pundit
-  policies, CanCanCan abilities, custom role columns on `users`.
+- **Actors**: `before_action :authenticate_user!` (Devise), Pundit policies, CanCanCan abilities, custom role columns on
+  `users`.
 - **Entities**: `app/models/*.rb`. Relationships from `has_many`,
   `belongs_to`, `has_one`, `has_and_belongs_to_many`. Validation from
   `validates :field, ...`. Schema in `db/schema.rb` (canonical) and
@@ -143,34 +134,36 @@ domain/DTO shape.
 
 ## Go
 
-- **Entry points**: HTTP handlers registered with `http.HandleFunc`,
-  router libraries (chi, gin, echo, fiber). gRPC services implementing
-  generated interfaces.
-- **Actors**: middleware that decorates the request context with a user
-  identity; role checks usually inline in handlers.
+- **Entry points**: HTTP handlers registered with `http.HandleFunc`, router libraries (chi, gin, echo, fiber). gRPC
+  services implementing generated interfaces.
+- **Actors**: middleware that decorates the request context with a user identity; role checks usually inline in
+  handlers.
 - **Entities**: `sqlc`-generated structs (schema in `query.sql` /
   `schema.sql`), GORM structs with tags, Ent schemas under
   `ent/schema/`.
 
 ## C# / .NET
 
-- **Build files**: `*.csproj`, `*.sln`, `Program.cs`. Look for package references to confirm components in use (`Microsoft.EntityFrameworkCore.*`, `Microsoft.AspNetCore.Components.Web`, `bunit`, `Microsoft.Playwright.Xunit`, etc.).
+- **Build files**: `*.csproj`, `*.sln`, `Program.cs`. Look for package references to confirm components in use
+  (`Microsoft.EntityFrameworkCore.*`, `Microsoft.AspNetCore.Components.Web`, `bunit`, `Microsoft.Playwright.Xunit`,
+  etc.).
 - **Entry points**:
-  - Blazor components: `.razor` files with `@page "/..."` directive (and optional `@rendermode`).
-  - Web API / Minimal API: `app.MapGet(...)`, `app.MapPost(...)`, `[ApiController]` classes.
-  - Background services: `IHostedService` or `BackgroundService` implementations.
+    - Blazor components: `.razor` files with `@page "/..."` directive (and optional `@rendermode`).
+    - Web API / Minimal API: `app.MapGet(...)`, `app.MapPost(...)`, `[ApiController]` classes.
+    - Background services: `IHostedService` or `BackgroundService` implementations.
 - **Actors**:
-  - `[Authorize(Roles = "...")]` attributes on controllers or Razor pages.
-  - `<AuthorizeView Roles="...">` or `<AuthorizeView Policy="...">` components in Blazor templates.
-  - ASP.NET Identity claims/roles, custom `AuthorizationHandler<T>`, and policy registrations in `Program.cs`.
+    - `[Authorize(Roles = "...")]` attributes on controllers or Razor pages.
+    - `<AuthorizeView Roles="...">` or `<AuthorizeView Policy="...">` components in Blazor templates.
+    - ASP.NET Identity claims/roles, custom `AuthorizationHandler<T>`, and policy registrations in `Program.cs`.
 - **Entities**:
-  - EF Core: `DbContext` classes with `DbSet<T>` properties.
-  - Entity classes annotated with `[Key]`, `[Required]`, `[ForeignKey]`, `[MaxLength]`, or configured via Fluent API (`IEntityTypeConfiguration<T>` implementations or `OnModelCreating`).
-  - Migrations under `Migrations/` directory.
-- **C# → AIUP type mapping**:
+    - EF Core: `DbContext` classes with `DbSet<T>` properties.
+    - Entity classes annotated with `[Key]`, `[Required]`, `[ForeignKey]`, `[MaxLength]`, or configured via Fluent API
+      (`IEntityTypeConfiguration<T>` implementations or `OnModelCreating`).
+    - Migrations under `Migrations/` directory.
+- **C# → AI Unified Process type mapping**:
 
-  | C# / .NET type                       | AIUP Data Type | Length/Precision | Validation Rules                  |
-  |--------------------------------------|----------------|------------------|-----------------------------------|
+  | C# / .NET type                       | AI Unified Process Data Type | Length/Precision | Validation Rules                  |
+      |--------------------------------------|----------------|------------------|-----------------------------------|
   | `long` / `long?`                     | `Long`         | 19               | `Primary Key` (if ID) / `Not Null`|
   | `int` / `int?`                       | `Integer`      | 10               | `Not Null`                        |
   | `string`                             | `String`       | 255 (or actual)  | `Not Null`                        |
@@ -180,36 +173,32 @@ domain/DTO shape.
   | `DateOnly`                           | `Date`         | —                | `Not Null`                        |
   | Foreign Key `long CustomerId`        | `Long`         | 19               | `Not Null, Foreign Key (CUSTOMER.id)` |
 
-- **Tests**: `bUnit` tests (`TestContext`, `RenderComponent<T>`), `xUnit` / `NUnit` specs, and Playwright tests (`PageTest` subclasses) under `*.Tests/` or `*.Tests.E2E/`.
-
+- **Tests**: `bUnit` tests (`TestContext`, `RenderComponent<T>`), `xUnit` / `NUnit` specs, and Playwright tests
+  (`PageTest` subclasses) under `*.Tests/` or `*.Tests.E2E/`.
 
 ## Database-only signals (regardless of stack)
 
 When the ORM doesn't capture everything, fall back to the schema:
 
-- **Migrations directory**: usually authoritative. Look for the latest
-  state of each table by walking forward through the migrations.
+- **Migrations directory**: usually authoritative. Look for the latest state of each table by walking forward through
+  the migrations.
 - **Foreign key constraints**: `REFERENCES` clauses give cardinality.
-  `ON DELETE CASCADE` often signals composition (the child can't exist
-  without the parent — typically `||--o{`); `ON DELETE SET NULL` signals
-  a weaker association.
+  `ON DELETE CASCADE` often signals composition (the child can't exist without the parent — typically `||--o{`);
+  `ON DELETE SET NULL` signals a weaker association.
 - **Unique constraints**: a unique foreign key is a 1:1 relationship.
 - **CHECK constraints**: directly translate to business rules.
-- **Lookup tables**: small tables with `(id, code, label)` shape often
-  represent enumerated values; in the entity model these can become a
-  `Values: A, B, C` validation on the parent rather than their own
-  entity, unless they have lifecycle of their own.
+- **Lookup tables**: small tables with `(id, code, label)` shape often represent enumerated values; in the entity model
+  these can become a
+  `Values: A, B, C` validation on the parent rather than their own entity, unless they have lifecycle of their own.
 
 ## What's an actor vs. what's just an authenticated user
 
 Don't multiply actors past what the code actually distinguishes:
 
-- If every authenticated route does the same thing regardless of user
-  attributes, you have one actor: "User" (or whatever the domain calls
-  it — "Customer", "Member", "Tenant").
-- If routes branch on `hasRole(...)`, you have multiple actors. Name
-  them after the role.
+- If every authenticated route does the same thing regardless of user attributes, you have one actor: "User" (or
+  whatever the domain calls it — "Customer", "Member", "Tenant").
+- If routes branch on `hasRole(...)`, you have multiple actors. Name them after the role.
 - If anonymous routes exist (signup, public catalog), add "Visitor" or
   "Guest" as an actor.
-- If the system processes inbound webhooks, scheduled jobs, or message
-  queue events, add an actor for the upstream system or scheduler.
+- If the system processes inbound webhooks, scheduled jobs, or message queue events, add an actor for the upstream
+  system or scheduler.

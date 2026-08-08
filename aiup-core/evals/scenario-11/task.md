@@ -1,18 +1,18 @@
-# Reverse-Engineer .NET 10 Blazor Application into AIUP Artifacts
+# Reverse-Engineer .NET 10 Blazor Application into AI Unified Process Artifacts
 
 ## Background
 
 An engineering team maintains a C# / Blazor .NET 10 e-commerce platform (`inputs/ArtisanShop.Web`). The application uses Entity Framework Core for data access (`DbContext`), Blazor interactive components (`.razor`) for UI, ASP.NET Core Identity for authentication, and EF Core migrations under `Migrations/`.
 
-The engineering lead wants to produce a full set of AIUP artifacts from the existing .NET codebase so new developers can understand system capabilities without reading through C# source files.
+The engineering lead wants to produce a full set of AI Unified Process artifacts from the existing .NET codebase so new developers can understand system capabilities without reading through C# source files.
 
 The codebase is in the `inputs/` directory. It contains an `ArtisanShop.sln`, `ArtisanShop.csproj`, `Program.cs`, Blazor page components under `Components/Pages/`, EF Core `DbContext` entity configurations, and EF Core migration snapshots under `Migrations/`.
 
 ## Your Task
 
-Each artifact must conform exactly to the standard AIUP document format — diagram layout, spec structure, and entity model attribute tables using the closed AIUP data-type vocabulary (Long, Integer, String, Decimal, Boolean, Date, DateTime).
+Each artifact must conform exactly to the standard AI Unified Process document format — diagram layout, spec structure, and entity model attribute tables using the closed AI Unified Process data-type vocabulary (Long, Integer, String, Decimal, Boolean, Date, DateTime).
 
-Reverse-engineer the .NET 10 codebase into the three AIUP artifacts:
+Reverse-engineer the .NET 10 codebase into the three AI Unified Process artifacts:
 
 1. `docs/use_cases.puml` — PlantUML use case diagram listing all actors and use cases
 2. `docs/use_cases/` — one specification file per use case (e.g. `UC-001-place-order.md`)

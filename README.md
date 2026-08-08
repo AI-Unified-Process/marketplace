@@ -18,7 +18,7 @@ The methodology is based on the phases of
 the [Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process) — **Inception, Elaboration,
 Construction, Transition** — but adapted for AI-driven workflows.
 
-## AIUP Workflow
+## AI Unified Process Workflow
 
 ### Vaadin / jOOQ
 
@@ -146,7 +146,7 @@ If Claude begins reading `docs/vision.md` and proposing a requirements catalog, 
 
 ---
 
-## Using AIUP with other AI coding tools
+## Using AI Unified Process with other AI coding tools
 
 The AI Unified Process is a methodology, not a Claude-only product. Agent Skills (`SKILL.md`) is now an open standard,
 and the same skill folders in this marketplace work natively — with auto-triggering by description — in **OpenAI Codex
@@ -568,8 +568,8 @@ the input that `/playwright-test TC-XXX` automates as a journey test.
 
 ### `/reverse-engineer` — Reverse Engineer Existing Project *(plugin-agnostic)*
 
-**Purpose:** Recovers AIUP artifacts (use case diagram, per-use-case specifications, entity model) from an existing
-codebase so legacy projects can join the AIUP workflow without rewriting documentation by hand.
+**Purpose:** Recovers AI Unified Process artifacts (use case diagram, per-use-case specifications, entity model) from an existing
+codebase so legacy projects can join the AI Unified Process workflow without rewriting documentation by hand.
 
 **Usage:**
 
@@ -1239,7 +1239,7 @@ Create a `CLAUDE.md` at your project root. Claude loads this automatically at th
 This project follows the AI Unified Process. Read `docs/vision.md`, `docs/requirements.md`,
 and `docs/entity_model.md` for product context before making decisions.
 
-## AIUP Workflow
+## AI Unified Process Workflow
 
 1. `/requirements`        → derives `docs/requirements.md` from `docs/vision.md`
 2. `/entity-model`        → derives `docs/entity_model.md` from requirements

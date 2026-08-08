@@ -54,7 +54,7 @@ IntelliJ Navigator plugin relies on.
 ### `@UseCase` annotation
 
 Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AIUP IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
+[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
 gutter icons and Find Usages between the Markdown spec and the Java tests.
 
 **Bootstrap step.** Before writing any tests, check whether the project already contains an
@@ -370,5 +370,5 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 - Getting started: https://vaadin.com/docs/latest/flow/testing/browserless/getting-started
 - Component query API: https://vaadin.com/docs/latest/flow/testing/browserless/component-query
 - Component testers: https://vaadin.com/docs/latest/flow/testing/browserless/component-testers
-- AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
+- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the Vaadin MCP server for additional patterns (`https://mcp.vaadin.com/docs`)

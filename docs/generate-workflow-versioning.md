@@ -1,9 +1,9 @@
-# Versioning of the AIUP generate workflow
+# Versioning of the AI Unified Process generate workflow
 
 The AI-assisted generation runs on a thin stub per project repository and a shared implementation in this repository —
 per Git provider one of each:
 
-- **The dispatch stubs** — written by the AIUP Studio during setup (UC-042); they never change when a skill or plugin
+- **The dispatch stubs** — written by the AI Unified Process Studio during setup (UC-042); they never change when a skill or plugin
   is added. On GitHub it is `.github/workflows/aiup-generate.yml`, which only receives the `workflow_dispatch` and
   passes the inputs on. On Bitbucket it is the custom pipeline `aiup-generate` in `bitbucket-pipelines.yml`, which
   only clones this marketplace at the tag and runs its script.

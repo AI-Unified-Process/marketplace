@@ -49,7 +49,7 @@ from the use case specification (`docs/use-cases/UC-XXX-*.md`).
 
 Test classes must be named after the use case using the pattern
 `UC<id><PascalCaseUseCaseName>Test` — for example `UC001RegisterPersonTest` for use case UC-001
-"Register Person". This is the convention the AIUP IntelliJ Navigator plugin relies on to link
+"Register Person". This is the convention the AI Unified Process IntelliJ Navigator plugin relies on to link
 specs and tests.
 
 ### `@UseCase` annotation
@@ -261,5 +261,5 @@ Use AssertJ or Karibu Testing assertions:
 ## Resources
 
 - Karibu Testing documentation: https://github.com/mvysny/karibu-testing/tree/master/karibu-testing-v10
-- AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
+- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the KaribuTesting MCP server for additional patterns (`https://karibu-testing-mcp.martinelli.ch/mcp`)

@@ -8,7 +8,7 @@ The codebase is located under `starter/`. It is a Node.js application using Expr
 
 Your task is to reverse-engineer this codebase into three structured artifacts that will serve as the team's living documentation going forward. Do not run the application — work from static analysis of the source files only.
 
-The team documents its systems with the AI Unified Process, so the three artifacts must conform exactly to the standard AIUP document formats — the same formats the AIUP forward-engineering workflow produces for use case diagrams, use case specifications, and entity models. Deviations from the standard structure, headings, or data-type and validation vocabulary will be rejected when the documents are checked in.
+The team documents its systems with the AI Unified Process, so the three artifacts must conform exactly to the standard AI Unified Process document formats — the same formats the AI Unified Process forward-engineering workflow produces for use case diagrams, use case specifications, and entity models. Deviations from the standard structure, headings, or data-type and validation vocabulary will be rejected when the documents are checked in.
 
 ## Output Specification
 

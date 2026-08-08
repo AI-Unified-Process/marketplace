@@ -4,7 +4,7 @@
 
 The engineering team at an online shop has built a product catalog feature using Vaadin. The catalog view (`ProductCatalogView`) displays a grid of products and lets shoppers filter by category using a dropdown. The use case spec is at `docs/use-cases/UC-010-browse-product-catalog.md`.
 
-The team wants robust server-side unit tests covering the main success scenario, the "filter by category" alternative flow, and the business rule about stock status visibility. They want these tests to run entirely in the JVM — no browser, no WebDriver — and to plug into the AIUP IntelliJ Navigator plugin so gutter icons link spec headings to test methods.
+The team wants robust server-side unit tests covering the main success scenario, the "filter by category" alternative flow, and the business rule about stock status visibility. They want these tests to run entirely in the JVM — no browser, no WebDriver — and to plug into the AI Unified Process IntelliJ Navigator plugin so gutter icons link spec headings to test methods.
 
 The source for the view is in `src/main/java/com/example/shop/view/ProductCatalogView.java`. The project uses Spring Boot, Maven, and the standard `com.example.shop` package structure.
 

@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent reverse-engineers a C# / Blazor .NET 10 solution into AIUP artifacts: feature clustering in PLAN.md, mapping C# EF Core entities to AIUP vocabulary (Long, String, Decimal, etc.), discovering actors from Blazor AuthorizeView/[Authorize], and grouping Blazor @page endpoints into use cases.",
+  "context": "Tests whether the agent reverse-engineers a C# / Blazor .NET 10 solution into AI Unified Process artifacts: feature clustering in PLAN.md, mapping C# EF Core entities to AI Unified Process vocabulary (Long, String, Decimal, etc.), discovering actors from Blazor AuthorizeView/[Authorize], and grouping Blazor @page endpoints into use cases.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -19,12 +19,12 @@
     },
     {
       "name": "No C# or SQL types in entity model",
-      "description": "docs/entity_model.md does NOT contain raw C# or SQL types (long, string, decimal, int, bigint, varchar) — only AIUP vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
+      "description": "docs/entity_model.md does NOT contain raw C# or SQL types (long, string, decimal, int, bigint, varchar) — only AI Unified Process vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
       "max_score": 20
     },
     {
       "name": "AIUP types used",
-      "description": "docs/entity_model.md uses AIUP Data Types (Long, String, Decimal, etc.) mapped from EF Core entity properties",
+      "description": "docs/entity_model.md uses AI Unified Process Data Types (Long, String, Decimal, etc.) mapped from EF Core entity properties",
       "max_score": 10
     },
     {

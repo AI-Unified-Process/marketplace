@@ -138,12 +138,12 @@ one use case from the use case specification (`docs/use-cases/UC-XXX-*.md`).
 Test classes must be named after the use case using the pattern
 `UC<id><PascalCaseUseCaseName>Test` — for example `UC001RegisterGuestTest` for
 use case UC-001 "Register Guest". This makes the link between spec and test
-obvious and is the convention the AIUP IntelliJ Navigator plugin relies on.
+obvious and is the convention the AI Unified Process IntelliJ Navigator plugin relies on.
 
 ### `@UseCase` annotation
 
 Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AIUP IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
+[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
 gutter icons and Find Usages between the Markdown spec and the Java tests.
 
 **Bootstrap step.** Before writing any tests, check whether the project already
@@ -466,6 +466,6 @@ and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
 - MockMvcTester / AssertJ integration reference (Spring Boot 3.4+): https://docs.spring.io/spring-framework/reference/testing/mockmvc/assertj.html
 - RestAssured documentation (legacy convention): https://rest-assured.io/
 - MockMvc reference (legacy convention): https://docs.spring.io/spring-framework/reference/testing/spring-mvc-test-framework.html
-- AIUP IntelliJ Navigator plugin (defines the `@UseCase` annotation
+- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation
   contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the JavaDocs MCP server for additional API lookups (`https://www.javadocs.dev/mcp`)

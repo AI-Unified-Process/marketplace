@@ -41,7 +41,7 @@ Construction
 Use `/implement` for Vaadin Flow (server-side Java) views and `/implement-hilla` for Hilla
 (React/TypeScript) views — both share the same jOOQ data access conventions.
 
-These skills read the AIUP artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
+These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
 `docs/test_cases/TC-*.md`) produced by `aiup/aiup-core` and write code and tests into your Maven/Gradle project.
 
 ## MCP servers

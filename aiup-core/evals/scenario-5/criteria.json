@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether the agent applies the large-codebase reverse-engineering strategy: one-pass scan, feature clustering, end-to-end cluster processing, and late data-layer pass. Also checks entity type mapping to AIUP vocabulary, exclusion of infrastructure tables, UC ID ordering by actor then importance, and handling of partially-implemented features.",
+  "context": "Tests whether the agent applies the large-codebase reverse-engineering strategy: one-pass scan, feature clustering, end-to-end cluster processing, and late data-layer pass. Also checks entity type mapping to AI Unified Process vocabulary, exclusion of infrastructure tables, UC ID ordering by actor then importance, and handling of partially-implemented features.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -24,12 +24,12 @@
     },
     {
       "name": "No SQL types in entity model",
-      "description": "docs/entity_model.md does NOT contain raw SQL types such as bigint, varchar, numeric, smallint, or timestamp — only AIUP vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
+      "description": "docs/entity_model.md does NOT contain raw SQL types such as bigint, varchar, numeric, smallint, or timestamp — only AI Unified Process vocabulary types (Long, String, Integer, Decimal, Boolean, Date, DateTime)",
       "max_score": 10
     },
     {
-      "name": "AIUP types used",
-      "description": "docs/entity_model.md uses at least three of the AIUP Data Types: Long, String, Integer, Decimal, Boolean, Date, DateTime",
+      "name": "AI Unified Process types used",
+      "description": "docs/entity_model.md uses at least three of the AI Unified Process Data Types: Long, String, Integer, Decimal, Boolean, Date, DateTime",
       "max_score": 5
     },
     {

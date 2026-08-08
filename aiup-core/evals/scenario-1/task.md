@@ -6,7 +6,7 @@ The LearnPath team is building an online course enrollment platform and has fini
 
 The platform needs to track three core entities — students who register with their email addresses, courses offered by instructors with pricing information, and enrollments that link students to courses over a scheduled time window with a lifecycle status. Because courses have a price expressed in dollars and cents, data type precision matters. Because enrollments span a date range, there is a cross-record validation rule that must be captured beyond individual field constraints.
 
-The team follows the AI Unified Process, and the entity model will be consumed by downstream AIUP tooling that expects a precise, standardized document format — any deviation in structure, data types, or validation-rule labels causes the tooling pipeline to reject the document. A reference guide describing the accepted vocabulary for data types and validation rules is available at `references/REFERENCE.md`.
+The team follows the AI Unified Process, and the entity model will be consumed by downstream AI Unified Process tooling that expects a precise, standardized document format — any deviation in structure, data types, or validation-rule labels causes the tooling pipeline to reject the document. A reference guide describing the accepted vocabulary for data types and validation rules is available at `references/REFERENCE.md`.
 
 ## Output Specification
 

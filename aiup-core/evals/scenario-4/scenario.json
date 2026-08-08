@@ -1,1 +1,1 @@
-{ "description": "Reverse-engineer Express.js codebase to AIUP artifacts", "include": ["./starter"] }
+{ "description": "Reverse-engineer Express.js codebase to AI Unified Process artifacts", "include": ["./starter"] }
