@@ -38,17 +38,35 @@ One journey per file, written to `docs/test_cases/TC-XXX-<kebab-case-name>.md` w
 
 Use [references/test-case.md](references/test-case.md) as the document structure, and see [references/example.md](references/example.md) for a complete worked example.
 
+## Status and priority values
+
+| Status    | Description                                          |
+|-----------|------------------------------------------------------|
+| Draft     | Initial version, still being written.                |
+| Reviewed  | Complete, awaiting stakeholder review.               |
+| Approved  | Reviewed and approved for automation.                |
+| Automated | An end-to-end test implements this test case.        |
+| Obsolete  | No longer valid, superseded by another test case.    |
+
+| Priority | Description                                                        |
+|----------|--------------------------------------------------------------------|
+| Critical | The system's core journey — run on every change.                   |
+| High     | Important journey — run in every full test pass.                   |
+| Medium   | Secondary journey — run regularly.                                 |
+| Low      | Rare or edge journey — run when the affected area changes.         |
+
 ## Writing rules
 
 - **Order the Flow as the business journey**, not as the order the use cases were listed. State created in an early step is what later steps operate on — make that dependency visible in the descriptions.
 - **Insert verification steps between actions** (e.g. "Verify order listed") so the automated test can anchor each transition. Verification rows have `-` in the Use Case column.
+- **Step names are short and action-oriented** — each Flow row's Name becomes the step method name in the automated test, and step numbers run from 1 without gaps.
 - **Test Data holds literal values** (`Acme Corp, Widget, 5`) — the exact strings the test will type. Use `-` when a step needs none. Concrete values are what make the document executable; placeholders like "a valid customer" cannot be automated.
 - **Link each action step to its use case** with a relative link: `[UC-010](../use_cases/UC-010-create-order.md)`.
 - **Don't re-test per-use-case detail.** Every validation message and grid column is the use case test's job (`/playwright-test UC-*`); the journey and its end state are the subject here. A typical Flow has 3–8 steps.
 - **Preconditions must be satisfiable before the test runs** — reference the seeded test data that provides them (e.g. a Flyway test migration) so the automation knows where they come from.
 - **Validation lists cross-cutting end-state checks** — numbered, each with a bold name, each observable through the UI after the flow completes (final status, record counts, state visible on another view).
 - **Postconditions inventory the data the journey leaves behind** — the automated test derives its cleanup from this list. Name every record the flow creates or changes (with its literal test data values) and any deletion-order constraint from business rules (dependent records before their parents). Seeded data stays untouched — don't list it as something to remove.
-- **No implementation details.** The same step-writing guidelines as use case specs apply (see the template's Reference section): describe what the user and system do, never handlers, SQL, or protocol terms.
+- **No implementation details.** The same step-writing guidelines as use case specs apply (see the `/use-case-spec` skill): describe what the user and system do, never handlers, SQL, or protocol terms.
 
 ## Workflow
 

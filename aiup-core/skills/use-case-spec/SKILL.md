@@ -57,7 +57,40 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 ## Template
 
 Use [references/use-case.md](references/use-case.md) as the document structure, and
-see [references/example.md](references/example.md) for a complete worked example.
+see [references/example.md](references/example.md) for a complete worked example —
+actor-focused steps, alternative flows that reference specific step numbers, and
+paired success/failure postconditions.
+
+## Status values
+
+| Status      | Description                                      |
+|-------------|--------------------------------------------------|
+| Draft       | Initial version, still being written.            |
+| Reviewed    | Complete, awaiting stakeholder review.           |
+| Approved    | Reviewed and approved for implementation.        |
+| Implemented | Implementation complete, pending testing.        |
+| Tested      | All tests pass, pending final acceptance.        |
+| Done        | Fully implemented, tested, and accepted.         |
+| Obsolete    | No longer valid, superseded by another use case. |
+
+## Step writing guidelines
+
+| Do                                  | Don't                                         |
+|-------------------------------------|-----------------------------------------------|
+| "User clicks Save button"           | "User triggers onClick handler"               |
+| "System validates the email format" | "System runs regex /^[\w]+@[\w]+$/"           |
+| "System displays error message"     | "System throws ValidationException"           |
+| "User enters check-in date"         | "User populates dateField component"          |
+| "System stores the reservation"     | "System executes INSERT INTO reservations..." |
+| "System records the new account"    | "System runs INSERT INTO users / SELECT ..."  |
+| "System sends a confirmation email" | "System opens an SMTP connection to sendmail" |
+| "System securely stores the password" | "System hashes the password with bcrypt/SHA + salt" |
+| "System signs the user in"          | "System issues a JWT / signs a token with expiry" |
+
+Steps describe **what** the actor and system achieve, never **how** it is
+implemented. Keep out protocol and infrastructure terms (SMTP, JWT, bcrypt,
+hashing, SQL/INSERT/SELECT, HTTP verbs, class and exception names) — those belong
+in the implementation, not the specification.
 
 ## Workflow
 
@@ -67,7 +100,7 @@ see [references/example.md](references/example.md) for a complete worked example
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
 5. Write the Overview section: `Use Case ID`, primary actor, goal, and a `Status`
-   from the template's list.
+   from the "Status values" list above.
 6. Define preconditions — verifiable facts that must be true before the use case starts.
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
@@ -105,4 +138,4 @@ Before considering the document done, verify every item:
 - [ ] Every alternative flow ends with `Use case continues at step N.` or `Use case ends.` — never open-ended.
 - [ ] Both Success and Failure postconditions are defined and non-empty.
 - [ ] Each business rule has a `BR-XXX` ID; across multiple files in one task, the IDs are unique and do not restart at `BR-001`.
-- [ ] No step contains technical implementation detail — no HTTP verbs (POST/GET), SQL, class names, regex, exception names, or protocol terms (SMTP, JWT, bcrypt). See the template's step-writing guidelines.
+- [ ] No step contains technical implementation detail — no HTTP verbs (POST/GET), SQL, class names, regex, exception names, or protocol terms (SMTP, JWT, bcrypt). See "Step writing guidelines" above.

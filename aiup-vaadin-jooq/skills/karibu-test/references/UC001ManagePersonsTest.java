@@ -20,10 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Use case test for UC-001 "Manage Persons".
- *
- * <p>Class name follows the AI Unified Process convention {@code UC<id><PascalCaseUseCaseName>Test}; every test
- * method is annotated with {@link UseCase} so the AI Unified Process IntelliJ Navigator plugin can link this
- * file to {@code docs/use-cases/UC-001-manage-persons.md}.
  */
 class UC001ManagePersonsTest extends KaribuTest {
 

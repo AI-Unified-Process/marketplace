@@ -22,9 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Executes test case TC-001 (docs/test_cases/TC-001-customer-onboarding.md):
  * a new customer is created (UC-001) and places a first order (UC-004).
- *
- * One test case = one test class = one test method; each Flow row from the
- * test case document is a private step method, called in order.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
