@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "Vaadin": {
+      "type": "streamable-http",
+      "url": "https://mcp.vaadin.com/docs"
+    },
+    "KaribuTesting": {
+      "type": "streamable-http",
+      "url": "https://karibu-testing-mcp.martinelli.ch/mcp"
+    },
+    "jOOQ": {
+      "type": "streamable-http",
+      "url": "https://jooq-mcp.martinelli.ch/mcp"
+    },
+    "JavaDocs": {
+      "type": "streamable-http",
+      "url": "https://www.javadocs.dev/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    }
+  }
+}

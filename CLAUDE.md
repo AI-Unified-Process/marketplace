@@ -16,8 +16,10 @@ marketplace/
 │   └── marketplace.json          # Marketplace metadata listing all plugins
 ├── aiup-core/                    # Stack-agnostic core methodology
 │   ├── .claude-plugin/
-│   │   └── plugin.json
-│   ├── .mcp.json                 # context7
+│   │   └── plugin.json           # Claude Code manifest
+│   ├── .mcp.json                 # context7 (Claude Code format)
+│   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
+│   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── requirements/
 │       ├── entity-model/
@@ -27,8 +29,10 @@ marketplace/
 │       └── test-case/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
-│   │   └── plugin.json
+│   │   └── plugin.json           # Claude Code manifest
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
+│   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
+│   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
@@ -38,8 +42,10 @@ marketplace/
 │       └── playwright-test/
 ├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
 │   ├── .claude-plugin/
-│   │   └── plugin.json
+│   │   └── plugin.json           # Claude Code manifest
 │   ├── .mcp.json                 # JavaDocs, Playwright
+│   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
+│   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
@@ -48,8 +54,10 @@ marketplace/
 │       └── playwright-test/
 ├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
-│   │   └── plugin.json
+│   │   └── plugin.json           # Claude Code manifest
 │   ├── .mcp.json                 # MicrosoftLearn, bUnitDocs, Playwright
+│   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
+│   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── ef-migration/
 │       ├── implement/
@@ -77,9 +85,16 @@ marketplace/
 
 Each plugin contains:
 
-- `.claude-plugin/plugin.json` - Plugin metadata (name, version, author)
-- `.mcp.json` - MCP server configurations for external tools
-- `skills/` - Skills with SKILL.md definitions; each skill is also a slash command
+- `.claude-plugin/plugin.json` - Plugin metadata (name, version, author) — Claude Code format
+- `.mcp.json` - MCP server configurations for external tools — Claude Code format
+- `plugin.json` / `mcp.json` - the same metadata and MCP servers in the vendor-neutral
+  [Agent Plugins](https://agent-plugins.org) standard format, so any conformant client (Cursor, Copilot, etc.)
+  can load the plugin directory directly. The MCP config is identical except remote servers use
+  `"type": "streamable-http"` instead of Claude Code's `"type": "http"`. Consistency with the Claude Code and
+  Tessl manifests is enforced by `scripts/validate-plugin-manifests.sh`
+  (run in CI by `.github/workflows/validate-plugins.yml`)
+- `skills/` - Skills with SKILL.md definitions; each skill is also a slash command. The layout conforms to the
+  [Agent Skills](https://agentskills.io) spec, so the same folders work in both plugin formats
 
 ## AI Unified Process Workflow
 
@@ -140,10 +155,12 @@ dispatcher's routing table.
 Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registry/ai-unified-process) via
 `.github/workflows/publish-tessl.yml`. Key facts:
 
-- **Each plugin has two version files that must be bumped together**: `.claude-plugin/plugin.json`
-  (used by Claude Code) and `.tessl-plugin/plugin.json` (used by the publish workflow). The workflow
-  versions off `.tessl-plugin/plugin.json` only — bumping just the Claude one silently skips the
-  release ("version already published").
+- **Each plugin has three version files that must be bumped together**: `.claude-plugin/plugin.json`
+  (used by Claude Code), `.tessl-plugin/plugin.json` (used by the publish workflow), and the root
+  `plugin.json` (Agent Plugins standard). The workflow versions off `.tessl-plugin/plugin.json` only —
+  bumping just one of the others silently skips the release ("version already published").
+  `.github/workflows/validate-plugins.yml` (via `scripts/validate-plugin-manifests.sh`) fails the build
+  when the three versions — or the two MCP configs — drift apart.
 - The workflow publishes a plugin only when its `.tessl-plugin` version is new; pushes without a
   version bump are skipped, not failed.
 - Adding a new plugin requires wiring it into the workflow: add it to the job `matrix` **and** to the

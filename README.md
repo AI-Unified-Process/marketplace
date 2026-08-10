@@ -153,6 +153,24 @@ and the same skill folders in this marketplace work natively — with auto-trigg
 CLI**, **Cursor**, **GitHub Copilot**, **Gemini CLI**, and **OpenCode**. Pair them with the
 [MCP](https://modelcontextprotocol.io) server configs and the whole workflow runs unchanged.
 
+### Agent Plugins standard
+
+Every plugin directory in this marketplace is also a conformant [**Agent Plugins**](https://agent-plugins.org)
+package — the open, vendor-neutral plugin standard (spec v1.0.0) governed by a steering committee with
+representatives from Amazon, Cursor, Microsoft, OpenAI, and Vercel. Alongside the Claude Code manifests, each
+plugin ships a root-level `plugin.json` (`$schema: https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`)
+and `mcp.json`, and the `skills/` layout already follows the [Agent Skills](https://agentskills.io) spec the
+standard builds on. Any client that implements Agent Plugins can load a plugin straight from a checkout of this
+repository:
+
+```sh
+git clone https://github.com/AI-Unified-Process/marketplace.git
+# point your Agent Plugins-conformant client at e.g. marketplace/aiup-core/
+```
+
+The Agent Plugins manifests are kept in lockstep with the Claude Code and Tessl ones by a CI check
+([`scripts/validate-plugin-manifests.sh`](scripts/validate-plugin-manifests.sh)).
+
 ### Install via Tessl (any agent)
 
 [Tessl](https://tessl.io) is an agent-agnostic package manager and registry for skills: it installs versioned skills and
@@ -194,6 +212,7 @@ latest release.
 | Component                                                  | Portable? | Notes                                                                                  |
 |------------------------------------------------------------|-----------|----------------------------------------------------------------------------------------|
 | `tessl install ai-unified-process/…`                                     | Yes       | Works on Claude Code, Cursor, Gemini, Codex, and Copilot — installs skills + MCP        |
+| Agent Plugins package (`aiup-*/plugin.json` + `mcp.json`)  | Yes       | Each plugin dir conforms to [agent-plugins.org](https://agent-plugins.org) v1.0.0      |
 | MCP servers (`aiup-*/.mcp.json`)                           | Yes       | Standard MCP — reformat the config per host                                            |
 | `SKILL.md` skill folders (`aiup-*/skills/*/`)              | Yes       | Native support in Codex CLI, Cursor, Copilot, Gemini CLI, and OpenCode                 |
 | Auto-triggering by `description`                           | Yes       | All tools above match user intent against the YAML frontmatter `description`           |
