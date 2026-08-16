@@ -13,3 +13,9 @@ jobs:
 
       - name: Check Agent Plugins / Claude Code / Tessl manifest consistency
         run: bash scripts/validate-plugin-manifests.sh
+
+      - name: Check use case spec validator and worked example
+        run: |
+          python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --self-test
+          python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --strict \
+            aiup-core/skills/use-case-spec/references/example.md

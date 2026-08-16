@@ -42,8 +42,10 @@ documents that break them are rejected exactly like forward-engineered ones:
    lowercase kebab-case, no underscores or PascalCase.
 3. **Steps stay at the business level** — no SQL, HTTP verbs, framework
    methods, hashing, tokens, or protocol names in any step.
-4. **`BR-XXX` IDs are unique globally** across all spec files — they never
-   restart at `BR-001` in the next file.
+4. **`BR-XXX` IDs are scoped to their use case** — every spec file numbers its
+   rules `BR-001`, `BR-002`, … from the start, unique and gapless within that
+   file. Cross-references to a rule of another use case are qualified with the
+   use case id ("UC-005 BR-002").
 5. **The Mermaid ER diagram shows relationships only** — no attributes inside
    entity blocks.
 6. **Every attribute table has exactly these 5 columns, in this order:**
@@ -221,11 +223,13 @@ Create `docs/use_cases/` and write one file per use case named
 - **Business Rules**: extract from validation annotations, domain
   constants, configuration, and any `if (...)` that encodes a policy
   decision (limits, thresholds, eligibility). Name them `BR-001`, `BR-002`,
-  …; renumber globally across use cases so each rule has a unique ID.
+  …, starting again at `BR-001` in every spec file — rule ids are unique
+  within their use case, not across files.
 
 The full template lives at the `/use-case-spec` skill —
 [skills/use-case-spec/references/use-case.md](../use-case-spec/references/use-case.md)
-inside this plugin.
+inside this plugin; the normative format definition is
+[skills/use-case-spec/references/format-spec.md](../use-case-spec/references/format-spec.md).
 
 #### Step writing — what to keep at the business level
 
@@ -330,14 +334,23 @@ the user to delete than to miss.
 
 ### 7. Cross-validate
 
-Before finishing, check the three documents agree:
+First run the use case spec validator bundled with the `/use-case-spec` skill
+over every spec file you wrote and fix everything it reports (the script lives
+at `../use-case-spec/scripts/validate_use_case.py` relative to this skill's
+directory):
+
+```bash
+python3 <plugin>/skills/use-case-spec/scripts/validate_use_case.py --strict docs/use_cases/UC-*.md
+```
+
+Then check the three documents agree:
 
 - Every actor in the diagram is the primary actor on at least one spec.
 - Every use case ID in the diagram has a matching spec file.
 - Every entity referenced as a noun in a use case spec exists in the
   entity model.
-- Every business rule is numbered uniquely across all specs (`BR-001`,
-  `BR-002`, …).
+- Every spec numbers its business rules `BR-001`, `BR-002`, … without gaps
+  (ids restart in every file; they are scoped to their use case).
 - The mermaid diagram has a section for every entity it names, and every
   entity section appears in the diagram.
 - **Aggregation check:** your use-case count is meaningfully smaller than your
