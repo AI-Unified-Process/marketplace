@@ -1,56 +1,35 @@
 # aiup-angular-jpa
 
-> The Angular + JPA stack plugin for the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) — turns use
-> case specifications into an implemented, tested Spring Boot API and Angular frontend.
+`aiup-angular-jpa` is the AIUP construction plugin for an [Angular](https://angular.dev) frontend and a
+[Spring Boot](https://spring.io/projects/spring-boot) backend using JPA/Hibernate. It turns the artifacts produced by
+[`aiup-core`](../aiup-core/) into database migrations, a REST API, an Angular UI, and tests across both applications.
 
-`aiup-angular-jpa` is the **technology-specific** layer of the AI Unified Process for applications with a
-[Spring Boot](https://spring.io/projects/spring-boot) + [JPA/Hibernate](https://hibernate.org) backend and an
-[Angular](https://angular.dev) frontend. It takes the artifacts produced by
-[`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model and use case specifications — and
-turns them into database migrations, a REST API, an Angular UI, and a full test suite across both halves of the
-stack.
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+use it alongside `aiup-core` and select one stack plugin.
 
-Unlike a server-rendered UI framework, this is a **split client/server architecture**: the backend and frontend are
-independent builds that only share a JSON contract over HTTP. Every skill in this plugin reflects that split.
+## Architecture support
 
-## What makes this plugin different from `aiup-vaadin-jooq`
-Besides the obvious frontend swap, this plugin's backend skills (`/implement`, `/flyway-migration`,
-`/spring-boot-test`) **detect and support two backend shapes**, rather than assuming one:
+The backend skills detect and follow either of these established project shapes:
 
-- **Flat single-module** — one Spring Boot project with `@Entity`/repository/service/controller together.
-- **Hexagonal multi-module** — a Maven reactor with separate `domain` / `business` / persistence-adapter /
-  inbound-adapter / composition-root modules (ports and adapters enforced at the module boundary, not just by
-  package naming). This is a common, deliberate architectural choice for larger Spring Boot backends, and the
-  skills detect it and follow its existing conventions (including asymmetric ones — e.g. an outbound-only port,
-  no inbound use-case interface) rather than forcing every project into one shape.
+- **Flat single module:** entities, repositories, services, and controllers in one Spring Boot module.
+- **Hexagonal multi-module:** separate domain, business, persistence adapter, inbound adapter, and composition-root
+  modules with ports and adapters enforced by Maven boundaries.
 
-See [`skills/implement/references/module-layout.md`](skills/implement/references/module-layout.md) for the
-detection heuristic shared by all three skills.
+Existing asymmetric conventions are preserved instead of being rewritten into a textbook architecture. The shared
+detection rules are documented in
+[`skills/implement/references/module-layout.md`](skills/implement/references/module-layout.md).
 
-## What it does
+## Skills and workflow
 
-This plugin covers the **Construction** phase of the AI Unified Process for the Angular/JPA stack: schema
-migrations, backend and frontend implementation, and testing on both sides — with every artifact traceable back to
-a use case (`UC-*`).
+| Phase        | Skill                                                   | Result                                                             |
+|--------------|---------------------------------------------------------|--------------------------------------------------------------------|
+| Construction | [`/flyway-migration`](skills/flyway-migration/SKILL.md) | Flyway migrations placed in the detected persistence module        |
+| Construction | [`/implement`](skills/implement/SKILL.md)               | Spring Boot API and Angular UI following the existing architecture |
+| Construction | [`/spring-boot-test`](skills/spring-boot-test/SKILL.md) | Backend integration tests using the project's detected convention  |
+| Construction | [`/vitest-test`](skills/vitest-test/SKILL.md)           | Angular component tests with TestBed and HttpTestingController     |
+| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Browser-based end-to-end tests for the split application           |
 
-It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream `docs/entity_model.md` and
-`docs/use_cases/UC-*.md` artifacts these skills read. It is **not meant to be used together with `ai-unified-process/aiup-vaadin-jooq**,
-
-## Skills
-
-Each skill is also available as a slash command.
-
-| Phase        | Skill / command     | Description                                                                                |
-|--------------|---------------------|--------------------------------------------------------------------------------------------|
-| Construction | `/flyway-migration` | Create versioned Flyway migration scripts (`V*.sql`) from the entity model                 |
-| Construction | `/implement`        | Implement use cases across a flat or hexagonal Spring Boot backend and an Angular frontend |
-| Construction | `/spring-boot-test` | Create Spring Boot tests (RestAssured+Testcontainers or MockMvc, auto-detected)            |
-| Construction | `/vitest-test`      | Create Vitest component tests using Angular's own TestBed/HttpTestingController idioms     |
-| Construction | `/playwright-test`  | Create Playwright browser-based end-to-end tests                                           |
-
-### Workflow
-
-```
+```text
 Construction
 ──────────────────────────────────────────────────────
 /flyway-migration  →  /implement  →  /spring-boot-test
@@ -58,83 +37,99 @@ Construction
                                   ↘  /playwright-test
 ```
 
-These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`) produced by
-`ai-unified-process/aiup-core` and write code and tests into your backend (Maven/Gradle, flat or multi-module) and frontend
-(npm/Angular CLI) projects.
-
-## MCP servers
-
-| Server      | Purpose                                                                                  |
-|-------------|------------------------------------------------------------------------------------------|
-| JavaDocs    | Javadoc lookup for Spring/Hibernate/RestAssured/Testcontainers on the classpath          |
-| Playwright  | Browser automation for end-to-end tests                                                  |
-
-RxJS and Vitest docs are covered by `aiup-core`'s **context7**
-MCP server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 
 ## Installation
 
-Install from the Tessl registry (install the core plugin too, if you haven't already):
+### Tessl
 
+Initialize the project once:
+
+```sh
+tessl init --agent agents
 ```
+
+`agents` is the vendor-neutral layout; use `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or `copilot-vscode`
+for a specific host. Then install the plugins:
+
+```sh
 tessl install ai-unified-process/aiup-core
 tessl install ai-unified-process/aiup-angular-jpa
 ```
 
+Depending on the configured agent, skills may be exposed as slash commands or invoked by intent, for example
+"implement UC-001".
+
+### Claude Code
+
+```text
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
+/plugin install aiup-angular-jpa
+```
+
+See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+
 ## Prerequisites
 
-- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with use case specifications and an
-  entity model already produced under `docs/`
-- A Maven or Gradle backend project with Spring Boot, Spring Data JPA, and Flyway — either a flat single module,
-  or a hexagonal `domain`/`business`/persistence-adapter/inbound-adapter/composition-root-style multi-module
-  layout
-- An Angular (standalone components) frontend project
-- Optional MCP servers (JavaDocs, Playwright) configured per [`rules/mcp-servers.md`](rules/mcp-servers.md)
+- `aiup-core` and reviewed `docs/entity_model.md` plus `docs/use_cases/UC-*.md` artifacts.
+- A Maven or Gradle backend with Spring Boot, Spring Data JPA, and Flyway.
+- An Angular frontend using standalone components.
+- Docker when the project's integration-test convention uses Testcontainers.
+- Optional MCP servers configured through [`rules/mcp-servers.md`](rules/mcp-servers.md).
 
-## Project Structure
+## Inputs and generated artifacts
 
-### Flat single-module backend
+All construction skills consume the core artifacts under `docs/`. They write migrations and backend code into the
+detected Spring module, Angular pages and services into the existing frontend layout, and tests alongside their
+respective application.
 
-```
+## Project structure
+
+### Flat backend
+
+```text
 your-project/
 ├── docs/
-│   └── ...
 ├── backend/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/                     ← produced by /implement (entity, repository, service, controller)
-│   │   │   └── resources/
-│   │   │       └── db/migration/         ← produced by /flyway-migration
-│   │   └── test/
-│   │       ├── java/                     ← produced by /spring-boot-test
-│   │       └── resources/db/migration/   ← test data seeds (MockMvc convention only)
-│   └── pom.xml
+│   └── src/
+│       ├── main/java/                    # /implement
+│       ├── main/resources/db/migration/  # /flyway-migration
+│       └── test/java/                    # /spring-boot-test
 └── frontend/
-    ├── src/app/                           ← produced by /implement (pages, components, services)
-    ├── tests/e2e/                         ← produced by /playwright-test
-    └── package.json
+    ├── src/app/                          # /implement and /vitest-test
+    └── tests/e2e/                        # /playwright-test
 ```
 
-### Hexagonal multi-module backend
+### Hexagonal backend
 
+```text
+backend/
+├── <domain-module>/                      # pure domain types
+├── <business-module>/                    # services, ports, and DTOs
+├── <persistence-module>/                 # JPA adapter and Flyway migrations
+├── <api-module>/                         # REST controllers
+└── <app-module>/                         # composition root and integration tests
 ```
-your-project/
-├── docs/
-│   └── ...
-├── backend/
-│   ├── pom.xml                           ← reactor
-│   ├── xxx-domain/                       ← pure domain records, zero framework deps
-│   ├── xxx-business/                     ← services, outbound port interfaces, DTOs
-│   ├── xxx-postgres/                     ← JPA entities, converters, Spring Data repos
-│   │   └── src/main/resources/db/migration/  ← produced by /flyway-migration
-│   ├── xxx-api/                          ← REST controllers
-│   └── xxx-app/                          ← composition root
-│       └── src/test/java/                ← produced by /spring-boot-test (only module with tests)
-└── frontend/
-    ├── src/app/                           ← produced by /implement (pages, components, services)
-    ├── tests/e2e/                         ← produced by /playwright-test
-    └── package.json
-```
+
+Module names and frontend locations are detected from the project; these trees illustrate responsibilities rather
+than prescribe exact names.
+
+## MCP servers
+
+| Server       | Purpose                                                            |
+|--------------|--------------------------------------------------------------------|
+| `JavaDocs`   | Spring, Hibernate, RestAssured, Testcontainers, and classpath APIs |
+| `playwright` | Browser automation                                                 |
+
+General npm package documentation is available through `aiup-core`'s `context7` server. See
+[`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+
+## Related documentation
+
+- [Getting started](../docs/getting-started.md)
+- [Workflow and artifacts](../docs/workflow.md)
+- [`aiup-core`](../aiup-core/)
 
 ## License
 

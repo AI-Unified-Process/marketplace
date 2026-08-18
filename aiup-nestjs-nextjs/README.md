@@ -1,67 +1,38 @@
 # aiup-nestjs-nextjs
 
-> The NestJS + Next.js stack plugin for the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) —
-> turns use case specifications into an implemented, tested NestJS API and Next.js frontend.
+`aiup-nestjs-nextjs` is the AIUP construction plugin for a NestJS API using Drizzle ORM over PostgreSQL and a Next.js
+App Router frontend. It turns the artifacts produced by [`aiup-core`](../aiup-core/) into schema migrations, a REST
+API, a web UI, and tests across both applications.
 
-`aiup-nestjs-nextjs` is the **technology-specific** layer of the AI Unified Process for
-applications with a [NestJS](https://nestjs.com) backend using [Drizzle ORM](https://orm.drizzle.team)
-over PostgreSQL, and a [Next.js](https://nextjs.org) App Router frontend. It takes the artifacts
-produced by [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model, use
-case specifications, and test cases — and turns them into schema migrations, a REST API, a
-Next.js UI, and a full test suite across both halves of the stack.
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+use it alongside `aiup-core` and select one stack plugin.
 
-Like the Angular/JPA plugin and unlike a server-rendered UI framework, this is a **split
-client/server architecture**: the backend and frontend are independent builds that share only a
-JSON contract over HTTP. Every skill in this plugin reflects that split.
+## Architecture support
 
-## What makes this plugin different
+The plugin supports a split client/server architecture whose applications share a JSON contract. It detects app
+roots, workspace structure, routing conventions, existing fetch clients, and package settings before writing code.
 
-This is the marketplace's first **TypeScript-native** stack: both halves run the same language,
-the same test runner, and the same package manager. That sounds simpler than the JVM and .NET
-plugins, and in most respects it is — but it introduces two failure modes those stacks do not
-have, and both are silent:
+Two TypeScript-specific concerns are handled explicitly:
 
-- **ESM / NodeNext import specifiers.** A NestJS backend on `"type": "module"` with
-  `"module": "NodeNext"` requires a `.js` suffix on every relative import *even though the source
-  file is `.ts`*. Omit it and nothing compiles; add it in a project that isn't NodeNext and
-  nothing compiles either. The skills detect which shape the project is before writing a single
-  import.
-- **Decorator metadata under Vitest.** NestJS dependency injection reads `design:paramtypes`
-  metadata that Vitest's default transformer does not emit. Without `unplugin-swc`, every provider
-  fails to resolve with an error that names a parameter index rather than the cause — and on Vite
-  8, where Oxc became the default transformer, it silently breaks again even *with*
-  `unplugin-swc` installed unless `oxc: false` is also set.
+- NestJS projects using ESM and NodeNext require `.js` suffixes on relative imports even when the source files are
+  TypeScript; projects using other module settings must not receive those suffixes.
+- NestJS dependency injection requires decorator metadata. Vitest configurations need an appropriate transformer,
+  including `unplugin-swc` and the applicable Vite/Oxc setting, to preserve that metadata.
 
-Encoding those two is most of why this plugin exists. The rest is keeping the layers where they
-belong: all SQL in repositories, no raw database rows in responses, and relative `/api` paths so
-the frontend never hardcodes a backend origin.
+The shared layout detection is documented in
+[`skills/implement/references/project-layout.md`](skills/implement/references/project-layout.md).
 
-## What it does
+## Skills and workflow
 
-This plugin covers the **Construction** phase of the AI Unified Process for the NestJS/Next.js
-stack: schema migrations, backend and frontend implementation, and testing on both sides — with
-every artifact traceable back to a use case (`UC-*`).
+| Phase        | Skill                                                     | Result                                                             |
+|--------------|-----------------------------------------------------------|--------------------------------------------------------------------|
+| Construction | [`/drizzle-migration`](skills/drizzle-migration/SKILL.md) | Drizzle schema changes and generated PostgreSQL migrations         |
+| Construction | [`/implement`](skills/implement/SKILL.md)                 | NestJS feature module and Next.js page                             |
+| Construction | [`/nest-test`](skills/nest-test/SKILL.md)                 | Vitest unit tests and Supertest tests on Testcontainers PostgreSQL |
+| Construction | [`/react-test`](skills/react-test/SKILL.md)               | React Testing Library component tests                              |
+| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)     | Browser journeys derived from `UC-*` or `TC-*` artifacts           |
 
-It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream
-`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/test_cases/TC-*.md` artifacts these
-skills read. Install exactly one stack plugin — this one is **not** meant to be used alongside
-`ai-unified-process/aiup-vaadin-jooq`, `ai-unified-process/aiup-angular-jpa`, or `ai-unified-process/aiup-blazor-dotnet`.
-
-## Skills
-
-Each skill is also available as a slash command.
-
-| Phase        | Skill / command      | Description                                                            |
-|--------------|----------------------|------------------------------------------------------------------------|
-| Construction | `/drizzle-migration` | Edit the Drizzle schema from the entity model and generate the SQL     |
-| Construction | `/implement`         | Implement a use case across the NestJS API and the Next.js frontend    |
-| Construction | `/nest-test`         | Vitest unit specs and Supertest e2e specs on Testcontainers PostgreSQL |
-| Construction | `/react-test`        | Vitest + React Testing Library component tests                        |
-| Construction | `/playwright-test`   | Playwright browser end-to-end tests, driven by `TC-*.md` where present |
-
-### Workflow
-
-```
+```text
 Construction
 ──────────────────────────────────────────────────────
 /drizzle-migration  →  /implement  →  /nest-test
@@ -69,67 +40,90 @@ Construction
                                    ↘  /playwright-test
 ```
 
-All five skills read the AI Unified Process artifacts under `docs/` and share one layout-detection reference,
-[`skills/implement/references/project-layout.md`](skills/implement/references/project-layout.md),
-which resolves where the two applications live and which conventions the project already follows
-before any code is written.
-
-## MCP servers
-
-| Server     | Purpose                                     |
-|------------|---------------------------------------------|
-| Playwright | Browser automation for end-to-end tests     |
-
-NestJS, Drizzle, Next.js, React, Vitest, Supertest and Testcontainers documentation is already
-covered by `aiup-core`'s **context7** MCP server, which resolves docs for any npm package on
-demand. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 
 ## Installation
 
-Install from the Tessl registry (install the core plugin too, if you haven't already):
+### Tessl
 
+Initialize the project once:
+
+```sh
+tessl init --agent agents
 ```
+
+`agents` is the vendor-neutral layout; use `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or `copilot-vscode`
+for a specific host. Then install the plugins:
+
+```sh
 tessl install ai-unified-process/aiup-core
 tessl install ai-unified-process/aiup-nestjs-nextjs
 ```
 
+Depending on the configured agent, skills may be exposed as slash commands or invoked by intent, for example
+"implement UC-001".
+
+### Claude Code
+
+```text
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
+/plugin install aiup-nestjs-nextjs
+```
+
+See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+
 ## Prerequisites
 
-- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with an entity model and
-  use case specifications already produced under `docs/`
-- A NestJS backend using Drizzle ORM over PostgreSQL, with `drizzle.config.ts` present
-- A Next.js frontend using the App Router
-- Docker running, for the Testcontainers-backed e2e tests
-- Optional Playwright MCP server configured per [`rules/mcp-servers.md`](rules/mcp-servers.md)
+- `aiup-core` and reviewed `docs/entity_model.md` plus `docs/use_cases/UC-*.md` artifacts.
+- A NestJS backend using Drizzle ORM over PostgreSQL with `drizzle.config.ts` present.
+- A Next.js frontend using the App Router.
+- Docker for Testcontainers-backed backend tests.
+- Optional Playwright MCP configuration described in [`rules/mcp-servers.md`](rules/mcp-servers.md).
+
+## Inputs and generated artifacts
+
+The plugin consumes the core artifacts under `docs/`, edits the configured Drizzle schema, generates migration
+history, creates backend and frontend feature code, and places tests according to the detected project conventions.
+`/playwright-test TC-XXX` additionally reads the matching test journey under `docs/test_cases/`.
 
 ## Project structure
 
-```
+```text
 your-project/
 ├── docs/
 │   ├── entity_model.md
 │   ├── use_cases/UC-*.md
 │   └── test_cases/TC-*.md
 ├── apps/api/
-│   ├── src/database/schema.ts        ← edited by /drizzle-migration
-│   ├── drizzle/migrations/           ← generated by /drizzle-migration
-│   ├── src/<feature>/                ← produced by /implement
-│   │   ├── <feature>.module.ts
-│   │   ├── <feature>.controller.ts
-│   │   ├── <feature>.service.ts
-│   │   ├── <feature>.repository.ts
-│   │   └── dto/
-│   ├── src/**/*.spec.ts              ← produced by /nest-test (unit)
-│   └── test/**/*.e2e-spec.ts         ← produced by /nest-test (e2e)
+│   ├── src/database/schema.ts            # /drizzle-migration
+│   ├── drizzle/migrations/               # generated migrations
+│   ├── src/<feature>/                    # /implement
+│   ├── src/**/*.spec.ts                  # /nest-test unit tests
+│   └── test/**/*.e2e-spec.ts             # /nest-test API tests
 └── apps/web/
-    ├── src/app/<route>/page.tsx      ← produced by /implement
-    ├── src/**/*.test.tsx             ← produced by /react-test
-    └── e2e/*.spec.ts                 ← produced by /playwright-test
+    ├── src/app/<route>/page.tsx          # /implement
+    ├── src/**/*.test.tsx                 # /react-test
+    └── e2e/*.spec.ts                     # /playwright-test
 ```
 
-**This layout is detected, not required.** A project with different app locations, no workspace
-split, or its page components behind a `views/` indirection works fine — the skills read the
-project's own conventions and follow them rather than imposing the shape above.
+This layout is detected, not required. Separate repositories, different workspace roots, and delegated view
+components are supported when the existing project establishes those conventions.
+
+## MCP servers
+
+| Server       | Purpose            |
+|--------------|--------------------|
+| `playwright` | Browser automation |
+
+NestJS, Drizzle, Next.js, React, Vitest, Supertest, and Testcontainers documentation is available through
+`aiup-core`'s `context7` server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+
+## Related documentation
+
+- [Getting started](../docs/getting-started.md)
+- [Workflow and artifacts](../docs/workflow.md)
+- [`aiup-core`](../aiup-core/)
 
 ## License
 

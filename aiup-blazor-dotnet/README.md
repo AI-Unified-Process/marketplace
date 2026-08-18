@@ -1,29 +1,113 @@
 # aiup-blazor-dotnet
 
-> Stack-specific plugin of the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) for **C# and Blazor on .NET 10**.
+`aiup-blazor-dotnet` is the AIUP construction plugin for C#, Blazor, and Entity Framework Core on .NET 10. It turns
+the entity model and use case specifications produced by [`aiup-core`](../aiup-core/) into EF Core migrations,
+Vertical Slice features, and tests using bUnit, xUnit, and Playwright.
 
-`aiup-blazor-dotnet` provides implementation and testing skills for projects built with C#, EF Core, Blazor (.NET 10), bUnit, and Playwright. It consumes the specifications produced by [`aiup-core`](../aiup-core).
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+use it alongside `aiup-core` and select one stack plugin.
 
-## Skills
+## Skills and workflow
 
-| Phase        | Skill / command    | Description                                                               |
-|--------------|--------------------|---------------------------------------------------------------------------|
-| Construction | `/ef-migration`    | Generate native EF Core C# migrations based on `docs/entity_model.md`     |
-| Construction | `/implement`       | Implement use cases using C# Vertical Slice Architecture                  |
-| Construction | `/bunit-test`      | Create bUnit UI component tests for Blazor `.razor` pages                 |
-| Construction | `/dotnet-test`     | Create backend unit and integration tests for EF Core and domain handlers |
-| Construction | `/playwright-test` | Create native C# Playwright E2E browser tests (`Microsoft.Playwright.Xunit`)|
+| Phase        | Skill                                                 | Result                                                     |
+|--------------|-------------------------------------------------------|------------------------------------------------------------|
+| Construction | [`/ef-migration`](skills/ef-migration/SKILL.md)       | EF Core entities, configurations, and generated migrations |
+| Construction | [`/implement`](skills/implement/SKILL.md)             | Blazor use case implemented as a Vertical Slice            |
+| Construction | [`/bunit-test`](skills/bunit-test/SKILL.md)           | Browserless component tests for `.razor` pages             |
+| Construction | [`/dotnet-test`](skills/dotnet-test/SKILL.md)         | Backend unit and relational integration tests              |
+| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md) | Native C# browser tests for `UC-*` or `TC-*` journeys      |
+
+```text
+Construction
+─────────────────────────────────────────────────
+/ef-migration  →  /implement  →  /bunit-test
+                              ↘  /dotnet-test
+                              ↘  /playwright-test
+```
+
+The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 
 ## Installation
 
-Install from the Tessl registry:
+### Tessl
 
-```bash
+Initialize the project once:
+
+```sh
+tessl init --agent agents
+```
+
+`agents` is the vendor-neutral layout; use `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or `copilot-vscode`
+for a specific host. Then install the plugins:
+
+```sh
+tessl install ai-unified-process/aiup-core
 tessl install ai-unified-process/aiup-blazor-dotnet
 ```
 
-Or via Claude Code marketplace:
+Depending on the configured agent, skills may be exposed as slash commands or invoked by intent, for example
+"implement UC-001".
 
-```bash
+### Claude Code
+
+```text
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
 /plugin install aiup-blazor-dotnet
 ```
+
+See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+
+## Prerequisites
+
+- `aiup-core` and reviewed `docs/entity_model.md` plus `docs/use_cases/UC-*.md` artifacts.
+- A .NET 10 solution or project using Blazor and Entity Framework Core.
+- A configured relational database provider and EF Core tooling for migrations.
+- Node.js and installed Playwright browsers when browser tests are generated.
+- Optional MCP servers configured through [`rules/mcp-servers.md`](rules/mcp-servers.md).
+
+## Inputs and generated artifacts
+
+The plugin consumes the core documentation under `docs/`. It updates EF Core persistence types, creates migration
+files, implements a feature folder per use case, and places bUnit, backend, and browser tests in the solution's test
+projects.
+
+## Project structure
+
+```text
+your-solution/
+├── docs/
+│   ├── entity_model.md
+│   ├── use_cases/UC-*.md
+│   └── test_cases/TC-*.md
+├── <Application>/
+│   ├── Data/                            # DbContext and EF configurations
+│   ├── Migrations/                      # /ef-migration
+│   └── Features/
+│       └── UCXXX_<FeatureName>/         # /implement
+├── <Application>.Tests/                 # /bunit-test and /dotnet-test
+└── <Application>.Tests.E2E/             # /playwright-test
+```
+
+A feature folder can contain the Blazor page, code-behind, scoped CSS, command or query, handler, and validator. The
+skills inspect existing project and test conventions before selecting exact names and paths.
+
+## MCP servers
+
+| Server           | Purpose                                                       |
+|------------------|---------------------------------------------------------------|
+| `MicrosoftLearn` | Current .NET, Blazor, and Entity Framework Core documentation |
+| `bUnitDocs`      | bUnit component-testing documentation                         |
+| `playwright`     | Browser automation                                            |
+
+See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+
+## Related documentation
+
+- [Getting started](../docs/getting-started.md)
+- [Workflow and artifacts](../docs/workflow.md)
+- [`aiup-core`](../aiup-core/)
+
+## License
+
+Apache-2.0 · © [Carl J. Mosca](https://unifiedprocess.ai)

@@ -1,77 +1,121 @@
 # aiup-vaadin-jooq
 
-> The Vaadin + jOOQ stack plugin for the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) — turns use case
-> specifications into implemented, tested Java code.
+`aiup-vaadin-jooq` is the AIUP construction plugin for applications built with
+[Vaadin](https://vaadin.com) or Hilla and [jOOQ](https://www.jooq.org). It turns the entity model and use case
+specifications produced by [`aiup-core`](../aiup-core/) into migrations, application code, and tests.
 
-`aiup-vaadin-jooq` is the **technology-specific** layer of the AI Unified Process for applications built with
-[Vaadin](https://vaadin.com) (UI) and [jOOQ](https://www.jooq.org) (data access). It takes the artifacts produced by
-[`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) — the entity model and use case specifications — and turns
-them into database migrations, Vaadin views, jOOQ queries, and a full test suite.
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+use it alongside `aiup-core` and select one stack plugin.
 
-## What it does
+## Skills and workflow
 
-This plugin covers the **Construction** phase of the AI Unified Process for the Vaadin/jOOQ stack: schema migrations,
-implementation, and testing — with every artifact traceable back to a use case (`UC-*`).
+| Phase        | Skill                                                   | Result                                                             |
+|--------------|---------------------------------------------------------|--------------------------------------------------------------------|
+| Construction | [`/flyway-migration`](skills/flyway-migration/SKILL.md) | Versioned Flyway migrations derived from the entity model          |
+| Construction | [`/implement`](skills/implement/SKILL.md)               | Vaadin Flow views and jOOQ data access                             |
+| Construction | [`/implement-hilla`](skills/implement-hilla/SKILL.md)   | Hilla React views, browser-callable services, and jOOQ data access |
+| Construction | [`/browserless-test`](skills/browserless-test/SKILL.md) | Vaadin Browserless server-side tests; recommended for new work     |
+| Construction | [`/karibu-test`](skills/karibu-test/SKILL.md)           | Karibu server-side tests for existing Karibu projects              |
+| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Playwright tests using Drama Finder for `UC-*` or `TC-*` artifacts |
 
-It is meant to be used **together with `ai-unified-process/aiup-core`**, which produces the upstream `docs/entity_model.md` and
-`docs/use_cases/UC-*.md` artifacts these skills read.
-
-## Skills
-
-Each skill is also available as a slash command.
-
-| Phase        | Skill / command       | Description                                                              |
-|--------------|-----------------------|--------------------------------------------------------------------------|
-| Construction | `/flyway-migration`   | Create versioned Flyway migration scripts (`V*.sql`) from the entity model |
-| Construction | `/implement`          | Implement use cases as Vaadin Flow views/forms/grids plus jOOQ data access |
-| Construction | `/implement-hilla`    | Implement use cases as Hilla views (React + `@BrowserCallable`) plus jOOQ data access |
-| Construction | `/browserless-test`   | Create Vaadin Browserless server-side unit tests (recommended)           |
-| Construction | `/karibu-test`        | Create Karibu server-side unit tests (legacy — superseded since Vaadin 25.1) |
-| Construction | `/playwright-test`    | Create Playwright browser-based tests (Drama Finder) — use case integration tests (UC-*) or end-to-end test case journeys (TC-*) |
-
-### Workflow
-
-```
+```text
 Construction
-────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────
 /flyway-migration  →  /implement  →  /browserless-test
                                   ↘  /playwright-test  (UC-* or TC-*)
 ```
 
-Use `/implement` for Vaadin Flow (server-side Java) views and `/implement-hilla` for Hilla
-(React/TypeScript) views — both share the same jOOQ data access conventions.
+Use `/implement-hilla` instead of `/implement` for Hilla. Since Vaadin 25.1, Browserless Testing is the recommended
+server-side option; `/karibu-test` remains available for codebases that already use Karibu.
 
-These skills read the AI Unified Process artifacts under `docs/` (`docs/entity_model.md`, `docs/use_cases/UC-*.md`, and
-`docs/test_cases/TC-*.md`) produced by `ai-unified-process/aiup-core` and write code and tests into your Maven/Gradle project.
-
-## MCP servers
-
-The plugin wires up MCP servers that give the skills authoritative, version-correct knowledge of the stack. Some are
-optional — see [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
-
-| Server         | Purpose                                                          |
-|----------------|------------------------------------------------------------------|
-| Vaadin         | Vaadin component APIs, docs, and theming (version-aware)         |
-| KaribuTesting  | Karibu server-side test generation and migration helpers        |
-| jOOQ           | jOOQ query DSL reference, code generation, and SQL examples      |
-| JavaDocs       | Javadoc lookup for libraries on the classpath                    |
-| Playwright     | Browser automation for end-to-end tests                          |
+The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 
 ## Installation
 
-Install from the Tessl registry (install the core plugin too, if you haven't already):
+### Tessl
 
+Initialize the project once:
+
+```sh
+tessl init --agent agents
 ```
+
+`agents` is the vendor-neutral layout; use `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or `copilot-vscode`
+for a specific host. Then install the plugins:
+
+```sh
 tessl install ai-unified-process/aiup-core
 tessl install ai-unified-process/aiup-vaadin-jooq
 ```
 
+Depending on the configured agent, skills may be exposed as slash commands or invoked by intent, for example
+"implement UC-001".
+
+### Claude Code
+
+```text
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
+/plugin install aiup-vaadin-jooq
+```
+
+See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+
 ## Prerequisites
 
-- [`ai-unified-process/aiup-core`](https://registry.tessl.io/ai-unified-process/aiup-core) installed, with use case specifications and an entity
-  model already produced under `docs/`
-- A Maven or Gradle project with Vaadin and jOOQ on the classpath
-- Optional MCP servers (Vaadin, jOOQ, etc.) configured per [`rules/mcp-servers.md`](rules/mcp-servers.md)
+- `aiup-core` and reviewed `docs/entity_model.md` plus `docs/use_cases/UC-*.md` artifacts.
+- A Maven or Gradle project with Vaadin and jOOQ on the classpath.
+- Optional MCP servers configured as described in [`rules/mcp-servers.md`](rules/mcp-servers.md).
+- A running application for browser-based Playwright tests.
+
+## Inputs and generated artifacts
+
+Migration and implementation skills consume the entity model and individual use case specifications. A
+`/playwright-test TC-XXX` journey additionally consumes `docs/test_cases/TC-*.md`.
+
+The plugin writes Flyway migrations, Vaadin or Hilla implementation classes, server-side tests, and browser tests into
+the target project's existing Maven or Gradle layout.
+
+## Project structure
+
+The common Vaadin Flow layout is:
+
+```text
+your-project/
+├── docs/
+│   ├── entity_model.md
+│   ├── use_cases/UC-*.md
+│   └── test_cases/TC-*.md
+└── src/
+    ├── main/
+    │   ├── java/                         # /implement
+    │   ├── frontend/views/               # /implement-hilla
+    │   └── resources/db/migration/       # /flyway-migration
+    └── test/
+        ├── java/                         # server-side and Playwright tests
+        └── resources/db/migration/       # test data seeds
+```
+
+The skills inspect the existing code and build files before choosing packages and paths; the tree above is illustrative,
+not a required project skeleton.
+
+## MCP servers
+
+| Server          | Purpose                                              |
+|-----------------|------------------------------------------------------|
+| `Vaadin`        | Component APIs, framework documentation, and theming |
+| `KaribuTesting` | Karibu test APIs and migration guidance              |
+| `jOOQ`          | Query DSL, code generation, and SQL references       |
+| `JavaDocs`      | Java APIs available on the project classpath         |
+| `playwright`    | Browser automation                                   |
+
+See [`rules/mcp-servers.md`](rules/mcp-servers.md) for optional-server behavior and setup details.
+
+## Related documentation
+
+- [Getting started](../docs/getting-started.md)
+- [Workflow and artifacts](../docs/workflow.md)
+- [`aiup-core`](../aiup-core/)
 
 ## License
 
