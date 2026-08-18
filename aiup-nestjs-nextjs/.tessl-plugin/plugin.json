@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-nestjs-nextjs",
-  "description": "AI Unified Process plugin for the NestJS/Drizzle + Next.js stack",
-  "version": "0.1.0",
+  "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests",
+  "version": "0.1.1",
   "rules": "rules",
   "author": {
     "name": "Swift Ugandan",
