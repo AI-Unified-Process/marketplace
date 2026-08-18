@@ -17,6 +17,60 @@ jobs:
       - name: Check public documentation links
         run: bash scripts/validate-doc-links.sh
 
+      - name: Check standalone plugin README link rewriting
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          repository_url="https://github.com/${{ github.repository }}"
+          registry_url="https://tessl.io/registry/ai-unified-process"
+          git_ref=$(git rev-parse HEAD)
+          registry_links=0
+
+          for plugin_path in aiup-*/; do
+            plugin=${plugin_path%/}
+            cp -R "$plugin" "$tmp/$plugin"
+            bash scripts/rewrite-plugin-readme-links.sh "$tmp/$plugin" "$repository_url" "$git_ref"
+
+            # Scope the legacy-domain guard to the transformed README files that
+            # are actually published. Documentation may mention it as a warning.
+            if grep -q 'registry\.tessl\.io' "$tmp/$plugin/README.md"; then
+              echo "ERROR: legacy Tessl registry domain in transformed README: $plugin" >&2
+              exit 1
+            fi
+
+            while IFS= read -r url; do
+              package=${url#"$registry_url/"}
+              if [ "$package" = "$url" ] || [ ! -d "$package" ]; then
+                echo "ERROR: registry URL has no sibling plugin directory: $url" >&2
+                exit 1
+              fi
+              registry_links=$((registry_links + 1))
+            done < <(grep -o "${registry_url}/[^)]*" "$tmp/$plugin/README.md")
+
+            while IFS= read -r url; do
+              relative=${url#"$repository_url/blob/$git_ref/"}
+              if [ "$relative" = "$url" ]; then
+                relative=${url#"$repository_url/tree/$git_ref/"}
+                if [ "$relative" = "$url" ]; then
+                  echo "ERROR: unexpected rewritten URL: $url" >&2
+                  exit 1
+                fi
+              fi
+
+              relative=${relative%%#*}
+              if [ ! -e "$relative" ]; then
+                echo "ERROR: rewritten URL has no repository target: $url" >&2
+                exit 1
+              fi
+            done < <(grep -o "${repository_url}/[^)]*" "$tmp/$plugin/README.md")
+          done
+
+          if [ "$registry_links" -eq 0 ]; then
+            echo "ERROR: sibling-plugin registry rewrite was not exercised" >&2
+            exit 1
+          fi
+
       - name: Check use case spec validator and worked example
         run: |
           python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --self-test
