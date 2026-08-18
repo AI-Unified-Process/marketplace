@@ -64,6 +64,21 @@ marketplace/
 │       ├── bunit-test/
 │       ├── dotnet-test/
 │       └── playwright-test/
+├── aiup-nestjs-nextjs/           # NestJS + Drizzle / Next.js technology stack plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json           # Claude Code manifest
+│   ├── .mcp.json                 # Playwright
+│   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
+│   ├── mcp.json                  # Agent Plugins MCP config
+│   └── skills/                   # All workflow steps as skills (slash commands)
+│       ├── drizzle-migration/
+│       ├── implement/
+│       ├── nest-test/
+│       ├── react-test/
+│       └── playwright-test/
+├── docs/                         # User guides, installation docs, and reusable templates
+├── pipelines/                    # Shared Bitbucket generation workflow implementation
+├── scripts/                      # Validation and publication helpers
 └── README.md
 ```
 
@@ -75,6 +90,7 @@ marketplace/
 - **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
 - **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack. Requires core.
 - **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10. Requires core.
+- **nestjs-nextjs** — Stack-specific: implementation and testing for NestJS / Drizzle and Next.js. Requires core.
 
 ### Marketplace Configuration
 
@@ -110,45 +126,58 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/use-case-spec`      | Write detailed use case specifications                               |
 | Construction | `/test-case`          | Write an end-to-end test case (TC-*) chaining several use cases      |
 | Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from code |
-| Construction | `/implement`          | Stack-agnostic dispatcher — detects the stack and delegates          |
-| Construction | `/test`               | Stack-agnostic dispatcher — server-side unit / integration tests     |
-| Construction | `/e2e`                | Stack-agnostic dispatcher — browser-based end-to-end tests           |
 
 ### Angular / JPA (stack-specific)
 
-| Phase        | Skill (slash command)    | Description                                                           |
-|--------------|--------------------------|-----------------------------------------------------------------------|
-| Construction | `/flyway-migration`      | Create Flyway migrations                                              |
-| Construction | `/implement`             | Implement use cases using Angular and Spring Boot JPA                 |
-| Construction | `/spring-boot-test`      | Create Spring Boot backend unit and integration tests                 |
-| Construction | `/vitest-test`           | Create Vitest component and unit tests for Angular                    |
-| Construction | `/playwright-test`       | Create Playwright E2E browser tests for Angular + Spring Boot         |
+| Phase        | Skill (slash command) | Description                                                   |
+|--------------|-----------------------|---------------------------------------------------------------|
+| Construction | `/flyway-migration`   | Create Flyway migrations                                      |
+| Construction | `/implement`          | Implement use cases using Angular and Spring Boot JPA         |
+| Construction | `/spring-boot-test`   | Create Spring Boot backend unit and integration tests         |
+| Construction | `/vitest-test`        | Create Vitest component and unit tests for Angular            |
+| Construction | `/playwright-test`    | Create Playwright E2E browser tests for Angular + Spring Boot |
 
 ### C# / Blazor .NET 10 (stack-specific)
 
-| Phase        | Skill (slash command)    | Description                                                           |
-|--------------|--------------------------|-----------------------------------------------------------------------|
-| Construction | `/ef-migration`          | Create native EF Core C# migrations                                   |
-| Construction | `/implement`             | Implement use cases using C# Vertical Slice Architecture              |
-| Construction | `/bunit-test`            | Create bUnit component tests for Blazor `.razor` pages                |
-| Construction | `/dotnet-test`           | Create backend integration tests for EF Core and domain handlers      |
-| Construction | `/playwright-test`       | Create native C# Playwright E2E tests (`Microsoft.Playwright.Xunit`)  |
+| Phase        | Skill (slash command) | Description                                                          |
+|--------------|-----------------------|----------------------------------------------------------------------|
+| Construction | `/ef-migration`       | Create native EF Core C# migrations                                  |
+| Construction | `/implement`          | Implement use cases using C# Vertical Slice Architecture             |
+| Construction | `/bunit-test`         | Create bUnit component tests for Blazor `.razor` pages               |
+| Construction | `/dotnet-test`        | Create backend integration tests for EF Core and domain handlers     |
+| Construction | `/playwright-test`    | Create native C# Playwright E2E tests (`Microsoft.Playwright.Xunit`) |
 
-### Vaadin/jOOQ (stack-specific — invoked by the core dispatchers)
+### Vaadin/jOOQ (stack-specific)
 
-| Phase        | Skill (slash command)    | Description                                               |
-|--------------|--------------------------|-----------------------------------------------------------|
-| Construction | `/flyway-migration`      | Create Flyway migrations                                  |
-| Construction | `/implement-vaadin-jooq` | Implement use cases using Vaadin Flow and jOOQ            |
-| Construction | `/implement-hilla`       | Implement use cases using Hilla (React) and jOOQ          |
-| Construction | `/browserless-test`      | Create Vaadin Browserless unit tests (recommended)        |
-| Construction | `/karibu-test`           | Create Karibu unit tests (legacy — superseded since 25.1) |
-| Construction | `/playwright-test`       | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
+| Phase        | Skill (slash command) | Description                                                           |
+|--------------|-----------------------|-----------------------------------------------------------------------|
+| Construction | `/flyway-migration`   | Create Flyway migrations                                              |
+| Construction | `/implement`          | Implement use cases using Vaadin Flow and jOOQ                        |
+| Construction | `/implement-hilla`    | Implement use cases using Hilla (React) and jOOQ                      |
+| Construction | `/browserless-test`   | Create Vaadin Browserless unit tests (recommended)                    |
+| Construction | `/karibu-test`        | Create Karibu unit tests (legacy — superseded since 25.1)             |
+| Construction | `/playwright-test`    | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
 
-The core `/implement`, `/test`, and `/e2e` skills inspect the project's build files (`pom.xml`, `build.gradle`,
-`package.json`, etc.) to choose which stack-specific skill to invoke. New stack plugins (e.g. a future
-`aiup-spring-react`) plug in by shipping their own `implement-<stack>` and test skills and adding a row to each
-dispatcher's routing table.
+### NestJS / Next.js (stack-specific)
+
+| Phase        | Skill (slash command) | Description                                                         |
+|--------------|-----------------------|---------------------------------------------------------------------|
+| Construction | `/drizzle-migration`  | Update the Drizzle schema and generate PostgreSQL migrations        |
+| Construction | `/implement`          | Implement NestJS API and Next.js App Router use cases               |
+| Construction | `/nest-test`          | Create Vitest unit tests and Supertest/Testcontainers backend tests |
+| Construction | `/react-test`         | Create React Testing Library component tests                        |
+| Construction | `/playwright-test`    | Create Playwright browser tests for UC-* or TC-* journeys           |
+
+Each stack plugin ships its own `/implement` and testing skills. Install exactly one stack plugin with `aiup-core` in
+a project so commands shared by several stack plugins do not collide.
+
+## Documentation
+
+- Start with `README.md` for the marketplace overview and `docs/getting-started.md` for the user workflow.
+- `docs/workflow.md` defines artifacts and traceability; `docs/installation/` contains host-specific setup guides.
+- Skill behavior is authoritative in each `skills/*/SKILL.md`.
+- Maintainers changing the shared generation workflows must read
+  [`docs/generate-workflow-versioning.md`](docs/generate-workflow-versioning.md) before moving the `v1` tag.
 
 ## Releasing to the Tessl Registry
 
