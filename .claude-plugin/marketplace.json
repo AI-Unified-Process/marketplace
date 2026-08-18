@@ -9,27 +9,27 @@
     {
       "name": "aiup-core",
       "source": "./aiup-core",
-      "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)"
+      "description": "AI Unified Process core - stack-agnostic requirements, entity model, and use cases"
     },
     {
       "name": "aiup-vaadin-jooq",
       "source": "./aiup-vaadin-jooq",
-      "description": "AI Unified Process plugin for the Vaadin/jOOQ stack"
+      "description": "AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-angular-jpa",
       "source": "./aiup-angular-jpa",
-      "description": "AI Unified Process plugin for the Angular/JPA stack"
+      "description": "AI Unified Process for the Angular/JPA stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-blazor-dotnet",
       "source": "./aiup-blazor-dotnet",
-      "description": "AI Unified Process plugin for the C# / Blazor .NET 10 stack"
+      "description": "AI Unified Process for the C# / Blazor .NET 10 stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-nestjs-nextjs",
       "source": "./aiup-nestjs-nextjs",
-      "description": "AI Unified Process plugin for the NestJS/Drizzle + Next.js stack"
+      "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests"
     }
   ]
 }

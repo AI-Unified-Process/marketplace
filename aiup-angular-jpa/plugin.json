@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-angular-jpa",
-  "version": "0.2.1",
-  "description": "AI Unified Process plugin for the Angular/JPA stack",
+  "version": "0.2.2",
+  "description": "AI Unified Process for the Angular/JPA stack - migrations, implementation, tests",
   "author": {
     "name": "Marc Affolter",
     "email": "marc_affolter@outlook.com",

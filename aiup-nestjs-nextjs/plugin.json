@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-nestjs-nextjs",
-  "version": "0.1.0",
-  "description": "AI Unified Process plugin for the NestJS/Drizzle + Next.js stack",
+  "version": "0.1.1",
+  "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests",
   "author": {
     "name": "Swift Ugandan",
     "email": "swiftugandan@gmail.com",

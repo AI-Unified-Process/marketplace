@@ -46,6 +46,13 @@ jobs:
         with:
           token: ${{ secrets.TESSL_TOKEN }}
 
+      - name: Rewrite marketplace-relative README links for the published package
+        run: |
+          bash scripts/rewrite-plugin-readme-links.sh \
+            "${{ matrix.plugin }}" \
+            "https://github.com/${{ github.repository }}" \
+            "${{ github.sha }}"
+
       - name: Publish ${{ matrix.plugin }} if its version is new
         run: |
           set -euo pipefail

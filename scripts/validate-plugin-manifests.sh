@@ -17,12 +17,13 @@ for dir in aiup-*/; do
   root="$plugin/plugin.json"
   claude="$plugin/.claude-plugin/plugin.json"
   tessl="$plugin/.tessl-plugin/plugin.json"
+  marketplace=".claude-plugin/marketplace.json"
   root_mcp="$plugin/mcp.json"
   claude_mcp="$plugin/.mcp.json"
 
   fail_before=$fail
   missing=0
-  for f in "$root" "$claude" "$tessl" "$root_mcp" "$claude_mcp"; do
+  for f in "$root" "$claude" "$tessl" "$marketplace" "$root_mcp" "$claude_mcp"; do
     if [ ! -f "$f" ]; then
       error "$f is missing"
       missing=1
@@ -40,6 +41,15 @@ for dir in aiup-*/; do
   version=$(jq -r .version "$claude")
   [ "$(jq -r .version "$root")" = "$version" ] || error "version mismatch: $root has $(jq -r .version "$root"), $claude has $version"
   [ "$(jq -r .version "$tessl")" = "$version" ] || error "version mismatch: $tessl has $(jq -r .version "$tessl"), $claude has $version"
+
+  description=$(jq -r .description "$claude")
+  [ "$(jq -r .description "$root")" = "$description" ] || error "$root: description must match $claude"
+  [ "$(jq -r .description "$tessl")" = "$description" ] || error "$tessl: description must match $claude"
+
+  marketplace_count=$(jq --arg name "$name" '[.plugins[] | select(.name == $name)] | length' "$marketplace")
+  [ "$marketplace_count" -eq 1 ] || error "$marketplace: expected exactly one entry for $name"
+  marketplace_description=$(jq -r --arg name "$name" '.plugins[] | select(.name == $name) | .description' "$marketplace")
+  [ "$marketplace_description" = "$description" ] || error "$marketplace: description for $name must match $claude"
 
   # mcp.json must mirror .mcp.json, with Claude Code's "http" transport
   # expressed as the standard's "streamable-http".

@@ -1,80 +1,105 @@
 # aiup-core
 
-> Stack-agnostic core of the [**AI Unified Process (AIUP)**](https://unifiedprocess.ai) — a structured,
-> requirements-first workflow for taking a software project from raw vision to use case specifications.
+`aiup-core` is the stack-independent foundation of the
+[AI Unified Process](https://unifiedprocess.ai). It turns a product vision into requirements, an entity model, use
+cases, and test journeys that stack-specific plugins can implement.
 
-`aiup-core` is the foundation plugin of the AI Unified Process. It is **technology-independent**: it works with any
-language, framework, or stack because it stops at the specification boundary. Implementation and testing are handled by
-stack-specific plugins (e.g. [`ai-unified-process/aiup-vaadin-jooq`](https://registry.tessl.io/ai-unified-process/aiup-vaadin-jooq)) that build on
-the artifacts this plugin produces.
+Use this plugin for every AIUP project. It works with any programming language because its output boundary is a set of
+reviewable files under `docs/`.
 
-## What it does
+## Skills and workflow
 
-The plugin automates the analysis phases of the AI Unified Process, adapted from the
-[Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process) — **Inception → Elaboration →
-Construction**. Every project starts from a written vision and proceeds through requirements, an entity model, and use
-case specifications. Nothing gets built without a use case.
+| Phase        | Skill                                                   | Result                                                         |
+|--------------|---------------------------------------------------------|----------------------------------------------------------------|
+| Inception    | [`/requirements`](skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`             |
+| Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                 |
+| Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                       |
+| Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                        |
+| Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journey across multiple specified use cases         |
+| Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code |
 
-This prevents the most common failure mode of AI-assisted development: jumping straight to code from a vague prompt and
-producing something that half-works and can't be maintained.
-
-## Skills
-
-Each skill is also available as a slash command. Skills pick up where the previous one left off by reading the files
-written along the way, so you can inspect or edit any artifact before continuing.
-
-| Phase        | Skill / command       | Description                                                              |
-|--------------|-----------------------|--------------------------------------------------------------------------|
-| Inception    | `/requirements`       | Generate a structured requirements catalog (user stories, NFRs, constraints) from `docs/vision.md` |
-| Elaboration  | `/entity-model`       | Create an entity model with a Mermaid ER diagram and attribute tables    |
-| Elaboration  | `/use-case-diagram`   | Generate a PlantUML use case diagram mapping actors to use cases         |
-| Construction | `/use-case-spec`      | Write detailed use case specifications (flows, pre/postconditions, rules)|
-| Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from existing code |
-
-### Workflow
-
-```
-Inception          Elaboration                          Construction
-─────────────────  ──────────────────────────────────   ─────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec
+```text
+Inception          Elaboration                             Construction 
+─────────────     ───────────────────────────────────     ─────────────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case
 ```
 
-The skills produce and consume a set of artifacts under `docs/`:
-
-- `docs/vision.md` — *input you provide* (product vision, target users, goals)
-- `docs/requirements.md`
-- `docs/entity_model.md`
-- `docs/use_cases.puml`
-- `docs/use_cases/UC-*.md`
-
-**Inheriting a legacy codebase?** Start with `/reverse-engineer` — it walks the existing code, configuration, and
-schema and produces the same `docs/use_cases.puml`, `docs/use_cases/UC-*.md`, and `docs/entity_model.md` artifacts the
-forward workflow would have produced, giving you a documented baseline to work from.
-
-## MCP servers
-
-| Server     | Purpose                                                                 |
-|------------|-------------------------------------------------------------------------|
-| context7   | Fetches current library/framework documentation on demand during analysis |
+Each skill reads the artifacts created by earlier steps. The linked `SKILL.md` files are the authoritative reference
+for detailed inputs, outputs, and behavior.
 
 ## Installation
 
-Install from the Tessl registry:
+### Tessl
 
+Initialize the project once:
+
+```sh
+tessl init --agent agents
 ```
+
+`agents` is the vendor-neutral layout; use `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or `copilot-vscode`
+for a specific host. Then install the plugin:
+
+```sh
 tessl install ai-unified-process/aiup-core
 ```
 
+Depending on the configured agent, skills may be exposed as slash commands or invoked by intent, for example
+"create the requirements catalog".
+
+### Claude Code
+
+```text
+/plugin marketplace add ai-unified-process/marketplace
+/plugin install aiup-core
+```
+
+See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+
 ## Prerequisites
 
-- A `docs/vision.md` file at the root of your project describing the product vision, target users, and high-level
-  goals. The `/requirements` skill reads this file to derive your requirements catalog — the richer it is, the better
-  the results.
+For the forward workflow, create `docs/vision.md` in the target project. It should describe the product mission,
+target users, goals, scope, and constraints. The marketplace provides a
+[vision template](../docs/templates/vision.md).
 
-## Next step
+Existing projects can begin with `/reverse-engineer` instead of a vision document.
 
-Once your use case specifications exist, add a stack-specific plugin to implement and test them — for example
-[`ai-unified-process/aiup-vaadin-jooq`](https://registry.tessl.io/ai-unified-process/aiup-vaadin-jooq) for the Vaadin + jOOQ stack.
+## Inputs and generated artifacts
+
+```text
+your-project/
+└── docs/
+    ├── vision.md                    # maintained by the team
+    ├── requirements.md              # /requirements
+    ├── entity_model.md              # /entity-model
+    ├── use_cases.puml               # /use-case-diagram
+    ├── use_cases/
+    │   └── UC-001-*.md              # /use-case-spec
+    └── test_cases/
+        └── TC-001-*.md              # /test-case
+```
+
+Review and commit these files with the source code. Stack plugins consume the entity model, use case specifications,
+and test journeys without depending on which coding agent produced them.
+
+## Project structure
+
+`aiup-core` does not impose a source-code layout. It writes only to the documentation paths above and inspects an
+existing source tree when `/reverse-engineer` runs. The selected stack plugin detects or documents the implementation
+layouts it supports.
+
+## MCP servers
+
+| Server     | Purpose                                                          |
+|------------|------------------------------------------------------------------|
+| `context7` | Current language, framework, and library documentation on demand |
+
+## Related documentation
+
+- [Getting started](../docs/getting-started.md)
+- [Workflow and artifacts](../docs/workflow.md)
+- [Project setup](../docs/guides/project-setup.md)
+- [Choose a stack plugin](../README.md#choose-your-plugins)
 
 ## License
 

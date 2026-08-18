@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-core",
-  "version": "2.5.0",
-  "description": "AI Unified Process - stack-agnostic core methodology (requirements, entity model, use cases)",
+  "version": "2.5.1",
+  "description": "AI Unified Process core - stack-agnostic requirements, entity model, and use cases",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",
