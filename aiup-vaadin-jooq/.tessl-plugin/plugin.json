@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-vaadin-jooq",
   "description": "AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests",
-  "version": "2.13.0",
+  "version": "2.13.1",
   "rules": "rules",
   "author": {
     "name": "Simon Martinelli",

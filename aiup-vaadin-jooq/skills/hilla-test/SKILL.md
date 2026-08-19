@@ -112,6 +112,10 @@ integration. Use a plain naming convention instead:
 - Each `it` title reads as the scenario it covers, matching the spec heading text
   (`'main scenario - …'`, `'A1: …'`)
 
+Run one use case's frontend tests with `npx vitest -t "UC-XXX"` — the `describe` title is the
+machine-greppable anchor, which is why the naming convention is the traceability mechanism here
+(a TypeScript decorator cannot attach to Vitest's function-call tests).
+
 ## One-Time Test Environment Setup (Frontend)
 
 Skip this section if the project already runs Vitest (check `package.json` and an existing
