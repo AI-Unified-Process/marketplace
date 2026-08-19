@@ -18,7 +18,8 @@
 # dispatched branch directly.
 #
 # Expected from the stub (declared as variables of the custom pipeline):
-#   PLUGIN, SKILL, SUBJECT, CORRELATION_ID, MODEL, MAX_TURNS, TIMEOUT_MINUTES
+#   PLUGIN, SKILL, SUBJECT, ARTIFACT_LOCATIONS, CORRELATION_ID, MODEL, MAX_TURNS,
+#   TIMEOUT_MINUTES
 # Expected from the repository (secured repository variables, one of the two):
 #   ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN
 set -euo pipefail
@@ -113,11 +114,13 @@ claude plugin install aiup-angular-jpa@ai-unified-process-marketplace
 claude plugin install aiup-blazor-dotnet@ai-unified-process-marketplace
 claude plugin install aiup-nestjs-nextjs@ai-unified-process-marketplace
 
-# The diff of the specification follows the slash command; an empty hint leaves the
-# prompt as the bare command. Everything after the command name reaches the skill as
-# its arguments, and the skills expect the diff there. Plugin and skill were checked
-# against the catalogue above; nothing else ever stands before the colon or the space.
+# The artifact locations (UC-033 BR-008) and the diff of the specification follow the
+# slash command; empty values leave the prompt as the bare command. Everything after
+# the command name reaches the skill as its arguments, and the skills expect the hints
+# there. Plugin and skill were checked against the catalogue above; nothing else ever
+# stands before the colon or the space.
 prompt="/$PLUGIN:$SKILL ${SUBJECT:-}
+${ARTIFACT_LOCATIONS:-}
 $hint"
 
 # Bypassing rather than accepting the edits because the code and test skills verify

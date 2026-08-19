@@ -26,6 +26,14 @@ on:
         description: Artifact or use case id the skill applies to
         required: false
         type: string
+      artifact_locations:
+        # Empty while the repository keeps the AI Unified Process default paths; the
+        # Studio fills it with a prompt-ready hint naming the configured locations
+        # otherwise (UC-033 BR-008).
+        description: Where the artifacts lie when the repository deviates from the defaults
+        required: false
+        default: ""
+        type: string
       correlation_id:
         description: Id of the run from the Studio
         required: true
@@ -197,13 +205,14 @@ jobs:
             aiup-angular-jpa@ai-unified-process-marketplace
             aiup-blazor-dotnet@ai-unified-process-marketplace
             aiup-nestjs-nextjs@ai-unified-process-marketplace
-          # The diff of the specification follows the slash command; an empty hint
-          # leaves the prompt as the bare command. Everything after the command name
-          # reaches the skill as its arguments, and the skills expect the diff there.
-          # Plugin and skill were checked against the catalogue above; nothing else
-          # ever stands before the colon or the space.
+          # The artifact locations and the diff of the specification follow the slash
+          # command; empty values leave the prompt as the bare command. Everything
+          # after the command name reaches the skill as its arguments, and the skills
+          # expect the hints there. Plugin and skill were checked against the catalogue
+          # above; nothing else ever stands before the colon or the space.
           prompt: |
             /${{ inputs.plugin }}:${{ inputs.skill }} ${{ inputs.subject }}
+            ${{ inputs.artifact_locations }}
             ${{ steps.spec_change.outputs.hint }}
           # The permission mode has to be set here: the action only grants it in its tag
           # mode (@claude in a comment), and a workflow_dispatch run is its agent mode,
