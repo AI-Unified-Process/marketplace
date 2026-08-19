@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether an agent creating tests for a Hilla use case follows the hilla-test skill conventions: a Vitest + React Testing Library suite that mocks the generated endpoint client (frontend) and a Spring Boot integration test that calls the @BrowserCallable bean directly with @UseCase traceability (backend).",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Frontend file naming",
+      "description": "The frontend suite is a file named UC-060-<slug>.test.tsx (e.g. UC-060-manage-tasks.test.tsx) with a top-level describe block titled 'UC-060: Manage Tasks'",
+      "max_score": 10
+    },
+    {
+      "name": "Endpoint client mocked",
+      "description": "The frontend tests mock the generated TaskService client from Frontend/generated/endpoints using vi.spyOn (or vi.mock of that module) — they do NOT mock fetch/XHR and do NOT start a server",
+      "max_score": 14
+    },
+    {
+      "name": "RTL semantic queries and userEvent",
+      "description": "Frontend interactions use @testing-library/react render/screen queries plus awaited userEvent calls — not direct DOM manipulation or fireEvent-only flows",
+      "max_score": 10
+    },
+    {
+      "name": "Frontend A1 error flow",
+      "description": "A frontend test rejects the mocked save call (ideally with EndpointError) and asserts the duplicate-title error is rendered to the user",
+      "max_score": 10
+    },
+    {
+      "name": "Mocked DTO shape",
+      "description": "Mocked task objects use the field names of TaskDto (id, title, dueDate, done) rather than invented fields",
+      "max_score": 8
+    },
+    {
+      "name": "Backend class naming",
+      "description": "The backend test class is named UC060ManageTasksServiceTest (pattern UC<id><PascalCaseUseCaseName>ServiceTest) in src/test/java/com/example/tasks/",
+      "max_score": 10
+    },
+    {
+      "name": "@UseCase on backend tests",
+      "description": "Every backend test method is annotated with @UseCase(id = \"UC-060\"), and the A1 test uses scenario = \"A1: Duplicate Title\" (matching the spec heading)",
+      "max_score": 12
+    },
+    {
+      "name": "Service called as a bean",
+      "description": "The backend test is a @SpringBootTest that @Autowires TaskService and calls its methods directly — no MockMvc, RestTemplate, WebTestClient, or HTTP calls",
+      "max_score": 10
+    },
+    {
+      "name": "Backend A1 asserts EndpointException",
+      "description": "The backend A1 test asserts that saving a duplicate title throws EndpointException (or a subclass) with a meaningful message",
+      "max_score": 8
+    },
+    {
+      "name": "No Mockito",
+      "description": "The backend test does NOT import or use Mockito (no org.mockito.*, @Mock, @MockBean for the service under test)",
+      "max_score": 4
+    },
+    {
+      "name": "No @Transactional and scoped cleanup",
+      "description": "The backend test does NOT use @Transactional; cleanup removes only rows created during the test rather than truncating tables",
+      "max_score": 4
+    }
+  ]
+}

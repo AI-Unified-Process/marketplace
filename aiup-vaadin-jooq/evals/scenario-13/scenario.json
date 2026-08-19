@@ -1,0 +1,1 @@
+{ "description": "Create Hilla frontend and backend tests for the manage tasks use case", "include": ["./inputs"] }

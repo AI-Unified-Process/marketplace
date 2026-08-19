@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-vaadin-jooq",
-  "version": "2.12.2",
+  "version": "2.13.0",
   "description": "AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests",
   "author": {
     "name": "Simon Martinelli",

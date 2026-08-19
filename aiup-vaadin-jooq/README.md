@@ -15,6 +15,7 @@ use it alongside `aiup-core` and select one stack plugin.
 | Construction | [`/implement`](skills/implement/SKILL.md)               | Vaadin Flow views and jOOQ data access                             |
 | Construction | [`/implement-hilla`](skills/implement-hilla/SKILL.md)   | Hilla React views, browser-callable services, and jOOQ data access |
 | Construction | [`/browserless-test`](skills/browserless-test/SKILL.md) | Vaadin Browserless server-side tests; recommended for new work     |
+| Construction | [`/hilla-test`](skills/hilla-test/SKILL.md)             | Vitest view tests and Spring Boot service tests for Hilla views    |
 | Construction | [`/karibu-test`](skills/karibu-test/SKILL.md)           | Karibu server-side tests for existing Karibu projects              |
 | Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Playwright tests using Drama Finder for `UC-*` or `TC-*` artifacts |
 
@@ -25,8 +26,9 @@ Construction
                                   ↘  /playwright-test  (UC-* or TC-*)
 ```
 
-Use `/implement-hilla` instead of `/implement` for Hilla. Since Vaadin 25.1, Browserless Testing is the recommended
-server-side option; `/karibu-test` remains available for codebases that already use Karibu.
+Use `/implement-hilla` instead of `/implement` for Hilla, followed by `/hilla-test` for its Vitest frontend tests and
+Spring Boot backend tests. Since Vaadin 25.1, Browserless Testing is the recommended server-side option for Flow views;
+`/karibu-test` remains available for codebases that already use Karibu.
 
 The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 

@@ -37,6 +37,7 @@ marketplace/
 │       ├── flyway-migration/
 │       ├── implement/
 │       ├── implement-hilla/
+│       ├── hilla-test/
 │       ├── browserless-test/
 │       ├── karibu-test/
 │       └── playwright-test/
@@ -154,6 +155,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/flyway-migration`   | Create Flyway migrations                                              |
 | Construction | `/implement`          | Implement use cases using Vaadin Flow and jOOQ                        |
 | Construction | `/implement-hilla`    | Implement use cases using Hilla (React) and jOOQ                      |
+| Construction | `/hilla-test`         | Create Vitest view tests and Spring Boot service tests for Hilla     |
 | Construction | `/browserless-test`   | Create Vaadin Browserless unit tests (recommended)                    |
 | Construction | `/karibu-test`        | Create Karibu unit tests (legacy — superseded since 25.1)             |
 | Construction | `/playwright-test`    | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
