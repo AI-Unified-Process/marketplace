@@ -202,6 +202,8 @@ See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional 
    - Clean up test-created data in `@AfterEach`
 9. Run tests with `./mvnw verify -Pit` to verify
 10. On failure: check view loaded, verify test data in Flyway migrations, use `isGreaterThan()` for grid counts, add `waitForGridToStopLoading()` for async grids
+11. Hand the use case to the `uc-coverage` sub-agent and close every gap it reports — see
+   [Coverage Check](#coverage-check) below
 
 ## Troubleshooting
 
@@ -211,3 +213,22 @@ See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional 
 - **Step fails after navigation**: Assert something on the target view first (e.g. the grid or a heading) so the step waits for the view to render
 - **Flaky tests**: Replace any boolean checks with auto-retry assertions
 - **Visual debugging**: `./mvnw verify -Pit -Dheadless=false -Dit.test=YourTestIT`
+
+## Coverage Check
+
+Before you report the use case as tested, hand it to the read-only `uc-coverage` sub-agent of this
+plugin (it may appear as `aiup-vaadin-jooq:uc-coverage`). It re-reads the specification and reports
+which main success scenario steps, alternative flows, business rules, preconditions, and
+postconditions no test exercises — and which tests exercise behaviour the specification no longer
+describes.
+
+- Delegate the use case id together with the mode, for example `UC-001 tests`. For a journey, pass
+  the test case id instead — `TC-001 tests` — and it audits the Flow rows, Validation items, and
+  Postconditions of the test case document. Add "work in progress" when the test class is not
+  finished yet, so it reports remaining work instead of defects.
+- The agent never edits files, and it cannot run the suite. Writing the missing tests, running
+  them, and calling it again afterwards is your job.
+- It also suggests the specification's next `**Status:**` value. Pass that suggestion on to the
+  user; leave the document itself alone.
+- If the host does not support sub-agents, work through the checklist in the agent definition
+  ([`agents/uc-coverage.md`](../../agents/uc-coverage.md)) yourself.

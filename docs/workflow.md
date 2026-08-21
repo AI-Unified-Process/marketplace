@@ -49,6 +49,32 @@ AI Unified Process uses stable identifiers to preserve the path from intent to t
 Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
 and rerun or reconcile the downstream artifacts that depend on it.
 
+## Coverage check
+
+Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` ships the read-only
+[`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent for that check: it turns a use case specification
+into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition, and
+postcondition — and maps each one onto the code and the tests that realize it.
+
+It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
+specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
+
+That plugin's implementation and testing skills call it as their last step, so the check runs after implementation
+and again after tests. Calling it directly is worthwhile too — mid-way through a large use case, before a review, or
+after a specification change whose reconciliation of code and tests needs verifying:
+
+```text
+uc-coverage UC-001 implementation
+uc-coverage UC-001 tests
+uc-coverage TC-001
+```
+
+A use case whose coverage matrix is complete in both columns is the point at which `**Status:** Tested` is justified.
+
+The agent's marker table is specific to the Vaadin/jOOQ conventions. The other stack plugins do not ship an equivalent
+yet; the same check can be run by hand from
+[the agent definition](../aiup-vaadin-jooq/agents/uc-coverage.md) with the markers of the stack in question.
+
 ## Core skills
 
 | Skill                                                                | Result                                                          |

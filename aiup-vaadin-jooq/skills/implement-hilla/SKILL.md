@@ -67,6 +67,8 @@ implementation exists, **reconcile it with the specification instead of building
 7. Implement the React view as a `.tsx` file under `src/main/frontend/views/`, calling the
    generated TypeScript client of the service
 8. Verify the full implementation compiles successfully (Java and frontend)
+9. Hand the use case to the `uc-coverage` sub-agent and close every gap it reports — see
+   [Coverage Check](#coverage-check) below
 
 ## Hilla specifics
 
@@ -133,3 +135,20 @@ POJO), the generated `into` mapper is fine.
 - If configured, use the jOOQ MCP server for query DSL reference (`https://jooq-mcp.martinelli.ch/mcp`)
 - If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
 - See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers
+
+## Coverage Check
+
+Before you report the use case as implemented, hand it to the read-only `uc-coverage` sub-agent
+of this plugin (it may appear as `aiup-vaadin-jooq:uc-coverage`). It re-reads the specification and
+reports which main success scenario steps, alternative flows, business rules, preconditions, and
+postconditions have no code behind them — and which code has no specification behind it.
+
+- Delegate the use case id together with the mode, for example `UC-001 implementation`. Add "work
+  in progress" to check a large use case mid-way — after the data access layer, before the UI — so
+  it reports remaining work instead of defects.
+- The agent never edits files. Closing the gaps it reports, and running it again afterwards, is
+  your job.
+- It also suggests the specification's next `**Status:**` value. Pass that suggestion on to the
+  user; leave the document itself alone.
+- If the host does not support sub-agents, work through the checklist in the agent definition
+  ([`agents/uc-coverage.md`](../../agents/uc-coverage.md)) yourself.

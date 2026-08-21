@@ -38,6 +38,32 @@ Spring Boot backend tests. Since Vaadin 25.1, Browserless Testing is the recomme
 
 The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
 
+## Sub-agent
+
+| Agent                                  | Purpose                                                                   |
+|----------------------------------------|---------------------------------------------------------------------------|
+| [`uc-coverage`](agents/uc-coverage.md) | Audits whether a `UC-XXX` or `TC-XXX` is completely implemented and tested |
+
+`uc-coverage` is the review step of the construction phase. It maps every main success scenario step, alternative
+flow, business rule, precondition, and postcondition of a specification onto the code and tests that realize it, and
+reports three things: the gaps, the drift (code or tests the specification no longer describes), and the
+specification's justified next `**Status:**` value.
+
+The agent is **read-only** — it never edits code, tests, or the specification. The implementation and testing skills
+above call it as their last step, and it can also be called directly, including mid-way through a large use case with
+"work in progress" so it lists remaining work instead of defects:
+
+```text
+uc-coverage UC-001 implementation
+uc-coverage UC-001 tests
+uc-coverage TC-001            # a test case journey audits its Flow rows and Validation items
+```
+
+In Claude Code it is available as a sub-agent once the plugin is installed. Hosts without sub-agent support can use
+[`agents/uc-coverage.md`](agents/uc-coverage.md) as an instruction document — its checklist does not depend on
+Claude Code. The traceability markers it searches for (`@UseCase`, `UC<id>…Test`, `describe('UC-XXX: …')`, `@UC-XXX`)
+are the ones the skills above produce.
+
 ## Installation
 
 ### Tessl

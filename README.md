@@ -60,6 +60,10 @@ stack.
 | [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                   |
 | [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                   |
 
+`aiup-vaadin-jooq` additionally ships the read-only [`uc-coverage`](aiup-vaadin-jooq/agents/uc-coverage.md)
+sub-agent. Its implementation and testing skills hand each use case to it as their last step, and it reports which
+parts of the specification have no code or no test behind them, and which code has no specification behind it.
+
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,
 so the specifications can feed a custom implementation workflow.
 
@@ -149,6 +153,7 @@ Every plugin directory contains:
 - a Claude Code manifest and MCP configuration;
 - an Agent Plugins v1.0.0 `plugin.json` and `mcp.json`;
 - portable Agent Skills under `skills/`;
+- sub-agent definitions under `agents/`, where the plugin ships one;
 - a Tessl package manifest;
 - evaluation scenarios used during publication.
 
