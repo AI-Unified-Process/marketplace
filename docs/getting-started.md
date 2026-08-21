@@ -1,6 +1,12 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Getting started
 
-AI Unified Process (AIUP) turns a product vision into reviewed specifications, implementation, and traceable tests.
+AI Unified Process turns a product vision into reviewed specifications, implementation, and traceable tests.
 Use `aiup-core` for the stack-independent analysis workflow and add exactly one stack plugin for implementation.
 
 ## 1. Choose your plugins
@@ -19,7 +25,7 @@ Install only `aiup-core` when you want to use the analysis workflow with an unsu
 
 ## 2. Prepare the product vision
 
-Create `docs/vision.md` in the project where AIUP will run. Describe the problem, target users, goals, scope, and
+Create `docs/vision.md` in the project where AI Unified Process will run. Describe the problem, target users, goals, scope, and
 constraints. Start from the [vision template](templates/vision.md) if the project does not have one yet.
 
 The quality of the requirements catalog depends on the quality of this input. Prefer concrete goals and explicit
@@ -101,7 +107,7 @@ The complete artifact lifecycle is described in [Workflow and artifacts](workflo
 
 ## Existing projects
 
-When a project already contains working code but lacks AIUP documents, start with:
+When a project already contains working code but lacks AI Unified Process documents, start with:
 
 ```text
 /reverse-engineer

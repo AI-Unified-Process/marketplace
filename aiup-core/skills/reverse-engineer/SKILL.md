@@ -14,6 +14,12 @@ description: >
   document — even if they don't say "reverse engineer" explicitly.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Reverse Engineer Project to AI Unified Process Artifacts
 
 ## Goal

@@ -23,7 +23,7 @@
       "max_score": 20
     },
     {
-      "name": "AIUP types used",
+      "name": "AI Unified Process types used",
       "description": "docs/entity_model.md uses AI Unified Process Data Types (Long, String, Decimal, etc.) mapped from EF Core entity properties",
       "max_score": 10
     },

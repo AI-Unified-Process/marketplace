@@ -1,6 +1,12 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Install with Tessl
 
-[Tessl](https://tessl.io) installs versioned AIUP plugins for supported coding agents and records them in the
+[Tessl](https://tessl.io) installs versioned AI Unified Process plugins for supported coding agents and records them in the
 project's `tessl.json` manifest.
 
 ## Initialize the project
@@ -46,7 +52,7 @@ between hosts; when a command is not exposed, invoke the skill by intent, for ex
 ## Verify the installation
 
 Open the configured agent in the target project and request the requirements catalog. The agent should discover the
-AIUP requirements skill and read `docs/vision.md`. If it does not, inspect `tessl.json`, confirm that the configured
+AI Unified Process requirements skill and read `docs/vision.md`. If it does not, inspect `tessl.json`, confirm that the configured
 agent matches the one being run, and rerun the Tessl installation.
 
 Continue with [Getting started](../getting-started.md). For manual layouts and host-specific MCP examples, see

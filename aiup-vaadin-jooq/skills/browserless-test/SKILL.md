@@ -10,6 +10,12 @@ description: >
   Testing, or server-side Vaadin testing.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Browserless Test
 
 ## Instructions
@@ -48,8 +54,8 @@ case from the use case specification (`docs/use-cases/UC-XXX-*.md`).
 
 Test classes must be named after the use case using the pattern
 `UC<id><PascalCaseUseCaseName>Test` — for example `UC001RegisterPersonTest` for use case UC-001
-"Register Person". This makes the link between spec and test obvious and is the convention the AIUP
-IntelliJ Navigator plugin relies on.
+"Register Person". This makes the link between spec and test obvious and is the convention the
+AI Unified Process IntelliJ Navigator plugin relies on.
 
 ### `@UseCase` annotation
 

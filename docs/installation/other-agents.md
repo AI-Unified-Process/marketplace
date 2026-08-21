@@ -1,6 +1,12 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Agent Plugins and manual installation
 
-AIUP is a methodology implemented as portable Agent Skills. Every plugin directory is also an
+AI Unified Process is a methodology implemented as portable Agent Skills. Every plugin directory is also an
 [Agent Plugins](https://agent-plugins.org) package with a root `plugin.json`, `mcp.json`, and `skills/` directory.
 Clients that implement the standard can load a plugin directly from a checkout of this repository.
 
@@ -9,13 +15,13 @@ packages directly or configuring skills and MCP servers by hand.
 
 ## What is portable
 
-| Component           | Portability   | Notes                                                                     |
-|---------------------|---------------|---------------------------------------------------------------------------|
-| `skills/*/SKILL.md` | Portable      | Conforms to the Agent Skills layout and can be invoked by intent          |
-| `plugin.json`       | Portable      | Agent Plugins v1.0.0 package manifest                                     |
-| `mcp.json`          | Portable      | Agent Plugins MCP definitions; host configuration shapes may differ       |
-| AIUP artifacts      | Portable      | Markdown, Mermaid, and PlantUML files are the contract between steps      |
-| Slash commands      | Host-specific | If `/command` routing is unavailable, state the same intent in the prompt |
+| Component                    | Portability   | Notes                                                                     |
+|------------------------------|---------------|---------------------------------------------------------------------------|
+| `skills/*/SKILL.md`          | Portable      | Conforms to the Agent Skills layout and can be invoked by intent          |
+| `plugin.json`                | Portable      | Agent Plugins v1.0.0 package manifest                                     |
+| `mcp.json`                   | Portable      | Agent Plugins MCP definitions; host configuration shapes may differ       |
+| AI Unified Process artifacts | Portable      | Markdown, Mermaid, and PlantUML files are the contract between steps      |
+| Slash commands               | Host-specific | If `/command` routing is unavailable, state the same intent in the prompt |
 
 ## Load an Agent Plugins package
 

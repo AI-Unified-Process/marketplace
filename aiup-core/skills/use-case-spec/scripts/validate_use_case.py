@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+# Part of the AI Unified Process — https://unifiedprocess.ai
+# Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 """Validate AI Unified Process use case specification documents.
 
 Checks UC-*.md files against the normative format described in

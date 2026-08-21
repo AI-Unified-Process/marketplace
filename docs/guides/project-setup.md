@@ -1,6 +1,12 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Project setup
 
-AIUP keeps product and analysis artifacts in a `docs/` directory committed alongside the implementation. The source
+AI Unified Process keeps product and analysis artifacts in a `docs/` directory committed alongside the implementation. The source
 layout depends on the selected stack plugin, but the documentation contract stays the same.
 
 ## Documentation tree
@@ -21,7 +27,7 @@ your-project/
 └── agent instruction file
 ```
 
-`docs/vision.md` is maintained by the team. The other files are initially produced by AIUP skills and then reviewed
+`docs/vision.md` is maintained by the team. The other files are initially produced by AI Unified Process skills and then reviewed
 like any other project artifact. Commit them so identifiers, decisions, and generated code can be traced together.
 
 Stack-specific source and test trees are documented in the plugin READMEs:
@@ -42,7 +48,7 @@ derive and challenge the design from user goals and constraints.
 ## Agent instructions
 
 Most coding agents support a repository instruction file. Use the format appropriate to the host and tell the agent to
-read the AIUP artifacts before making product or architecture decisions.
+read the AI Unified Process artifacts before making product or architecture decisions.
 
 For Claude Code, copy the [CLAUDE.md template](../templates/CLAUDE.md) to the project root. For another host, adapt the
 same rules to its instruction-file convention. Keep the shared instructions stack-neutral; put stack-specific build,

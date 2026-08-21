@@ -17,6 +17,9 @@ jobs:
       - name: Check public documentation links
         run: bash scripts/validate-doc-links.sh
 
+      - name: Check copyright headers, LICENSE and NOTICE
+        run: bash scripts/check-copyright-headers.sh
+
       - name: Check standalone plugin README link rewriting
         run: |
           set -euo pipefail

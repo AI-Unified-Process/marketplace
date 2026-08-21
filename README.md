@@ -1,6 +1,12 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # AI Unified Process Marketplace
 
-AI Unified Process (AIUP) is a requirements-first workflow for taking software from a product vision to reviewed
+AI Unified Process is a requirements-first workflow for taking software from a product vision to reviewed
 specifications, implementation, and traceable tests. This repository distributes the workflow as portable Agent
 Plugins and Agent Skills for Claude Code, OpenAI Codex, Cursor, GitHub Copilot, Gemini CLI, OpenCode, and other
 compatible coding agents.
@@ -8,10 +14,10 @@ compatible coding agents.
 [Get started](docs/getting-started.md) · [Understand the workflow](docs/workflow.md) ·
 [Choose a plugin](#choose-your-plugins) · [Installation guides](#installation)
 
-## Why AIUP?
+## Why AI Unified Process?
 
-AI-assisted development often jumps from a vague prompt directly to code. AIUP inserts durable, human-reviewable
-artifacts between intent and implementation:
+AI-assisted development often jumps from a vague prompt directly to code. AI Unified Process inserts durable,
+human-reviewable artifacts between intent and implementation:
 
 - requirements with stable identifiers;
 - an explicit domain entity model;
@@ -43,7 +49,7 @@ later result remains traceable to the corresponding requirement or use case.
 
 ## Choose your plugins
 
-Install `aiup-core` in every project. Add exactly one stack plugin when AIUP supports the project's implementation
+Install `aiup-core` in every project. Add exactly one stack plugin when AI Unified Process supports the project's implementation
 stack.
 
 | Plugin                                      | Stack and responsibility                      | Construction skills                                                                                        |
@@ -59,7 +65,7 @@ so the specifications can feed a custom implementation workflow.
 
 ## Quick start
 
-Before installing AIUP, create `docs/vision.md` in the target project. It should describe the mission, target users,
+Before installing AI Unified Process, create `docs/vision.md` in the target project. It should describe the mission, target users,
 goals, scope, and constraints. A copy-ready [vision template](docs/templates/vision.md) is available.
 
 ### Claude Code
@@ -146,18 +152,19 @@ Every plugin directory contains:
 - a Tessl package manifest;
 - evaluation scenarios used during publication.
 
-CI keeps the three plugin manifest formats and their MCP definitions in sync.
+CI keeps the three plugin manifest formats and their MCP definitions in sync, and verifies that every
+skill and document carries its copyright header and that each plugin ships `LICENSE` and `NOTICE`.
 
 ## Documentation
 
-| Guide                                                        | Contents                                                                          |
-|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AIUP, and create the first artifacts    |
-| [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects            |
-| [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                         |
-| [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                               |
-| [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                             |
-| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis followed by Vaadin/jOOQ construction |
+| Guide                                                        | Contents                                                                                     |
+|--------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AI Unified Process, and create the first artifacts |
+| [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects                       |
+| [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |
+| [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |
+| [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                                        |
+| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis followed by Vaadin/jOOQ construction            |
 
 Detailed skill behavior is documented in each plugin's `skills/*/SKILL.md`. Those files are the authoritative source
 for inputs, outputs, safety constraints, and execution steps; READMEs provide navigation and concise summaries.
@@ -182,3 +189,11 @@ Visit [unifiedprocess.ai](https://unifiedprocess.ai) for the broader methodology
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+## Copyright and trademark
+
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors. The skills and documentation
+are licensed under Apache 2.0. "AI Unified Process" identifies the original methodology by Simon Martinelli
+([unifiedprocess.ai](https://unifiedprocess.ai)). You may fork and modify this work under the license terms,
+but derived works must keep the [NOTICE](NOTICE) file and may not present themselves as the official
+AI Unified Process. If you build on it, please say so and link to this repository.

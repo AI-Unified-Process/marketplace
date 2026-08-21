@@ -10,6 +10,12 @@ description: >
   Playwright or E2E tests.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Playwright Tests
 
 Create Playwright end-to-end tests for the Angular view specified in

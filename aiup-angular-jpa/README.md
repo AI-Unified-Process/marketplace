@@ -1,10 +1,16 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # aiup-angular-jpa
 
-`aiup-angular-jpa` is the AIUP construction plugin for an [Angular](https://angular.dev) frontend and a
+`aiup-angular-jpa` is the AI Unified Process construction plugin for an [Angular](https://angular.dev) frontend and a
 [Spring Boot](https://spring.io/projects/spring-boot) backend using JPA/Hibernate. It turns the artifacts produced by
 [`aiup-core`](../aiup-core/) into database migrations, a REST API, an Angular UI, and tests across both applications.
 
-This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AI Unified Process workflow,
 use it alongside `aiup-core` and select one stack plugin.
 
 ## Architecture support
@@ -133,4 +139,8 @@ General npm package documentation is available through `aiup-core`'s `context7` 
 
 ## License
 
-Apache-2.0 · © [Marc Affolter](https://unifiedprocess.ai)
+Apache-2.0 · © 2025-2026 [Marc Affolter](https://unifiedprocess.ai) and the AI Unified Process contributors
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE). "AI Unified Process" identifies the original
+methodology; derived works must retain the NOTICE file and must not present themselves as the
+official AI Unified Process.
