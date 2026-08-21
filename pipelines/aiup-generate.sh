@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+# Part of the AI Unified Process — https://unifiedprocess.ai
+# Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # AI Unified Process Studio - AI-assisted generation, the shared implementation for Bitbucket Pipelines.
 #
 # This is the Bitbucket counterpart of the reusable workflow in
@@ -207,18 +211,19 @@ advance_status
 # The branch keeps its shape `aiup/<skill>-<correlation id>`: the Studio rebuilds
 # that name to find the result of a run again and opens the pull request for it. The
 # subject must not enter the name. The commit message names the artifact the run was
-# set on - without it the commit reads as "AIUP: implement" next to every other one.
+# set on - without it the commit reads as "AI Unified Process: implement" next to
+# every other one.
 if [ -z "$(git status --porcelain)" ]; then
   echo "The skill produced no changes; no branch was pushed."
   exit 0
 fi
-git config user.name "AIUP Studio"
+git config user.name "AI Unified Process Studio"
 git config user.email "studio@unifiedprocess.ai"
 branch="aiup/$SKILL-$CORRELATION_ID"
 if [ -n "${SUBJECT:-}" ]; then
-  message="AIUP: $SKILL $SUBJECT"
+  message="AI Unified Process: $SKILL $SUBJECT"
 else
-  message="AIUP: $SKILL"
+  message="AI Unified Process: $SKILL"
 fi
 git checkout -b "$branch"
 git add --all

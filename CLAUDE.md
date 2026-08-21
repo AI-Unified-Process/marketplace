@@ -173,6 +173,26 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 Each stack plugin ships its own `/implement` and testing skills. Install exactly one stack plugin with `aiup-core` in
 a project so commands shared by several stack plugins do not collide.
 
+## Copyright and attribution
+
+Apache-2.0 section 4(c) only obliges redistributors to retain notices that exist in the source
+files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
+
+- `NOTICE` lives at the repository root and is copied byte-identically into every `aiup-*/`
+  directory, because `tessl plugin publish ./<plugin>` packages the plugin directory alone —
+  a root-only NOTICE would never reach the published package.
+- Every SKILL.md, skill reference document, plugin README, and `docs/` page carries an HTML-comment
+  copyright header directly after any YAML front matter.
+- `scripts/check-copyright-headers.sh` verifies this (run in CI by `validate-plugins.yml`);
+  `--fix` inserts missing headers and re-syncs the LICENSE/NOTICE copies. **New skills must carry
+  the header or CI fails.**
+- Deliberately *not* stamped: `docs/templates/`, and the artifact templates and worked examples
+  under `skills/*/references/` (`use-case.md`, `test-case.md`, `example.md`). Skills copy those into
+  the user's project, where an AI Unified Process copyright line would be wrong — and content before the title
+  line breaks `validate_use_case.py --strict`. The exclusion list lives in the check script.
+- The copyright line reads "Simon Martinelli and the AI Unified Process contributors" because
+  `aiup-angular-jpa`, `aiup-blazor-dotnet`, and `aiup-nestjs-nextjs` were authored by contributors.
+
 ## Documentation
 
 - Start with `README.md` for the marketplace overview and `docs/getting-started.md` for the user workflow.

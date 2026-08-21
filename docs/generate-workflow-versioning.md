@@ -1,3 +1,9 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Versioning of the AI Unified Process generate workflow
 
 The AI-assisted generation runs on a thin stub per project repository and a shared implementation in this repository —

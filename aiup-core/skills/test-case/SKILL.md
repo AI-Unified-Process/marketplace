@@ -12,6 +12,12 @@ description: >
   skills (e.g. /playwright-test TC-001) automate.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Test Case Document
 
 Create a test case document in `docs/test_cases/` for the use cases named in $ARGUMENTS. A test case describes **one end-to-end user journey** that chains several use cases across views, carrying state from step to step (data created in step 1 is used in step 3). It is the authority that end-to-end test skills automate — `/playwright-test TC-001` reads this document and turns each Flow row into a test step, so precision here directly becomes test code.

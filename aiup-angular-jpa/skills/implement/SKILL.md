@@ -10,6 +10,12 @@ description: >
   calling a Java backend.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Implement Use Case
 
 ## Instructions

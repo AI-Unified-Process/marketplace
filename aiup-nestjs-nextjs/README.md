@@ -1,10 +1,16 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # aiup-nestjs-nextjs
 
-`aiup-nestjs-nextjs` is the AIUP construction plugin for a NestJS API using Drizzle ORM over PostgreSQL and a Next.js
+`aiup-nestjs-nextjs` is the AI Unified Process construction plugin for a NestJS API using Drizzle ORM over PostgreSQL and a Next.js
 App Router frontend. It turns the artifacts produced by [`aiup-core`](../aiup-core/) into schema migrations, a REST
 API, a web UI, and tests across both applications.
 
-This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AI Unified Process workflow,
 use it alongside `aiup-core` and select one stack plugin.
 
 ## Architecture support
@@ -127,4 +133,8 @@ NestJS, Drizzle, Next.js, React, Vitest, Supertest, and Testcontainers documenta
 
 ## License
 
-Apache-2.0 · © [Swift Ugandan](https://unifiedprocess.ai)
+Apache-2.0 · © 2025-2026 [Swift Ugandan](https://unifiedprocess.ai) and the AI Unified Process contributors
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE). "AI Unified Process" identifies the original
+methodology; derived works must retain the NOTICE file and must not present themselves as the
+official AI Unified Process.

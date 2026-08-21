@@ -1,10 +1,16 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # aiup-core
 
 `aiup-core` is the stack-independent foundation of the
 [AI Unified Process](https://unifiedprocess.ai). It turns a product vision into requirements, an entity model, use
 cases, and test journeys that stack-specific plugins can implement.
 
-Use this plugin for every AIUP project. It works with any programming language because its output boundary is a set of
+Use this plugin for every AI Unified Process project. It works with any programming language because its output boundary is a set of
 reviewable files under `docs/`.
 
 ## Skills and workflow
@@ -103,4 +109,8 @@ layouts it supports.
 
 ## License
 
-Apache-2.0 · © [Simon Martinelli](https://unifiedprocess.ai)
+Apache-2.0 · © 2025-2026 [Simon Martinelli](https://unifiedprocess.ai) and the AI Unified Process contributors
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE). "AI Unified Process" identifies the original
+methodology; derived works must retain the NOTICE file and must not present themselves as the
+official AI Unified Process.

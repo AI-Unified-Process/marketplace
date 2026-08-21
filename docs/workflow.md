@@ -1,7 +1,13 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Workflow and artifacts
 
 The AI Unified Process is a requirements-first development workflow adapted from the phases of the
-[Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process). AIUP keeps product intent in
+[Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process). AI Unified Process keeps product intent in
 versioned, human-reviewable artifacts that every later step consumes.
 
 ## Workflow
@@ -33,7 +39,7 @@ an incorrect assumption in generated code.
 
 ## Traceability
 
-AIUP uses stable identifiers to preserve the path from intent to tests:
+AI Unified Process uses stable identifiers to preserve the path from intent to tests:
 
 - Functional requirements use `FR-XXX`; non-functional requirements use `NFR-XXX`; constraints use `C-XXX`.
 - Use cases use `UC-XXX` and reference the functional requirements they realize.
@@ -45,14 +51,14 @@ and rerun or reconcile the downstream artifacts that depend on it.
 
 ## Core skills
 
-| Skill                                                                | Result                                             |
-|----------------------------------------------------------------------|----------------------------------------------------|
-| [`/requirements`](../aiup-core/skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md` |
-| [`/entity-model`](../aiup-core/skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions     |
-| [`/use-case-diagram`](../aiup-core/skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases           |
-| [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)       | One detailed specification per use case            |
-| [`/test-case`](../aiup-core/skills/test-case/SKILL.md)               | Executable user journey across specified use cases |
-| [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md) | AIUP baseline recovered from an existing codebase  |
+| Skill                                                                | Result                                                          |
+|----------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`/requirements`](../aiup-core/skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`              |
+| [`/entity-model`](../aiup-core/skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                  |
+| [`/use-case-diagram`](../aiup-core/skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                        |
+| [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)       | One detailed specification per use case                         |
+| [`/test-case`](../aiup-core/skills/test-case/SKILL.md)               | Executable user journey across specified use cases              |
+| [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md) | AI Unified Process baseline recovered from an existing codebase |
 
 The linked `SKILL.md` files are the authoritative descriptions of inputs, outputs, and behavior.
 
@@ -78,5 +84,5 @@ continuing with construction skills.
 
 ## Project guidance
 
-Agent instruction files should tell the coding agent to read the AIUP artifacts before making product or architecture
+Agent instruction files should tell the coding agent to read the AI Unified Process artifacts before making product or architecture
 decisions. See [Project setup](guides/project-setup.md) for a generic project tree and reusable templates.

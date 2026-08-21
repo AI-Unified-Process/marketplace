@@ -8,6 +8,12 @@ description: >
   Vaadin unit tests, or server-side UI testing.
 ---
 
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Karibu Test
 
 > **Legacy skill — no longer recommended for new code.** Since Vaadin 25.1 the official Vaadin Browserless Testing
@@ -55,7 +61,7 @@ specs and tests.
 ### `@UseCase` annotation
 
 Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AIUP IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
+[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
 gutter icons and Find Usages between the Markdown spec and the Java tests.
 
 **Bootstrap step.** Before writing any tests, check whether the project already contains an

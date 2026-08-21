@@ -1,3 +1,9 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Stack signals — where to find actors, use cases, and entities
 
 This is a lookup, not a script. Use it after you've identified the project's stack from build files. Sections are

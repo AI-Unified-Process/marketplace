@@ -1,10 +1,16 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # aiup-blazor-dotnet
 
-`aiup-blazor-dotnet` is the AIUP construction plugin for C#, Blazor, and Entity Framework Core on .NET 10. It turns
+`aiup-blazor-dotnet` is the AI Unified Process construction plugin for C#, Blazor, and Entity Framework Core on .NET 10. It turns
 the entity model and use case specifications produced by [`aiup-core`](../aiup-core/) into EF Core migrations,
 Vertical Slice features, and tests using bUnit, xUnit, and Playwright.
 
-This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AIUP workflow,
+This plugin is designed to continue from the specifications produced by `aiup-core`. For the complete AI Unified Process workflow,
 use it alongside `aiup-core` and select one stack plugin.
 
 ## Skills and workflow
@@ -110,4 +116,8 @@ See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 
 ## License
 
-Apache-2.0 · © [Carl J. Mosca](https://unifiedprocess.ai)
+Apache-2.0 · © 2025-2026 [Carl J. Mosca](https://unifiedprocess.ai) and the AI Unified Process contributors
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE). "AI Unified Process" identifies the original
+methodology; derived works must retain the NOTICE file and must not present themselves as the
+official AI Unified Process.
