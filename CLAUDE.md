@@ -33,6 +33,8 @@ marketplace/
 │   ├── .mcp.json                 # Vaadin, KaribuTesting, jOOQ, JavaDocs, Playwright
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
+│   ├── agents/                   # Sub-agents (Claude Code)
+│   │   └── uc-coverage.md        # Read-only use case coverage auditor
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
@@ -160,6 +162,29 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/karibu-test`        | Create Karibu unit tests (legacy — superseded since 25.1)             |
 | Construction | `/playwright-test`    | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
 
+#### Coverage sub-agent
+
+`aiup-vaadin-jooq/agents/uc-coverage.md` defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
+whether a `UC-XXX` or `TC-XXX` is completely implemented and completely tested. It derives coverage units from the specification
+(every main success scenario step, alternative flow, business rule, precondition, postcondition — for a test case, the
+Flow rows, Validation items, and Postconditions), maps each onto code and tests by id marker (`@UseCase`,
+`UC<id>…Test`, `UC<id>…ServiceTest`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`) or domain vocabulary, and
+reports gaps, drift, and the justified next `**Status:**` value.
+
+Two constraints hold this design together and must survive edits:
+
+- **It never writes.** Its `tools:` list is `Read, Grep, Glob`, and the DO NOT section forbids editing files —
+  including the specification's `**Status:**` line. A reviewer that fixes its own findings hides them.
+- **No `file:line`, no `Covered`.** The evidence rule is what keeps the audit from rubber-stamping the code the
+  calling agent has just written.
+
+All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
+step that delegates to it — a new construction skill needs both, otherwise the check silently stops running for it.
+The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
+plugin that wants the same check needs its own copy with its own markers. Sub-agents are Claude Code-specific and are
+not part of the Agent Plugins standard; the skills therefore also tell hosts without sub-agents to run the checklist
+from the agent file directly.
+
 ### NestJS / Next.js (stack-specific)
 
 | Phase        | Skill (slash command) | Description                                                         |
@@ -181,8 +206,9 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
 - `NOTICE` lives at the repository root and is copied byte-identically into every `aiup-*/`
   directory, because `tessl plugin publish ./<plugin>` packages the plugin directory alone —
   a root-only NOTICE would never reach the published package.
-- Every SKILL.md, skill reference document, plugin README, and `docs/` page carries an HTML-comment
-  copyright header directly after any YAML front matter.
+- Every SKILL.md, skill reference document, sub-agent definition under `aiup-*/agents/`, plugin
+  README, and `docs/` page carries an HTML-comment copyright header directly after any YAML front
+  matter.
 - `scripts/check-copyright-headers.sh` verifies this (run in CI by `validate-plugins.yml`);
   `--fix` inserts missing headers and re-syncs the LICENSE/NOTICE copies. **New skills must carry
   the header or CI fails.**

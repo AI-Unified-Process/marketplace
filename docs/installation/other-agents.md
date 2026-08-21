@@ -18,6 +18,7 @@ packages directly or configuring skills and MCP servers by hand.
 | Component                    | Portability   | Notes                                                                     |
 |------------------------------|---------------|---------------------------------------------------------------------------|
 | `skills/*/SKILL.md`          | Portable      | Conforms to the Agent Skills layout and can be invoked by intent          |
+| `agents/*.md`                | Host-specific | Claude Code loads them as sub-agents; elsewhere use the file as a checklist |
 | `plugin.json`                | Portable      | Agent Plugins v1.0.0 package manifest                                     |
 | `mcp.json`                   | Portable      | Agent Plugins MCP definitions; host configuration shapes may differ       |
 | AI Unified Process artifacts | Portable      | Markdown, Mermaid, and PlantUML files are the contract between steps      |
@@ -133,6 +134,9 @@ servers and `type: "local"` with a command array for local servers:
   match the request to a skill's description.
 - Pass identifiers in the chat message when the host does not support positional slash-command arguments.
 - HTTP MCP is not supported by every client. A stdio-only client needs an HTTP-to-stdio bridge for remote servers.
+- Sub-agents are not part of the Agent Plugins standard. Where a host cannot delegate to
+  [`uc-coverage`](../../aiup-vaadin-jooq/agents/uc-coverage.md), point the assistant at that file and ask it to run
+  the coverage check itself — the checklist is host-independent.
 - The files under `docs/` remain compatible even when different steps are run by different agents.
 
 Host capabilities and configuration paths evolve independently. Check the host's current documentation if its layout

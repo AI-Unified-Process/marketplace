@@ -263,9 +263,29 @@ Use AssertJ or Karibu Testing assertions:
     - Verify test data exists in the Flyway test migrations
     - Ensure navigation to the correct view before finding components
 9. Mark todos complete
+10. Hand the use case to the `uc-coverage` sub-agent and close every gap it reports — see
+   [Coverage Check](#coverage-check) below
 
 ## Resources
 
 - Karibu Testing documentation: https://github.com/mvysny/karibu-testing/tree/master/karibu-testing-v10
 - AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the KaribuTesting MCP server for additional patterns (`https://karibu-testing-mcp.martinelli.ch/mcp`)
+
+## Coverage Check
+
+Before you report the use case as tested, hand it to the read-only `uc-coverage` sub-agent of this
+plugin (it may appear as `aiup-vaadin-jooq:uc-coverage`). It re-reads the specification and reports
+which main success scenario steps, alternative flows, business rules, preconditions, and
+postconditions no test exercises — and which tests exercise behaviour the specification no longer
+describes.
+
+- Delegate the use case id together with the mode, for example `UC-001 tests`. Add "work in
+  progress" when the test class is not finished yet, so it reports remaining work instead of
+  defects.
+- The agent never edits files, and it cannot run the suite. Writing the missing tests, running
+  them, and calling it again afterwards is your job.
+- It also suggests the specification's next `**Status:**` value. Pass that suggestion on to the
+  user; leave the document itself alone.
+- If the host does not support sub-agents, work through the checklist in the agent definition
+  ([`agents/uc-coverage.md`](../../agents/uc-coverage.md)) yourself.

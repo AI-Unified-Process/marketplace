@@ -102,6 +102,11 @@ For a journey across several use cases, first create a test-case document:
 /playwright-test TC-001
 ```
 
+The `aiup-vaadin-jooq` implementation and testing skills close with a coverage check: they hand the use case to the
+read-only [`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent that ships with that plugin, which
+reports which parts of the specification still have no code or no test behind them. Call it yourself at any time —
+`uc-coverage UC-001` — for example before accepting a use case as done.
+
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).
 

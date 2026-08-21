@@ -40,10 +40,12 @@ docs/templates/vision.md
 '
 
 # Files that must carry the header: skill definitions and their agent-facing reference
-# material, the marketplace and plugin READMEs, and the published documentation.
+# material, sub-agent definitions, the marketplace and plugin READMEs, and the published
+# documentation.
 targets() {
   {
     find aiup-*/skills -type f -name '*.md'
+    find aiup-*/ -type f -name '*.md' -path '*/agents/*'
     find docs -type f -name '*.md'
     ls aiup-*/README.md README.md
   } | grep -vxF "$(echo "$EXCLUDED" | sed '/^$/d')"
