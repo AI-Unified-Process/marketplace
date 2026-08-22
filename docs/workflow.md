@@ -60,16 +60,17 @@ It reports gaps (a unit with no code or no test), drift (code or tests the speci
 specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
 
 That plugin's implementation and testing skills call it as their last step, so the check runs after implementation
-and again after tests. Calling it directly is worthwhile too — mid-way through a large use case, before a review, or
-after a specification change whose reconciliation of code and tests needs verifying:
+and again after tests — each for its own side. The [`/coverage-check`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md)
+skill is the front door for running the audit yourself, and the only one that judges both sides in a single matrix:
 
 ```text
-uc-coverage UC-001 implementation
-uc-coverage UC-001 tests
-uc-coverage TC-001
+/coverage-check UC-001                 # implementation and tests together
+/coverage-check UC-001 tests           # narrow the audit to one side
+/coverage-check TC-001                 # a journey audits its Flow rows and Validation items
 ```
 
 A use case whose coverage matrix is complete in both columns is the point at which `**Status:** Tested` is justified.
+That is what `/coverage-check UC-001` is for; the skill reports the justified status but leaves the line to you.
 
 The agent's marker table is specific to the Vaadin/jOOQ conventions. The other stack plugins do not ship an equivalent
 yet; the same check can be run by hand from

@@ -1,0 +1,86 @@
+{
+  "context": "Tests whether the agent runs the coverage-check skill / uc-coverage audit for UC-020 and reports a complete, evidence-backed coverage matrix without modifying any file. The input is deliberately partial: BR-001 (the 24-hour cancellation window) is specified but nowhere enforced in code; alternative flow A1 (customer aborts the confirmation) is implemented via ConfirmDialog cancellation but has no test; BR-002 is enforced in OrderRepository.findByCustomer but has no test; the BR-001 test is annotated @Disabled and therefore covers nothing; and OrderListView offers a 'Reorder' action that no step, flow, or rule of UC-020 describes. The single most important property is that the run is read-only.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No file was modified",
+      "description": "The response modifies, creates, and deletes no file whatsoever — not the view, not the repository, not the test class, and not the specification's **Status:** line. Producing a report only. This is the defining property of the coverage audit; any file write fails this item outright.",
+      "max_score": 12
+    },
+    {
+      "name": "Did not write the missing code or tests",
+      "description": "The agent does not implement the missing BR-001 check and does not author the missing A1 or BR-002 tests, not even as an illustrative snippet presented as a fix to apply. A short code sketch of a few lines inside the gap description is acceptable; a complete implementation is not.",
+      "max_score": 8
+    },
+    {
+      "name": "Coverage matrix present",
+      "description": "The report contains a table with one row per coverage unit, with separate evidence for implementation and tests (or a single evidence column plus verdict in a single-mode audit), using `—` or an equivalent marker where there is no evidence.",
+      "max_score": 9
+    },
+    {
+      "name": "Matrix covers all seven main scenario steps",
+      "description": "The matrix has a row for each of the seven numbered main success scenario steps of UC-020, not only for the ones that are interesting.",
+      "max_score": 6
+    },
+    {
+      "name": "Matrix covers both alternative flows",
+      "description": "The matrix has a row for A1 (customer aborts the confirmation) and a row for A2 (order already shipped).",
+      "max_score": 6
+    },
+    {
+      "name": "Matrix covers both business rules",
+      "description": "The matrix has a row for BR-001 (cancellation window) and a row for BR-002 (only own orders).",
+      "max_score": 6
+    },
+    {
+      "name": "Matrix covers preconditions and postconditions",
+      "description": "The matrix has rows for the two preconditions, the two success postconditions, and the failure postcondition.",
+      "max_score": 5
+    },
+    {
+      "name": "BR-001 reported as not implemented",
+      "description": "The report identifies that BR-001, the 24-hour cancellation window, is not enforced anywhere in the code — neither OrderListView.onCancel nor OrderRepository.cancel checks the elapsed time since placedAt — and reports it as a gap, not as covered.",
+      "max_score": 10
+    },
+    {
+      "name": "A1 reported as untested",
+      "description": "The report identifies that alternative flow A1 has no test: no test method dismisses or cancels the ConfirmDialog and asserts that the order keeps status PLACED.",
+      "max_score": 8
+    },
+    {
+      "name": "Disabled test recognized as covering nothing",
+      "description": "The report recognizes that cancellation_window_is_enforced is annotated @Disabled and therefore covers BR-001 not at all, rather than counting its @UseCase(businessRules = {\"BR-001\"}) annotation as evidence of coverage.",
+      "max_score": 9
+    },
+    {
+      "name": "BR-002 test gap reported",
+      "description": "The report notes that BR-002 is enforced in code (OrderRepository.findByCustomer filters by customer id) but that no test asserts a customer cannot cancel another customer's order.",
+      "max_score": 6
+    },
+    {
+      "name": "Reorder action reported as drift",
+      "description": "The report identifies the 'Reorder' button in OrderListView as drift — behaviour that no step, alternative flow, or business rule of UC-020 describes.",
+      "max_score": 8
+    },
+    {
+      "name": "Evidence given as file references",
+      "description": "Units marked as covered are backed by a concrete file reference, ideally file:line (for example OrderListView.java and its cancel handling, UC020CancelOrderTest.java and the covering test method), rather than by plausibility or a matching class name.",
+      "max_score": 7
+    },
+    {
+      "name": "Status suggestion is justified and left to the user",
+      "description": "The report suggests the next **Status:** value with a reason tied to the open units — the current claim of `Implemented` is not justified while BR-001 is unenforced — and presents it explicitly as a suggestion for the user rather than applying it.",
+      "max_score": 8
+    },
+    {
+      "name": "Gaps name the closing skill",
+      "description": "Each gap names the command that closes it — /implement UC-020 for the missing BR-001 enforcement, and /browserless-test UC-020 for the missing A1 and BR-002 tests.",
+      "max_score": 5
+    },
+    {
+      "name": "No claim of having run the tests",
+      "description": "The agent does not claim to have run the build or the test suite. Where a verdict would depend on the suite passing, it says so and leaves the run to the caller.",
+      "max_score": 5
+    }
+  ]
+}

@@ -42,7 +42,8 @@ marketplace/
 │       ├── hilla-test/
 │       ├── browserless-test/
 │       ├── karibu-test/
-│       └── playwright-test/
+│       ├── playwright-test/
+│       └── coverage-check/
 ├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
@@ -161,6 +162,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/browserless-test`   | Create Vaadin Browserless unit tests (recommended)                    |
 | Construction | `/karibu-test`        | Create Karibu unit tests (legacy — superseded since 25.1)             |
 | Construction | `/playwright-test`    | Create Playwright tests — use case (UC-*) or test case journey (TC-*) |
+| Construction | `/coverage-check`     | Audit a UC-* or TC-* for implementation and test coverage             |
 
 #### Coverage sub-agent
 
@@ -171,15 +173,22 @@ Flow rows, Validation items, and Postconditions), maps each onto code and tests 
 `UC<id>…Test`, `UC<id>…ServiceTest`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`) or domain vocabulary, and
 reports gaps, drift, and the justified next `**Status:**` value.
 
-Two constraints hold this design together and must survive edits:
+Three constraints hold this design together and must survive edits:
 
 - **It never writes.** Its `tools:` list is `Read, Grep, Glob`, and the DO NOT section forbids editing files —
   including the specification's `**Status:**` line. A reviewer that fixes its own findings hides them.
 - **No `file:line`, no `Covered`.** The evidence rule is what keeps the audit from rubber-stamping the code the
   calling agent has just written.
+- **`/coverage-check` stays thin and read-only.** `skills/coverage-check/SKILL.md` is only a front door to the agent:
+  argument parsing, delegation, faithful presentation, hand-off. It must never gain the ability to close the gaps it
+  reports, and it must not restate the agent's checklist — that is how it would grow into the combined
+  implement-and-test skill this design deliberately avoids.
 
 All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
 step that delegates to it — a new construction skill needs both, otherwise the check silently stops running for it.
+`/coverage-check` is exempt: it *is* the check and must not call itself. It is also the only caller that uses the
+agent's `both` mode, which is what justifies a `**Status:** Tested`.
+
 The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
 plugin that wants the same check needs its own copy with its own markers. Sub-agents are Claude Code-specific and are
 not part of the Agent Plugins standard; the skills therefore also tell hosts without sub-agents to run the checklist

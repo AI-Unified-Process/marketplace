@@ -1,0 +1,1 @@
+{ "description": "Read-only coverage audit of a partly implemented and partly tested use case (UC-020)", "include": ["./inputs"] }

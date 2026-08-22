@@ -35,7 +35,7 @@ The caller passes the artifact id and, usually, a mode:
 |------------------|--------------------------------------|---------------------------------------------------------------|
 | `implementation` | after or during `/implement`         | Does the code realize every part of the specification?        |
 | `tests`          | after or during a test skill         | Does the test suite exercise every part of the specification? |
-| `both` (default) | end of a construction round, reviews | Both of the above, in one matrix                              |
+| `both` (default) | `/coverage-check`, reviews           | Both of the above, in one matrix                              |
 
 The caller may add **"work in progress"** when the code or the test class is not finished yet. In
 that mode you report the same matrix, but you phrase the open units as remaining work in
@@ -43,7 +43,8 @@ specification order rather than as defects, and you skip the drift section — s
 still being built is not drift.
 
 If no id is given, list the specifications under `docs/use_cases/` and ask which one to audit.
-Never audit "everything" unless the caller explicitly asks for a sweep.
+Never audit "everything" unless the caller explicitly asks for a sweep. The `/coverage-check` skill
+of this plugin is the usual entry point and handles that triage before it delegates to you.
 
 ## Step 1 — Read the specification
 

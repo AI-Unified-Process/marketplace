@@ -20,7 +20,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Implement the use case $ARGUMENTS using Vaadin for the UI layer and jOOQ for data access.
-Don't create tests – there are the `karibu-test` and `playwright-test` skills for that.
+Don't create tests – there are the `browserless-test` (recommended), `karibu-test`, and
+`playwright-test` skills for that.
 
 If the Vaadin and jOOQ MCP servers are configured, check them for guidance; otherwise rely on your own knowledge and the documentation links below.
 

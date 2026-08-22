@@ -340,3 +340,5 @@ describes.
   user; leave the document itself alone.
 - If the host does not support sub-agents, work through the checklist in the agent definition
   ([`agents/uc-coverage.md`](../../agents/uc-coverage.md)) yourself.
+- Once the suite passes, `/coverage-check UC-XXX` judges implementation and tests together in one
+  matrix — that is the audit behind a justified `**Status:** Tested`.

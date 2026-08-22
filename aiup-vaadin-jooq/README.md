@@ -24,12 +24,13 @@ use it alongside `aiup-core` and select one stack plugin.
 | Construction | [`/hilla-test`](skills/hilla-test/SKILL.md)             | Vitest view tests and Spring Boot service tests for Hilla views    |
 | Construction | [`/karibu-test`](skills/karibu-test/SKILL.md)           | Karibu server-side tests for existing Karibu projects              |
 | Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Playwright tests using Drama Finder for `UC-*` or `TC-*` artifacts |
+| Construction | [`/coverage-check`](skills/coverage-check/SKILL.md)     | Coverage matrix, gaps, and drift for a `UC-*` or `TC-*`            |
 
 ```text
 Construction
 ─────────────────────────────────────────────────────────────────────
-/flyway-migration  →  /implement  →  /browserless-test
-                                  ↘  /playwright-test  (UC-* or TC-*)
+/flyway-migration  →  /implement  →  /browserless-test  →  /coverage-check
+                                  ↘  /playwright-test  (UC-* or TC-*)  ↗
 ```
 
 Use `/implement-hilla` instead of `/implement` for Hilla, followed by `/hilla-test` for its Vitest frontend tests and
@@ -50,13 +51,14 @@ reports three things: the gaps, the drift (code or tests the specification no lo
 specification's justified next `**Status:**` value.
 
 The agent is **read-only** — it never edits code, tests, or the specification. The implementation and testing skills
-above call it as their last step, and it can also be called directly, including mid-way through a large use case with
-"work in progress" so it lists remaining work instead of defects:
+above call it as their last step, each for its own side. [`/coverage-check`](skills/coverage-check/SKILL.md) is the
+front door for calling it yourself — at the end of a construction round, before a review, or mid-way through a large
+use case with "work in progress" so it lists remaining work instead of defects:
 
 ```text
-uc-coverage UC-001 implementation
-uc-coverage UC-001 tests
-uc-coverage TC-001            # a test case journey audits its Flow rows and Validation items
+/coverage-check UC-001                 # implementation and tests in one matrix
+/coverage-check UC-001 implementation  # narrow the audit to one side
+/coverage-check TC-001                 # a journey audits its Flow rows and Validation items
 ```
 
 In Claude Code it is available as a sub-agent once the plugin is installed. Hosts without sub-agent support can use

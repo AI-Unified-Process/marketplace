@@ -134,9 +134,11 @@ servers and `type: "local"` with a command array for local servers:
   match the request to a skill's description.
 - Pass identifiers in the chat message when the host does not support positional slash-command arguments.
 - HTTP MCP is not supported by every client. A stdio-only client needs an HTTP-to-stdio bridge for remote servers.
-- Sub-agents are not part of the Agent Plugins standard. Where a host cannot delegate to
-  [`uc-coverage`](../../aiup-vaadin-jooq/agents/uc-coverage.md), point the assistant at that file and ask it to run
-  the coverage check itself — the checklist is host-independent.
+- Sub-agents are not part of the Agent Plugins standard. The
+  [`/coverage-check`](../../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill works either way: it delegates to
+  the sub-agent where there is one, and otherwise falls back to following
+  [`uc-coverage`](../../aiup-vaadin-jooq/agents/uc-coverage.md) as an instruction document. Where a host has neither,
+  point the assistant at that file directly — the checklist is host-independent.
 - The files under `docs/` remain compatible even when different steps are run by different agents.
 
 Host capabilities and configuration paths evolve independently. Check the host's current documentation if its layout
