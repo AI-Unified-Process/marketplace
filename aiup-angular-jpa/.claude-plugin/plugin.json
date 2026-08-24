@@ -1,7 +1,7 @@
 {
   "name": "aiup-angular-jpa",
   "description": "AI Unified Process for the Angular/JPA stack - migrations, implementation, tests",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": {
     "name": "Marc Affolter",
     "email": "marc_affolter@outlook.com",
