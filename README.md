@@ -61,10 +61,10 @@ stack.
 | [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                   |
 
 `aiup-vaadin-jooq` additionally ships the read-only [`uc-coverage`](aiup-vaadin-jooq/agents/uc-coverage.md)
-sub-agent. Its implementation and testing skills hand each use case to it as their last step, and it reports which
-parts of the specification have no code or no test behind them, and which code has no specification behind it. The
-[`/coverage-check`](aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill runs that audit on demand and judges
-implementation and tests together.
+sub-agent. It reports which parts of the specification have no code or no test behind them, and which code has no
+specification behind it. The [`/coverage-check`](aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill runs that
+audit on demand and judges implementation and tests together; the implementation and testing skills end by handing
+off to it rather than running it themselves, so a construction round stays fast.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,
 so the specifications can feed a custom implementation workflow.

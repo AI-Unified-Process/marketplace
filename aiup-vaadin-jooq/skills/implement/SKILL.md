@@ -65,7 +65,7 @@ implementation exists, **reconcile it with the specification instead of building
 6. Implement the Vaadin view following existing patterns
 7. Wire up the view with the data access layer
 8. Verify the full implementation compiles successfully
-9. Hand the use case to the `uc-coverage` sub-agent and close every gap it reports — see
+9. Report what you implemented and hand off to `/coverage-check UC-XXX` — see
    [Coverage Check](#coverage-check) below
 
 ## jOOQ result mapping
@@ -117,17 +117,20 @@ POJO), the generated `into` mapper is fine.
 
 ## Coverage Check
 
-Before you report the use case as implemented, hand it to the read-only `uc-coverage` sub-agent
-of this plugin (it may appear as `aiup-vaadin-jooq:uc-coverage`). It re-reads the specification and
-reports which main success scenario steps, alternative flows, business rules, preconditions, and
-postconditions have no code behind them — and which code has no specification behind it.
+Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the use case against
+its specification yourself. The audit is a separate, explicit step that belongs to
+[`/coverage-check`](../coverage-check/SKILL.md): it judges implementation and tests together in
+one matrix, and it is the only audit behind a justified `**Status:**` change.
 
-- Delegate the use case id together with the mode, for example `UC-001 implementation`. Add "work
-  in progress" to check a large use case mid-way — after the data access layer, before the UI — so
-  it reports remaining work instead of defects.
-- The agent never edits files. Closing the gaps it reports, and running it again afterwards, is
-  your job.
-- It also suggests the specification's next `**Status:**` value. Pass that suggestion on to the
-  user; leave the document itself alone.
-- If the host does not support sub-agents, work through the checklist in the agent definition
-  ([`agents/uc-coverage.md`](../../agents/uc-coverage.md)) yourself.
+Finish instead by:
+
+- Summarising what you implemented, listing the files you created or changed.
+- Ending with one hand-off line — `Next: /coverage-check UC-XXX implementation` — or plain
+  `/coverage-check UC-XXX` once tests exist. For a large use case that is still mid-way, suggest
+  `/coverage-check UC-XXX implementation wip` so the audit lists remaining work instead of defects.
+- Leaving the specification's `**Status:**` line alone; the audit suggests the next value.
+
+Running the audit here would triple it — once after implementation, once after tests, once in
+`/coverage-check`. Each run re-reads the specification and the code base and takes minutes; one
+run at the end, in `both` mode, is the one that counts. Whether to run it now, later, or not at
+all is the user's call.

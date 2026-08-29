@@ -32,10 +32,10 @@ mark as covered because it *looks* covered is worse than one you mark unknown.
 The caller passes the artifact id and, usually, a mode:
 
 | Mode             | Typical caller                       | Question you answer                                           |
-|------------------|--------------------------------------|---------------------------------------------------------------|
-| `implementation` | after or during `/implement`         | Does the code realize every part of the specification?        |
-| `tests`          | after or during a test skill         | Does the test suite exercise every part of the specification? |
-| `both` (default) | `/coverage-check`, reviews           | Both of the above, in one matrix                              |
+|------------------|-----------------------------------------|---------------------------------------------------------------|
+| `implementation` | `/coverage-check UC-XXX implementation` | Does the code realize every part of the specification?        |
+| `tests`          | `/coverage-check UC-XXX tests`          | Does the test suite exercise every part of the specification? |
+| `both` (default) | `/coverage-check UC-XXX`, reviews       | Both of the above, in one matrix                              |
 
 The caller may add **"work in progress"** when the code or the test class is not finished yet. In
 that mode you report the same matrix, but you phrase the open units as remaining work in

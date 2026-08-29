@@ -102,11 +102,11 @@ For a journey across several use cases, first create a test-case document:
 /playwright-test TC-001
 ```
 
-The `aiup-vaadin-jooq` implementation and testing skills close with a coverage check: they hand the use case to the
-read-only [`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent that ships with that plugin, which
-reports which parts of the specification still have no code or no test behind them. Run that audit yourself at any
-time with [`/coverage-check UC-001`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) — for example before
-accepting a use case as done, when it judges implementation and tests together in one matrix.
+The `aiup-vaadin-jooq` implementation and testing skills end by handing off to a coverage check they do not run
+themselves: [`/coverage-check UC-001`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) delegates to the read-only
+[`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent that ships with that plugin, which reports which
+parts of the specification still have no code or no test behind them. Run it when you want the audit — typically
+before accepting a use case as done, when it judges implementation and tests together in one matrix.
 
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).

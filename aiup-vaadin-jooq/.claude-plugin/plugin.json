@@ -1,7 +1,7 @@
 {
   "name": "aiup-vaadin-jooq",
   "description": "AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests",
-  "version": "2.15.1",
+  "version": "2.16.0",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",
