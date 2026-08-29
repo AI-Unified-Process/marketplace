@@ -185,14 +185,16 @@ Three constraints hold this design together and must survive edits:
   implement-and-test skill this design deliberately avoids.
 
 All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
-step that delegates to it — a new construction skill needs both, otherwise the check silently stops running for it.
-`/coverage-check` is exempt: it *is* the check and must not call itself. It is also the only caller that uses the
-agent's `both` mode, which is what justifies a `**Status:** Tested`.
+step that **hands off** to `/coverage-check UC-XXX` — they never run the agent themselves. This is deliberate: every
+audit re-reads the specification and the code base and takes minutes, and running it inside `/implement`, again
+inside the test skill, and once more in `/coverage-check` turned a two-minute construction round into thirty. One
+explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested`. A new
+construction skill needs the same hand-off section; do not add an in-skill audit back.
 
 The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
 plugin that wants the same check needs its own copy with its own markers. Sub-agents are Claude Code-specific and are
-not part of the Agent Plugins standard; the skills therefore also tell hosts without sub-agents to run the checklist
-from the agent file directly.
+not part of the Agent Plugins standard; `/coverage-check` therefore also tells hosts without sub-agents to run the
+checklist from the agent file directly.
 
 ### NestJS / Next.js (stack-specific)
 

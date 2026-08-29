@@ -59,9 +59,10 @@ postcondition — and maps each one onto the code and the tests that realize it.
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
 
-That plugin's implementation and testing skills call it as their last step, so the check runs after implementation
-and again after tests — each for its own side. The [`/coverage-check`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md)
-skill is the front door for running the audit yourself, and the only one that judges both sides in a single matrix:
+That plugin's implementation and testing skills do not run the audit themselves — each run re-reads the
+specification and the code base and takes minutes, so the check runs once, explicitly, when you ask for it. The
+[`/coverage-check`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill is that entry point, and the only one
+that judges both sides in a single matrix:
 
 ```text
 /coverage-check UC-001                 # implementation and tests together
