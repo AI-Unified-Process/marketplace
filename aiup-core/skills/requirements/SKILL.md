@@ -71,7 +71,7 @@ Define limitations and boundaries imposed on the solution.
 ## Reference
 
 See [references/REFERENCE.md](references/REFERENCE.md) for ID prefixes, priority levels, status values, NFR categories, and constraint
-categories.
+categories. The path is relative to the folder containing this SKILL.md, not to the project root.
 
 ## Requirement Quality Checks
 

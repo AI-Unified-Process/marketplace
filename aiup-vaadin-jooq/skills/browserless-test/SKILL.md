@@ -24,7 +24,9 @@ Create Vaadin Browserless unit tests for Vaadin views based on the use case $ARG
 
 Browserless Testing is the **official, recommended** server-side testing framework for Vaadin. It has been free and open source under Apache 2.0 since **Vaadin 25.1** (previously the commercial UI Unit Testing add-on). It supersedes the community Karibu Testing library — prefer this skill over `/karibu-test` for any new test code.
 
-If the Vaadin MCP server (`https://mcp.vaadin.com/docs`) is configured, use it for documentation lookups; otherwise rely on your own knowledge and the documentation links below. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
+If the Vaadin MCP server (`https://mcp.vaadin.com/docs`) is configured, use it for documentation lookups; otherwise rely on your own knowledge and the documentation links below. See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+`**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+are all you need) to configure this optional server.
 
 ## If Tests for This Use Case Already Exist
 
@@ -161,7 +163,8 @@ For non-Spring projects, extend `com.vaadin.testbench.unit.BrowserlessTest` inst
 ## Template
 
 Use [references/UC001ManagePersonsTest.java](references/UC001ManagePersonsTest.java) as the test
-class structure. It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
+class structure (the path is relative to the folder containing this SKILL.md, not to the project
+root). It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
 every test method, and how to map alternative flows (`scenario = "A1: …"`) and business rules
 (`businessRules = {"BR-…"}`) onto the spec headings.
 
@@ -385,7 +388,7 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 
 Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the tests against the
 specification yourself. The audit is a separate, explicit step that belongs to
-[`/coverage-check`](../coverage-check/SKILL.md): it judges implementation and tests together in
+`/coverage-check`: it judges implementation and tests together in
 one matrix, and it is the only audit behind a justified `**Status:** Tested`.
 
 Finish instead by:

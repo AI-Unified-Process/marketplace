@@ -19,6 +19,7 @@ packages directly or configuring skills and MCP servers by hand.
 |------------------------------|---------------|---------------------------------------------------------------------------|
 | `skills/*/SKILL.md`          | Portable      | Conforms to the Agent Skills layout and can be invoked by intent          |
 | `agents/*.md`                | Host-specific | Claude Code loads them as sub-agents; elsewhere use the file as a checklist |
+| `rules/*.md`                 | Host-specific | Tessl merges them into the agent's rules file; elsewhere optional reading    |
 | `plugin.json`                | Portable      | Agent Plugins v1.0.0 package manifest                                     |
 | `mcp.json`                   | Portable      | Agent Plugins MCP definitions; host configuration shapes may differ       |
 | AI Unified Process artifacts | Portable      | Markdown, Mermaid, and PlantUML files are the contract between steps      |
@@ -46,6 +47,11 @@ Without an Agent Plugins loader:
 4. Start the agent in the target project and ask it to generate requirements from `docs/vision.md`.
 
 Install whole skill directories, not only their `SKILL.md` files. Some skills also use bundled references and scripts.
+Every skill folder is self-contained: a skill never links outside its own folder. Where it needs a file of another
+skill or of the plugin root (`rules/`, `agents/`), it names the file together with a glob such as
+`**/*use-case-spec/references/use-case.md`, so the agent finds it in whatever layout the host uses — including the
+`tessl__<skill>` folder names Tessl creates. Install every skill of a plugin (or at least the ones a skill names) so
+those globs have something to find.
 
 ## OpenAI Codex
 
@@ -96,6 +102,23 @@ Copilot can discover skills from repository locations including `.github/skills/
 
 Copilot environments that support Claude Code plugin marketplaces can alternatively use the commands from the
 [Claude Code installation guide](claude-code.md).
+
+### Tessl layout and Codespaces
+
+`tessl init --agent copilot-vscode` (or `copilot`) followed by `tessl install` puts every skill at
+`.github/skills/tessl__<skill>` as a relative symlink into `.tessl/plugins/<workspace>/<plugin>/skills/<skill>`.
+Copilot discovers each of those folders as one skill and, when a skill is invoked, tells the model that folder's
+path and the files inside it — which is why the skills never link outside their own folder (see above).
+
+Whether a fresh clone or a Codespace has the skills depends on the `mode` in `tessl.json`:
+
+- `"mode": "vendored"` commits `.tessl/plugins/` and the `tessl__*` links, so a Codespace works out of the box.
+- In managed mode Tessl adds `tessl__*` to `.github/skills/.gitignore` and the plugins are not committed. Run
+  `tessl install` in the Codespace — for example as the `postCreateCommand` of `.devcontainer/devcontainer.json` —
+  before opening Copilot Chat, otherwise no skill is found.
+
+The plugin-level `rules/` and `agents/` directories are not skills: Tessl merges `rules/` into the agent's rules
+file, and the skills that need `agents/uc-coverage.md` locate it with a glob and say so if it is missing.
 
 ## Gemini CLI
 

@@ -134,13 +134,15 @@ POJO), the generated `into` mapper is fine.
   component APIs (`https://mcp.vaadin.com/docs`)
 - If configured, use the jOOQ MCP server for query DSL reference (`https://jooq-mcp.martinelli.ch/mcp`)
 - If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure these optional servers
 
 ## Coverage Check
 
 Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the use case against
 its specification yourself. The audit is a separate, explicit step that belongs to
-[`/coverage-check`](../coverage-check/SKILL.md): it judges implementation and tests together in
+`/coverage-check`: it judges implementation and tests together in
 one matrix, and it is the only audit behind a justified `**Status:**` change.
 
 Finish instead by:

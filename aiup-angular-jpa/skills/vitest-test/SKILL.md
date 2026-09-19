@@ -283,4 +283,6 @@ await fixture.whenStable();
 - `HttpClientTestingModule`/`HttpTestingController`: https://angular.dev/guide/http/testing
 - Vitest documentation: https://vitest.dev/guide/
 - If `aiup-core` is installed, its context7 MCP server covers RxJS/Vitest docs —
-  see [the MCP setup rule](../../rules/mcp-servers.md)
+  see the plugin's `rules/mcp-servers.md` (locate it with a glob for
+`**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+are all you need)

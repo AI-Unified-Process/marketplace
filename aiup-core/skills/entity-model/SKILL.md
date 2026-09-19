@@ -128,7 +128,7 @@ is invalid — pick the one rule that matters most, here `Not Null, Format: Emai
 and never write `Min:` without its matching `Max:` (`Not Null, Min: 0` alone is
 invalid — use `Not Null, Min: 0, Max: <upper bound>` or just `Not Null`).
 
-The same tables are available in [references/REFERENCE.md](references/REFERENCE.md).
+The same tables are available in [references/REFERENCE.md](references/REFERENCE.md). The path is relative to the folder containing this SKILL.md, not to the project root.
 
 ## Multi-Column Constraints
 

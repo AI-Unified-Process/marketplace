@@ -116,6 +116,23 @@ Each plugin contains:
 - `skills/` - Skills with SKILL.md definitions; each skill is also a slash command. The layout conforms to the
   [Agent Skills](https://agentskills.io) spec, so the same folders work in both plugin formats
 
+## Skill file references
+
+Hosts other than the Claude Code marketplace install skills **one folder at a time**: Tessl symlinks each skill to
+`.github/skills/tessl__<skill>` (Copilot), `.claude/skills/tessl__<skill>`, `.codex/skills/tessl__<skill>`, and so on;
+manual installs copy single skill folders. The agent then sees only that folder (VS Code's skill tool reports its
+`Base directory` plus a listing of the files inside it), so a link such as `../implement/references/project-layout.md`
+or `../../rules/mcp-servers.md` resolves to nothing. Rules, enforced by `scripts/check-skill-links.sh` in CI:
+
+- Paths in a SKILL.md are relative to the folder containing that SKILL.md, never to the project root, and Markdown
+  links may only point **inside** the skill folder (`references/`, `scripts/`). The check ignores links inside code
+  spans and fenced blocks, which may hold example links of generated project documents.
+- A file that lives in another skill or at plugin level (`rules/`, `agents/`) is named in prose together with a glob,
+  never linked with `../`: "locate it with a glob for `**/*use-case-spec/references/use-case.md`; the skill folder may
+  carry a host prefix such as `tessl__use-case-spec`". Keep one copy of such files; do not duplicate them into every
+  skill that needs them.
+- Skills hand off to other skills by slash command (`/coverage-check`), not by a link to the other `SKILL.md`.
+
 ## AI Unified Process Workflow
 
 Skills follow the AI Unified Process phases: Inception, Elaboration, Construction, Transition.

@@ -66,7 +66,8 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 Use [references/use-case.md](references/use-case.md) as the document structure, and
 see [references/example.md](references/example.md) for a complete worked example —
 actor-focused steps, alternative flows that reference specific step numbers, and
-paired success/failure postconditions.
+paired success/failure postconditions. These paths are relative to the folder
+containing this SKILL.md, not to the project root.
 
 The normative definition of the format — including the German variant and the
 tolerances of the AI Unified Process Studio structured editor — is

@@ -46,6 +46,11 @@ Installed plugins live under `.tessl/plugins/` and are tracked by `tessl.json`. 
 member installs the same versions. A package can be pinned explicitly with Tessl's `@version` syntax when the team does
 not want automatic resolution to a newer release.
 
+`tessl.json` also records a `mode`. With `"mode": "vendored"` the installed plugins under `.tessl/plugins/` and the
+per-agent skill links (for example `.github/skills/tessl__<skill>`) are committed, so a fresh clone or a GitHub
+Codespace has the skills immediately. In managed mode they are ignored by git and every clone must run
+`tessl install` first — in a Codespace, put it in the devcontainer's `postCreateCommand`.
+
 Tessl maps skills and MCP configuration into the selected agent layouts. Slash-command behavior can still differ
 between hosts; when a command is not exposed, invoke the skill by intent, for example "implement UC-001".
 

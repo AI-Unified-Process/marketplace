@@ -22,7 +22,10 @@ Create Vitest + React Testing Library tests in jsdom for the component covering 
 $ARGUMENTS.
 
 **Pick the right target first.** Run the detection in
-[`../implement/references/project-layout.md`](../implement/references/project-layout.md). Where
+the `project-layout.md` reference bundled with this plugin's `implement` skill
+(locate it with a glob for `**/*implement/references/project-layout.md` — the skill folder
+may carry a host prefix such as `tessl__implement`; never resolve the path against the project
+root). Where
 the project routes through indirection, `src/app/**/page.tsx` is a thin wrapper that renders a
 component defined elsewhere — testing the wrapper asserts almost nothing beyond "it renders its
 child". Test the component that holds the markup, state, and data fetching. Where there is no
@@ -209,4 +212,6 @@ has a test helper for driving these controls, use it rather than reimplementing 
 - `user-event`: https://testing-library.com/docs/user-event/intro
 - Vitest documentation: https://vitest.dev/guide/
 - If `aiup-core` is installed, its context7 MCP server covers React, Vitest and Testing Library
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure the optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure the optional servers

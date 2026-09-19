@@ -30,7 +30,10 @@ use case's main scenario and alternative flows.
 **Architecture.** Both applications must be running. The browser only ever talks to the frontend
 origin, which rewrites `/api/*` to the API — so a test navigates to frontend routes and never to
 an API URL. Run the detection in
-[`../implement/references/project-layout.md`](../implement/references/project-layout.md) to find
+the `project-layout.md` reference bundled with this plugin's `implement` skill
+(locate it with a glob for `**/*implement/references/project-layout.md` — the skill folder
+may carry a host prefix such as `tessl__implement`; never resolve the path against the project
+root) to find
 both app roots.
 
 These are blackbox tests. Assert what a user can see; never reference component internals, file
@@ -235,4 +238,6 @@ the values were chosen, or the next person will "tidy" them into a collision.
 - Locators guide: https://playwright.dev/docs/locators
 - Authentication and `storageState`: https://playwright.dev/docs/auth
 - If configured, use the playwright MCP server for browser automation assistance
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure the optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure the optional servers
