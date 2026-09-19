@@ -133,7 +133,7 @@ Skim — don't deep-read yet.
 - Note the test directory: tests often state the intended behavior more
   clearly than the implementation does.
 
-For concrete patterns by stack, see [references/stack-signals.md](references/stack-signals.md).
+For concrete patterns by stack, see [references/stack-signals.md](references/stack-signals.md). The path is relative to the folder containing this SKILL.md, not to the project root.
 
 ### 2. Identify actors
 
@@ -250,10 +250,12 @@ Create `docs/use_cases/` and write one file per use case named
   …, starting again at `BR-001` in every spec file — rule ids are unique
   within their use case, not across files.
 
-The full template lives at the `/use-case-spec` skill —
-[skills/use-case-spec/references/use-case.md](../use-case-spec/references/use-case.md)
-inside this plugin; the normative format definition is
-[skills/use-case-spec/references/format-spec.md](../use-case-spec/references/format-spec.md).
+The full template lives in the `/use-case-spec` skill of this plugin as
+`references/use-case.md`, and the normative format definition next to it as
+`references/format-spec.md`. Locate them with a glob for
+`**/*use-case-spec/references/use-case.md` and `**/*use-case-spec/references/format-spec.md` —
+the skill folder may carry a host prefix such as `tessl__use-case-spec`; never resolve the
+paths against the project root or relative to this skill's folder.
 
 #### Step writing — what to keep at the business level
 
@@ -359,12 +361,13 @@ the user to delete than to miss.
 ### 7. Cross-validate
 
 First run the use case spec validator bundled with the `/use-case-spec` skill
-over every spec file you wrote and fix everything it reports (the script lives
-at `../use-case-spec/scripts/validate_use_case.py` relative to this skill's
-directory):
+over every spec file you wrote and fix everything it reports (the script is
+bundled with that skill — locate it with a glob for
+`**/*use-case-spec/scripts/validate_use_case.py`; the skill folder may carry a host prefix such
+as `tessl__use-case-spec`, and the path never resolves relative to this skill's folder):
 
 ```bash
-python3 <plugin>/skills/use-case-spec/scripts/validate_use_case.py --strict docs/use_cases/UC-*.md
+python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases/UC-*.md
 ```
 
 Then check the three documents agree:

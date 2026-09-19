@@ -27,7 +27,10 @@ computed against a state that never existed — producing a migration that drops
 things nobody asked it to touch. This is the single rule that matters most in this skill.
 
 Before editing anything, run the detection in
-[`../implement/references/project-layout.md`](../implement/references/project-layout.md) to
+the `project-layout.md` reference bundled with this plugin's `implement` skill
+(locate it with a glob for `**/*implement/references/project-layout.md` — the skill folder
+may carry a host prefix such as `tessl__implement`; never resolve the path against the project
+root) to
 locate `drizzle.config.ts` and read its `schema` and `out` paths. Never infer them: a project
 whose schema is split across several files under a `schema/` directory is normal, and writing
 into a `schema.ts` the config does not point at produces a table that never reaches the database.
@@ -214,4 +217,6 @@ run migrations against a shared database as part of authoring one.
 - Drizzle Kit migrations: https://orm.drizzle.team/docs/kit-overview
 - PostgreSQL column types: https://www.postgresql.org/docs/current/datatype.html
 - If `aiup-core` is installed, its context7 MCP server covers Drizzle and drizzle-kit docs
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure the optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure the optional servers

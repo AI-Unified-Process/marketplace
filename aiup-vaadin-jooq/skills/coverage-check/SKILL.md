@@ -31,7 +31,8 @@ and tests that are supposed to realize it, and report the result.
 
 This skill is the front door to the read-only `uc-coverage` sub-agent of this plugin. The audit
 checklist — how coverage units are derived, which markers to search for, how each unit is judged —
-lives in [`agents/uc-coverage.md`](../../agents/uc-coverage.md) and is **deliberately not repeated
+lives in `agents/uc-coverage.md` at the plugin root (locate it with a glob for
+`**/agents/uc-coverage.md`) and is **deliberately not repeated
 here**, so the two cannot drift apart. Your job is argument parsing, delegation, faithful
 presentation of the report, and offering the next step.
 
@@ -111,10 +112,11 @@ with a verdict, say so underneath it and leave the row alone.
 ## Hosts without sub-agents
 
 Sub-agents are Claude Code-specific and are not part of the Agent Plugins standard. Where the host
-has none, read [`agents/uc-coverage.md`](../../agents/uc-coverage.md) and follow it yourself, start
-to finish, as an instruction document — its checklist does not depend on Claude Code. If that path
-does not resolve in this host's plugin layout, glob for `**/agents/uc-coverage.md` before giving
-up; if it genuinely is not there, say so rather than improvising an audit from memory. The
+has none, locate `agents/uc-coverage.md` with a glob for `**/agents/uc-coverage.md` — hosts that
+install skills one folder at a time do not expose the plugin root, so never resolve it relative to
+this skill's folder — and follow it yourself, start to finish, as an instruction document; its
+checklist does not depend on Claude Code. If it genuinely is not there, say so rather than
+improvising an audit from memory. The
 checklist *is* the skill.
 
 Running it inline costs you the agent's tool restriction and its clean context, so two rules apply

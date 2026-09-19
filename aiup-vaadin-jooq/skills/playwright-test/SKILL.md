@@ -96,7 +96,7 @@ Integration tests for one view. Read the use case specification, plan the tests,
 
 One use case → one test class named `UC<id><PascalCaseName>IT` (e.g. `UC-001-create-reservation.md` → `UC001CreateReservationIT`).
 
-Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starting point for new test classes.
+Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starting point for new test classes. The path is relative to the folder containing this SKILL.md, not to the project root.
 
 ## Test Case Journeys (TC-*)
 
@@ -184,7 +184,9 @@ If the bundled reference doesn't cover a class you need (or the dependency has b
 - `get_javadoc_content_list` with the coordinates above lists all element and base classes.
 - `get_javadoc_symbol_contents` with a `link` from that list returns the full API for a class (methods, parameters, return types, inherited methods).
 
-See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
+See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+`**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+are all you need) to configure this optional server.
 
 ## Workflow
 
@@ -218,7 +220,7 @@ See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional 
 
 Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the tests against the
 specification yourself. The audit is a separate, explicit step that belongs to
-[`/coverage-check`](../coverage-check/SKILL.md): it judges implementation and tests together in
+`/coverage-check`: it judges implementation and tests together in
 one matrix, and it is the only audit behind a justified `**Status:** Tested`.
 
 Finish instead by:

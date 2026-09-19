@@ -26,7 +26,8 @@ builds that share only a JSON contract over HTTP, and the browser never talks to
 directly.
 
 **Read the existing code and project layout first.** Run the detection in
-[`references/project-layout.md`](references/project-layout.md) before writing anything, and
+[`references/project-layout.md`](references/project-layout.md) (relative to the folder
+containing this SKILL.md, not to the project root) before writing anything, and
 follow what it finds. Two of its answers are unforgiving: a NodeNext project needs a `.js`
 suffix on every relative import, and a project whose routes delegate to view components needs
 new pages to do the same.
@@ -334,4 +335,6 @@ export default function Page() {
 - Next.js App Router documentation: https://nextjs.org/docs/app
 - If `aiup-core` is installed, its context7 MCP server covers NestJS, Drizzle, Next.js and React
   documentation lookups
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure the optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure the optional servers

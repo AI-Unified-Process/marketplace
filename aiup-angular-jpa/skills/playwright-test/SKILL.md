@@ -94,7 +94,8 @@ exists, **update it to match the current specification instead of creating a sec
 
 Use existing test data from Flyway migrations (backend project — location
 depends on the detected backend module layout, see the `implement` skill's
-[`references/module-layout.md`](../implement/references/module-layout.md)). If
+`references/module-layout.md`, located with a glob for `**/*implement/references/module-layout.md` —
+the skill folder may carry a host prefix such as `tessl__implement`). If
 your test creates data, clean it up in a `test.afterEach` hook, ideally
 through the API rather than a raw DB call.
 
@@ -226,4 +227,6 @@ state with a plain boolean check.
 
 - Playwright documentation: https://playwright.dev/docs/intro
 - If configured, use the playwright MCP server for browser automation assistance
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure these optional servers

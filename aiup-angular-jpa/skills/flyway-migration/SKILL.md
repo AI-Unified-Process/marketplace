@@ -59,7 +59,8 @@ up with what an unconfigured `@Entity` would map to, without needing
 ## Where Migrations Live
 
 Before determining the next version number, detect the backend's module layout
-using [`../implement/references/module-layout.md`](../implement/references/module-layout.md):
+using the `module-layout.md` reference bundled with this plugin's `implement` skill
+(locate it with a glob for `**/*implement/references/module-layout.md` — the skill folder may carry a host prefix such as `tessl__implement`; never resolve the path against the project root):
 
 - **Hexagonal Multi-Module**: migrations live in the persistence-adapter
   module's own `src/main/resources/db/migration` (e.g. a `*-postgres` module).

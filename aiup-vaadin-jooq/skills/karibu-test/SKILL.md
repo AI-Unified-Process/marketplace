@@ -25,7 +25,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 Create Karibu unit tests for Vaadin views based on the use case $ARGUMENTS. Karibu Testing allows server-side testing of Vaadin components without a browser.
 
-If the KaribuTesting MCP server (`https://karibu-testing-mcp.martinelli.ch/mcp`) is configured, use it for documentation and code generation; otherwise rely on your own knowledge and the documentation links below. See [the MCP setup rule](../../rules/mcp-servers.md) to configure this optional server.
+If the KaribuTesting MCP server (`https://karibu-testing-mcp.martinelli.ch/mcp`) is configured, use it for documentation and code generation; otherwise rely on your own knowledge and the documentation links below. See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+`**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+are all you need) to configure this optional server.
 
 ## If Tests for This Use Case Already Exist
 
@@ -145,7 +147,8 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 ## Template
 
 Use [references/UC001ManagePersonsTest.java](references/UC001ManagePersonsTest.java) as the test
-class structure. It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
+class structure (the path is relative to the folder containing this SKILL.md, not to the project
+root). It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
 every test method, and how to map alternative flows (`scenario = "A1: …"`) and business rules
 (`businessRules = {"BR-…"}`) onto the spec headings.
 
@@ -276,7 +279,7 @@ Use AssertJ or Karibu Testing assertions:
 
 Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the tests against the
 specification yourself. The audit is a separate, explicit step that belongs to
-[`/coverage-check`](../coverage-check/SKILL.md): it judges implementation and tests together in
+`/coverage-check`: it judges implementation and tests together in
 one matrix, and it is the only audit behind a justified `**Status:** Tested`.
 
 Finish instead by:

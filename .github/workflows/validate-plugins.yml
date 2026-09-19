@@ -17,6 +17,9 @@ jobs:
       - name: Check public documentation links
         run: bash scripts/validate-doc-links.sh
 
+      - name: Check skill file references stay inside their skill folder
+        run: bash scripts/check-skill-links.sh
+
       - name: Check copyright headers, LICENSE and NOTICE
         run: bash scripts/check-copyright-headers.sh
 

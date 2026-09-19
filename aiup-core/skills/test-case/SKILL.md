@@ -42,7 +42,7 @@ One journey per file, written to `docs/test_cases/TC-XXX-<kebab-case-name>.md` w
 
 ## Template
 
-Use [references/test-case.md](references/test-case.md) as the document structure, and see [references/example.md](references/example.md) for a complete worked example.
+Use [references/test-case.md](references/test-case.md) as the document structure, and see [references/example.md](references/example.md) for a complete worked example. Both paths are relative to the folder containing this SKILL.md, not to the project root.
 
 ## Status and priority values
 

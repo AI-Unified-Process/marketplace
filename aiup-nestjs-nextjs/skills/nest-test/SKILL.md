@@ -32,7 +32,10 @@ those need the real schema. Equally, booting the application to test a branch of
 slow and obscures what actually failed.
 
 Run the detection in
-[`../implement/references/project-layout.md`](../implement/references/project-layout.md) first to
+the `project-layout.md` reference bundled with this plugin's `implement` skill
+(locate it with a glob for `**/*implement/references/project-layout.md` — the skill folder
+may carry a host prefix such as `tessl__implement`; never resolve the path against the project
+root) first to
 locate the API app and confirm whether it is NodeNext — test files carry `.js` import specifiers
 in a NodeNext project exactly like source files do.
 
@@ -292,4 +295,6 @@ inside a commit labelled "add tests".
 - Testcontainers for Node: https://node.testcontainers.org
 - Supertest: https://github.com/ladjs/supertest
 - If `aiup-core` is installed, its context7 MCP server covers Vitest, Supertest and Testcontainers
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure the optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure the optional servers

@@ -28,7 +28,8 @@ a split client/server architecture, not a single server-rendered UI — the
 
 **Read the existing code and module structure first.** Detect which backend
 pattern this project already follows using
-[`references/module-layout.md`](references/module-layout.md), and follow it
+[`references/module-layout.md`](references/module-layout.md) (relative to the
+folder containing this SKILL.md, not to the project root), and follow it
 exactly — do not invent an inbound port interface if the project's own
 convention doesn't use one. Matching an existing asymmetric-hexagonal
 convention is correct; "fixing" it into textbook full hexagonal is not the job.
@@ -443,4 +444,6 @@ export class RoomTypeOverview implements OnInit {
 
 - If configured, use the JavaDocs MCP server for Spring/Hibernate API documentation (`https://www.javadocs.dev/mcp`)
 - If `aiup-core` is installed, its context7 MCP server covers RxJS and other frontend library docs
-- See [the MCP setup rule](../../rules/mcp-servers.md) to configure these optional servers
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for
+  `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
+  are all you need) to configure these optional servers
