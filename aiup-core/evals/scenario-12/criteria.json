@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent derives end-to-end test cases from a BPMN process model: one TC-XXX document per path from start to end event, every activity mapped to its use case (by the UC id in its name, or by matching the name against the use case specifications when no id is given), lanes turned into roles, the gateway decision forced by the seeded test data, and a relative link back to the process file — all in the standard test case format.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "One test case per path",
+      "description": "Exactly two Markdown files are created under docs/test_cases/, named TC-001-<kebab-case-name>.md and TC-002-<kebab-case-name>.md, where each name describes its path's outcome (e.g. book-lent, member-waitlisted) — not one combined document and not one document per use case",
+      "max_score": 12
+    },
+    {
+      "name": "Each path covered in order",
+      "description": "One test case's action steps are Reserve Book (UC-021) followed by Lend Book (UC-022); the other's are Reserve Book (UC-021) followed by Join Waiting List (UC-023). Neither test case mixes activities of both branches",
+      "max_score": 12
+    },
+    {
+      "name": "All use cases linked",
+      "description": "UC-021, UC-022, and UC-023 each appear in a Flow row as a relative Markdown link to their spec file (e.g. [UC-022](../use_cases/UC-022-lend-book.md)); the activity 'Lend Book', whose name carries no id, is linked to UC-022",
+      "max_score": 12
+    },
+    {
+      "name": "Roles from lanes",
+      "description": "The Roles section of the lending test case lists Member and Librarian; the waiting-list test case lists Member (the Librarian lane has no activity on that path, so listing the Librarian there is a defect)",
+      "max_score": 10
+    },
+    {
+      "name": "Process file referenced",
+      "description": "Each test case's Overview references the process model with a relative link (e.g. [book-loan.bpmn](../processes/book-loan.bpmn)) and identifies which path through it the test case covers",
+      "max_score": 8
+    },
+    {
+      "name": "Decision forced by test data",
+      "description": "The lending test case reserves the title 'Clean Code' (a copy is available) and the waiting-list test case reserves 'Refactoring' (no copy available), so the 'Copy available?' decision is reached by the seeded data; preconditions reference V900__test_data_library.sql",
+      "max_score": 10
+    },
+    {
+      "name": "Standard test case format",
+      "description": "Each document has an Overview (ID, one-sentence Goal, Priority, Status), Roles, Preconditions, a Flow table with exactly the columns Step | Name | Description | Test Data | Use Case numbered from 1 without gaps, Validation with numbered bold-named checks, and Postconditions",
+      "max_score": 10
+    },
+    {
+      "name": "Verification steps present",
+      "description": "Each Flow contains at least one verification row ('-' in the Use Case column) between or after the action steps",
+      "max_score": 8
+    },
+    {
+      "name": "End state validated",
+      "description": "The lending test case validates the reservation 'Fulfilled' and the copy 'On Loan' (or the loan existing); the waiting-list test case validates the reservation 'Waiting' and the member being on the waiting list",
+      "max_score": 8
+    },
+    {
+      "name": "No model or implementation internals",
+      "description": "No step, validation, or test data contains BPMN element ids (e.g. Activity_LendBook, Flow_Yes), XML terms, HTTP verbs, SQL, class names, or test framework APIs",
+      "max_score": 5
+    },
+    {
+      "name": "Postconditions cleanup inventory",
+      "description": "Each Postconditions section lists the records its journey creates or changes with literal values (the reservation, and the loan or the waiting list entry); the seeded member, librarian, and titles are not listed as something to remove",
+      "max_score": 5
+    }
+  ]
+}

@@ -34,6 +34,7 @@ EXCLUDED='
 aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md
 aiup-core/skills/test-case/references/example.md
+aiup-core/skills/test-case/references/example-process.bpmn
 aiup-core/skills/test-case/references/test-case.md
 docs/templates/CLAUDE.md
 docs/templates/vision.md

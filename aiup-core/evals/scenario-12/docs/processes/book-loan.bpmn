@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_BookLoan"
+                  targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_BookLoan">
+    <bpmn:participant id="Participant_Library" name="City Library" processRef="Process_BookLoan"/>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_BookLoan" name="Book Loan" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_BookLoan">
+      <bpmn:lane id="Lane_Member" name="Member">
+        <bpmn:flowNodeRef>StartEvent_BookWanted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ReserveBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_JoinWaitingList</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_MemberWaitlisted</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Librarian" name="Librarian">
+        <bpmn:flowNodeRef>Gateway_CopyAvailable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_LendBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_BookLent</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_BookWanted" name="Book wanted">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_ReserveBook" name="UC-021 Reserve Book">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_CopyAvailable" name="Copy available?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_LendBook" name="Lend Book">
+      <bpmn:incoming>Flow_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_JoinWaitingList" name="UC-023 Join Waiting List">
+      <bpmn:incoming>Flow_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_BookLent" name="Book lent">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_MemberWaitlisted" name="Member waitlisted">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_BookWanted" targetRef="Activity_ReserveBook"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_ReserveBook" targetRef="Gateway_CopyAvailable"/>
+    <bpmn:sequenceFlow id="Flow_Yes" name="yes" sourceRef="Gateway_CopyAvailable" targetRef="Activity_LendBook"/>
+    <bpmn:sequenceFlow id="Flow_No" name="no" sourceRef="Gateway_CopyAvailable" targetRef="Activity_JoinWaitingList"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_LendBook" targetRef="EndEvent_BookLent"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_JoinWaitingList" targetRef="EndEvent_MemberWaitlisted"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_BookLoan">
+    <bpmndi:BPMNPlane id="BPMNPlane_BookLoan" bpmnElement="Collaboration_BookLoan">
+      <bpmndi:BPMNShape id="Participant_Library_di" bpmnElement="Participant_Library" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="800" height="400"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Member_di" bpmnElement="Lane_Member" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="770" height="200"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Librarian_di" bpmnElement="Lane_Librarian" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="770" height="200"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_BookWanted_di" bpmnElement="StartEvent_BookWanted">
+        <dc:Bounds x="232" y="152" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReserveBook_di" bpmnElement="Activity_ReserveBook">
+        <dc:Bounds x="320" y="130" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CopyAvailable_di" bpmnElement="Gateway_CopyAvailable" isMarkerVisible="true">
+        <dc:Bounds x="475" y="355" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_LendBook_di" bpmnElement="Activity_LendBook">
+        <dc:Bounds x="600" y="340" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_JoinWaitingList_di" bpmnElement="Activity_JoinWaitingList">
+        <dc:Bounds x="600" y="130" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_BookLent_di" bpmnElement="EndEvent_BookLent">
+        <dc:Bounds x="782" y="362" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_MemberWaitlisted_di" bpmnElement="EndEvent_MemberWaitlisted">
+        <dc:Bounds x="782" y="152" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="268" y="170"/>
+        <di:waypoint x="320" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="420" y="170"/>
+        <di:waypoint x="500" y="170"/>
+        <di:waypoint x="500" y="355"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Yes_di" bpmnElement="Flow_Yes">
+        <di:waypoint x="525" y="380"/>
+        <di:waypoint x="600" y="380"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_No_di" bpmnElement="Flow_No">
+        <di:waypoint x="500" y="355"/>
+        <di:waypoint x="500" y="250"/>
+        <di:waypoint x="650" y="250"/>
+        <di:waypoint x="650" y="210"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="700" y="380"/>
+        <di:waypoint x="782" y="380"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="700" y="170"/>
+        <di:waypoint x="782" y="170"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

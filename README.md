@@ -122,6 +122,8 @@ docs/
 ├── requirements.md                   # /requirements
 ├── entity_model.md                   # /entity-model
 ├── use_cases.puml                    # /use-case-diagram
+├── processes/
+│   └── *.bpmn                        # business process models (optional), read by /test-case
 ├── use_cases/
 │   └── UC-001-*.md                   # /use-case-spec
 └── test_cases/

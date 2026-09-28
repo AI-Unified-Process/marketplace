@@ -15,14 +15,14 @@ reviewable files under `docs/`.
 
 ## Skills and workflow
 
-| Phase        | Skill                                                   | Result                                                         |
-|--------------|---------------------------------------------------------|----------------------------------------------------------------|
-| Inception    | [`/requirements`](skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`             |
-| Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                 |
-| Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                       |
-| Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                        |
-| Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journey across multiple specified use cases         |
-| Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code |
+| Phase        | Skill                                                   | Result                                                               |
+|--------------|---------------------------------------------------------|----------------------------------------------------------------------|
+| Inception    | [`/requirements`](skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`                   |
+| Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                       |
+| Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                             |
+| Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                              |
+| Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journeys across specified use cases or BPMN process paths |
+| Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code       |
 
 ```text
 Inception          Elaboration                             Construction 
@@ -79,6 +79,8 @@ your-project/
     ├── requirements.md              # /requirements
     ├── entity_model.md              # /entity-model
     ├── use_cases.puml               # /use-case-diagram
+    ├── processes/
+    │   └── *.bpmn                   # business process models (optional), read by /test-case
     ├── use_cases/
     │   └── UC-001-*.md              # /use-case-spec
     └── test_cases/

@@ -1,0 +1,1 @@
+{ "description": "End-to-end test cases derived from a BPMN business process model", "include": ["./docs"] }

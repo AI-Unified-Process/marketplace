@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_OrderFulfillment"
+                  targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_OrderFulfillment">
+    <bpmn:participant id="Participant_Company" name="Order Fulfillment" processRef="Process_OrderFulfillment"/>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_OrderFulfillment" name="Order Fulfillment" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_OrderFulfillment">
+      <bpmn:lane id="Lane_Clerk" name="Clerk">
+        <bpmn:flowNodeRef>StartEvent_OrderReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_CreateOrder</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_WarehouseOperator" name="Warehouse Operator">
+        <bpmn:flowNodeRef>Gateway_StockAvailable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ShipOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_CancelOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_OrderShipped</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_OrderCancelled</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_OrderReceived" name="Order received">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_CreateOrder" name="UC-010 Create Order">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_StockAvailable" name="Stock available?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_ShipOrder" name="UC-011 Ship Order">
+      <bpmn:incoming>Flow_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_CancelOrder" name="UC-012 Cancel Order">
+      <bpmn:incoming>Flow_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_OrderShipped" name="Order shipped">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_OrderCancelled" name="Order cancelled">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_OrderReceived" targetRef="Activity_CreateOrder"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_CreateOrder" targetRef="Gateway_StockAvailable"/>
+    <bpmn:sequenceFlow id="Flow_Yes" name="yes" sourceRef="Gateway_StockAvailable" targetRef="Activity_ShipOrder"/>
+    <bpmn:sequenceFlow id="Flow_No" name="no" sourceRef="Gateway_StockAvailable" targetRef="Activity_CancelOrder"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_ShipOrder" targetRef="EndEvent_OrderShipped"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_CancelOrder" targetRef="EndEvent_OrderCancelled"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_OrderFulfillment">
+    <bpmndi:BPMNPlane id="BPMNPlane_OrderFulfillment" bpmnElement="Collaboration_OrderFulfillment">
+      <bpmndi:BPMNShape id="Participant_Company_di" bpmnElement="Participant_Company" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="800" height="400"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Clerk_di" bpmnElement="Lane_Clerk" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="770" height="150"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_WarehouseOperator_di" bpmnElement="Lane_WarehouseOperator" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="770" height="250"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_OrderReceived_di" bpmnElement="StartEvent_OrderReceived">
+        <dc:Bounds x="232" y="137" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CreateOrder_di" bpmnElement="Activity_CreateOrder">
+        <dc:Bounds x="320" y="115" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_StockAvailable_di" bpmnElement="Gateway_StockAvailable" isMarkerVisible="true">
+        <dc:Bounds x="475" y="275" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ShipOrder_di" bpmnElement="Activity_ShipOrder">
+        <dc:Bounds x="600" y="260" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CancelOrder_di" bpmnElement="Activity_CancelOrder">
+        <dc:Bounds x="600" y="370" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_OrderShipped_di" bpmnElement="EndEvent_OrderShipped">
+        <dc:Bounds x="782" y="282" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_OrderCancelled_di" bpmnElement="EndEvent_OrderCancelled">
+        <dc:Bounds x="782" y="392" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="268" y="155"/>
+        <di:waypoint x="320" y="155"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="420" y="155"/>
+        <di:waypoint x="500" y="155"/>
+        <di:waypoint x="500" y="275"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Yes_di" bpmnElement="Flow_Yes">
+        <di:waypoint x="525" y="300"/>
+        <di:waypoint x="600" y="300"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_No_di" bpmnElement="Flow_No">
+        <di:waypoint x="500" y="325"/>
+        <di:waypoint x="500" y="410"/>
+        <di:waypoint x="600" y="410"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="700" y="300"/>
+        <di:waypoint x="782" y="300"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="700" y="410"/>
+        <di:waypoint x="782" y="410"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

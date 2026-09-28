@@ -102,6 +102,15 @@ For a journey across several use cases, first create a test-case document:
 /playwright-test TC-001
 ```
 
+If the business process is modeled in BPMN 2.0 (for example with the process editor of AI Unified Studio), derive one
+test case per path through the process instead. Each activity of the process must map to a specified use case — by a
+use case id in the activity name (`UC-001 Place Order`) or by the use case name — otherwise the skill stops and lists
+the unmatched activities:
+
+```text
+/test-case docs/processes/order.bpmn
+```
+
 The `aiup-vaadin-jooq` implementation and testing skills end by handing off to a coverage check they do not run
 themselves: [`/coverage-check UC-001`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) delegates to the read-only
 [`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent that ships with that plugin, which reports which

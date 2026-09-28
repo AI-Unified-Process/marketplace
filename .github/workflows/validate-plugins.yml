@@ -82,3 +82,9 @@ jobs:
           python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --self-test
           python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --strict \
             aiup-core/skills/use-case-spec/references/example.md
+
+      - name: Check BPMN path enumerator and example process
+        run: |
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py --self-test
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py \
+            aiup-core/skills/test-case/references/example-process.bpmn > /dev/null
