@@ -51,7 +51,8 @@ reports three things: the gaps, the drift (code or tests the specification no lo
 specification's justified next `**Status:**` value.
 
 The agent is **read-only** — it never edits code, tests, or the specification. The implementation and testing skills
-above do not run it; they end by handing off to [`/coverage-check`](skills/coverage-check/SKILL.md), which is the
+above do not run it; the implementation skills hand off to their test skill, and the test skills end by handing off
+to [`/coverage-check`](skills/coverage-check/SKILL.md), which is the
 one place the audit runs — at the end of a construction round, before a review, or mid-way through a large use case
 with "work in progress" so it lists remaining work instead of defects:
 

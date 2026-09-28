@@ -67,7 +67,7 @@ implementation exists, **reconcile it with the specification instead of building
 7. Implement the React view as a `.tsx` file under `src/main/frontend/views/`, calling the
    generated TypeScript client of the service
 8. Verify the full implementation compiles successfully (Java and frontend)
-9. Report what you implemented and hand off to `/coverage-check UC-XXX` — see
+9. Report what you implemented and hand off to `/hilla-test UC-XXX` — see
    [Coverage Check](#coverage-check) below
 
 ## Hilla specifics
@@ -148,9 +148,12 @@ one matrix, and it is the only audit behind a justified `**Status:**` change.
 Finish instead by:
 
 - Summarising what you implemented, listing the files you created or changed.
-- Ending with one hand-off line — `Next: /coverage-check UC-XXX implementation` — or plain
-  `/coverage-check UC-XXX` once tests exist. For a large use case that is still mid-way, suggest
-  `/coverage-check UC-XXX implementation wip` so the audit lists remaining work instead of defects.
+- Ending with one hand-off line to the next construction step, the tests:
+  `Next: /hilla-test UC-XXX`; `/playwright-test UC-XXX` may follow for browser tests. The test
+  skills in turn hand off to `/coverage-check UC-XXX`, the one audit of the round.
+- Only when the user explicitly wants an audit before any tests exist, point to
+  `/coverage-check UC-XXX implementation` — or `/coverage-check UC-XXX implementation wip` for a
+  large use case that is still mid-way, so the audit lists remaining work instead of defects.
 - Leaving the specification's `**Status:**` line alone; the audit suggests the next value.
 
 Running the audit here would triple it — once after implementation, once after tests, once in
