@@ -145,7 +145,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Elaboration  | `/entity-model`       | Create entity model with Mermaid ER                                  |
 | Elaboration  | `/use-case-diagram`   | Generate PlantUML use case diagrams                                  |
 | Construction | `/use-case-spec`      | Write detailed use case specifications                               |
-| Construction | `/test-case`          | Write an end-to-end test case (TC-*) chaining several use cases      |
+| Construction | `/test-case`          | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
 | Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from code |
 
 ### Angular / JPA (stack-specific)

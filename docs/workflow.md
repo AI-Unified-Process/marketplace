@@ -25,14 +25,15 @@ between them is the set of files under `docs/`, not a specific coding agent.
 
 ## Artifact flow
 
-| Artifact                  | Produced by         | Consumed by                        |
-|---------------------------|---------------------|------------------------------------|
-| `docs/vision.md`          | Product team        | `/requirements`                    |
-| `docs/requirements.md`    | `/requirements`     | Entity model and use case diagram  |
-| `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations     |
-| `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers     |
-| `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests |
-| `docs/test_cases/TC-*.md` | `/test-case`        | End-to-end journey tests           |
+| Artifact                  | Produced by         | Consumed by                           |
+|---------------------------|---------------------|---------------------------------------|
+| `docs/vision.md`          | Product team        | `/requirements`                       |
+| `docs/requirements.md`    | `/requirements`     | Entity model and use case diagram     |
+| `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations        |
+| `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers        |
+| `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests    |
+| `docs/processes/*.bpmn`   | Business analysts   | `/test-case` (one test case per path) |
+| `docs/test_cases/TC-*.md` | `/test-case`        | End-to-end journey tests              |
 
 Every artifact is a review point. Correcting an intermediate document is expected and is safer than compensating for
 an incorrect assumption in generated code.
@@ -43,7 +44,8 @@ AI Unified Process uses stable identifiers to preserve the path from intent to t
 
 - Functional requirements use `FR-XXX`; non-functional requirements use `NFR-XXX`; constraints use `C-XXX`.
 - Use cases use `UC-XXX` and reference the functional requirements they realize.
-- Test cases use `TC-XXX` and reference the use cases in their journey.
+- Test cases use `TC-XXX` and reference the use cases in their journey; test cases derived from a BPMN process model
+  also link the model and name the path they cover. Each activity of a process maps to one use case.
 - Generated tests retain the applicable `UC-*` or `TC-*` identifier in their name or metadata.
 
 Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
