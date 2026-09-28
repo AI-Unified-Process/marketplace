@@ -202,7 +202,9 @@ Three constraints hold this design together and must survive edits:
   implement-and-test skill this design deliberately avoids.
 
 All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
-step that **hands off** to `/coverage-check UC-XXX` — they never run the agent themselves. This is deliberate: every
+step that **hands off** — they never run the agent themselves. The four test skills hand off to
+`/coverage-check UC-XXX`; `/implement` and `/implement-hilla` hand off to their test skill (`/browserless-test`,
+`/hilla-test`), so the audit runs once, after the tests exist. This is deliberate: every
 audit re-reads the specification and the code base and takes minutes, and running it inside `/implement`, again
 inside the test skill, and once more in `/coverage-check` turned a two-minute construction round into thirty. One
 explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested`. A new
