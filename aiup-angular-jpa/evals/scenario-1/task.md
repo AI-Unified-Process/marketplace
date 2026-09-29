@@ -22,7 +22,7 @@ architecture. Only one feature exists so far, `RoomType`, fully wired across eve
 
 The entity model is at `docs/entity_model.md` (includes both `RoomType`, already implemented, and
 `Guest`, not yet implemented). The use case to implement is specified at
-`docs/use-cases/UC-020-register-guest.md`.
+`docs/use_cases/UC-020-register-guest.md`.
 
 ## Output Specification
 

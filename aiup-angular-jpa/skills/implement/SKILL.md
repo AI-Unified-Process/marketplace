@@ -118,6 +118,8 @@ instead of building a parallel one**:
 6. Verify the frontend builds (`ng build`)
 7. Confirm the backend and frontend agree on the JSON shape (field names,
    types, nullability) before considering the use case done
+8. Report what you implemented and hand off to the tests — see
+   [Coverage Check](#coverage-check) below
 
 ---
 
@@ -439,6 +441,30 @@ export class RoomTypeOverview implements OnInit {
     }
 }
 ```
+
+## Coverage Check
+
+Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the use case against
+its specification yourself. The audit is a separate, explicit step that belongs to
+`/coverage-check`: it judges implementation and tests together in
+one matrix, and it is the only audit behind a justified `**Status:**` change.
+
+Finish instead by:
+
+- Summarising what you implemented, listing the files you created or changed.
+- Ending with one hand-off line to the next construction step, the tests:
+  `Next: /spring-boot-test UC-XXX`, then `/vitest-test UC-XXX` for the Angular side;
+  `/playwright-test UC-XXX` may follow for browser tests. The test skills in turn hand off to
+  `/coverage-check UC-XXX`, the one audit of the round.
+- Only when the user explicitly wants an audit before any tests exist, point to
+  `/coverage-check UC-XXX implementation` — or `/coverage-check UC-XXX implementation wip` for a
+  large use case that is still mid-way, so the audit lists remaining work instead of defects.
+- Leaving the specification's `**Status:**` line alone; the audit suggests the next value.
+
+Running the audit here would triple it — once after implementation, once after tests, once in
+`/coverage-check`. Each run re-reads the specification and the code base and takes minutes; one
+run at the end, in `both` mode, is the one that counts. Whether to run it now, later, or not at
+all is the user's call.
 
 ## Resources
 

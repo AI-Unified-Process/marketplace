@@ -125,9 +125,9 @@ the unmatched activities:
 /test-case docs/processes/order.bpmn
 ```
 
-The `aiup-vaadin-jooq` implementation and testing skills end by handing off to a coverage check they do not run
-themselves: [`/coverage-check UC-001`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) delegates to the read-only
-[`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent that ships with that plugin, which reports which
+The `aiup-vaadin-jooq` and `aiup-angular-jpa` implementation and testing skills end by handing off to a coverage check
+they do not run themselves: `/coverage-check UC-001` delegates to the read-only `uc-coverage` sub-agent that ships with
+the plugin ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](../aiup-angular-jpa/agents/uc-coverage.md)), which reports which
 parts of the specification still have no code or no test behind them. Run it when you want the audit — typically
 before accepting a use case as done, when it judges implementation and tests together in one matrix.
 

@@ -33,17 +33,42 @@ detection rules are documented in
 | Construction | [`/implement`](skills/implement/SKILL.md)               | Spring Boot API and Angular UI following the existing architecture |
 | Construction | [`/spring-boot-test`](skills/spring-boot-test/SKILL.md) | Backend integration tests using the project's detected convention  |
 | Construction | [`/vitest-test`](skills/vitest-test/SKILL.md)           | Angular component tests with TestBed and HttpTestingController     |
-| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Browser-based end-to-end tests for the split application           |
+| Construction | [`/playwright-test`](skills/playwright-test/SKILL.md)   | Browser tests for a `UC-*` or end-to-end journeys for a `TC-*`     |
+| Construction | [`/coverage-check`](skills/coverage-check/SKILL.md)     | Coverage matrix, gaps, and drift for a `UC-*` or `TC-*`            |
 
 ```text
 Construction
-──────────────────────────────────────────────────────
-/flyway-migration  →  /implement  →  /spring-boot-test
-                                  ↘  /vitest-test
-                                  ↘  /playwright-test
+─────────────────────────────────────────────────────────────────────────────
+/flyway-migration  →  /implement  →  /spring-boot-test  →  /vitest-test  →  /coverage-check
+                                  ↘  /playwright-test  (UC-* or TC-*)             ↗
 ```
 
-The linked `SKILL.md` files are the authoritative reference for detailed inputs, outputs, and behavior.
+Each skill ends with one `Next:` line naming the following command. The linked `SKILL.md` files are the authoritative
+reference for detailed inputs, outputs, and behavior.
+
+## Sub-agent
+
+| Agent                                  | Purpose                                                                    |
+|----------------------------------------|----------------------------------------------------------------------------|
+| [`uc-coverage`](agents/uc-coverage.md) | Audits whether a `UC-XXX` or `TC-XXX` is completely implemented and tested |
+
+`uc-coverage` is the review step of the construction phase. It maps every main success scenario step, alternative
+flow, business rule, precondition, and postcondition of a specification onto the Spring Boot and Angular code and the
+tests that realize it, and reports the gaps, the drift (code or tests the specification no longer describes), and the
+specification's justified next `**Status:**` value.
+
+The agent is **read-only** — it never edits code, tests, or the specification. The implementation and testing skills
+do not run it; they hand off to [`/coverage-check`](skills/coverage-check/SKILL.md), the one place the audit runs:
+
+```text
+/coverage-check UC-001                 # implementation and tests in one matrix
+/coverage-check UC-001 implementation  # narrow the audit to one side
+/coverage-check TC-001                 # a journey audits its Flow rows and Validation items
+```
+
+In Claude Code it is available as a sub-agent once the plugin is installed. Hosts without sub-agent support can use
+[`agents/uc-coverage.md`](agents/uc-coverage.md) as an instruction document. The traceability markers it searches for
+(`@UseCase`, `UC<id>…Test`, `describe('UC-XXX: …')`, `@UC-XXX`, `@TC-XXX`) are the ones the skills above produce.
 
 ## Installation
 
