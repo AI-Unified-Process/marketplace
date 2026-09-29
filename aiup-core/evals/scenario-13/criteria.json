@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent reviews specification quality in two separated parts — a deterministic lint (the bundled spec_lint.py: missing specification for a diagram use case, dangling requirement reference, uncovered functional requirements, weak words, glossary synonyms) and an advisory semantic review (contradicting and paraphrased business rules across use cases, UI detail in a step, a failable step without an alternative flow) — reports each finding with file, line, element and severity, and leaves every document untouched.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Documents untouched",
+      "description": "No file under docs/ is modified, created, renamed, or deleted — in particular no **Status:** line changes, no specification for UC-003 is written, and no baseline file (docs/.spec-lint-baseline.json) is created",
+      "max_score": 14
+    },
+    {
+      "name": "Missing specification reported",
+      "description": "The report states that UC-003 Return Book is in docs/use_cases.puml but has no specification file, as a certain (blocking) finding",
+      "max_score": 8
+    },
+    {
+      "name": "Dangling requirement reported",
+      "description": "The report states that UC-002 references FR-009 in its Requirements line and that FR-009 does not exist in docs/requirements.md, as a certain (blocking) finding",
+      "max_score": 8
+    },
+    {
+      "name": "Uncovered requirements reported",
+      "description": "The report lists FR-003 and FR-004 as functional requirements that no use case references",
+      "max_score": 6
+    },
+    {
+      "name": "Wording findings reported",
+      "description": "The report flags the weak word 'fast' in NFR-001 and the glossary synonyms 'customer' in UC-001 (use Member) and 'items' in UC-002 BR-001 (use Copy)",
+      "max_score": 8
+    },
+    {
+      "name": "Loan period contradiction found",
+      "description": "The report identifies that UC-001 BR-003 (14-day loan period) contradicts UC-002 BR-002 (due date 28 days after the loan date), naming both rules",
+      "max_score": 14
+    },
+    {
+      "name": "Paraphrased duplicate rule found",
+      "description": "The report identifies that UC-001 BR-002 (at most five copies at the same time) and UC-002 BR-001 (no more than 5 items on loan simultaneously) are the same rule written twice, and recommends keeping it in one use case and citing it from the other",
+      "max_score": 10
+    },
+    {
+      "name": "Wrong level found",
+      "description": "The report flags UC-002 step 5 ('clicks the green \"Lend\" button in the top right corner') as UI detail that does not belong in a use case",
+      "max_score": 8
+    },
+    {
+      "name": "Completeness gap found",
+      "description": "The report flags that UC-002 step 4 (System checks that the copy is available) can fail but no alternative flow is triggered at step 4",
+      "max_score": 8
+    },
+    {
+      "name": "Certain versus advisory separated",
+      "description": "The report separates the deterministic findings (which fail an automated gate) from the semantic judgment findings, and never labels a semantic finding (contradiction, duplicate, wrong level, completeness) as an error or as blocking",
+      "max_score": 8
+    },
+    {
+      "name": "Findings located",
+      "description": "Each finding names a file, a line number, and an element id such as UC-002 BR-002, FR-009, or UC-002 step 5",
+      "max_score": 4
+    },
+    {
+      "name": "Hand-off instead of fixes",
+      "description": "The report ends by pointing to the commands or actions that would fix the findings (e.g. /use-case-spec, /use-case-diagram, /requirements) rather than applying them",
+      "max_score": 4
+    }
+  ]
+}

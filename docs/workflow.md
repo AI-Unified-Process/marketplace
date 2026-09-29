@@ -29,6 +29,7 @@ between them is the set of files under `docs/`, not a specific coding agent.
 |---------------------------|---------------------|---------------------------------------|
 | `docs/vision.md`          | Product team        | `/requirements`                       |
 | `docs/requirements.md`    | `/requirements`     | Entity model and use case diagram     |
+| `docs/glossary.md`        | `/requirements`     | Every specification, `/spec-review`   |
 | `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations        |
 | `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers        |
 | `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests    |
@@ -50,6 +51,27 @@ AI Unified Process uses stable identifiers to preserve the path from intent to t
 
 Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
 and rerun or reconcile the downstream artifacts that depend on it.
+
+## Specification review
+
+The identifiers are also what makes the specifications checkable against each other. `/spec-review` in `aiup-core`
+does that in two parts:
+
+- **Lint (deterministic).** The bundled `spec_lint.py` (Python standard library only) reports what is certain: every
+  use case of `use_cases.puml` has a specification and every specification is in the diagram, ids are unique, every
+  `FR-XXX`, `UC-xxx BR-yyy`, use case, and process reference resolves, every functional requirement is covered,
+  every BPMN activity maps to a use case, the same rule text is not copied between use cases, and no weak word or
+  glossary synonym is used. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
+- **Review (advisory).** The agent adds findings that need judgment: contradicting or reworded business rules, UI or
+  technical detail in a use case, steps that can fail without an alternative flow, untestable rules, ambiguity, and
+  data that does not match the entity model. These are warnings for a pull request comment and never fail a build.
+
+In an existing project, the first lint run typically reports many findings. `spec_lint.py --update-baseline` accepts
+them into `docs/.spec-lint-baseline.json`, so only new findings fail the build; entries that stop matching are
+reported and can be removed.
+
+`/spec-review` checks specifications against specifications. Whether code and tests realize a specification is the
+coverage check below.
 
 ## Coverage check
 
@@ -88,6 +110,7 @@ yet; the same check can be run by hand from
 | [`/use-case-diagram`](../aiup-core/skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                        |
 | [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)       | One detailed specification per use case                         |
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)               | Executable user journey across specified use cases              |
+| [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)           | Lint and advisory review of specifications against each other   |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md) | AI Unified Process baseline recovered from an existing codebase |
 
 The linked `SKILL.md` files are the authoritative descriptions of inputs, outputs, and behavior.

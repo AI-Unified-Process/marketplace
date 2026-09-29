@@ -108,13 +108,18 @@ in the implementation, not the specification.
 
 ## Workflow
 
-1. Read the `docs/requirements.md` and `docs/use_cases.puml`.
+1. Read the `docs/requirements.md` and `docs/use_cases.puml`, and `docs/glossary.md` when it exists. Use the
+   glossary's terms for actors, business objects, and states, and never a synonym listed in its Avoid column; a new
+   domain term the use case needs goes into the glossary (see `/requirements`).
 2. Determine the set of use cases to document (one, several, or all in the
    diagram — see "Scope" above). Take each `UC-XXX` ID and name from the diagram.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
 5. Write the Overview section: `Use Case ID`, primary actor, goal, and a `Status`
-   from the "Status values" list above.
+   from the "Status values" list above. When `docs/requirements.md` exists, add the
+   functional requirements this use case realizes as
+   `**Requirements:** [FR-001, FR-002](../requirements.md)` after the `Status` line —
+   `/spec-review` uses it to find requirements no use case covers.
 6. Define preconditions — verifiable facts that must be true before the use case starts.
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.

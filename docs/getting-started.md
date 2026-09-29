@@ -89,6 +89,20 @@ If the agent starts by reading `docs/vision.md` after `/requirements`, the core 
 not exposed as a slash command by the selected agent, ask it to "generate the requirements catalog from the product
 vision"; Agent Skills can also be activated by intent.
 
+Before a use case moves to Approved, review the specifications against each other:
+
+```text
+/spec-review UC-001
+```
+
+The review has two parts. A bundled script (`spec_lint.py`, Python only) reports what is certain: a use case of the
+diagram without a specification, duplicated ids, references to requirements, rules, or use cases that do not exist,
+uncovered functional requirements, BPMN activities without a use case, weak words, and synonyms the glossary says to
+avoid. The same script can fail a CI build. The agent then adds advisory findings that need judgment: contradicting
+or duplicated business rules, UI or technical detail in a use case, steps that can fail without an alternative flow,
+untestable rules, and data that does not match the entity model. The skill reports only; fixes go through
+`/use-case-spec`, `/requirements`, or `/use-case-diagram`.
+
 ## 5. Implement and test
 
 Once a use case specification exists, continue with the commands from the selected stack plugin. For example, the
