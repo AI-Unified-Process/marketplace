@@ -54,7 +54,7 @@ stack.
 
 | Plugin                                      | Stack and responsibility                      | Construction skills                                                                                        |
 |---------------------------------------------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| [`aiup-core`](aiup-core/)                   | Stack-independent analysis and specifications | `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/test-case`, `/reverse-engineer` |
+| [`aiup-core`](aiup-core/)                   | Stack-independent analysis and specifications | `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/test-case`, `/spec-review`, `/reverse-engineer` |
 | [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ                | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                 |
 | [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA              | Flyway, implementation, Spring Boot tests, Vitest, Playwright                                              |
 | [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                   |
@@ -120,6 +120,7 @@ The stack-independent workflow creates a shared documentation contract:
 docs/
 ├── vision.md                         # maintained by the team
 ├── requirements.md                   # /requirements
+├── glossary.md                       # /requirements (domain terms and synonyms to avoid)
 ├── entity_model.md                   # /entity-model
 ├── use_cases.puml                    # /use-case-diagram
 ├── processes/

@@ -22,6 +22,7 @@ reviewable files under `docs/`.
 | Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                             |
 | Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                              |
 | Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journeys across specified use cases or BPMN process paths |
+| Any          | [`/spec-review`](skills/spec-review/SKILL.md)           | Deterministic lint and advisory review of the specification quality  |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code       |
 
 ```text
@@ -77,6 +78,7 @@ your-project/
 └── docs/
     ├── vision.md                    # maintained by the team
     ├── requirements.md              # /requirements
+    ├── glossary.md                  # /requirements (domain terms and synonyms to avoid)
     ├── entity_model.md              # /entity-model
     ├── use_cases.puml               # /use-case-diagram
     ├── processes/
@@ -86,6 +88,9 @@ your-project/
     └── test_cases/
         └── TC-001-*.md              # /test-case
 ```
+
+`/spec-review` checks these files against each other. Its bundled script `spec_lint.py` needs only Python and can
+run as a blocking CI gate; accepted findings of an existing project go into `docs/.spec-lint-baseline.json`.
 
 Review and commit these files with the source code. Stack plugins consume the entity model, use case specifications,
 and test journeys without depending on which coding agent produced them.

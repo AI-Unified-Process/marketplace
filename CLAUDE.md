@@ -26,7 +26,8 @@ marketplace/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
 │       ├── use-case-spec/
-│       └── test-case/
+│       ├── test-case/
+│       └── spec-review/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
@@ -146,7 +147,32 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Elaboration  | `/use-case-diagram`   | Generate PlantUML use case diagrams                                  |
 | Construction | `/use-case-spec`      | Write detailed use case specifications                               |
 | Construction | `/test-case`          | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
+| Any          | `/spec-review`        | Lint and review the specification artifacts against each other      |
 | Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from code |
+
+#### Spec review
+
+`/spec-review` has two parts, and the split is the design:
+
+- **Part A, `skills/spec-review/scripts/spec_lint.py`** — deterministic, Python standard library only, the only
+  part that may fail a build. It checks what connects the documents (diagram ↔ spec files, unique ids, resolving
+  `FR-`/`UC-xxx BR-yyy`/TC/process references, FR coverage, BPMN activity mapping, copied rule text, weak words,
+  glossary Avoid synonyms) plus a baseline file (`docs/.spec-lint-baseline.json`) for brownfield projects.
+  It does **not** copy the per-file checks or the BPMN parser: it imports `validate_use_case.py` and
+  `bpmn_paths.py` at runtime from the sibling skill folders by glob (`*use-case-spec/`, `*test-case/`, host prefixes
+  allowed) and reports an INFO finding when one is missing. Keep one copy of each script.
+- **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
+  reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency). Its findings are
+  `warning`/`info` only and never block.
+- **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; it
+  hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
+  `docs/`; `/coverage-check` compares specifications with code and stays stack-specific.
+
+The glossary (`docs/glossary.md`, columns `Term | Definition | Avoid`) is written by `/requirements` from the
+template `skills/requirements/references/glossary.md`; `/use-case-spec` and `/reverse-engineer` use its terms.
+Business rules stay numbered per use case, so "defined once" means no rule text copied between use cases, not
+globally unique rule ids. There is deliberately no syntax for entity references in use cases; entity consistency
+is judged from context in Part B.
 
 ### Angular / JPA (stack-specific)
 
@@ -243,7 +269,7 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
   `--fix` inserts missing headers and re-syncs the LICENSE/NOTICE copies. **New skills must carry
   the header or CI fails.**
 - Deliberately *not* stamped: `docs/templates/`, and the artifact templates and worked examples
-  under `skills/*/references/` (`use-case.md`, `test-case.md`, `example.md`). Skills copy those into
+  under `skills/*/references/` (`use-case.md`, `test-case.md`, `example.md`, `glossary.md`). Skills copy those into
   the user's project, where an AI Unified Process copyright line would be wrong — and content before the title
   line breaks `validate_use_case.py --strict`. The exclusion list lives in the check script.
 - The copyright line reads "Simon Martinelli and the AI Unified Process contributors" because

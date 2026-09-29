@@ -6,8 +6,9 @@ description: >
   requirements (measurable quality attributes), and constraints. Use when
   the user asks to "write requirements", "create a PRD", "gather requirements",
   "document feature specs", "write user stories", "define NFRs", "list
-  constraints", or mentions requirements catalog, requirements analysis,
-  product requirements document, or feature specification.
+  constraints", "write a glossary", "define domain terms", or mentions
+  requirements catalog, requirements analysis, product requirements document,
+  feature specification, or glossary.
 ---
 
 <!--
@@ -22,7 +23,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 Create or update the requirements catalog at `docs/requirements.md` based on `docs/vision.md`.
 The document contains functional requirements, non-functional requirements, and constraints organized as Markdown
-tables.
+tables. Alongside it, create or update the glossary at `docs/glossary.md` (see [Glossary](#glossary)).
 
 ## DO NOT
 
@@ -67,6 +68,22 @@ Define limitations and boundaries imposed on the solution.
 | C-003 | Browser Support   | UI must support Chrome, Firefox, and Safari (latest 2 versions). | Technical | High     | Open   |
 | C-004 | Budget Limit      | Total development cost must not exceed $50,000.                  | Business  | High     | Open   |
 | C-005 | Deadline          | System must be production-ready by Q2 2025.                      | Schedule  | High     | Open   |
+
+## Glossary
+
+The glossary fixes one name per domain concept, so requirements, use cases, test cases, and code all use the same
+word. Use [references/glossary.md](references/glossary.md) as the structure (the path is relative to the folder
+containing this SKILL.md): one table with the columns `Term | Definition | Avoid`.
+
+- **Term** — the preferred name, in singular, as the business says it. One row per concept; never define a term twice.
+- **Definition** — one or two sentences that tell this concept apart from its neighbors (a Guest is not necessarily
+  the person who made the Reservation).
+- **Avoid** — comma-separated synonyms that must not be used for this concept, or empty. Only list a word here when
+  it would be ambiguous or misleading; a word listed here is flagged wherever it appears in the specifications.
+
+Take the terms from the vision and from the nouns of the user stories: roles, business objects, states, and business
+events. Leave out generic words (system, data, user interface). When the glossary already exists, add new terms and
+keep existing rows unless the user asks to change them.
 
 ## Reference
 
@@ -124,4 +141,6 @@ Every requirement must pass these checks before finalizing:
       that [benefit]" — scan each row; any row missing "As a", "I want", or "so
       that" is rejected and rewritten before finalizing, no exceptions
     - All NFRs contain a measurable threshold
-8. Mark todos complete
+8. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
+   an Avoid synonym) in every requirement
+9. Mark todos complete

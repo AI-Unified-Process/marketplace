@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+
+actor Librarian as librarian
+
+rectangle "Library System" {
+    usecase "UC-001\nRegister Member" as UC001
+    usecase "UC-002\nLend Book" as UC002
+    usecase "UC-003\nReturn Book" as UC003
+}
+
+librarian --> UC001
+librarian --> UC002
+librarian --> UC003
+@enduml

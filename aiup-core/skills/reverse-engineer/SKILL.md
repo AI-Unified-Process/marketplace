@@ -248,7 +248,11 @@ Create `docs/use_cases/` and write one file per use case named
   constants, configuration, and any `if (...)` that encodes a policy
   decision (limits, thresholds, eligibility). Name them `BR-001`, `BR-002`,
   …, starting again at `BR-001` in every spec file — rule ids are unique
-  within their use case, not across files.
+  within their use case, not across files. A policy the code enforces in
+  several places is still one rule: write it in the use case that owns the
+  data and cite it elsewhere as "UC-005 BR-002" instead of copying it.
+  When `docs/glossary.md` exists, name actors and business objects with its
+  terms, never with a synonym from its Avoid column.
 
 The full template lives in the `/use-case-spec` skill of this plugin as
 `references/use-case.md`, and the normative format definition next to it as
@@ -386,6 +390,12 @@ Then check the three documents agree:
   in the required order; no raw SQL types (`VARCHAR`, `bigint`, `numeric`,
   `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
   appear inside the Mermaid entity blocks.
+
+The cross-file part of these checks (diagram against spec files, duplicated
+ids, rule citations that point to nothing, rules copied between use cases)
+is automated by the `/spec-review` skill of this plugin. Point the user to
+`/spec-review` in the summary instead of running it here; a brownfield
+project usually starts it with a baseline.
 
 ### 8. Summarize for the user
 
