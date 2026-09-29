@@ -10,7 +10,7 @@ Postgres container + Flyway auto-migrate) and drives the API with **RestAssured*
 Hamcrest matchers. There is no MockMvc anywhere in this project's test sources.
 
 The engineering team has finished implementing the backend for UC-020 "Register Guest" (spec at
-`docs/use-cases/UC-020-register-guest.md`). The implementation already exists under
+`docs/use_cases/UC-020-register-guest.md`). The implementation already exists under
 `backend/src/main/java/com/example/hotel/guest/`:
 
 - `Guest.java` — the JPA entity

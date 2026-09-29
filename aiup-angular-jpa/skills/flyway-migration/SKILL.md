@@ -114,3 +114,6 @@ CREATE TABLE room_type
     - Verify column names are `snake_case` and will match the default Hibernate mapping of the
       corresponding `@Entity` field names
     - Verify the SQL syntax is valid for the target database
+8. Report the migration file you created and end with one hand-off line to the next construction
+   step: `Next: /implement UC-XXX` for the use case that needs the new tables (or, when no use case
+   was named, `Next: /implement` with the specification to implement first)

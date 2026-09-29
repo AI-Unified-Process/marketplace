@@ -5,7 +5,7 @@
 An online shop's engineering team has already run `/flyway-migration` and `/entity-model` for their
 Spring Boot + JPA + Angular project. The `product` table already exists (see the Flyway migration under
 `inputs/backend/src/main/resources/db/migration/`), the entity model is at `docs/entity_model.md`, and
-the use case is specified at `docs/use-cases/UC-010-browse-product-catalog.md`. Nobody has written any
+the use case is specified at `docs/use_cases/UC-010-browse-product-catalog.md`. Nobody has written any
 backend or frontend code for this use case yet.
 
 The backend is a single flat Maven project at `backend/` with package `com.example.shop`, using Spring

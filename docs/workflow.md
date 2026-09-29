@@ -75,15 +75,16 @@ coverage check below.
 
 ## Coverage check
 
-Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` ships the read-only
-[`uc-coverage`](../aiup-vaadin-jooq/agents/uc-coverage.md) sub-agent for that check: it turns a use case specification
+Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` and `aiup-angular-jpa` ship a read-only
+`uc-coverage` sub-agent for that check ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md),
+[Angular](../aiup-angular-jpa/agents/uc-coverage.md)): it turns a use case specification
 into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition, and
 postcondition — and maps each one onto the code and the tests that realize it.
 
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
 
-That plugin's implementation and testing skills do not run the audit themselves — each run re-reads the
+Those plugins' implementation and testing skills do not run the audit themselves — each run re-reads the
 specification and the code base and takes minutes, so the check runs once, explicitly, when you ask for it. The
 [`/coverage-check`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill is that entry point, and the only one
 that judges both sides in a single matrix:
@@ -97,8 +98,8 @@ that judges both sides in a single matrix:
 A use case whose coverage matrix is complete in both columns is the point at which `**Status:** Tested` is justified.
 That is what `/coverage-check UC-001` is for; the skill reports the justified status but leaves the line to you.
 
-The agent's marker table is specific to the Vaadin/jOOQ conventions. The other stack plugins do not ship an equivalent
-yet; the same check can be run by hand from
+Each agent's marker table is specific to its stack's conventions. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not
+ship an equivalent yet; the same check can be run by hand from
 [the agent definition](../aiup-vaadin-jooq/agents/uc-coverage.md) with the markers of the stack in question.
 
 ## Core skills

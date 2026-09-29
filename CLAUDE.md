@@ -51,12 +51,15 @@ marketplace/
 │   ├── .mcp.json                 # JavaDocs, Playwright
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
+│   ├── agents/                   # Sub-agents (Claude Code)
+│   │   └── uc-coverage.md        # Read-only use case coverage auditor (Angular/JPA markers)
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── flyway-migration/
 │       ├── implement/
 │       ├── vitest-test/
 │       ├── spring-boot-test/
-│       └── playwright-test/
+│       ├── playwright-test/
+│       └── coverage-check/
 ├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
@@ -182,7 +185,12 @@ is judged from context in Part B.
 | Construction | `/implement`          | Implement use cases using Angular and Spring Boot JPA         |
 | Construction | `/spring-boot-test`   | Create Spring Boot backend unit and integration tests         |
 | Construction | `/vitest-test`        | Create Vitest component and unit tests for Angular            |
-| Construction | `/playwright-test`    | Create Playwright E2E browser tests for Angular + Spring Boot |
+| Construction | `/playwright-test`    | Create Playwright tests — use case (UC-*) or test case (TC-*) |
+| Construction | `/coverage-check`     | Audit a UC-* or TC-* for implementation and test coverage     |
+
+Same coverage design as aiup-vaadin-jooq (see below): `agents/uc-coverage.md` is this plugin's own copy with Spring
+Boot, Vitest, and Playwright markers; `/implement` hands off to `/spring-boot-test` and `/vitest-test`, and the test
+skills hand off to `/coverage-check UC-XXX`.
 
 ### C# / Blazor .NET 10 (stack-specific)
 
@@ -237,7 +245,7 @@ explicit run at the end, in the agent's `both` mode, is the audit that justifies
 construction skill needs the same hand-off section; do not add an in-skill audit back.
 
 The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
-plugin that wants the same check needs its own copy with its own markers. Sub-agents are Claude Code-specific and are
+plugin that wants the same check needs its own copy with its own markers (`aiup-angular-jpa` has one). Sub-agents are Claude Code-specific and are
 not part of the Agent Plugins standard; `/coverage-check` therefore also tells hosts without sub-agents to run the
 checklist from the agent file directly.
 

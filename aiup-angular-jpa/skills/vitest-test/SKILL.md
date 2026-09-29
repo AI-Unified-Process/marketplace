@@ -254,7 +254,7 @@ await fixture.whenStable();
 
 ## Workflow
 
-1. Read the use case specification (`docs/use-cases/UC-XXX-*.md`) to identify
+1. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
 2. Look for an existing spec file for this use case. If there is one, follow
@@ -275,6 +275,27 @@ await fixture.whenStable();
     - Confirm `await fixture.whenStable()` was awaited after any signal-driven
       async update
     - Call `httpMock.verify()` to catch unexpected/missing requests
+8. Report the result and hand off — see [Coverage Check](#coverage-check) below
+
+## Coverage Check
+
+Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the tests against the
+specification yourself. The audit is a separate, explicit step that belongs to
+`/coverage-check`: it judges implementation and tests together in
+one matrix, and it is the only audit behind a justified `**Status:** Tested`.
+
+Finish instead by:
+
+- Summarising which tests you wrote and whether the suite passes, with the test command you ran.
+- Ending with one hand-off line: `Next: /coverage-check UC-XXX`. If the spec file is still
+  unfinished, suggest `/coverage-check UC-XXX tests wip` so the audit lists remaining work instead
+  of defects.
+- Leaving the specification's `**Status:**` line alone; the audit suggests the next value.
+
+Running the audit here would triple it — once after implementation, once after tests, once in
+`/coverage-check`. Each run re-reads the specification and the code base and takes minutes; one
+run at the end, in `both` mode, is the one that counts. Whether to run it now, later, or not at
+all is the user's call.
 
 ## Resources
 
