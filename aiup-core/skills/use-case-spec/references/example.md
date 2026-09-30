@@ -7,6 +7,7 @@
 **Primary Actor:** Front Desk Clerk  
 **Secondary Actors:** Payment Service  
 **Goal:** Create a new room reservation for a guest  
+**Trigger:** A guest asks the front desk to book a room  
 **Status:** Approved  
 **Requirements:** [FR-001, FR-002, NFR-001](../requirements.md)
 

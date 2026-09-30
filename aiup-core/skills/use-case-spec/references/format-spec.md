@@ -36,6 +36,7 @@ this order on save):
 **Primary Actor:** <role>
 **Secondary Actors:** <roles>                    (optional)
 **Goal:** <one sentence>
+**Trigger:** <event that starts the use case>     (optional)
 **Status:** <status value>
 
 **Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
@@ -91,12 +92,13 @@ and empty files are English) and preserved on save.
 | Primary actor        | `**Primary Actor:**`          | `**Primärer Akteur:**`  |
 | Secondary actors     | `**Secondary Actors:**`       | `**Sekundäre Akteure:**`|
 | Goal                 | `**Goal:**`                   | `**Ziel:**`             |
+| Use case trigger     | `**Trigger:**` (Overview)     | `**Auslösendes Ereignis:**` (reads `**Trigger:**` too) |
 | Status               | `**Status:**`                 | `**Status:**` (same)    |
 | Requirements         | `**Requirements:**`           | `**Anforderungen:**`    |
 | Preconditions        | `## Preconditions`            | `## Vorbedingungen`     |
 | Main scenario        | `## Main Success Scenario`    | `## Hauptablauf`        |
 | Alternative flows    | `## Alternative Flows`        | `## Alternativabläufe`  |
-| Trigger field        | `**Trigger:**`                | `**Auslöser:**` (reads `**Trigger:**` too) |
+| Flow trigger field   | `**Trigger:**`                | `**Auslöser:**` (reads `**Trigger:**` too) |
 | Flow field           | `**Flow:**`                   | `**Ablauf:**`           |
 | Postconditions       | `## Postconditions`           | `## Nachbedingungen`    |
 | Success subsection   | `### Success Postconditions`  | `### Erfolgsfall`       |
@@ -125,7 +127,7 @@ Status values (either language is readable in any document):
    on save.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
-   Secondary Actors and Requirements are optional.
+   Secondary Actors, Trigger and Requirements are optional.
 3. **Status** — the status value must start with one of the values
    above (case-insensitive). Decoration without letters before the
    value and any annotation after it at a word boundary are tolerated:
@@ -165,7 +167,10 @@ canonical form, but validators must accept:
   flow; a note never substitutes for trigger or steps.
 - **Decorated status values** as described above.
 - **`**Trigger:**` in German documents** (written back as
-  `**Auslöser:**`).
+  `**Auslöser:**`). In the Overview of a German document it is read as
+  the use case trigger, whose canonical label is
+  `**Auslösendes Ereignis:**` — deliberately not `**Auslöser:**`, which
+  names the condition of an alternative flow.
 - **`BR-` rule labels in German documents** (written back as `GR-`).
 - **Wrapped lines** — joined into the item above.
 
@@ -183,6 +188,15 @@ creates diffs on the first Studio save:
 ## Skill contract (WARN level)
 
 The `/use-case-spec` skill additionally requires:
+
+- The Overview names the use case trigger — the event that starts the use
+  case (an actor's request, a point in time, a message from an external
+  system). The line is optional so that older documents stay valid, and
+  the skill writes it for every new document. The validator warns when a
+  present trigger is empty, references a step (`(step N)` belongs to
+  alternative-flow triggers), or repeats a precondition word for word.
+  Whether it is really an event and not a state is judged by
+  `/spec-review`.
 
 - All five template sections and both postcondition subsections exist.
 - The use case id matches `[SB]?UC-[A-Za-z0-9_-]+` and the filename

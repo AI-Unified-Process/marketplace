@@ -58,6 +58,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Skip numbering steps in the Main Success Scenario
 - Omit alternative flows for error conditions
 - Leave postconditions undefined
+- Write an event or an actor action as a precondition ("User clicks New Order") — that is the trigger
 - Mix multiple use cases in one document
 - Use technical implementation details in the flow steps
 
@@ -115,13 +116,19 @@ in the implementation, not the specification.
    diagram — see "Scope" above). Take each `UC-XXX` ID and name from the diagram.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
-5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, and a
+5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, trigger, and a
    `Status` from the "Status values" list above. The primary actor is the one who pursues the
    goal; secondary actors are the roles and external systems that support the use case or
    provide information or services to it (e.g. `**Secondary Actors:** Weather Service, Flight
    Planning System`). Name them so an implementation treats them as outside the system's
    responsibility, not as something to build. Omit the `**Secondary Actors:**` line when the use
-   case has none. When `docs/requirements.md` exists, add a
+   case has none. The `**Trigger:**` line (German documents: `**Auslösendes Ereignis:**`, never
+   `**Auslöser:**`, which labels alternative flows) names the **event** that starts the use case: an
+   actor's request (`Dispatcher requests an airport suitability assessment`), a point in time
+   (`End of each business day`), or a message from an external system (`Payment Service reports a
+   chargeback`). It happens at a moment; a precondition is a state that is already true. Test it by
+   asking "when does this happen?" — `User is logged in` has no moment and is a precondition. The
+   trigger may coincide with step 1, but step 1 does not repeat it word for word. When `docs/requirements.md` exists, add a
    `**Requirements:**` line after the `Status` line: one Markdown link to the catalog
    whose link text lists the requirement ids — at least the functional requirements
    (`FR-*`) this use case realizes, plus the non-functional requirements (`NFR-*`) and
@@ -130,7 +137,10 @@ in the implementation, not the specification.
    never copy requirement text — `requirements.md` stays the source of truth.
    `/spec-review` uses the line to find requirements no use case covers and ids that
    do not exist. Omit the line only when there is no `docs/requirements.md`.
-6. Define preconditions — verifiable facts that must be true before the use case starts.
+6. Define preconditions — verifiable facts that must be true before the use case starts. They are
+   states the system has already established (often by another use case), never events or actor
+   actions, and the use case does not check them again: an alternative flow for a violated
+   precondition means the fact is not a precondition but a condition to handle.
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
 8. Identify **all** meaningful alternative flows (error conditions, optional paths,
@@ -171,6 +181,8 @@ verifying by eye. The list remains the definition of done:
 
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
 - [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
+- [ ] Overview has a `**Trigger:**` line naming the event that starts the use case (an actor's request, a point in time, or an external system's message) — not a state, and not a copy of a precondition.
+- [ ] Preconditions are states that are already true, not events or actor actions.
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
 - [ ] At least one alternative flow exists (two or more when the use case has several failure paths); each has a **Trigger** that references a specific main-scenario step number as `(step N)`.

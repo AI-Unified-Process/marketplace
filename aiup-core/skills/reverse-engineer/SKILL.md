@@ -230,7 +230,11 @@ Create `docs/use_cases/` and write one file per use case named
 - **Overview**: ID, name, primary actor, secondary actors (external
   systems the code calls for this use case — payment, mail, or map APIs,
   other internal services — and supporting roles; omit the line when
-  there are none), goal, status (`Implemented` is
+  there are none), goal, trigger (the event behind the entry point: a
+  user action on a route or view for an interactive use case, the
+  schedule of a `@Scheduled` job or cron task for a time trigger, the
+  message or webhook a listener consumes for an external system's event),
+  status (`Implemented` is
   usually the right status when reverse-engineering working code; use
   `Draft` only if the implementation is partial or you're unsure). Add
   the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
@@ -238,7 +242,8 @@ Create `docs/use_cases/` and write one file per use case named
   use case; otherwise omit the line — never invent requirement ids.
 - **Preconditions**: derive from auth checks, route guards, validation
   guards that fail fast, and required upstream state (e.g. "guest is
-  registered" if the route requires a session).
+  registered" if the route requires a session). Preconditions are states,
+  never the request that starts the use case — that is the trigger.
 - **Main Success Scenario**: numbered steps written from the actor and
   system perspective — never naming framework methods, SQL, or HTTP verbs.
   Trace the happy path through the code and abstract each branch into a

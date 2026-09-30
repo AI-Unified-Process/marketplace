@@ -93,3 +93,24 @@ Specifications name data in business words, so judge from context, not from spel
 - a relationship a flow relies on that the model does not have
 
 Skip this check when there is no entity model. Severity: `warning`.
+
+## 8. Trigger and preconditions
+
+**Where:** the Overview's `**Trigger:**` line (German: `**Auslösendes Ereignis:**`) and the Preconditions of each use
+case.
+
+The trigger is the event that starts the use case — an actor's request, a point in time, a message from an external
+system. A precondition is a state that is already true and that the use case does not check again. Ask "when does
+this happen?": an event has a moment, a state does not. Report:
+
+- a trigger that is a state ("Flight data is available", "User is logged in") — it belongs in the Preconditions
+- a precondition that is an event or an actor action ("User clicks New Order", "Dispatcher requests an assessment")
+  — it is the trigger, or step 1
+- an alternative flow that handles a violated precondition — then the fact is not a precondition but a condition the
+  use case has to check
+- a step 1 that repeats the trigger word for word instead of starting the interaction
+
+A missing trigger line is `info` (older documents have none; `/use-case-spec` writes it for new ones). The validator
+already flags an empty trigger, a `(step N)` in it, and a trigger that copies a precondition verbatim; report what
+needs judgment. Severity: `warning` for a state written as a trigger or an event written as a precondition, `info`
+otherwise.

@@ -7,6 +7,7 @@
 **Primary Actor:** [Role]  
 **Secondary Actors:** [Supporting roles or external systems, comma-separated — omit this line when there are none]  
 **Goal:** [In one sentence: the observable outcome the actor achieves and why — not "use the system"]  
+**Trigger:** [The event that starts the use case — an actor's request, a point in time, or a message from an external system; not a state that is already true]  
 **Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete  
 **Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)
 

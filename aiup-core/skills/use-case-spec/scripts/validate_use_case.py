@@ -53,9 +53,11 @@ LANGUAGES = {
             "secondary_actors": "**Secondary Actors:**",
             "goal": "**Goal:**",
             "requirements": "**Requirements:**",
+            "uc_trigger": "**Trigger:**",
             "trigger": "**Trigger:**",
             "flow": "**Flow:**",
         },
+        "uc_trigger_aliases": ["**Trigger:**"],
         "trigger_aliases": ["**Trigger:**"],
         "rule_prefix": "BR",
     },
@@ -77,9 +79,12 @@ LANGUAGES = {
             "secondary_actors": "**Sekundäre Akteure:**",
             "goal": "**Ziel:**",
             "requirements": "**Anforderungen:**",
+            # distinct from the alternative-flow label "Auslöser"
+            "uc_trigger": "**Auslösendes Ereignis:**",
             "trigger": "**Auslöser:**",
             "flow": "**Ablauf:**",
         },
+        "uc_trigger_aliases": ["**Auslösendes Ereignis:**", "**Trigger:**"],
         # German documents in the wild often keep the English "Trigger" label
         "trigger_aliases": ["**Auslöser:**", "**Trigger:**"],
         "rule_prefix": "GR",
@@ -302,6 +307,13 @@ def parse_overview(doc, lines, index):
             overview["requirements"] = \
                 line[len(fields["requirements"]):].strip()
             index += 1
+        elif any(line.startswith(a) for a in lang["uc_trigger_aliases"]):
+            alias = next(a for a in lang["uc_trigger_aliases"]
+                         if line.startswith(a))
+            parts = [line[len(alias):].strip()]
+            overview["trigger_line"] = index + 1
+            index = join_continuation(doc, lines, index + 1, parts)
+            overview["trigger"] = " ".join(parts)
         else:
             # unknown overview lines are kept verbatim by Studio (pass-through)
             index += 1
@@ -588,6 +600,26 @@ def check_contract(doc, path):
         doc.add(0, WARN, "ID_FILENAME_MISMATCH",
                 "filename does not start with the use case id " + uc_id)
 
+    # The use case trigger is optional (older documents have none), but when
+    # present it must name the starting event, not restate a precondition.
+    trigger = doc.overview.get("trigger")
+    if trigger is not None:
+        trigger_line = doc.overview.get("trigger_line", 0)
+        if not trigger.strip():
+            doc.add(trigger_line, WARN, "UC_TRIGGER_EMPTY",
+                    "the use case trigger line names no event")
+        elif STEP_REFERENCE.search(trigger):
+            doc.add(trigger_line, WARN, "UC_TRIGGER_STEP_REF",
+                    "the use case trigger references a step; '(step N)' "
+                    "belongs to alternative-flow triggers only")
+        normalized = trigger.strip().rstrip(".").lower()
+        for condition in doc.preconditions:
+            if condition.strip().rstrip(".").lower() == normalized:
+                doc.add(trigger_line, WARN, "UC_TRIGGER_IS_PRECONDITION",
+                        "the use case trigger repeats a precondition; a "
+                        "trigger is the event that starts the use case, a "
+                        "precondition is what is already true: " + trigger)
+
     if not doc.main_scenario and not doc.main_scenario_placeholder \
             and "main_scenario" in doc.sections_seen:
         doc.add(0, WARN, "MAIN_SCENARIO_EMPTY",
@@ -671,6 +703,7 @@ VALID_EN = """\
 **Use Case Name:** Create Reservation
 **Primary Actor:** Clerk
 **Goal:** Create a reservation for a guest
+**Trigger:** A guest asks the clerk to book a room
 **Status:** Approved
 
 **Requirements:** [FR-001, FR-002](../requirements.md)
@@ -723,6 +756,7 @@ VALID_DE_TOLERANT = """\
 **Primärer Akteur:** SachbearbeiterIn
 **Sekundäre Akteure:** TeamleiterIn
 **Ziel:** Eine Mitteilung erfassen und dem Team zustellen
+**Auslösendes Ereignis:** Eine Kundin meldet einen Sachverhalt telefonisch
 **Status:** ✅ Implementiert (2025-07-11)
 
 **Priorität:** Hoch
@@ -779,9 +813,12 @@ INVALID = """\
 **Use Case Name:** Broken
 **Primary Actor:** User
 **Goal:** Show every error class
+**Trigger:** User is logged in
 **Status:** In Progress
 
 ## Preconditions
+
+- User is logged in
 
 The user is logged in.
 
@@ -841,7 +878,8 @@ def self_test():
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")
     expect("invalid", doc.problems,
-           ["STATUS_INVALID", "UNEXPECTED_CONTENT", "FLOW_INCOMPLETE"])
+           ["STATUS_INVALID", "UNEXPECTED_CONTENT", "FLOW_INCOMPLETE",
+            "UC_TRIGGER_IS_PRECONDITION"])
 
     if failures:
         for failure in failures:
