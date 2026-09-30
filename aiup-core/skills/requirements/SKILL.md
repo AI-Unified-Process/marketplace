@@ -61,13 +61,20 @@ Define quality attributes. Must be measurable.
 
 Define limitations and boundaries imposed on the solution.
 
-| ID    | Title             | Constraint                                                       | Category  | Priority | Status |
-|-------|-------------------|------------------------------------------------------------------|-----------|----------|--------|
-| C-001 | Runtime Platform  | Backend must run on Java 21 LTS.                                 | Technical | High     | Open   |
-| C-002 | Database Platform | System must use PostgreSQL 16.                                   | Technical | High     | Open   |
-| C-003 | Browser Support   | UI must support Chrome, Firefox, and Safari (latest 2 versions). | Technical | High     | Open   |
-| C-004 | Budget Limit      | Total development cost must not exceed $50,000.                  | Business  | High     | Open   |
-| C-005 | Deadline          | System must be production-ready by Q2 2025.                      | Schedule  | High     | Open   |
+| ID    | Title             | Constraint                                                              | Category   | Source                 | Priority | Status |
+|-------|-------------------|-------------------------------------------------------------------------|------------|------------------------|----------|--------|
+| C-001 | Runtime Platform  | Backend must run on Java 21 LTS.                                        | Technical  |                        | High     | Open   |
+| C-002 | Database Platform | System must use PostgreSQL 16.                                          | Technical  |                        | High     | Open   |
+| C-003 | Browser Support   | UI must support Chrome, Firefox, and Safari (latest 2 versions).        | Technical  |                        | High     | Open   |
+| C-004 | Budget Limit      | Total development cost must not exceed $50,000.                         | Business   |                        | High     | Open   |
+| C-005 | Deadline          | System must be production-ready by Q2 2025.                             | Schedule   |                        | High     | Open   |
+| C-006 | Right to Erasure  | Personal data of a customer must be erased within 30 days of a request. | Regulatory | GDPR Art. 17(1), 12(3) | High     | Open   |
+
+The **Source** column is optional — omit it when no constraint comes from an outside document. It names where a
+constraint comes from — a law, regulation, standard, or internal policy, down to the article or paragraph and, where it
+matters, the version (`GDPR Art. 17(1)`, `ISO 27001:2022 A.8.24`, `Operating Policy OP-12 v3`) — so the origin of a
+mandated rule stays traceable. When the column is present, fill it for every `Regulatory` constraint and leave it empty
+for the others. Keep Status the last column.
 
 ## Glossary
 
@@ -134,6 +141,7 @@ Every requirement must pass these checks before finalizing:
 6. For constraints:
     - Document technical and business limitations
     - Categorize by constraint type
+    - Name the source of each regulatory or externally imposed constraint in the Source column
 7. Validate: run every requirement against the quality checks table above
     - No duplicate IDs across all tables
     - All Status columns filled
