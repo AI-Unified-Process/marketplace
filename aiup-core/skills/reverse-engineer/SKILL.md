@@ -262,7 +262,10 @@ Create `docs/use_cases/` and write one file per use case named
   not have.
 - **Postconditions**: success postconditions come from successful database
   writes, emitted events, sent emails, and returned redirects. Failure
-  postconditions come from rollbacks and error responses.
+  postconditions are the minimum guarantees that hold for every
+  unsuccessful end — derive them from transaction boundaries, rollbacks,
+  and checks that run before any write ("No order is stored"), never
+  from error responses or messages, which belong in the alternative flows.
 - **Business Rules**: extract from validation annotations, domain
   constants, configuration, and any `if (...)` that encodes a policy
   decision (limits, thresholds, eligibility). Name them `BR-001`, `BR-002`,

@@ -76,6 +76,12 @@ this order on save):
 <free-text description>
 ```
 
+`### Failure Postconditions` (German `### Fehlerfall`) keeps its heading for
+compatibility but holds the **minimum guarantees**: statements that must hold
+for every unsuccessful termination of the use case, such as "No reservation is
+created". A system reaction to the failure (an error message) belongs in the
+alternative flow, not here.
+
 ## Languages
 
 The structure is identical in English and German; only headings, field

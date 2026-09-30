@@ -40,7 +40,7 @@
 
 ### Failure Postconditions
 
-- [State of the system if the use case fails]
+- [Minimum guarantee that holds for every unsuccessful end of the use case, e.g. no partial data is stored]
 
 ## Business Rules
 

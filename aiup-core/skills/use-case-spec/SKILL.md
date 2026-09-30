@@ -60,6 +60,8 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Invent an alternative flow only to fill the section — when no step has a meaningful alternative or exception
   condition, say so with a placeholder (see workflow step 8)
 - Leave postconditions undefined
+- Describe the reaction to a failure ("System displays an error message") as a failure postcondition — that
+  is a step of the alternative flow; failure postconditions are guarantees that hold on every unsuccessful end
 - Write a technical step (validate, load, persist) as if it were a user goal — see workflow step 2
 - Write an event or an actor action as a precondition ("User clicks New Order") — that is the trigger
 - Write a precondition that the use case establishes or evaluates itself ("A room is available for the requested
@@ -73,7 +75,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 Use [references/use-case.md](references/use-case.md) as the document structure, and
 see [references/example.md](references/example.md) for a complete worked example —
 actor-focused steps, alternative flows that reference specific step numbers, and
-paired success/failure postconditions. These paths are relative to the folder
+success postconditions paired with failure postconditions written as minimum guarantees. These paths are relative to the folder
 containing this SKILL.md, not to the project root.
 
 The normative definition of the format — including the German variant and the
@@ -175,6 +177,15 @@ in the implementation, not the specification.
    result, e.g. `_None — no step of the main success scenario can fail or branch._` The validator
    accepts the placeholder as a deliberate statement and warns only when the section is left empty.
 9. Define postconditions for both success and failure (both subsections non-empty).
+   - **Success Postconditions** state what is true when the primary actor's goal is achieved.
+   - **Failure Postconditions** describe the minimum guarantees that must hold for every unsuccessful
+     termination of the use case — every alternative flow that ends with `Use case ends.`, a cancellation,
+     or a failure of a secondary actor. They state what the system protects when the goal is not reached
+     (Cockburn's *Minimal Guarantees*), not what it does in reaction to the failure: "No reservation is
+     created", "Existing valid data is not overwritten", "An incomplete result is never presented as
+     valid", "No partial payment remains booked". A message, a notification, or a return to a screen is
+     not a guarantee — it belongs in the alternative flow that handles the failure. A statement that
+     holds for only one failure path belongs in that flow, not here.
 10. Document applicable business rules with `BR-XXX` IDs, numbered `BR-001`,
     `BR-002`, … within the file. Every file starts again at `BR-001`; rule ids are
     scoped to their use case (see "Scope").
@@ -215,5 +226,6 @@ verifying by eye. The list remains the definition of done:
 - [ ] Each alternative flow has a **Trigger** that references a specific main-scenario step number as `(step N)`.
 - [ ] Every alternative flow ends with `Use case continues at step N.` or `Use case ends.` — never open-ended.
 - [ ] Both Success and Failure postconditions are defined and non-empty.
+- [ ] Every failure postcondition is a minimum guarantee that holds for every unsuccessful end of the use case — not a system reaction such as an error message, and not an outcome of a single failure path (`/spec-review` judges this one, not the validator).
 - [ ] Each business rule has a `BR-XXX` ID, numbered `BR-001`, `BR-002`, … without gaps within its file; every file starts at `BR-001` (rule ids are scoped to their use case).
 - [ ] No step contains technical implementation detail — no HTTP verbs (POST/GET), SQL, class names, regex, exception names, or protocol terms (SMTP, JWT, bcrypt). See "Step writing guidelines" above.

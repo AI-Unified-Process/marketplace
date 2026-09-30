@@ -68,7 +68,10 @@ A subfunction the diagram draws as an `<<include>>` from several use cases is in
 
 - A step that can fail — a validation, a lookup, a payment, a call to another system, a concurrent change — without
   an alternative flow whose trigger references that step (`(step N)`)
-- A failure path without a matching failure postcondition, or a failure postcondition no flow leads to
+- A failure postcondition that is not a minimum guarantee: a system reaction ("System displays an error message")
+  or a statement true for only one failure path. Failure postconditions must hold for every unsuccessful end
+- A failure path that would break a failure postcondition — e.g. an alternative flow that ends after a partial
+  write the guarantees rule out
 - A precondition that nothing establishes: no other use case produces the state it requires
 - A business rule that no step or flow applies
 

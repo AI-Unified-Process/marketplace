@@ -70,7 +70,7 @@
 
 - No reservation is created
 - Room availability remains unchanged
-- System displays error message to clerk
+- No payment is charged without a stored reservation
 
 ## Business Rules
 
