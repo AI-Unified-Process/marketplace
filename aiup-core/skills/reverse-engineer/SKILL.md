@@ -227,7 +227,10 @@ Create `docs/use_cases/` and write one file per use case named
 `UC-XXX-short-name.md` (kebab-case). Use the structure from
 `/use-case-spec`:
 
-- **Overview**: ID, name, primary actor, goal, status (`Implemented` is
+- **Overview**: ID, name, primary actor, secondary actors (external
+  systems the code calls for this use case — payment, mail, or map APIs,
+  other internal services — and supporting roles; omit the line when
+  there are none), goal, status (`Implemented` is
   usually the right status when reverse-engineering working code; use
   `Draft` only if the implementation is partial or you're unsure). Add
   the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
@@ -419,7 +422,7 @@ python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases/UC
 
 Then check the three documents agree:
 
-- Every actor in the diagram is the primary actor on at least one spec.
+- Every actor in the diagram is the primary or a secondary actor on at least one spec.
 - Every use case ID in the diagram has a matching spec file.
 - Every entity referenced as a noun in a use case spec exists in the
   entity model.

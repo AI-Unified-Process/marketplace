@@ -53,6 +53,9 @@ user --> UC003
 - Each use case has a unique id and a description
 - Use Case ID: UC-{3-digit} (UC-001, UC-002, ...)
 - Each use case should trace to at least one functional requirement
+- Secondary actors (supporting roles and external systems such as a payment or weather service) are drawn as
+  actors too and connected to the use cases they support; they appear as `**Secondary Actors:**` in the use case
+  specification
 - Add notes sparingly, only where relationships need clarification
 
 ## Workflow

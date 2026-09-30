@@ -115,8 +115,13 @@ in the implementation, not the specification.
    diagram — see "Scope" above). Take each `UC-XXX` ID and name from the diagram.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
-5. Write the Overview section: `Use Case ID`, primary actor, goal, and a `Status`
-   from the "Status values" list above. When `docs/requirements.md` exists, add a
+5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, and a
+   `Status` from the "Status values" list above. The primary actor is the one who pursues the
+   goal; secondary actors are the roles and external systems that support the use case or
+   provide information or services to it (e.g. `**Secondary Actors:** Weather Service, Flight
+   Planning System`). Name them so an implementation treats them as outside the system's
+   responsibility, not as something to build. Omit the `**Secondary Actors:**` line when the use
+   case has none. When `docs/requirements.md` exists, add a
    `**Requirements:**` line after the `Status` line: one Markdown link to the catalog
    whose link text lists the requirement ids — at least the functional requirements
    (`FR-*`) this use case realizes, plus the non-functional requirements (`NFR-*`) and
@@ -165,7 +170,7 @@ The validator in step 13 checks all of these mechanically — run it rather than
 verifying by eye. The list remains the definition of done:
 
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
-- [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value.
+- [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
 - [ ] At least one alternative flow exists (two or more when the use case has several failure paths); each has a **Trigger** that references a specific main-scenario step number as `(step N)`.

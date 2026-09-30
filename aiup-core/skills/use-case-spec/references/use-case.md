@@ -5,6 +5,7 @@
 **Use Case ID:** UC-XXX  
 **Use Case Name:** [Descriptive Name]  
 **Primary Actor:** [Role]  
+**Secondary Actors:** [Supporting roles or external systems, comma-separated — omit this line when there are none]  
 **Goal:** [In one sentence: the observable outcome the actor achieves and why — not "use the system"]  
 **Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete  
 **Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)
