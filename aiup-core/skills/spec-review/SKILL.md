@@ -115,7 +115,7 @@ Turn findings into the command that fixes them, and offer them; run one only if 
 
 - a use case (flows, rules, wording, level) → `/use-case-spec UC-XXX`
 - a use case missing from, or extra in, the diagram → `/use-case-diagram`
-- requirements, uncovered FRs, glossary terms and synonyms → `/requirements`
+- requirements, uncovered FRs, requirement statuses, glossary terms and synonyms → `/requirements`
 - data that does not match the entity model → `/entity-model`
 - a test case or a BPMN activity without a use case → `/test-case`
 
@@ -133,8 +133,8 @@ python3 scripts/spec_lint.py --docs docs --trace                # whole project,
 python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, or TC- id
 ```
 
-It prints two tables: requirement → use case (with its status) → business rules → test cases, and test case →
-process → use cases. A requirement no use case links and a use case without a `**Requirements:**` line appear with
+It prints two tables: requirement (with its status, followed by the status its use cases make it when the two
+differ) → use case (with its status) → business rules → test cases, and test case → process → use cases. A requirement no use case links and a use case without a `**Requirements:**` line appear with
 `—`. `--format json` prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no
 findings. If the user wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill
 writes no file. Whether code and tests realize the use cases is `/coverage-check`, not this matrix.

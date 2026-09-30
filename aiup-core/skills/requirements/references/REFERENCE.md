@@ -33,6 +33,20 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 | Deferred    | Postponed to a future release.                 |
 | Rejected    | Removed from scope.                            |
 
+Deferred and Rejected are scope decisions and are set by hand. Open, In Progress, Implemented, and Verified are
+progress, and progress follows the use cases that list the requirement in their `**Requirements:**` line:
+
+| Requirement status | When                                                                      |
+|--------------------|---------------------------------------------------------------------------|
+| Open               | No linking use case is Implemented yet (all Draft, Reviewed, or Approved) |
+| In Progress        | Some linking use cases are Implemented or beyond, others are not          |
+| Implemented        | Every linking use case is Implemented, Tested, or Done                    |
+| Verified           | Every linking use case is Tested or Done                                  |
+
+Obsolete use cases do not count. A requirement no use case links keeps its status by hand. `/spec-review` reports a
+progress status that its use cases contradict as `REQ_STATUS_DRIFT`, and its `--trace` matrix shows the status the
+use cases make it.
+
 ## NFR Categories
 
 | Category        | Description                                   |

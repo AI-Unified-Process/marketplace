@@ -149,6 +149,9 @@ Every requirement must pass these checks before finalizing:
       that [benefit]" — scan each row; any row missing "As a", "I want", or "so
       that" is rejected and rewritten before finalizing, no exceptions
     - All NFRs contain a measurable threshold
-8. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
+8. When updating an existing catalog whose use cases exist, set the progress status of each requirement (Open,
+   In Progress, Implemented, Verified) from the `**Status:**` of the use cases that link it, as defined under
+   Status in the reference; never change a Deferred or Rejected status on your own
+9. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
    an Avoid synonym) in every requirement
-9. Mark todos complete
+10. Mark todos complete

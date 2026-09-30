@@ -130,6 +130,18 @@ Inside a test that carries its use case id, a rule is named by its bare id (`bus
   rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
   above first. In the other stacks, searching for the markers gives the same answer by hand.
 
+### Requirement status
+
+The use case carries the progress; a requirement's status follows it. Deferred and Rejected are scope decisions and
+are kept by hand in `requirements.md`. Open, In Progress, Implemented, and Verified are derived from the `**Status:**`
+of the use cases that list the requirement in their `**Requirements:**` line: Verified when every one is Tested or
+Done, Implemented when every one is at least Implemented, In Progress when some are, and Open otherwise. Obsolete use
+cases do not count.
+
+`spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
+differ, and `/requirements` sets the stored value when it updates the catalog. A use case moves by
+`/coverage-check`; its requirements follow.
+
 ### Construction inputs
 
 The use case is the traceability hub for construction. Every implementation skill of every stack plugin reads the
@@ -156,8 +168,8 @@ does that in two parts:
 - **Lint (deterministic).** The bundled `spec_lint.py` (Python standard library only) reports what is certain: every
   use case of `use_cases.puml` has a specification and every specification is in the diagram, ids are unique, every
   `FR-XXX`, `UC-xxx BR-yyy`, use case, and process reference resolves, every functional requirement is covered,
-  every BPMN activity maps to a use case, the same rule text is not copied between use cases, and no weak word or
-  glossary synonym is used. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
+  every BPMN activity maps to a use case, every requirement status matches its use cases, the same rule text is not
+  copied between use cases, and no weak word or glossary synonym is used. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
 - **Review (advisory).** The agent adds findings that need judgment: contradicting or reworded business rules, UI or
   technical detail in a use case, steps that can fail without an alternative flow, a scenario that does not reach its
   goal, untestable rules, ambiguity, wrong or missing actors, NFRs and constraints a use case does not reference, and

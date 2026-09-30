@@ -159,8 +159,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 
 - **Part A, `skills/spec-review/scripts/spec_lint.py`** — deterministic, Python standard library only, the only
   part that may fail a build. It checks what connects the documents (diagram ↔ spec files, unique ids, resolving
-  `FR-`/`UC-xxx BR-yyy`/TC/process references, FR coverage, BPMN activity mapping, copied rule text, weak words,
-  glossary Avoid synonyms) plus a baseline file (`docs/.spec-lint-baseline.json`) for brownfield projects.
+  `FR-`/`UC-xxx BR-yyy`/TC/process references, FR coverage, requirement status against the linking use cases, BPMN
+  activity mapping, copied rule text, weak words, glossary Avoid synonyms) plus a baseline file (`docs/.spec-lint-baseline.json`) for brownfield projects.
   It does **not** copy the per-file checks or the BPMN parser: it imports `validate_use_case.py` and
   `bpmn_paths.py` at runtime from the sibling skill folders by glob (`*use-case-spec/`, `*test-case/`, host prefixes
   allowed) and reports an INFO finding when one is missing. Keep one copy of each script.

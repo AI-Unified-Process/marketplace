@@ -27,6 +27,7 @@ errors.
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no use case lists in `**Requirements:**`             | `/use-case-spec`    |
+| WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |
 | WARN     | `WEAK_WORD`             | A vague or optional word ("fast", "appropriate", "etc.", "and/or", "should", "ggf.", …)        | the owning skill    |
 | WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column                                         | the owning skill    |
