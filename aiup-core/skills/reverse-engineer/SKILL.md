@@ -246,7 +246,10 @@ Create `docs/use_cases/` and write one file per use case named
 - **Preconditions**: derive from auth checks, route guards, validation
   guards that fail fast, and required upstream state (e.g. "guest is
   registered" if the route requires a session). Preconditions are states,
-  never the request that starts the use case — that is the trigger.
+  never the request that starts the use case — that is the trigger. A check
+  the code performs on input the actor provides during the use case (e.g.
+  availability for the chosen dates) is not a precondition: it becomes a
+  step plus an alternative flow.
 - **Main Success Scenario**: numbered steps written from the actor and
   system perspective — never naming framework methods, SQL, or HTTP verbs.
   Trace the happy path through the code and abstract each branch into a

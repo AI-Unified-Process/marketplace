@@ -122,11 +122,13 @@ this happen?": an event has a moment, a state does not. Report:
 - a trigger that is a state ("Flight data is available", "User is logged in") — it belongs in the Preconditions
 - a precondition that is an event or an actor action ("User clicks New Order", "Dispatcher requests an assessment")
   — it is the trigger, or step 1
-- an alternative flow that handles a violated precondition — then the fact is not a precondition but a condition the
-  use case has to check
+- a precondition that is established or evaluated during the use case — it depends on input given in a step ("A room
+  is available for the requested dates" when the dates are entered in step 4), a step checks it, or an alternative
+  flow handles its violation; then the fact is not a precondition but a condition the use case has to check, and the
+  precondition should name only the stable state it rests on ("Room inventory is configured")
 - a step 1 that repeats the trigger word for word instead of starting the interaction
 
 A missing trigger line is `info` (older documents have none; `/use-case-spec` writes it for new ones). The validator
 already flags an empty trigger, a `(step N)` in it, and a trigger that copies a precondition verbatim; report what
-needs judgment. Severity: `warning` for a state written as a trigger or an event written as a precondition, `info`
-otherwise.
+needs judgment. Severity: `warning` for a state written as a trigger, an event written as a precondition, or a
+precondition the use case evaluates itself, `info` otherwise.

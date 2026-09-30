@@ -13,8 +13,8 @@
 
 ## Preconditions
 
-- Clerk is logged into the system
-- At least one room type is available for the requested dates
+- Front Desk Clerk is authenticated
+- Room inventory is configured
 
 ## Main Success Scenario
 

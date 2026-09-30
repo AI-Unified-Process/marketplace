@@ -60,6 +60,9 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Leave postconditions undefined
 - Write a technical step (validate, load, persist) as if it were a user goal — see workflow step 2
 - Write an event or an actor action as a precondition ("User clicks New Order") — that is the trigger
+- Write a precondition that the use case establishes or evaluates itself ("A room is available for the requested
+  dates" when the dates are entered in step 4 and availability is checked in step 5) — that is a step and an
+  alternative flow
 - Mix multiple use cases in one document
 - Use technical implementation details in the flow steps
 
@@ -148,8 +151,12 @@ in the implementation, not the specification.
    do not exist. Omit the line only when there is no `docs/requirements.md`.
 6. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
-   actions, and the use case does not check them again: an alternative flow for a violated
-   precondition means the fact is not a precondition but a condition to handle.
+   actions, and the use case does not check them again. **A precondition must not describe a
+   condition that is established or evaluated during the use case**: when the fact depends on input
+   the actor gives in a step ("a room is available *for the requested dates*"), when a step checks
+   it, or when an alternative flow handles its violation, it is not a precondition but a condition
+   to handle in the Main Success Scenario and its alternative flow. Keep the stable state it rests
+   on instead (`Room inventory is configured`).
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
 8. Identify **all** meaningful alternative flows (error conditions, optional paths,
@@ -191,7 +198,7 @@ verifying by eye. The list remains the definition of done:
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
 - [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
 - [ ] Overview has a `**Trigger:**` line naming the event that starts the use case (an actor's request, a point in time, or an external system's message) — not a state, and not a copy of a precondition.
-- [ ] Preconditions are states that are already true, not events or actor actions.
+- [ ] Preconditions are states that are already true, not events or actor actions, and none is established or evaluated during the use case (no step checks it, no alternative flow handles it).
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
 - [ ] At least one alternative flow exists (two or more when the use case has several failure paths); each has a **Trigger** that references a specific main-scenario step number as `(step N)`.
