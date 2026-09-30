@@ -302,8 +302,7 @@ records what the table was for on the day it was written, not every way the
 code uses it now. Before writing an entity's description, read the project's
 decision records and domain docs (ADRs found with the glob `docs/**/adr/`, which
 matches `docs/adr/` as well as a subdirectory such as `docs/architecture/adr/`;
-`CONTEXT.md`; a glossary) and
-the code that reads the table. If a row can play more than one role (for
+`CONTEXT.md`; a glossary) and the code that reads the table. If a row can play more than one role (for
 example, a row that repeats a parent's default only to carry settings for
 it), the description must say so.
 
