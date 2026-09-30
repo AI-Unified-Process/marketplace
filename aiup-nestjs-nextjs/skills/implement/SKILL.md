@@ -107,9 +107,29 @@ directly above the repository query, service method, or DTO validation decorator
 A reviewer or a coverage audit finds a rule in the code by searching for `UC-001 BR-003`; the tests
 name the same rule by its bare id inside their use case.
 
+## Gaps in the Specification
+
+Implement what the specification says; never close a gap in it with an assumption. A gap is a step,
+alternative flow, or business rule that allows more than one reasonable implementation, or behaviour
+the code needs that no specification states — an error without an alternative flow, an input without
+a validation rule, a term that neither the entity model nor the glossary defines.
+
+- Check the `**Status:**` line first. A `Draft` or `Reviewed` use case is not yet approved for
+  implementation: say so and ask the user whether to go ahead or to run `/spec-review UC-XXX` first.
+  Do not implement an `Obsolete` use case. Never change the status line.
+- For each gap, ask the user or leave that part unimplemented — do not pick one reading silently.
+  A reading the user chooses is implemented and still reported, so the answer reaches the
+  specification and does not live in the code alone.
+- End your report with an **Open questions** list: one line per gap, naming the element
+  (`UC-001 step 4`, `UC-001 A2`, `UC-001 BR-003`), the question, the readings you saw, and whether
+  that part was left out or implemented with the reading the user chose. Hand off to
+  `/use-case-spec UC-XXX` to answer the questions in the specification.
+- A choice the specification leaves to the implementation on purpose — a label, a layout, a column
+  order — is not a gap; follow the project's existing conventions.
+
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/`
+1. Read the use case specification from `docs/use_cases/` and check its `**Status:**` line — see "Gaps in the Specification" above
 2. Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`,
    `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional
    requirements explain the intent where a step is terse; every linked NFR and constraint is a limit
