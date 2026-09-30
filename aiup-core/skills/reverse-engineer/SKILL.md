@@ -297,6 +297,14 @@ in order of authority:
 3. **DTOs and form classes** — only as a last resort when the data model is
    inferred rather than declared.
 
+Structure comes from the schema, but meaning does not. A migration comment
+records what the table was for on the day it was written, not every way the
+code uses it now. Before writing an entity's description, read the project's
+decision records and domain docs (`docs/adr/`, `CONTEXT.md`, a glossary) and
+the code that reads the table. If a row can play more than one role (for
+example, a row that repeats a parent's default only to carry settings for
+it), the description must say so.
+
 For each entity, write:
 
 - A `### ENTITY_NAME` heading (UPPER_SNAKE_CASE).
@@ -342,9 +350,20 @@ of your own (`Money`, `Email Address`, `Hashed String`, `Timestamp`,
 `Identifier`, `Positive Integer`): the seven v types are the complete
 list, and semantics belong in the Description and Validation Rules columns,
 not the Data Type column. Map validation to the AI Unified Process vocabulary too
-(`Primary Key, Sequence`, `Not Null`, `Not Null, Unique`, `Not Null,
-Foreign Key (TABLE.id)`, `Optional`, `Not Null, Min: X, Max: Y`,
-`Not Null, Values: A, B, C`, `Not Null, Format: Email`).
+(`Primary Key, Sequence`, `Primary Key`, `Primary Key, Foreign Key (TABLE.id)`,
+`Not Null`, `Not Null, Unique`, `Not Null, Foreign Key (TABLE.id)`, `Optional`,
+`Not Null, Min: X, Max: Y`, `Not Null, Values: A, B, C`, `Not Null, Format: Email`).
+A key the database generates is `Primary Key, Sequence`. Use `Primary Key` for
+a natural key and for each column of a composite key, and
+`Primary Key, Foreign Key (TABLE.id)` for a composite key column that also
+references another table. Don't fall back to `Not Null` for a key column; the
+Constraints line can then name the composite key.
+
+Length/Precision comes from the **declared column type**, never from what
+the column happens to hold. An unbounded text column (`TEXT`, `CLOB`,
+`VARCHAR` without a length, Prisma `String` without `@db.VarChar(n)`) is `-`,
+even when every value has a fixed length, such as a hex SHA-256. Put that
+fixed length in the Description instead.
 
 The Mermaid ER diagram contains relationships **only** — no attributes
 inside entity blocks. Derive cardinality from foreign key constraints and
@@ -354,8 +373,28 @@ ORM associations:
 |---------------------------------------------------|-----------------------------------|
 | Foreign key `NOT NULL`, `@ManyToOne(optional=false)` | `A ||--o{ B`                   |
 | Foreign key nullable, `@ManyToOne(optional=true)` | `A |o--o{ B`                      |
-| `@OneToOne`, unique foreign key                   | `A ||--|| B`                      |
+| Unique foreign key, `@OneToOne(optional=true)`    | `A ||--o| B`                      |
+| `@OneToOne(optional=false)` on **both** sides     | `A ||--|| B`                      |
 | `@ManyToMany` / join table                        | `A }o--o{ B` (via join entity)    |
+
+A unique foreign key guarantees **at most one** B per A, not exactly one:
+nothing forces the row to exist. Use `||--||` only when the schema makes the
+row mandatory on both sides. Code that always creates the row, or a backfill
+migration, doesn't count. A backfill actually shows that rows were once
+missing.
+
+Draw one relationship line for **every** foreign key column, not just the
+structurally obvious parent. A table often carries a second foreign key,
+such as a tenant or owner scope added later with `ALTER TABLE`. That column
+gets its own line even when the entity already hangs off another parent.
+
+If the document describes what a delete removes, trace `ON DELETE CASCADE`
+(and ORM `cascade = REMOVE` / `orphanRemoval`) **transitively**. Deleting A
+removes B, deleting B removes C, and C may belong to someone other than A's
+owner, such as another tenant's rows that reference A's children. Say what
+leaves the database and whose data it was, or leave delete behaviour out.
+An incomplete cascade summary reads as complete and misleads more than no
+summary.
 
 Skip pure technical tables (Flyway's `flyway_schema_history`, Spring
 session tables, audit/log tables that aren't part of the domain). If
@@ -384,12 +423,18 @@ Then check the three documents agree:
   (ids restart in every file; they are scoped to their use case).
 - The mermaid diagram has a section for every entity it names, and every
   entity section appears in the diagram.
+- Every `Foreign Key (TABLE.id)` in an attribute table has a relationship
+  line between the two entities in the diagram, and every relationship line
+  is backed by a foreign key or a join table.
+- Every `||--||` in the diagram is backed by a schema that makes the row
+  mandatory on both sides; otherwise it is `||--o|`.
 - **Aggregation check:** your use-case count is meaningfully smaller than your
   endpoint count. If it is not, you mirrored the API — go back and merge.
 - **Entity-model format check:** every attribute table has exactly 5 columns
   in the required order; no raw SQL types (`VARCHAR`, `bigint`, `numeric`,
   `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
-  appear inside the Mermaid entity blocks.
+  appear inside the Mermaid entity blocks; every Length/Precision matches the
+  declared column (unbounded text is `-`); every key column says `Primary Key`.
 
 The cross-file part of these checks (diagram against spec files, duplicated
 ids, rule citations that point to nothing, rules copied between use cases)
