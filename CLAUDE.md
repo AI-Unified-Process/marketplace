@@ -320,6 +320,11 @@ Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registr
   when the three versions — or the two MCP configs — drift apart.
 - The workflow publishes a plugin only when its `.tessl-plugin` version is new; pushes without a
   version bump are skipped, not failed.
+- The same workflow creates a GitHub release per plugin version (tag `<plugin>-v<version>` on the commit
+  that set the version) when it is missing. `scripts/release-notes.sh <plugin>` writes the notes from the
+  plugin's commits since its previous version, grouped by Conventional Commits type (`feat`, `fix`, other)
+  with the issues from `Refs`/`Closes`/`Fixes` lines — so commit subjects are the release notes: write them
+  for users, and name the issue in the body.
 - Adding a new plugin requires wiring it into the workflow: add it to the job `matrix` **and** to the
   `on.push.paths` filter — otherwise it is never published.
 - Each plugin's committed `evals/` scenarios are uploaded on publish and drive the registry's Impact

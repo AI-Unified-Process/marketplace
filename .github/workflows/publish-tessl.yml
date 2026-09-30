@@ -11,6 +11,11 @@
 # scenarios with `tessl scenario generate ./<plugin> --workspace ai-unified-process` and
 # `tessl scenario download --last`, then commit the evals/ changes.
 #
+# After the publish step, each plugin whose current version has no GitHub release yet gets one:
+# tag <plugin>-v<version> on the commit that set the version, notes from
+# scripts/release-notes.sh (the plugin's commits since the previous version). A run
+# via workflow_dispatch creates any release that is still missing.
+#
 # One-time setup:
 #   1. Create an API key in the Tessl Web UI (workspace settings → API keys).
 #   2. Add it as a repo secret named TESSL_TOKEN
@@ -34,13 +39,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      contents: write
     strategy:
       fail-fast: false
       matrix:
         plugin: [aiup-core, aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs]
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # release notes need the plugin's history since its previous version
 
       - uses: tesslio/setup-tessl@v2
         with:
@@ -81,3 +88,21 @@ jobs:
             echo "::error::Pre-publish checks failed for $dir"
             exit 1
           fi
+
+      - name: Create the GitHub release of ${{ matrix.plugin }} if it is missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          plugin="${{ matrix.plugin }}"
+          read -r tag commit < <(scripts/release-notes.sh "$plugin" --tag)
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::notice::Release $tag already exists — skipping"
+            exit 0
+          fi
+
+          scripts/release-notes.sh "$plugin" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+          gh release create "$tag" --target "$commit" \
+            --title "$plugin ${tag#"$plugin-v"}" --notes-file "$RUNNER_TEMP/notes.md"
