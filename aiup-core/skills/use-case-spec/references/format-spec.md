@@ -202,7 +202,11 @@ The `/use-case-spec` skill additionally requires:
 - The use case id matches `[SB]?UC-[A-Za-z0-9_-]+` and the filename
   starts with the id (canonical: `UC-XXX-<kebab-case-name>.md`).
 - The main scenario has steps numbered `1..n` without gaps.
-- At least one alternative flow; each trigger names its main-scenario
+- Alternative flows document every meaningful alternative or exception
+  condition of a main-scenario step. A use case without one states this
+  with an italic placeholder (`_None — …_`) instead of an invented flow;
+  the validator warns (`NO_ALTERNATIVE_FLOWS`) only when the section is
+  empty without a placeholder. Each trigger names its main-scenario
   step as `(step N)` / `(Schritt N)`; each flow's last step ends with
   `Use case continues at step N.` or `Use case ends.` (German: `Der Use
   Case wird bei Schritt N fortgesetzt.` / `Der Use Case endet.`).

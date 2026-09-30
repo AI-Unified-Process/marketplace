@@ -257,7 +257,9 @@ Create `docs/use_cases/` and write one file per use case named
 - **Alternative Flows**: derive from `if/else` on validation, exception
   handlers, conditional UI flows, and tested error cases. Number them
   `A1`, `A2`, … and give each a clear trigger that names the step it
-  diverges from.
+  diverges from. When the code has no such branch for the use case, write
+  an italic placeholder (`_None — …_`) — never invent a flow the code does
+  not have.
 - **Postconditions**: success postconditions come from successful database
   writes, emitted events, sent emails, and returned redirects. Failure
   postconditions come from rollbacks and error responses.

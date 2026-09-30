@@ -633,8 +633,11 @@ def check_contract(doc, path):
     if not doc.flows and not doc.flows_placeholder \
             and "alternative_flows" in doc.sections_seen:
         doc.add(0, WARN, "NO_ALTERNATIVE_FLOWS",
-                "no alternative flow is defined; most use cases have at "
-                "least one error or exception path")
+                "no alternative flow is defined; analyze every main-scenario "
+                "step for alternative or exception conditions, and when "
+                "there really is none, state it with an italic placeholder "
+                "such as '_None — no step can fail or branch._' instead of "
+                "inventing a flow")
     for flow in doc.flows:
         if not STEP_REFERENCE.search(flow["trigger"]):
             doc.add(flow["line"], WARN, "TRIGGER_STEP_REF",

@@ -57,6 +57,8 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Write vague or incomplete scenarios
 - Skip numbering steps in the Main Success Scenario
 - Omit alternative flows for error conditions
+- Invent an alternative flow only to fill the section — when no step has a meaningful alternative or exception
+  condition, say so with a placeholder (see workflow step 8)
 - Leave postconditions undefined
 - Write a technical step (validate, load, persist) as if it were a user goal — see workflow step 2
 - Write an event or an actor action as a precondition ("User clicks New Order") — that is the trigger
@@ -159,11 +161,19 @@ in the implementation, not the specification.
    on instead (`Room inventory is configured`).
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
-8. Identify **all** meaningful alternative flows (error conditions, optional paths,
-   exceptional situations) — most real use cases have two or more. Each one must:
+8. Analyze **every** Main Success Scenario step for meaningful alternative or exception
+   conditions — can the actor decide differently, can the input be invalid, can a check fail,
+   can an external system refuse or not answer? Document every extension you identify (error
+   conditions, optional paths, exceptional situations); most real use cases have two or more.
+   Each one must:
    - name a **Trigger** that references a specific main-scenario step number,
      written as `(step N)` (e.g. `Payment is declined (step 7)`); and
    - end with either `Use case continues at step N.` or `Use case ends.`
+
+   Do **not** invent an alternative flow solely to satisfy the template. When the analysis finds
+   no meaningful alternative, replace the template flow with an italic placeholder that states the
+   result, e.g. `_None — no step of the main success scenario can fail or branch._` The validator
+   accepts the placeholder as a deliberate statement and warns only when the section is left empty.
 9. Define postconditions for both success and failure (both subsections non-empty).
 10. Document applicable business rules with `BR-XXX` IDs, numbered `BR-001`,
     `BR-002`, … within the file. Every file starts again at `BR-001`; rule ids are
@@ -201,7 +211,8 @@ verifying by eye. The list remains the definition of done:
 - [ ] Preconditions are states that are already true, not events or actor actions, and none is established or evaluated during the use case (no step checks it, no alternative flow handles it).
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
-- [ ] At least one alternative flow exists (two or more when the use case has several failure paths); each has a **Trigger** that references a specific main-scenario step number as `(step N)`.
+- [ ] Every Main Success Scenario step was analyzed for alternative and exception conditions, and every meaningful one is an alternative flow (usually two or more); when there is none, the section holds an italic `_None — …_` placeholder instead of an invented flow.
+- [ ] Each alternative flow has a **Trigger** that references a specific main-scenario step number as `(step N)`.
 - [ ] Every alternative flow ends with `Use case continues at step N.` or `Use case ends.` — never open-ended.
 - [ ] Both Success and Failure postconditions are defined and non-empty.
 - [ ] Each business rule has a `BR-XXX` ID, numbered `BR-001`, `BR-002`, … without gaps within its file; every file starts at `BR-001` (rule ids are scoped to their use case).
