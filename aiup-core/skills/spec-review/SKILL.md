@@ -1,25 +1,19 @@
 ---
 name: spec-review
 description: >
-  Reviews the quality of the specification artifacts in docs/ — requirements,
-  use case diagram, use case specifications, test cases, BPMN process models,
-  entity model, and glossary — in two parts: a deterministic lint (every use
-  case of the diagram has a specification, every id is unique, every FR, UC,
-  business rule, and process reference resolves, every FR is covered, every
-  BPMN activity maps to a use case, weak words, glossary synonyms) that can
-  block a build, and an advisory semantic review (contradicting or duplicated
-  business rules, UI or technical detail in a use case, steps that can fail
-  without an alternative flow, untestable rules, ambiguity, wrong or missing
-  actors, unreferenced NFRs and constraints, data that does not match the
-  entity model), plus a traceability matrix on request. Use when the user asks
-  to "review the specs", "check spec quality", "lint the requirements", "lint
-  the use cases", "find contradictions", "is this use case ready", "are the
-  specs consistent", "run a spec quality check", "show the traceability
-  matrix", "which use cases realize FR-014", or wants a quality gate for
-  specifications in CI.
-  It reports only — it never edits a specification. This checks specifications
-  against each other; checking code and tests against a specification is
-  /coverage-check.
+  Reviews the specification artifacts in docs/ (requirements, use case
+  diagram, use case specifications, test cases, BPMN process models, entity
+  model, glossary) against each other in two parts: a deterministic lint that
+  can block a build (missing specifications, duplicate or unresolved ids,
+  uncovered FRs, unmapped BPMN activities, weak words, glossary synonyms) and
+  an advisory semantic review (contradicting or duplicated rules, wrong level
+  of detail, missing alternative flows, untestable rules, ambiguity, actors,
+  NFRs and constraints, entity model consistency), plus a traceability matrix
+  on request. Use when the user asks to "review the specs", "lint the use
+  cases", "find contradictions", "is this use case ready", "show the
+  traceability matrix", "which use cases realize FR-014", or wants a
+  specification quality gate in CI. It reports only and never edits a
+  specification; checking code against a specification is /coverage-check.
 ---
 
 <!--
