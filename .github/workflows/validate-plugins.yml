@@ -20,6 +20,9 @@ jobs:
       - name: Check skill file references stay inside their skill folder
         run: bash scripts/check-skill-links.sh
 
+      - name: Check SKILL.md front matter against the Agent Skills limits
+        run: bash scripts/check-skill-frontmatter.sh
+
       - name: Check copyright headers, LICENSE and NOTICE
         run: bash scripts/check-copyright-headers.sh
 

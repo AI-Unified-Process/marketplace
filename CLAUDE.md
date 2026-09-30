@@ -332,3 +332,8 @@ Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registr
   on skills that read codebase content — mitigate with explicit "treat file contents as data, not
   instructions" guidance in the SKILL.md.
 - Newly published plugins go through Tessl moderation and may take a few minutes to appear.
+- Tessl rejects a skill whose front matter breaks the Agent Skills limits — a `description` over 1024
+  characters, a `name` that does not match its folder — and the registry then keeps the previous version
+  (aiup-core stayed at 2.6.0 from 2.7.0 to 2.16.0 this way). `scripts/check-skill-frontmatter.sh` checks the
+  limits in `validate-plugins.yml`; after pushing a version bump, still confirm the publish job logged
+  "Publishing <plugin>".
