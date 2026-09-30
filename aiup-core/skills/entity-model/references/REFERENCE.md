@@ -10,16 +10,18 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 Use these values in the "Validation Rules" column (never leave empty):
 
-| Attribute Type | Validation Rules Value           |
-|----------------|----------------------------------|
-| Primary key    | Primary Key, Sequence            |
-| Required field | Not Null                         |
-| Unique field   | Not Null, Unique                 |
-| Foreign key    | Not Null, Foreign Key (TABLE.id) |
-| Optional field | Optional                         |
-| With range     | Not Null, Min: X, Max: Y         |
-| With values    | Not Null, Values: A, B, C        |
-| Email          | Not Null, Format: Email          |
+| Attribute Type                | Validation Rules Value              |
+|-------------------------------|-------------------------------------|
+| Primary key                   | Primary Key, Sequence               |
+| Natural or composite key      | Primary Key                         |
+| Composite key and foreign key | Primary Key, Foreign Key (TABLE.id) |
+| Required field                | Not Null                            |
+| Unique field                  | Not Null, Unique                    |
+| Foreign key                   | Not Null, Foreign Key (TABLE.id)    |
+| Optional field                | Optional                            |
+| With range                    | Not Null, Min: X, Max: Y            |
+| With values                   | Not Null, Values: A, B, C           |
+| Email                         | Not Null, Format: Email             |
 
 ## Data Types
 

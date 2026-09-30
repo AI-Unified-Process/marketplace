@@ -106,16 +106,18 @@ expression like `DECIMAL(10,2)`.
 Compose every Validation Rules cell from this vocabulary, using the exact wording —
 never a prose description, and never an empty cell, dash, or "N/A":
 
-| Attribute Type | Validation Rules Value           |
-|----------------|----------------------------------|
-| Primary key    | Primary Key, Sequence            |
-| Required field | Not Null                         |
-| Unique field   | Not Null, Unique                 |
-| Foreign key    | Not Null, Foreign Key (TABLE.id) |
-| Optional field | Optional                         |
-| With range     | Not Null, Min: X, Max: Y         |
-| With values    | Not Null, Values: A, B, C        |
-| Email          | Not Null, Format: Email          |
+| Attribute Type                | Validation Rules Value              |
+|-------------------------------|-------------------------------------|
+| Primary key                   | Primary Key, Sequence               |
+| Natural or composite key      | Primary Key                         |
+| Composite key and foreign key | Primary Key, Foreign Key (TABLE.id) |
+| Required field                | Not Null                            |
+| Unique field                  | Not Null, Unique                    |
+| Foreign key                   | Not Null, Foreign Key (TABLE.id)    |
+| Optional field                | Optional                            |
+| With range                    | Not Null, Min: X, Max: Y            |
+| With values                   | Not Null, Values: A, B, C           |
+| Email                         | Not Null, Format: Email             |
 
 Examples: an email attribute is `Not Null, Format: Email` — never "must be a valid
 email address". A status attribute with a fixed set of states is
@@ -152,6 +154,7 @@ If validation spans multiple columns, add after the table:
     - Every attribute table has exactly 5 columns
     - No attributes appear inside the Mermaid diagram entity blocks
     - All foreign keys reference existing entities
+    - Every foreign key has a relationship line in the ER diagram
     - Every entity heading is `###` with the name in UPPERCASE
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
     - All validation rules use values from the Validation Rules table above
