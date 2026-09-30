@@ -229,7 +229,10 @@ Create `docs/use_cases/` and write one file per use case named
 
 - **Overview**: ID, name, primary actor, goal, status (`Implemented` is
   usually the right status when reverse-engineering working code; use
-  `Draft` only if the implementation is partial or you're unsure).
+  `Draft` only if the implementation is partial or you're unsure). Add
+  the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
+  only when a `docs/requirements.md` already exists and its ids match the
+  use case; otherwise omit the line — never invent requirement ids.
 - **Preconditions**: derive from auth checks, route guards, validation
   guards that fail fast, and required upstream state (e.g. "guest is
   registered" if the route requires a session).

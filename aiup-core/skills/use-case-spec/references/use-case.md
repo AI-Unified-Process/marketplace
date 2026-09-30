@@ -6,7 +6,8 @@
 **Use Case Name:** [Descriptive Name]  
 **Primary Actor:** [Role]  
 **Goal:** [In one sentence: the observable outcome the actor achieves and why — not "use the system"]  
-**Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete
+**Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete  
+**Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)
 
 ## Preconditions
 
