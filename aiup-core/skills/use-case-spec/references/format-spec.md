@@ -33,7 +33,7 @@ this order on save):
 
 **Use Case ID:** UC-XXX
 **Use Case Name:** <name>
-**Primary Actor:** <role>
+**Primary Actor:** <roles>                      (one or more, comma-separated)
 **Secondary Actors:** <roles>                    (optional)
 **Goal:** <one sentence>
 **Trigger:** <event that starts the use case>     (optional)
@@ -133,7 +133,10 @@ Status values (either language is readable in any document):
    on save.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
-   Secondary Actors, Trigger and Requirements are optional.
+   Secondary Actors, Trigger and Requirements are optional. Primary
+   Actor holds one role or a comma-separated list of roles; the label
+   stays singular (`**Primary Actor:**`, `**Primärer Akteur:**`) in
+   both cases.
 3. **Status** — the status value must start with one of the values
    above (case-insensitive). Decoration without letters before the
    value and any annotation after it at a word boundary are tolerated:

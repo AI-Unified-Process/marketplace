@@ -165,7 +165,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   `bpmn_paths.py` at runtime from the sibling skill folders by glob (`*use-case-spec/`, `*test-case/`, host prefixes
   allowed) and reports an INFO finding when one is missing. Keep one copy of each script.
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
-  reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency). Its findings are
+  reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
+  preconditions, actors, missing NFR and constraint references). Its findings are
   `warning`/`info` only and never block.
 - **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; it
   hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only

@@ -4,7 +4,7 @@
 
 **Use Case ID:** UC-XXX  
 **Use Case Name:** [Descriptive Name]  
-**Primary Actor:** [Role]  
+**Primary Actor:** [Role that pursues the goal — several comma-separated when each starts the use case alone and pursues the same goal]  
 **Secondary Actors:** [Supporting roles or external systems, comma-separated — omit this line when there are none]  
 **Goal:** [In one sentence: the observable outcome the actor achieves and why — not "use the system"]  
 **Trigger:** [The event that starts the use case — an actor's request, a point in time, or a message from an external system; not a state that is already true]  

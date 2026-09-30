@@ -230,7 +230,9 @@ Create `docs/use_cases/` and write one file per use case named
 `UC-XXX-short-name.md` (kebab-case). Use the structure from
 `/use-case-spec`:
 
-- **Overview**: ID, name, primary actor, secondary actors (external
+- **Overview**: ID, name, primary actor (several comma-separated when
+  different roles reach the same entry point for the same goal, e.g.
+  two roles authorized on the same route), secondary actors (external
   systems the code calls for this use case — payment, mail, or map APIs,
   other internal services — and supporting roles; omit the line when
   there are none), goal, trigger (the event behind the entry point: a

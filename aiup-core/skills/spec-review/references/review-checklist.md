@@ -74,6 +74,9 @@ A subfunction the diagram draws as an `<<include>>` from several use cases is in
   write the guarantees rule out
 - A precondition that nothing establishes: no other use case produces the state it requires
 - A business rule that no step or flow applies
+- A Main Success Scenario that does not lead from the trigger to the goal: it starts somewhere other than the event
+  in `**Trigger:**`, or its last step and the success postconditions do not achieve what the Overview `**Goal:**`
+  promises (the goal says "books a room", the scenario ends when the availability is shown)
 
 Severity: `warning`.
 
@@ -84,6 +87,12 @@ Severity: `warning`.
 A rule is testable when a test can set up the input and decide pass or fail from what the system shows or stores.
 Untestable: "the system handles large volumes", "data is kept secure", "the user is informed in time". Suggest the
 measurable version (a number, a limit, an observable message). Severity: `warning`.
+
+Then judge the use case as a whole as the basis for `/test-case` and the test skills: every path — the main success
+scenario and each alternative flow — must end in a result a test can observe (a success postcondition, a failure
+guarantee, or the step where the flow continues), and every business rule must have a path that exercises it. Report
+a path that ends without an observable result, or a rule no path reaches, once per use case rather than per step.
+Severity: `warning`.
 
 ## 6. Ambiguity
 
@@ -135,3 +144,44 @@ A missing trigger line is `info` (older documents have none; `/use-case-spec` wr
 already flags an empty trigger, a `(step N)` in it, and a trigger that copies a precondition verbatim; report what
 needs judgment. Severity: `warning` for a state written as a trigger, an event written as a precondition, or a
 precondition the use case evaluates itself, `info` otherwise.
+
+## 9. Actors
+
+**Where:** the Overview's `**Primary Actor:**` and `**Secondary Actors:**` lines against the steps, the alternative
+flows, `docs/use_cases.puml`, and the roles in `requirements.md` and `glossary.md`.
+
+A use case may have several primary actors, listed comma-separated: roles that can each start the use case on their
+own and pursue the same goal through the same main success scenario. Report:
+
+- a primary actor that is not a role: "System", the system under design, or a generic "User" when the requirements
+  and the glossary distinguish roles (Clerk, Manager) that the use case should name
+- primary actors joined with "or" or "and" ("Clerk or Manager") — the list is comma-separated, and each entry stands
+  for a role that can pursue the goal alone
+- several primary actors who pursue different goals, or who need different main success scenarios (one role books,
+  the other approves) — that is two use cases, or one primary actor and a secondary actor
+- a primary actor that only supports the use case — it answers a request or provides a service but does not pursue
+  the goal; it belongs in `**Secondary Actors:**`
+- a role or an external system that acts in a step or an alternative flow ("Payment Service confirms the payment",
+  "Manager approves the discount") but is listed as neither a primary nor a secondary actor
+- an actor in the specification that the diagram does not connect to the use case, or the other way round
+
+Severity: `warning` for "System" as a primary actor, for roles that pursue different goals, and for an external system
+missing from the actors (an implementation may build it instead of integrating it); `info` otherwise. The fix for the
+diagram belongs to `/use-case-diagram`.
+
+## 10. Non-functional requirements and constraints
+
+**Where:** the `**Requirements:**` line of each use case against the `NFR-*` and `C-*` rows of `requirements.md`.
+
+The lint checks that every listed id exists and that every FR is covered; it cannot tell whether a use case forgot a
+quality attribute or a constraint that applies to it. Compare by topic: a response-time NFR for searches and a use
+case whose main step is a search; a data-protection NFR and a use case that records personal data; a constraint that
+names an external system and the use case that calls it. Report an NFR or a constraint that clearly applies but is
+not listed, and name the id.
+
+This is also where UI, API, and technical detail that a use case must respect belongs: a use case does not describe
+it in its steps (see §3) but references the NFR or constraint that states it. Report detail in a step that should
+be an NFR or a constraint instead.
+
+Skip this check when there is no `requirements.md` or it has no NFRs and constraints. Severity: `info`, `warning`
+when the missing NFR or constraint sets a limit a test would check (a response time, a maximum, a mandatory system).

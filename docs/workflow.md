@@ -63,7 +63,8 @@ does that in two parts:
   every BPMN activity maps to a use case, the same rule text is not copied between use cases, and no weak word or
   glossary synonym is used. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
 - **Review (advisory).** The agent adds findings that need judgment: contradicting or reworded business rules, UI or
-  technical detail in a use case, steps that can fail without an alternative flow, untestable rules, ambiguity, and
+  technical detail in a use case, steps that can fail without an alternative flow, a scenario that does not reach its
+  goal, untestable rules, ambiguity, wrong or missing actors, NFRs and constraints a use case does not reference, and
   data that does not match the entity model. These are warnings for a pull request comment and never fail a build.
 
 In an existing project, the first lint run typically reports many findings. `spec_lint.py --update-baseline` accepts

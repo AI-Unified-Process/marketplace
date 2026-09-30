@@ -9,8 +9,9 @@ description: >
   BPMN activity maps to a use case, weak words, glossary synonyms) that can
   block a build, and an advisory semantic review (contradicting or duplicated
   business rules, UI or technical detail in a use case, steps that can fail
-  without an alternative flow, untestable rules, ambiguity, data that does not
-  match the entity model). Use when the user asks to "review the specs",
+  without an alternative flow, untestable rules, ambiguity, wrong or missing
+  actors, unreferenced NFRs and constraints, data that does not match the
+  entity model). Use when the user asks to "review the specs",
   "check spec quality", "lint the requirements", "lint the use cases", "find
   contradictions", "is this use case ready", "are the specs consistent", "run
   a spec quality check", or wants a quality gate for specifications in CI.

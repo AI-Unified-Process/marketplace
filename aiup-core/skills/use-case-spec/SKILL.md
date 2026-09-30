@@ -100,7 +100,8 @@ the structure and the rules of this skill is bundled as
 
 | Do                                  | Don't                                         |
 |-------------------------------------|-----------------------------------------------|
-| "User clicks Save button"           | "User triggers onClick handler"               |
+| "User saves the reservation"        | "User clicks the blue Save button"            |
+| "User confirms the order"           | "User triggers onClick handler"               |
 | "System validates the email format" | "System runs regex /^[\w]+@[\w]+$/"           |
 | "System displays error message"     | "System throws ValidationException"           |
 | "User enters check-in date"         | "User populates dateField component"          |
@@ -133,11 +134,16 @@ in the implementation, not the specification.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
 5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, trigger, and a
-   `Status` from the "Status values" list above. The primary actor is the one who pursues the
-   goal; secondary actors are the roles and external systems that support the use case or
-   provide information or services to it (e.g. `**Secondary Actors:** Weather Service, Flight
-   Planning System`). Name them so an implementation treats them as outside the system's
-   responsibility, not as something to build. Omit the `**Secondary Actors:**` line when the use
+   `Status` from the "Status values" list above. The primary actors are the roles that pursue the
+   goal. A use case often has one, but it may have several: list them comma-separated
+   (`**Primary Actor:** Front Desk Clerk, Guest`) when each of them can start the use case on its
+   own and pursues the same goal through the same main success scenario — never joined with "or"
+   or "and", and never "System". When two roles pursue different goals or need different
+   scenarios, they are two use cases. Name concrete roles from the requirements and the glossary
+   rather than a generic "User" when the requirements distinguish roles. Secondary actors are the
+   roles and external systems that support the use case or provide information or services to it
+   (e.g. `**Secondary Actors:** Weather Service, Flight Planning System`). Name them so an
+   implementation treats them as outside the system's responsibility, not as something to build. Omit the `**Secondary Actors:**` line when the use
    case has none. The `**Trigger:**` line (German documents: `**Auslösendes Ereignis:**`, never
    `**Auslöser:**`, which labels alternative flows) names the **event** that starts the use case: an
    actor's request (`Dispatcher requests an airport suitability assessment`), a point in time
@@ -210,6 +216,13 @@ in the implementation, not the specification.
     level: a registration use case says "System records the new account" / "System
     confirms the account" — never how the password is stored or the session is created.
 14. Mark todo complete.
+15. **Quality gate — hand off, do not self-review.** The validator checks structure; it cannot judge
+    whether a use case is a user goal, whether its actors are right, whether the scenario reaches the
+    goal, whether every failing step has a flow, or whether rules and postconditions are testable.
+    That semantic review is `/spec-review`. Tell the user which files you wrote and offer
+    `/spec-review UC-XXX` for each of them (or `/spec-review` for the whole project after writing all
+    use cases) before a use case moves to `Reviewed`. Do not run it yourself and do not restate its
+    checklist here — one review, in one place.
 
 ## Completeness Checklist
 
@@ -217,7 +230,7 @@ The validator in step 13 checks all of these mechanically — run it rather than
 verifying by eye. The list remains the definition of done:
 
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
-- [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
+- [ ] Overview has a `Use Case ID` (`UC-XXX`), one or more primary actors (comma-separated), goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
 - [ ] Overview has a `**Trigger:**` line naming the event that starts the use case (an actor's request, a point in time, or an external system's message) — not a state, and not a copy of a precondition.
 - [ ] Preconditions are states that are already true, not events or actor actions, and none is established or evaluated during the use case (no step checks it, no alternative flow handles it).
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).

@@ -100,7 +100,8 @@ diagram without a specification, duplicated ids, references to requirements, rul
 uncovered functional requirements, BPMN activities without a use case, weak words, and synonyms the glossary says to
 avoid. The same script can fail a CI build. The agent then adds advisory findings that need judgment: contradicting
 or duplicated business rules, UI or technical detail in a use case, steps that can fail without an alternative flow,
-untestable rules, and data that does not match the entity model. The skill reports only; fixes go through
+untestable rules, wrong or missing actors, unreferenced NFRs and constraints, and data that does not match the
+entity model. The skill reports only; fixes go through
 `/use-case-spec`, `/requirements`, or `/use-case-diagram`.
 
 ## 5. Implement and test
