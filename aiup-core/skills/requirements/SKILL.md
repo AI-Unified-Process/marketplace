@@ -97,7 +97,7 @@ Every requirement must pass these checks before finalizing:
 | Check       | Rule                                 | Bad Example                          | Good Example                  |
 |-------------|--------------------------------------|--------------------------------------|-------------------------------|
 | Measurable  | NFRs must have a number or threshold | "System should be fast"              | "Pages load within 2 seconds" |
-| Singular    | One requirement per row              | "System must log in and export data" | Split into FR-001 and FR-002  |
+| Singular    | One requirement per row              | "System must import and export data" | Split into FR-001 and FR-002  |
 | Unambiguous | No subjective terms                  | "User-friendly interface"            | "WCAG 2.1 AA compliant"       |
 | Testable    | Can write a pass/fail test           | "System is reliable"                 | "99.9% uptime over 30 days"   |
 | Unique IDs  | No duplicate IDs across all tables   | Two FR-001 entries                   | Each ID used exactly once     |

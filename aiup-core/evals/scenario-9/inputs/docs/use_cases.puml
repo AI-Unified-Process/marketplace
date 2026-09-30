@@ -1,12 +1,18 @@
 @startuml Use Cases Overview
 left to right direction
-actor "Visitor" as visitor
+actor "Guest" as guest
+actor "Front Desk Clerk" as clerk
+actor "Payment Service" as payment
+actor "Door Lock System" as doorlock
 
-rectangle "User Account System" {
-    usecase "UC-001\nRegister Account" as UC001
-    usecase "UC-002\nLog In" as UC002
+rectangle "Hotel Reservation System" {
+    usecase "UC-001\nBook Room" as UC001
+    usecase "UC-002\nCheck In Guest" as UC002
 }
 
-visitor --> UC001
-visitor --> UC002
+guest --> UC001
+clerk --> UC002
+UC001 --> payment
+UC002 --> payment
+UC002 --> doorlock
 @enduml

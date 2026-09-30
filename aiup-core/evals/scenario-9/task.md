@@ -1,12 +1,12 @@
-# Use Case Specifications: User Account System
+# Use Case Specifications: Hotel Reservation System
 
 ## Problem/Feature Description
 
-Your team has just completed the requirements phase for a new user account system. The product owner has signed off on the requirements catalog at `docs/requirements.md` and a high-level use case diagram at `docs/use_cases.puml` that captures two core flows: account registration and login.
+Your team has just completed the requirements phase for a new hotel reservation system. The product owner has signed off on the requirements catalog at `docs/requirements.md` and a high-level use case diagram at `docs/use_cases.puml` that captures two core flows: a guest booking a room and the front desk checking the guest in on arrival.
 
 The engineering team is now ready to begin implementation, but they need detailed use case specifications before writing any code. The specifications will serve as the contract between the business and the development team — they must cover both the happy path and the various ways things can go wrong, so that everyone from stakeholders to developers can agree on exactly how each interaction should behave.
 
-The team documents its systems with the AI Unified Process, so the specifications must conform exactly to the standard AI Unified Process use case specification format — file naming convention, section structure, business-level step language, and globally unique business rule IDs. Specifications that deviate from the standard format will be rejected during review.
+The team documents its systems with the AI Unified Process, so the specifications must conform exactly to the standard AI Unified Process use case specification format — file naming convention, section structure, business-level step language, and business rule numbering. Specifications that deviate from the standard format will be rejected during review.
 
 ## Output Specification
 

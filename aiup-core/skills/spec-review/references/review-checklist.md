@@ -46,6 +46,22 @@ fine when the specification says so. `validate_use_case.py` already flags a fixe
 (`TECHNICAL_TERM`); report what that list misses. Severity: `info`, `warning` when the detail constrains the
 implementation in a way nobody decided.
 
+**Where, too:** the use case as a whole — its name in `docs/use_cases.puml`, its goal, and its Main Success
+Scenario.
+
+Every use case should be a user goal: ask *is this use case a complete goal that the primary actor would recognize as
+valuable?* Report a use case that fails the question:
+
+- Subfunction: a step of a larger goal, usually technical — "Validate METAR", "Load NOTAM", "Persist Result". Its
+  scenario is two or three system steps with no result the actor would ask for. Name the user goal it belongs to
+  ("Determine Airport Suitability"), which may already exist in the diagram.
+- Summary: an area of work spanning several sittings — "Manage Flight Operations". Name the user goals it splits
+  into.
+
+A subfunction the diagram draws as an `<<include>>` from several use cases is intended; do not report it. Severity:
+`warning` for a technical step modeled as a use case of its own, `info` otherwise. The fix belongs to
+`/use-case-diagram`.
+
 ## 4. Completeness
 
 **Where:** the Main Success Scenario, alternative flows, and postconditions.

@@ -37,7 +37,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 | Use case name in diagram | Correct filename                     |
 |--------------------------|--------------------------------------|
 | `Register Account`       | `docs/use_cases/UC-001-register-account.md` |
-| `Log In`                 | `docs/use_cases/UC-002-log-in.md`    |
+| `Check In Guest`         | `docs/use_cases/UC-002-check-in-guest.md` |
 | `Place Order`            | `docs/use_cases/UC-001-place-order.md` |
 
 ## Scope: one or many use cases
@@ -58,6 +58,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Skip numbering steps in the Main Success Scenario
 - Omit alternative flows for error conditions
 - Leave postconditions undefined
+- Write a technical step (validate, load, persist) as if it were a user goal — see workflow step 2
 - Write an event or an actor action as a precondition ("User clicks New Order") — that is the trigger
 - Mix multiple use cases in one document
 - Use technical implementation details in the flow steps
@@ -114,6 +115,14 @@ in the implementation, not the specification.
    domain term the use case needs goes into the glossary (see `/requirements`).
 2. Determine the set of use cases to document (one, several, or all in the
    diagram — see "Scope" above). Take each `UC-XXX` ID and name from the diagram.
+   Before writing, ask of each one: *is this use case a complete goal that the primary
+   actor would recognize as valuable?* A subfunction ("Validate METAR", "Load NOTAM",
+   "Persist Result") is a step of a larger user goal ("Determine Airport Suitability"),
+   and a summary ("Manage Flight Operations") spans several. Do not rename, merge, or
+   split use cases yourself — the ids belong to the diagram. Write the specification,
+   then tell the user which use case looks like a subfunction or a summary, name the
+   user goal it belongs to, and hand off to `/use-case-diagram`. A subfunction that the
+   diagram draws as an `<<include>>` shared by several use cases is intended; leave it.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
 5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, trigger, and a
@@ -158,7 +167,7 @@ in the implementation, not the specification.
 13. **Final verification (do this before declaring done):** list the contents of
     `docs/use_cases/` and confirm every `UC-XXX` from your scope has exactly one
     file present, named `UC-XXX-<kebab-case-name>.md` (kebab-case of the diagram
-    name — e.g. `Log In` → `UC-002-log-in.md`, never `UC-002-login.md`). Rename any
+    name — e.g. `Check In Guest` → `UC-002-check-in-guest.md`, never `UC-002-checkin-guest.md`). Rename any
     mismatch. Then run the bundled validator over every file you wrote (the script
     path is relative to this skill's directory):
 
@@ -170,8 +179,8 @@ in the implementation, not the specification.
     Studio structured editor cannot read the file; warnings mean a rule of this
     skill is violated — e.g. an implementation-level term (`SMTP`, `JWT`, `token`,
     `bcrypt`, `hash`, `SQL`, …) in a step, which must be rewritten at the business
-    level: a registration or login use case says "System verifies the credentials"
-    / "System confirms the account" — never how the password or session is handled.
+    level: a registration use case says "System records the new account" / "System
+    confirms the account" — never how the password is stored or the session is created.
 14. Mark todo complete.
 
 ## Completeness Checklist

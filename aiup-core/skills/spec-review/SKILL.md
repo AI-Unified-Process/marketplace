@@ -98,6 +98,7 @@ location and nature, never by quoting the text itself.
 |----------|----------------------------------------|---------------|----------------|-------------------------------------------------------------|
 | warning  | docs/use_cases/UC-004-book-room.md:61  | UC-004 BR-002 | Contradiction  | Allows booking 12 months ahead; UC-009 BR-001 says 6 months |
 | warning  | docs/use_cases/UC-004-book-room.md:17  | UC-004 step 5 | Completeness   | Payment can fail; no alternative flow triggers at step 5    |
+| warning  | docs/use_cases/UC-007-check-guest.md:3 | UC-007        | Wrong level    | Subfunction, not a user goal; belongs to UC-004 Book Room    |
 | info     | docs/use_cases/UC-004-book-room.md:15  | UC-004 step 3 | Wrong level    | "clicks the blue button" is UI detail                        |
 
 ### Verdict

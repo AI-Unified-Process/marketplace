@@ -78,7 +78,10 @@ have written it before implementation. Two implications:
 - **Aggregate, don't enumerate.** A REST controller with a dozen endpoints is
   rarely a dozen use cases. Several endpoints often serve one user goal
   (e.g. `GET /form` + `POST /submit` + `GET /confirm` is *one* use case).
-  Group related operations by the goal an actor pursues end-to-end.
+  Group related operations by the goal an actor pursues end-to-end, and test
+  each candidate: *is this use case a complete goal that the primary actor
+  would recognize as valuable?* A service that validates, loads, or persists
+  data is a step of a use case, not a use case.
 
 If a user goal is partially implemented or unclear, write the use case for
 what the code clearly does and add a short note under it. Don't invent flows
@@ -170,9 +173,9 @@ the entry points and group them by goal:
 |----------------------------------------------------------------------------|-----------------------------------------------|
 | `GET /books`, `GET /books/{id}`, `POST /books`, `PUT /books/{id}`, `DELETE /books/{id}` | **UC-001 Manage Catalog** (one use case) |
 | `GET /cart`, `POST /cart/items`, `DELETE /cart/items/{id}`, `POST /checkout` | **UC-002 Place Order** (one use case)        |
-| `POST /login`, `POST /logout`, `GET /me`                                   | **UC-003 Authenticate** (one use case)        |
+| `GET /orders/{id}`, `POST /orders/{id}/returns`, `GET /returns/{id}/label` | **UC-003 Return Item** (one use case)         |
 
-Eight endpoints above → three use cases, not eight specs.
+Twelve endpoints above → three use cases, not twelve specs.
 
 **Self-check (do this before writing any spec):** count your endpoints and
 count your use cases. If the two numbers are close, you have *not* aggregated —

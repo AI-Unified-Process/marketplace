@@ -1,15 +1,15 @@
 {
-  "context": "Tests whether the agent writes use case specifications at the business level, avoids technical implementation language in steps, structures alternative flows correctly with step-number triggers and returns, files each use case separately with the correct naming convention, and numbers business rules globally.",
+  "context": "Tests whether the agent writes use case specifications at the business level, avoids technical implementation language in steps, structures alternative flows correctly with step-number triggers and returns, files each use case separately with the correct naming convention, and numbers business rules per use case.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "UC-001 file name",
-      "description": "The file docs/use_cases/UC-001-register-account.md exists with exactly that name (kebab-case, correct ID prefix)",
+      "description": "The file docs/use_cases/UC-001-book-room.md exists with exactly that name (kebab-case, correct ID prefix)",
       "max_score": 5
     },
     {
       "name": "UC-002 file name",
-      "description": "The file docs/use_cases/UC-002-log-in.md exists with exactly that name (kebab-case, correct ID prefix)",
+      "description": "The file docs/use_cases/UC-002-check-in-guest.md exists with exactly that name (kebab-case of the diagram name, not 'checkin-guest')",
       "max_score": 5
     },
     {
@@ -23,13 +23,13 @@
       "max_score": 8
     },
     {
-      "name": "No password-hashing steps",
-      "description": "Neither file contains 'bcrypt', 'hash', 'SHA', 'salt', or similar cryptographic terms in any step",
+      "name": "No HTTP/API steps",
+      "description": "Neither file contains 'REST', 'POST', 'GET', 'JSON', '/v1/charges', 'API call', or similar web-protocol terms in any step; the payment is described as a business action (e.g. 'Payment Service confirms the deposit')",
       "max_score": 8
     },
     {
-      "name": "No JWT/token-issuance steps",
-      "description": "Neither file contains 'JWT', 'JSON Web Token', 'token expiry', 'signs a token', or similar implementation terms in any step",
+      "name": "No key-card encoding steps",
+      "description": "Neither file contains 'RFID', 'Mifare', 'DESFire', 'encodes the card', or similar lock-technology terms in any step; issuing the key is described as a business action (e.g. 'System issues a key card for the room')",
       "max_score": 8
     },
     {
@@ -39,7 +39,7 @@
     },
     {
       "name": "Alt flow trigger references step number",
-      "description": "Every alternative flow in both files has a Trigger line that references a specific numbered step (e.g., 'At step 3' or 'After step 2') rather than a vague condition",
+      "description": "Every alternative flow in both files has a Trigger line that references a specific numbered step (e.g., '(step 3)') rather than a vague condition",
       "max_score": 10
     },
     {
@@ -53,8 +53,8 @@
       "max_score": 8
     },
     {
-      "name": "Business rule IDs unique globally",
-      "description": "Business rule IDs (BR-XXX) do NOT restart at BR-001 in the second file — the IDs across both files are unique and non-overlapping",
+      "name": "Business rule IDs scoped per use case",
+      "description": "Each file numbers its business rules BR-001, BR-002, ... without gaps, and the second file starts again at BR-001; any reference to a rule of the other use case is qualified with its use case id (e.g. 'UC-001 BR-002'), never a bare BR id",
       "max_score": 10
     },
     {

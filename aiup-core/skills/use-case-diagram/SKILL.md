@@ -25,6 +25,7 @@ Create or update the PlantUML use case diagram at `docs/use_cases.puml` based on
 - Create diagrams without reading the requirements first
 - Use non-standard PlantUML syntax
 - Include implementation details in use case names
+- Model technical steps such as validating, loading, or persisting data as separate use cases (see "Goal level")
 
 ## Template
 
@@ -48,6 +49,24 @@ user --> UC003
 @enduml
 ```
 
+## Goal level
+
+Every use case in the diagram is a **user goal** — what Cockburn calls the sea level: one actor, one sitting, a
+result the primary actor walks away with. Test each use case with one question:
+
+> Is this use case a complete goal that the primary actor would recognize as valuable?
+
+- **Too low (subfunction):** a step of a larger goal, often a technical one — "Validate METAR", "Load NOTAM",
+  "Persist Result". No dispatcher sits down to validate a METAR; they want to know whether an airport is suitable.
+  Fold such steps into the user goal they serve ("Determine Airport Suitability"), where they become steps of its
+  main success scenario. Keep a subfunction as its own use case only when several user goals share it, and then draw
+  it with `<<include>>` from each of them.
+- **Too high (summary):** a whole area of work that spans many sittings — "Manage Flight Operations". Split it into
+  the user goals it is made of.
+
+A functional requirement that describes a step rather than a goal traces to the user goal use case that contains
+the step.
+
 ## Conventions
 
 - Each use case has a unique id and a description
@@ -63,8 +82,12 @@ user --> UC003
 1. Read the requirements at `docs/requirements.md`
 2. Read existing diagram at `docs/use_cases.puml` (if exists)
 3. Identify actors and use cases from requirements
-4. Create/update the PlantUML use case diagram
-5. Validate the diagram:
+4. Check every use case against the question in "Goal level": fold subfunctions into the user goal they serve,
+   split summary goals, and tell the user which use cases you merged or split and why
+5. Create/update the PlantUML use case diagram
+6. Validate the diagram:
+    - Each use case is a user goal (see "Goal level"); a subfunction appears only as an `<<include>>` shared by
+      several use cases
     - Each use case traces to at least one functional requirement in `docs/requirements.md`
     - All actors are connected to at least one use case
     - Use case IDs follow the UC-{3-digit} convention

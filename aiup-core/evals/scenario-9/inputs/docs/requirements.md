@@ -1,32 +1,31 @@
-# Requirements: User Account System
+# Requirements: Hotel Reservation System
 
 ## Functional Requirements
 
-| ID     | Requirement                                                                                                            | Status |
-|--------|------------------------------------------------------------------------------------------------------------------------|--------|
-| FR-001 | As a visitor, I want to register an account with my email and password so that I can access the platform.             | Draft  |
-| FR-002 | As a visitor, I want my email address to be verified after registration so that the system confirms my identity.      | Draft  |
-| FR-003 | As a visitor, I want to log in with my email and password so that I can access my account.                            | Draft  |
-| FR-004 | As a visitor, I want to receive a verification email after registering so that I can activate my account.             | Draft  |
-| FR-005 | As a registered user, I want my account to be locked after 5 failed login attempts so that my account is protected.  | Draft  |
-| FR-006 | As a visitor, I want to confirm my password during registration so that I do not make a typo.                         | Draft  |
-| FR-007 | As a registered user, I want a session to be created when I log in so that I remain authenticated while browsing.    | Draft  |
+| ID     | Requirement                                                                                                                         | Status |
+|--------|-------------------------------------------------------------------------------------------------------------------------------------|--------|
+| FR-001 | As a guest, I want to search for available rooms for my arrival and departure dates so that I can choose a room.                    | Draft  |
+| FR-002 | As a guest, I want to book a room and pay a deposit by credit card so that the room is reserved for me.                             | Draft  |
+| FR-003 | As a guest, I want to receive a booking confirmation by email so that I have proof of my reservation.                               | Draft  |
+| FR-004 | As a front desk clerk, I want to find a guest's booking on arrival so that I can check the guest in.                                | Draft  |
+| FR-005 | As a front desk clerk, I want to verify the guest's identity document before check-in so that only the booking guest gets the room. | Draft  |
+| FR-006 | As a front desk clerk, I want to authorize the remaining balance on the guest's card at check-in so that the stay is paid for.      | Draft  |
+| FR-007 | As a front desk clerk, I want to hand the guest a room key card so that the guest can enter the room.                               | Draft  |
 
 ## Non-Functional Requirements
 
-| ID      | Requirement                                                                    | Status |
-|---------|--------------------------------------------------------------------------------|--------|
-| NFR-001 | Passwords must be stored using a one-way hashing algorithm (e.g., bcrypt).    | Draft  |
-| NFR-002 | Session tokens (JWT) must expire after 24 hours.                               | Draft  |
-| NFR-003 | Email verification links must expire after 48 hours.                           | Draft  |
-| NFR-004 | Login page must load within 2 seconds under normal traffic.                    | Draft  |
-| NFR-005 | Registration endpoint must respond within 3 seconds for 95% of requests.      | Draft  |
+| ID      | Requirement                                                                                  | Status |
+|---------|----------------------------------------------------------------------------------------------|--------|
+| NFR-001 | Room search must return results within 2 seconds for 95% of requests.                        | Draft  |
+| NFR-002 | Card payments are processed through the Payment Service REST API (POST /v1/charges, JSON).   | Draft  |
+| NFR-003 | Key cards are encoded as RFID Mifare DESFire cards via the Door Lock System API.             | Draft  |
+| NFR-004 | Check-in must take no longer than 3 minutes per guest at the front desk.                     | Draft  |
 
 ## Constraints
 
-| ID    | Constraint                                                                              | Status |
-|-------|-----------------------------------------------------------------------------------------|--------|
-| C-001 | The system must send transactional emails via an SMTP-compatible email service.         | Draft  |
-| C-002 | Passwords must be a minimum of 8 characters and include at least one digit.            | Draft  |
-| C-003 | Email addresses must conform to RFC 5322 format and be unique across all accounts.     | Draft  |
-| C-004 | Account data must be persisted in a relational database (SQL).                          | Draft  |
+| ID    | Constraint                                                                                        | Status |
+|-------|---------------------------------------------------------------------------------------------------|--------|
+| C-001 | Confirmation emails are sent via an SMTP-compatible email service.                                | Draft  |
+| C-002 | Bookings and room inventory are persisted in a relational database (SQL).                         | Draft  |
+| C-003 | Standard check-in time is 15:00; earlier check-in is allowed only when the room is already clean. | Draft  |
+| C-004 | The deposit is 20% of the total price and is non-refundable less than 48 hours before arrival.    | Draft  |
