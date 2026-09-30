@@ -220,7 +220,8 @@ skills hand off to `/coverage-check UC-XXX`.
 
 `aiup-vaadin-jooq/agents/uc-coverage.md` defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
 whether a `UC-XXX` or `TC-XXX` is completely implemented and completely tested. It derives coverage units from the specification
-(every main success scenario step, alternative flow, business rule, precondition, postcondition — for a test case, the
+(every main success scenario step, alternative flow, business rule, precondition, postcondition, and every NFR and
+constraint on its `**Requirements:**` line — for a test case, the
 Flow rows, Validation items, and Postconditions), maps each onto code and tests by id marker (`@UseCase`,
 `UC<id>…Test`, `UC<id>…ServiceTest`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`) or domain vocabulary, and
 reports gaps, drift, and the justified next `**Status:**` value.
@@ -259,6 +260,11 @@ checklist from the agent file directly.
 | Construction | `/nest-test`          | Create Vitest unit tests and Supertest/Testcontainers backend tests |
 | Construction | `/react-test`         | Create React Testing Library component tests                        |
 | Construction | `/playwright-test`    | Create Playwright browser tests for UC-* or TC-* journeys           |
+
+Every `/implement` skill reads the same inputs, defined in `docs/workflow.md` under Traceability: the use case, only
+the `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links (never the whole catalog), the entity model, and the
+glossary and ADRs when present. A new implementation skill follows the same contract; the use case is the
+traceability hub, so do not add a read of the whole `requirements.md` to a single stack.
 
 Each stack plugin ships its own `/implement` and testing skills. Install exactly one stack plugin with `aiup-core` in
 a project so commands shared by several stack plugins do not collide.

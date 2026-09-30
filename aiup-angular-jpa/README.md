@@ -53,8 +53,8 @@ reference for detailed inputs, outputs, and behavior.
 | [`uc-coverage`](agents/uc-coverage.md) | Audits whether a `UC-XXX` or `TC-XXX` is completely implemented and tested |
 
 `uc-coverage` is the review step of the construction phase. It maps every main success scenario step, alternative
-flow, business rule, precondition, and postcondition of a specification onto the Spring Boot and Angular code and the
-tests that realize it, and reports the gaps, the drift (code or tests the specification no longer describes), and the
+flow, business rule, precondition, postcondition, and linked NFR and constraint of a specification onto the Spring
+Boot and Angular code and the tests that realize it, and reports the gaps, the drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value.
 
 The agent is **read-only** — it never edits code, tests, or the specification. The implementation and testing skills

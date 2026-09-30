@@ -25,16 +25,16 @@ between them is the set of files under `docs/`, not a specific coding agent.
 
 ## Artifact flow
 
-| Artifact                  | Produced by         | Consumed by                           |
-|---------------------------|---------------------|---------------------------------------|
-| `docs/vision.md`          | Product team        | `/requirements`                       |
-| `docs/requirements.md`    | `/requirements`     | Entity model and use case diagram     |
-| `docs/glossary.md`        | `/requirements`     | Every specification, `/spec-review`   |
-| `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations        |
-| `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers        |
-| `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests    |
-| `docs/processes/*.bpmn`   | Business analysts   | `/test-case` (one test case per path) |
-| `docs/test_cases/TC-*.md` | `/test-case`        | End-to-end journey tests              |
+| Artifact                  | Produced by         | Consumed by                                        |
+|---------------------------|---------------------|----------------------------------------------------|
+| `docs/vision.md`          | Product team        | `/requirements`                                    |
+| `docs/requirements.md`    | `/requirements`     | Specifications; construction reads the linked rows |
+| `docs/glossary.md`        | `/requirements`     | Specifications, implementations, `/spec-review`    |
+| `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations                     |
+| `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers                     |
+| `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests                 |
+| `docs/processes/*.bpmn`   | Business analysts   | `/test-case` (one test case per path)              |
+| `docs/test_cases/TC-*.md` | `/test-case`        | End-to-end journey tests                           |
 
 Every artifact is a review point. Correcting an intermediate document is expected and is safer than compensating for
 an incorrect assumption in generated code.
@@ -44,10 +44,27 @@ an incorrect assumption in generated code.
 AI Unified Process uses stable identifiers to preserve the path from intent to tests:
 
 - Functional requirements use `FR-XXX`; non-functional requirements use `NFR-XXX`; constraints use `C-XXX`.
-- Use cases use `UC-XXX` and reference the functional requirements they realize.
+- Use cases use `UC-XXX` and, on their `**Requirements:**` line, reference the functional requirements they realize
+  and the non-functional requirements and constraints that apply to them.
 - Test cases use `TC-XXX` and reference the use cases in their journey; test cases derived from a BPMN process model
   also link the model and name the path they cover. Each activity of a process maps to one use case.
 - Generated tests retain the applicable `UC-*` or `TC-*` identifier in their name or metadata.
+
+The use case is the traceability hub for construction. Every implementation skill of every stack plugin reads the
+same inputs:
+
+| Input                                   | Rule                                                                              |
+|-----------------------------------------|-----------------------------------------------------------------------------------|
+| `docs/use_cases/UC-XXX-*.md`            | Required.                                                                         |
+| `FR-*`, `NFR-*`, `C-*` rows             | Only the ids on the use case's `**Requirements:**` line, never the whole catalog. |
+| `docs/entity_model.md`                  | Required.                                                                         |
+| `docs/glossary.md`                      | When present: names in code follow its terms, never its Avoid synonyms.           |
+| Architecture decisions (`docs/**/adr/`) | When present: followed like existing conventions.                                 |
+
+An implementation agent therefore sees every NFR and constraint that applies to its use case without reading the rest
+of the catalog. That only works when the `**Requirements:**` line is complete: a missing or unresolved line is
+reported and handed to `/spec-review`, never guessed, and `/spec-review` flags NFRs and constraints a use case should
+reference but does not. The coverage audit treats each linked NFR and constraint as a coverage unit.
 
 Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
 and rerun or reconcile the downstream artifacts that depend on it.
@@ -79,8 +96,8 @@ coverage check below.
 Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` and `aiup-angular-jpa` ship a read-only
 `uc-coverage` sub-agent for that check ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md),
 [Angular](../aiup-angular-jpa/agents/uc-coverage.md)): it turns a use case specification
-into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition, and
-postcondition — and maps each one onto the code and the tests that realize it.
+into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition,
+postcondition, and linked NFR and constraint — and maps each one onto the code and the tests that realize it.
 
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.

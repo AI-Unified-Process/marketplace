@@ -52,8 +52,10 @@ Read the specification first and completely, before you look at any code:
 
 - Use cases: `docs/use_cases/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
 - Test cases: `docs/test_cases/TC-XXX-*.md`.
-- Read `docs/entity_model.md` when the specification's data requirements matter for the audit, and
-  the linked `FR-XXX` requirements in `docs/requirements.md` when a step is ambiguous.
+- Read `docs/entity_model.md` when the specification's data requirements matter for the audit.
+- Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
+  `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The `FR-*` rows help
+  where a step is ambiguous; the linked `NFR-*` and `C-*` rows become coverage units (Step 2).
 
 If the specification does not exist, stop and report that. Never audit against a specification you
 reconstructed from the code — that would confirm whatever the code happens to do.
@@ -82,6 +84,8 @@ missing, and every unit appears in the report — including the ones that are fi
 | `Pre-n`    | `## Preconditions` bullet                   | guard or establish it                                                  | set it up explicitly (fixture, seed data, login) |
 | `Post-S-n` | `### Success Postconditions` bullet         | leave the system in that state                                         | assert that state after the flow                 |
 | `Post-F-n` | `### Failure Postconditions` bullet         | leave the system in that state when the flow fails                     | assert it in at least one failure test           |
+| `NFR-XXX`  | NFR linked on the `**Requirements:**` line  | honour the limit it sets in this use case's code                       | assert the limit where a test can observe it     |
+| `C-XXX`    | constraint linked on the same line          | respect the constraint in this use case's code                         | assert it where a test can observe it            |
 
 For a test case (`TC-XXX`), the units are the rows of the Flow table (one per step, including the
 verification rows), each Validation item, and each Postcondition.
@@ -89,6 +93,12 @@ verification rows), each Validation item, and each Postcondition.
 A unit is `n/a` only when the specification itself makes it vacuous — for example a step that is
 pure actor intent with no system side ("The user decides to register"), or a failure postcondition
 explicitly written as `_None — …_`. Say why in the report. "Hard to test" is not `n/a`.
+
+A linked NFR or constraint that only states a system-wide property no code of this use case realizes
+(availability, backup, hosting) is `n/a` with that reason. One that sets a limit a test can observe
+(a maximum length, a mandatory external system, a required role, an accessibility level) is judged
+like a business rule. A performance NFR whose code you can read but not measure is `Partial` with
+the open question stated, never `Covered` on reading alone.
 
 ## Step 3 — Locate the implementation and the tests
 
