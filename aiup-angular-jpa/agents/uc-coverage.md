@@ -112,6 +112,7 @@ Search, do not assume. Use the id markers first, then the domain vocabulary.
 | Spring Boot tests      | `@UseCase(id = "UC-001"` with its `scenario` and `businessRules` attributes, in `UC001<Name>Test` (in a hexagonal multi-module project, usually in the composition-root module, e.g. `*-app`) |
 | Vitest tests           | `describe('UC-001: …'` in `UC-001-<slug>.spec.ts`, colocated with the Angular component or service  |
 | Playwright tests       | `UC-001-<slug>.spec.ts` / `TC-001-<slug>.spec.ts`, `test.describe('UC-001: …'` / `('TC-001: …'`, `{ tag: '@UC-001' }` / `'@TC-001'`, one `test.step('Step <n>: …'` and `// Step <n>: <name>` per Flow row |
+| Business rules in code | `// UC-001 BR-003:` directly above the method, query condition, or validator that enforces the rule |
 | Implementation         | the Angular component, route, and HTTP service the actor works in; the `@RestController`, the `@Service` with the use case logic, the JPA `@Entity` / persistence adapter and Spring Data repository, and the DTO records the specification implies (across the domain, business, persistence-adapter, and api modules in a hexagonal layout) |
 
 **Domain vocabulary** — an implementation written before those conventions existed still counts.

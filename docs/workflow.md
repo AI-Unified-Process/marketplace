@@ -41,14 +41,93 @@ an incorrect assumption in generated code.
 
 ## Traceability
 
-AI Unified Process uses stable identifiers to preserve the path from intent to tests:
+This section is the traceability convention of the AI Unified Process: every skill of every plugin writes and reads
+the identifiers and markers defined here. Stable identifiers preserve two chains:
 
-- Functional requirements use `FR-XXX`; non-functional requirements use `NFR-XXX`; constraints use `C-XXX`.
-- Use cases use `UC-XXX` and, on their `**Requirements:**` line, reference the functional requirements they realize
-  and the non-functional requirements and constraints that apply to them.
-- Test cases use `TC-XXX` and reference the use cases in their journey; test cases derived from a BPMN process model
-  also link the model and name the path they cover. Each activity of a process maps to one use case.
-- Generated tests retain the applicable `UC-*` or `TC-*` identifier in their name or metadata.
+```text
+Requirements catalog         Specification                              Construction
+FR-* / NFR-* / C-*   ──→   UC-XXX  ──→  UC-XXX BR-YYY   ──→   implementation  ──→  use case tests
+                              ↑
+BPMN process  ──→  path  ──→  TC-XXX (chains several use cases)   ──────────────→  journey test
+```
+
+The chain starts at the requirements catalog. Requirements engineering is the first discipline that produces
+traceable requirements (in German-speaking projects often the *Lastenheft*); a vision document, when there is one,
+is prose without identifiers and is not linked. Test cases are not derived from business rules but from business
+processes: one test case per path through a BPMN process model.
+
+### Identifiers
+
+| Id        | Artifact                                               | Unique within | Cited elsewhere as |
+|-----------|--------------------------------------------------------|---------------|--------------------|
+| `FR-XXX`  | Functional requirement, `docs/requirements.md`         | Catalog       | `FR-XXX`           |
+| `NFR-XXX` | Non-functional requirement, `docs/requirements.md`     | Catalog       | `NFR-XXX`          |
+| `C-XXX`   | Constraint, `docs/requirements.md`                     | Catalog       | `C-XXX`            |
+| `UC-XXX`  | Use case, `docs/use_cases/UC-XXX-*.md` and the diagram | Project       | `UC-XXX`           |
+| `BR-YYY`  | Business rule, `### BR-YYY:` inside one use case       | Its use case  | `UC-XXX BR-YYY`    |
+| `A<n>`    | Alternative flow, `### A<n>:` inside one use case      | Its use case  | `UC-XXX A<n>`      |
+| `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`               | Project       | `TC-XXX`           |
+
+German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
+so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`. A rule that applies to several
+use cases is defined once and cited from the others, never copied.
+
+Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
+and rerun or reconcile the downstream artifacts that depend on it.
+
+### References
+
+Each reference is written once, in the downstream artifact, pointing upstream. A requirement never lists its use
+cases and a use case never lists its test cases; the reverse direction is computed, not maintained by hand.
+
+| From          | To                                 | Written as                                                                    |
+|---------------|------------------------------------|-------------------------------------------------------------------------------|
+| Use case      | FR, NFR, C                         | The `**Requirements:**` line: the FRs it realizes, the NFRs and Cs that apply |
+| Use case      | Another use case's rule            | `UC-XXX BR-YYY` in the text                                                   |
+| Test case     | Use cases                          | The Use Case column of the Flow table, linked to the specification            |
+| Test case     | Process                            | The `**Process:**` line, linked to the `.bpmn` file, and the path it covers   |
+| BPMN activity | Use case                           | The use case id in the activity name, or the same name as the use case title  |
+| Code          | Use case, rule                     | The implementation marker below                                               |
+| Test          | Use case or test case, flow, rules | The test markers below                                                        |
+
+### Markers in code
+
+**Implementation.** Every stack marks the code that enforces a business rule with a comment in the qualified form,
+directly above the method, query condition, or validator that enforces it:
+
+```java
+// UC-005 BR-003: A guest must be at least eighteen years old on the day of arrival.
+```
+
+The marker names the rule and restates it in one line; it is the place a reader or `/coverage-check` finds the rule
+in the code. It is optional in the sense that a missing marker is a traceability gap, not missing behavior: code
+written before the convention still counts when its domain vocabulary matches. The implementation skills add it for
+every rule they implement. The use case id itself needs no separate marker in production code: Blazor feature
+folders carry it (`Features/UC001_<Feature>/`), the other stacks name views, services, and handlers after the use
+case's domain, and the tests carry the id.
+
+**Tests.** Each stack carries the ids in the form its test framework supports:
+
+| Stack                | Use case tests (`UC-*`)                                                                                                                                                                                               | Journey tests (`TC-*`)                                                                                      |
+|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `aiup-vaadin-jooq`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test` and `UC001<Name>ServiceTest`; `describe('UC-001: …')` in `UC-001-<slug>.test.tsx` (Hilla); Playwright `UC001<Name>IT`  | `TC001<Name>IT` with `@DisplayName("TC-001: …")` and `// Step <n>: <name>` per Flow row                     |
+| `aiup-angular-jpa`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test`; `describe('UC-001: …')` in `UC-001-<slug>.spec.ts`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }` | `TC-001-<slug>.spec.ts` with `test.describe('TC-001: …')`, `{ tag: '@TC-001' }`, `test.step('Step <n>: …')` |
+| `aiup-blazor-dotnet` | `[UseCase("UC-001", Scenario = "A1: …", BusinessRules = ["BR-003"])]` in `UC001<Name>Test`, `UC001<Name>HandlerTest`, and `UC001<Name>IT`                                                                             | `TC001<Name>IT` with `[Fact(DisplayName = "TC-001: …")]` and `// Step <n>: <name>` per Flow row             |
+| `aiup-nestjs-nextjs` | `describe('UC-001: …')` with `it('A1: …')` and `it('BR-003: …')`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                   | `test.describe('TC-001: …')` with `{ tag: '@TC-001' }` and `test.step('Step <n>: …')`                       |
+
+Inside a test that carries its use case id, a rule is named by its bare id (`businessRules = {"BR-003"}`,
+`it('BR-003: …')`), because the use case qualifies it.
+
+### Reading the chain
+
+- **Specifications:** `spec_lint.py --trace` (skill `/spec-review`) prints the matrix requirement → use case → business
+  rules → test cases, and test case → process → use cases, from `docs/` alone. `--only FR-014` answers "why does
+  this exist, and what realizes it" for one id.
+- **Code and tests:** `/coverage-check UC-XXX` (in `aiup-vaadin-jooq` and `aiup-angular-jpa`) maps every step, flow,
+  rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
+  above first. In the other stacks, searching for the markers gives the same answer by hand.
+
+### Construction inputs
 
 The use case is the traceability hub for construction. Every implementation skill of every stack plugin reads the
 same inputs:
@@ -65,9 +144,6 @@ An implementation agent therefore sees every NFR and constraint that applies to 
 of the catalog. That only works when the `**Requirements:**` line is complete: a missing or unresolved line is
 reported and handed to `/spec-review`, never guessed, and `/spec-review` flags NFRs and constraints a use case should
 reference but does not. The coverage audit treats each linked NFR and constraint as a coverage unit.
-
-Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
-and rerun or reconcile the downstream artifacts that depend on it.
 
 ## Specification review
 

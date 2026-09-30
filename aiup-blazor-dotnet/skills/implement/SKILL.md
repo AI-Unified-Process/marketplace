@@ -44,11 +44,33 @@ of building a parallel one**:
   handler → validator → ViewModel → `.razor` markup)
 - Remove code the spec no longer calls for, and add a new EF Core migration for schema changes —
   never edit a migration that has already been applied
+- Keep the `UC-XXX BR-YYY` markers in step with the rules: update a marker whose rule changed, and
+  remove it together with the code of a rule the specification dropped
 - Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
   restyling
 - Check what the class-level comments attribute to this use case: behaviour they describe that
   the spec no longer mentions is dropped behaviour to remove, not decoration to keep
 - Report at the end which files changed and which spec change drove each one
+
+## Business Rule Markers
+
+Mark the code that enforces each business rule of the use case with a comment in the qualified form,
+directly above the handler logic, EF Core query, or validator rule that enforces it:
+
+```csharp
+// UC-001 BR-003: A guest must be at least eighteen years old on the day of arrival.
+```
+
+- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications
+  `UC-001 GR-003`. Rules are numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Restate the rule in one line after the colon; do not paste the whole rule text.
+- A rule enforced in several places (a `UCXXX_Validator.cs` rule and a handler check) gets the marker at each place.
+- A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).
+- Place the marker while you implement the rule, not in a pass afterwards; a business rule of
+  the specification without a marker is one still to implement.
+
+A reviewer or a coverage audit finds a rule in the code by searching for `UC-001 BR-003`; the tests
+name the same rule by its bare id inside their use case.
 
 ## Workflow & Conventions
 
@@ -97,8 +119,10 @@ of building a parallel one**:
    - **Remove Default Sample Pages**: Remove default `dotnet new blazor` boilerplate sample pages (`Counter.razor`, `Weather.razor`) and their links from `NavMenu.razor` when implementing initial features.
    - **Update Layout Navigation**: Register the new use case page route in `Components/Layout/NavMenu.razor` (or project navigation layout) using styled `NavLink` elements matching the app theme.
 
-7. **Compilation Verification**:
+7. **Verification**:
    - Run `dotnet build` to verify clean compilation.
+   - Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
+     [Business Rule Markers](#business-rule-markers).
 
 8. **Next Step Guidance**:
    - Conclude your response by summarizing the implemented feature files and guiding the user to the testing phase:

@@ -164,6 +164,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   It does **not** copy the per-file checks or the BPMN parser: it imports `validate_use_case.py` and
   `bpmn_paths.py` at runtime from the sibling skill folders by glob (`*use-case-spec/`, `*test-case/`, host prefixes
   allowed) and reports an INFO finding when one is missing. Keep one copy of each script.
+  `--trace` prints the traceability matrix (requirement → use case → business rules → test cases, test case →
+  process → use cases) from the same parsed documents instead of findings; it never writes a file.
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are
@@ -265,6 +267,13 @@ Every `/implement` skill reads the same inputs, defined in `docs/workflow.md` un
 the `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links (never the whole catalog), the entity model, and the
 glossary and ADRs when present. A new implementation skill follows the same contract; the use case is the
 traceability hub, so do not add a read of the whole `requirements.md` to a single stack.
+
+The traceability convention — id grammar, who references whom, and the implementation and test markers of every
+stack — lives in one place, `docs/workflow.md` under Traceability. The chain starts at the requirements catalog
+(the vision has no ids and is not linked), and test cases derive from business processes, not from business
+rules. Every `/implement` skill marks the code that enforces a business rule with `// UC-XXX BR-YYY: <rule>`,
+always qualified, because rule ids are numbered per use case. A change to a marker or a test marker must be
+made in the skill, in the stack's `uc-coverage` agent (where one exists), and in that table together.
 
 Each stack plugin ships its own `/implement` and testing skills. Install exactly one stack plugin with `aiup-core` in
 a project so commands shared by several stack plugins do not collide.

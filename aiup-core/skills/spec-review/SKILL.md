@@ -11,10 +11,12 @@ description: >
   business rules, UI or technical detail in a use case, steps that can fail
   without an alternative flow, untestable rules, ambiguity, wrong or missing
   actors, unreferenced NFRs and constraints, data that does not match the
-  entity model). Use when the user asks to "review the specs",
-  "check spec quality", "lint the requirements", "lint the use cases", "find
-  contradictions", "is this use case ready", "are the specs consistent", "run
-  a spec quality check", or wants a quality gate for specifications in CI.
+  entity model), plus a traceability matrix on request. Use when the user asks
+  to "review the specs", "check spec quality", "lint the requirements", "lint
+  the use cases", "find contradictions", "is this use case ready", "are the
+  specs consistent", "run a spec quality check", "show the traceability
+  matrix", "which use cases realize FR-014", or wants a quality gate for
+  specifications in CI.
   It reports only — it never edits a specification. This checks specifications
   against each other; checking code and tests against a specification is
   /coverage-check.
@@ -126,6 +128,22 @@ Turn findings into the command that fixes them, and offer them; run one only if 
 When the user wants to accept the current lint findings (brownfield start), tell them to run
 `python3 scripts/spec_lint.py --docs docs --update-baseline` and commit `docs/.spec-lint-baseline.json`; accepted
 findings then no longer fail the build, and entries that stop matching are reported as `BASELINE_STALE`.
+
+## Trace Matrix
+
+When the user asks for a traceability matrix, or wants to know which use cases, business rules, and test cases trace
+back to a requirement, run the script with `--trace` instead of writing the matrix yourself:
+
+```bash
+python3 scripts/spec_lint.py --docs docs --trace                # whole project, Markdown
+python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, or TC- id
+```
+
+It prints two tables: requirement → use case (with its status) → business rules → test cases, and test case →
+process → use cases. A requirement no use case links and a use case without a `**Requirements:**` line appear with
+`—`. `--format json` prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no
+findings. If the user wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill
+writes no file. Whether code and tests realize the use cases is `/coverage-check`, not this matrix.
 
 ## CI
 

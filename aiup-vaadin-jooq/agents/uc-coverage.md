@@ -113,6 +113,7 @@ Search, do not assume. Use the id markers first, then the domain vocabulary.
 | Hilla backend tests    | `UC001<Name>ServiceTest`, carrying the same `@UseCase` annotation                                    |
 | Hilla frontend tests   | `describe('UC-001: …'` in `UC-001-<slug>.test.tsx`                                                   |
 | Playwright tests       | `UC001<Name>IT` / `TC001<Name>IT`, `@DisplayName("TC-001: …")`, one `// Step <n>: <name>` per Flow row |
+| Business rules in code | `// UC-001 BR-003:` directly above the method, query condition, or validator that enforces the rule |
 | Implementation         | the Vaadin Flow view or Hilla view and its `@BrowserCallable` service, plus the jOOQ repository and DTOs the specification implies |
 
 **Domain vocabulary** — an implementation written before those conventions existed still counts.

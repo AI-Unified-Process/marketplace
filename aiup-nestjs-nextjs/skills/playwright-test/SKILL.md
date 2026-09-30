@@ -217,9 +217,11 @@ the values were chosen, or the next person will "tidy" them into a collision.
 ## Workflow
 
 1. Read the `TC-*.md` if one covers the request; otherwise read the use case specification
-2. Look for existing tests carrying the `@UC-XXX` tag and reconcile rather than duplicate
+2. Look for existing tests carrying the `@UC-XXX` or `@TC-XXX` tag and reconcile rather than duplicate
 3. Confirm the config boots both servers and waits on readiness, not a bare port
-4. Write one test per scenario or flow-table path, tagged with `@UC-XXX`
+4. Write one test per scenario or flow-table path, tagged with `@UC-XXX`; a test case journey is one
+   `test.describe('TC-XXX: <goal>')` tagged with `@TC-XXX`, with one `test.step('Step <n>: <name>')`
+   per Flow row
 5. Run `npx playwright test`
 6. On failure: confirm both servers are up, then use `--headed --debug` to watch it
 

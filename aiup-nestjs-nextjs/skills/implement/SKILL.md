@@ -61,6 +61,8 @@ of building a parallel one**:
   sides
 - Remove code the spec no longer calls for, and add a **new** migration for schema changes —
   never edit a migration that has already been applied
+- Keep the `UC-XXX BR-YYY` markers in step with the rules: update a marker whose rule changed, and
+  remove it together with the code of a rule the specification dropped
 - Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
   restyling
 - Report at the end which files changed and which spec change drove each one
@@ -85,6 +87,26 @@ of building a parallel one**:
 - Introduce a shared types package the project does not already have
 - Hand-write migration SQL — that is the `drizzle-migration` skill's job
 
+## Business Rule Markers
+
+Mark the code that enforces each business rule of the use case with a comment in the qualified form,
+directly above the repository query, service method, or DTO validation decorator that enforces it:
+
+```ts
+// UC-010 BR-010: Out-of-stock products are excluded regardless of any category filter.
+```
+
+- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications
+  `UC-001 GR-003`. Rules are numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Restate the rule in one line after the colon; do not paste the whole rule text.
+- A rule enforced in several places (a DTO validation decorator and a service check) gets the marker at each place.
+- A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).
+- Place the marker while you implement the rule, not in a pass afterwards; a business rule of
+  the specification without a marker is one still to implement.
+
+A reviewer or a coverage audit finds a rule in the code by searching for `UC-001 BR-003`; the tests
+name the same rule by its bare id inside their use case.
+
 ## Workflow
 
 1. Read the use case specification from `docs/use_cases/`
@@ -107,6 +129,8 @@ of building a parallel one**:
 8. Verify the frontend builds
 9. Confirm the backend and frontend agree on the JSON shape — field names, types, nullability —
    before considering the use case done
+10. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
+    [Business Rule Markers](#business-rule-markers)
 
 ---
 
@@ -144,7 +168,7 @@ import { products } from '../database/schema.js';
 export class ProductsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
-  // BR-010: out-of-stock products are excluded regardless of any category filter.
+  // UC-010 BR-010: Out-of-stock products are excluded regardless of any category filter.
   async findAvailable(category?: string) {
     const filters = [eq(products.inStock, true)];
     if (category) filters.push(eq(products.category, category));

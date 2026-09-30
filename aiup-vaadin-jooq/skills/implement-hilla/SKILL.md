@@ -43,6 +43,8 @@ implementation exists, **reconcile it with the specification instead of building
 - Edit the existing files in place; never create a second view, service, repository, or DTO for
   the same use case
 - Remove code the spec no longer calls for (dropped fields, removed flows, obsolete queries)
+- Keep the `UC-XXX BR-YYY` markers in step with the rules: update a marker whose rule changed, and
+  remove it together with the code of a rule the specification dropped
 - Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
   restyling
 - Check what the class-level comments attribute to this use case: behaviour they describe that
@@ -55,6 +57,25 @@ implementation exists, **reconcile it with the specification instead of building
 - Use `fetchInto(SomeDto.class)` for projected queries — use `Records.mapping(SomeDto::new)` instead
 - Hand-write TypeScript clients or REST controllers — Hilla generates the TypeScript client from
   the `@BrowserCallable` class
+
+## Business Rule Markers
+
+Mark the code that enforces each business rule of the use case with a comment in the qualified form,
+directly above the jOOQ query condition, `@BrowserCallable` service method, or form validator that enforces it:
+
+```java
+// UC-001 BR-003: A guest must be at least eighteen years old on the day of arrival.
+```
+
+- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications
+  `UC-001 GR-003`. Rules are numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Restate the rule in one line after the colon; do not paste the whole rule text.
+- A rule enforced in several places (a form validator in the `.tsx` view and a service check) gets the marker at each place.
+- A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).
+- Place the marker while you implement the rule, not in a pass afterwards; a business rule of
+  the specification without a marker is one still to implement.
+
+`/coverage-check` looks for these markers first when it maps the business rules onto the code.
 
 ## Workflow
 
@@ -78,7 +99,9 @@ implementation exists, **reconcile it with the specification instead of building
 9. Implement the React view as a `.tsx` file under `src/main/frontend/views/`, calling the
    generated TypeScript client of the service
 10. Verify the full implementation compiles successfully (Java and frontend)
-11. Report what you implemented and hand off to `/hilla-test UC-XXX` — see
+11. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
+   [Business Rule Markers](#business-rule-markers)
+12. Report what you implemented and hand off to `/hilla-test UC-XXX` — see
    [Coverage Check](#coverage-check) below
 
 ## Hilla specifics

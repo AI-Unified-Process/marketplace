@@ -73,6 +73,8 @@ instead of building a parallel one**:
   model → template) so the JSON contract stays consistent on both sides
 - Remove code the spec no longer calls for, and add a new Flyway migration for schema changes —
   never edit a migration that has already been applied
+- Keep the `UC-XXX BR-YYY` markers in step with the rules: update a marker whose rule changed, and
+  remove it together with the code of a rule the specification dropped
 - Leave everything the spec does not touch alone — no incidental refactoring, renaming, or
   restyling
 - Check what the class-level comments attribute to this use case: behaviour they describe that
@@ -101,6 +103,25 @@ instead of building a parallel one**:
   `@AllArgsConstructor`, `@NoArgsConstructor`, etc.) — write explicit constructors and,
   where a class genuinely needs them, explicit getters/setters instead
 
+## Business Rule Markers
+
+Mark the code that enforces each business rule of the use case with a comment in the qualified form,
+directly above the service method, query, or validator that enforces it:
+
+```java
+// UC-001 BR-003: A guest must be at least eighteen years old on the day of arrival.
+```
+
+- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications
+  `UC-001 GR-003`. Rules are numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Restate the rule in one line after the colon; do not paste the whole rule text.
+- A rule enforced in several places (an Angular form validator and a `@Service` check) gets the marker at each place.
+- A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).
+- Place the marker while you implement the rule, not in a pass afterwards; a business rule of
+  the specification without a marker is one still to implement.
+
+`/coverage-check` looks for these markers first when it maps the business rules onto the code.
+
 ## Workflow
 
 1. Read the use case specification from `docs/use_cases/`
@@ -128,7 +149,9 @@ instead of building a parallel one**:
 8. Verify the frontend builds (`ng build`)
 9. Confirm the backend and frontend agree on the JSON shape (field names,
    types, nullability) before considering the use case done
-10. Report what you implemented and hand off to the tests — see
+10. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
+    [Business Rule Markers](#business-rule-markers)
+11. Report what you implemented and hand off to the tests — see
     [Coverage Check](#coverage-check) below
 
 ---
