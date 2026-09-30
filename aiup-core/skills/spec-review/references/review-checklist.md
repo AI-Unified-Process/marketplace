@@ -56,7 +56,9 @@ valuable?* Report a use case that fails the question:
   scenario is two or three system steps with no result the actor would ask for. Name the user goal it belongs to
   ("Determine Airport Suitability"), which may already exist in the diagram.
 - Summary: an area of work spanning several sittings — "Manage Flight Operations". Name the user goals it splits
-  into.
+  into. Signs of a summary in the Main Success Scenario: the work is handed over to another role, the scenario waits
+  for an outside event or a deadline, or branches run in parallel for different actors. Name the business process
+  that connects the split use cases as well, to be modeled in BPMN in `docs/processes/`.
 
 A subfunction the diagram draws as an `<<include>>` from several use cases is intended; do not report it. Severity:
 `warning` for a technical step modeled as a use case of its own, `info` otherwise. The fix belongs to

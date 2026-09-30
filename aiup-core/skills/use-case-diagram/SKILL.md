@@ -62,7 +62,12 @@ result the primary actor walks away with. Test each use case with one question:
   main success scenario. Keep a subfunction as its own use case only when several user goals share it, and then draw
   it with `<<include>>` from each of them.
 - **Too high (summary):** a whole area of work that spans many sittings — "Manage Flight Operations". Split it into
-  the user goals it is made of.
+  the user goals it is made of. A use case is a summary, too, when its flow hands the work over to another role,
+  waits for an outside event or a deadline, or runs branches in parallel for different actors — "Process Insurance
+  Claim" with a clerk, an assessor, and a payout after approval. Each role's part is a user goal of its own; the
+  flow that connects them is a business process, modeled in BPMN in `docs/processes/`, whose activities are those
+  use cases and from which `/test-case` derives the test cases. Do not describe the process inside a use case or
+  attach a process model to it.
 
 A functional requirement that describes a step rather than a goal traces to the user goal use case that contains
 the step.
