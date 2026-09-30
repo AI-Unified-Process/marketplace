@@ -23,7 +23,7 @@ errors.
 | ERROR    | `SPEC_MISSING`          | A use case in `use_cases.puml` has no `use_cases/UC-XXX-*.md`                                  | `/use-case-spec`    |
 | ERROR    | `NOT_IN_DIAGRAM`        | A specification (not `Obsolete`) whose use case is not in `use_cases.puml`                    | `/use-case-diagram` |
 | ERROR    | `DUPLICATE_ID`          | A UC, TC, FR, NFR, or C id, or an entity heading, is used twice                                | the owning skill    |
-| ERROR    | `DANGLING_REF`          | An FR in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, or a `**Process:**` link points to nothing | the owning skill |
+| ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, or a `**Process:**` link points to nothing | the owning skill |
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no use case lists in `**Requirements:**`             | `/use-case-spec`    |

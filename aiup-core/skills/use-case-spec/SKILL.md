@@ -116,10 +116,15 @@ in the implementation, not the specification.
 3. Use TodoWrite to track progress — one item per use case file.
 4. For each use case, derive the filename with the rule in "File naming" above.
 5. Write the Overview section: `Use Case ID`, primary actor, goal, and a `Status`
-   from the "Status values" list above. When `docs/requirements.md` exists, add the
-   functional requirements this use case realizes as
-   `**Requirements:** [FR-001, FR-002](../requirements.md)` after the `Status` line —
-   `/spec-review` uses it to find requirements no use case covers.
+   from the "Status values" list above. When `docs/requirements.md` exists, add a
+   `**Requirements:**` line after the `Status` line: one Markdown link to the catalog
+   whose link text lists the requirement ids — at least the functional requirements
+   (`FR-*`) this use case realizes, plus the non-functional requirements (`NFR-*`) and
+   constraints (`C-*`) it must respect, e.g.
+   `**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)`. List ids only,
+   never copy requirement text — `requirements.md` stays the source of truth.
+   `/spec-review` uses the line to find requirements no use case covers and ids that
+   do not exist. Omit the line only when there is no `docs/requirements.md`.
 6. Define preconditions — verifiable facts that must be true before the use case starts.
 7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
@@ -161,6 +166,7 @@ verifying by eye. The list remains the definition of done:
 
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
 - [ ] Overview has a `Use Case ID` (`UC-XXX`), primary actor, goal, and a valid `Status` value.
+- [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
 - [ ] At least one alternative flow exists (two or more when the use case has several failure paths); each has a **Trigger** that references a specific main-scenario step number as `(step N)`.
 - [ ] Every alternative flow ends with `Use case continues at step N.` or `Use case ends.` — never open-ended.

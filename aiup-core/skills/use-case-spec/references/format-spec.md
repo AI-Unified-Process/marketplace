@@ -38,7 +38,7 @@ this order on save):
 **Goal:** <one sentence>
 **Status:** <status value>
 
-**Requirements:** [FR-001, FR-002](../requirements.md)   (optional)
+**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
 
 ## Preconditions
 
