@@ -71,7 +71,8 @@ Three parsing rules carry weight:
    or `docs/test_cases/TC-XXX-*.md`. Stop and ask if it does not.
 3. State the resolved arguments in one line.
 4. Delegate the audit — see [Delegation](#delegation).
-5. Present the returned report unchanged.
+5. Present the returned report unchanged. When this conversation already holds an audit of the same id and mode,
+   add the comparison — see [Repeated Runs](#repeated-runs).
 6. Offer the gap-closing commands — see [After the Report](#after-the-report). Then stop.
 
 ## Delegation
@@ -102,12 +103,41 @@ with a verdict, say so underneath it and leave the row alone.
   Angular); `/spring-boot-test` for backend test gaps; `/vitest-test` for Angular component or
   service test gaps; `/playwright-test` for browser or journey gaps. Offer
   them; run one only if the user says yes.
+- Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the
+  specification (`/use-case-spec UC-XXX` adds the behaviour) or the code (`/implement` removes it) —
+  and offer only the command that matches the answer. Never pick a side yourself: changing the
+  specification to match the code, or the code to match the specification, without that decision
+  is what sends `/spec-review` and `/coverage-check` round in circles.
 - Do not close gaps yourself, and do not close one "quickly because it is only one line". A
   one-line fix from the auditor is still an unreviewed change to a verdict you have just issued.
 - The agent cannot run builds or tests. Before repeating any `Tested` suggestion, ask whether the
   suite passes.
 - Pass the `### Suggested status` on as a suggestion, and name the line that would change. Do not
   edit the specification's `**Status:**` line as part of this report.
+
+## Repeated Runs
+
+The agent starts from scratch every time and does not know its previous verdicts; you do. When
+this conversation already holds a report for the same id and mode, add one section under the
+report — the matrix itself stays exactly as the agent returned it:
+
+```markdown
+### Since the last run
+
+- Closed: BR-002, A1
+- New: A3 — `PersonForm.java` changed since the last run
+- Changed without a change: Step 4 Covered → Partial; neither the specification nor the files
+  named in the row changed
+- Still open after a fix aimed at it: Post-S-1
+```
+
+- A verdict that changed although neither the specification nor the evidence files changed is the
+  auditor's judgment wobbling, not new work. Say so, and ask the user whether to act on it; do not
+  offer a command for it.
+- A gap still open after a fix aimed at it: do not offer the same command again. State what the
+  auditor wants and what the code does, and ask the user to settle it — it may be the
+  specification that needs to change, which is a decision, not a gap.
+- When every unit is `Covered` or `n/a`, the audit is finished. Do not suggest a further run.
 
 ## Hosts without sub-agents
 

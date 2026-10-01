@@ -74,7 +74,8 @@ location and nature, never by quoting the text itself.
    `entity_model.md`, and `glossary.md` when present. For a single use case, also read the business rules of the
    other use cases, because contradictions and duplicates live across files.
    Skip a checklist item whose finding the lint already reported for the same element.
-4. **Write the report** in the format below.
+4. **Write the report** in the format below. When this conversation already holds a spec review of the same scope,
+   compare with it — see [Repeated Runs](#repeated-runs).
 5. **Hand off** — see [After the Report](#after-the-report). Then stop.
 
 ## Report
@@ -100,7 +101,9 @@ location and nature, never by quoting the text itself.
 
 ### Verdict
 
-<One or two sentences: does Part A pass (exit code 0)? Which semantic findings deserve attention before the use case
+**Ready for Approved:** no — 2 lint errors, 2 open semantic warnings
+
+<One or two sentences: does Part A pass (exit code 0)? Which semantic warnings deserve attention before the use case
 moves to Approved?>
 ```
 
@@ -108,10 +111,15 @@ moves to Approved?>
 - Quote at most a short phrase from the specification to anchor a finding; never paste whole steps or rules.
 - Say plainly that Part B is not deterministic: a second run can phrase or rank findings differently.
 - When a checklist item found nothing, do not list it. When nothing at all was found, say so in one line.
+- **Ready for Approved** is `yes` when the lint exits 0 and no semantic `warning` is open; a warning the user has
+  declined or accepted in this conversation is no longer open. `info` findings never make it `no`. This is the
+  review's end point: once it says `yes`, say so plainly and do not look for more to improve.
 
 ## After the Report
 
-Turn findings into the command that fixes them, and offer them; run one only if the user says yes:
+Turn lint findings and semantic `warning` findings into the command that fixes them, and offer them; run one only if
+the user says yes. Do not offer a command for an `info` finding — list it in the report and leave it there unless the
+user asks to fix it; polishing the wording of a ready use case is not a reason for another round.
 
 - a use case (flows, rules, wording, level) → `/use-case-spec UC-XXX`
 - a use case missing from, or extra in, the diagram → `/use-case-diagram`
@@ -122,6 +130,30 @@ Turn findings into the command that fixes them, and offer them; run one only if 
 When the user wants to accept the current lint findings (brownfield start), tell them to run
 `python3 scripts/spec_lint.py --docs docs --update-baseline` and commit `docs/.spec-lint-baseline.json`; accepted
 findings then no longer fail the build, and entries that stop matching are reported as `BASELINE_STALE`.
+
+## Repeated Runs
+
+Part B is not deterministic, so a second run over unchanged text finds things the first one did not. Without a
+comparison, every fix is followed by a review that finds the next thing, and the specification is never done. When
+the conversation already holds a spec review of the same scope, add a section under the semantic findings:
+
+```markdown
+### Since the last run
+
+- Fixed: UC-004 step 5 (Completeness), UC-004 BR-002 (Contradiction)
+- New on changed text: UC-004 A3 (Completeness) — introduced by the fix of step 5
+- New on unchanged text: UC-004 step 3 (Wrong level) — a second opinion, not a regression
+- Declined earlier, not repeated: UC-007 (Wrong level)
+```
+
+- **New on changed text** is a real finding: the fix introduced it. Offer the command as usual.
+- **New on unchanged text** was missed or ranked lower last time. Report it, but do not let it turn a `yes` into a
+  `no` on its own: ask the user whether it is worth another round.
+- A finding the user declined or accepted earlier in the conversation is not reported again, only counted.
+- A finding that comes back after a fix aimed at it: say that the fix did not settle it, and ask the user how to
+  resolve it instead of offering the same command a second time.
+
+The lint findings need no such comparison; they are the same on every run.
 
 ## Trace Matrix
 

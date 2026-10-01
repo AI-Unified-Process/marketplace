@@ -170,6 +170,9 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are
   `warning`/`info` only and never block.
+- **Converges.** The verdict states **Ready for Approved** (lint exit 0, no open semantic warning); `info`
+  findings get no fix command, and a repeated run in the same conversation reports what changed since the last one
+  instead of a fresh list. Without this, every fix is followed by a review that finds the next thing.
 - **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; it
   hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
   `docs/`; `/coverage-check` compares specifications with code and stays stack-specific.
@@ -238,6 +241,11 @@ Three constraints hold this design together and must survive edits:
   argument parsing, delegation, faithful presentation, hand-off. It must never gain the ability to close the gaps it
   reports, and it must not restate the agent's checklist — that is how it would grow into the combined
   implement-and-test skill this design deliberately avoids.
+- **Drift is the user's call, and reruns are compared.** The agent names both fixes for every drift item
+  (specification or code) and recommends neither; `/coverage-check` asks which side is right before offering a
+  command, and on a rerun in the same conversation flags verdicts that changed without a change to the
+  specification or the evidence files. Guessing the side of a drift fix is what bounced work between
+  `/spec-review` and `/coverage-check`.
 
 All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
 step that **hands off** — they never run the agent themselves. The four test skills hand off to

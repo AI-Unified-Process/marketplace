@@ -141,6 +141,14 @@ Assign exactly one verdict per unit and per column:
 convincing class name are not evidence. When the code is there but you cannot tell whether it does
 what the step says, that is `Partial` with the open question stated — never `Covered`.
 
+**The yardstick is the specification, not what it could have said.** A `Partial` names either the concrete piece
+that is missing (the branch, the input, the assertion, and where it belongs) or the concrete open question. A
+general doubt — "edge cases may not be handled", "could be tested more thoroughly" — names neither: judge the unit
+on the evidence you have. Behaviour the specification does not ask for is not a gap of this audit; if it should be
+there, the specification is incomplete, and that is a finding for `/spec-review`, not a reason to withhold `Covered`.
+A strict auditor gives the same verdict on the same code twice; one that finds a new doubt on every run sends the
+caller round in circles.
+
 Judging tests:
 
 - A test that renders a view and asserts a title does not cover a step that changes data.
@@ -178,6 +186,11 @@ with no counterpart in the current specification:
 Report these under **Drift**. Do not report ordinary infrastructure, shared utilities, or code that
 belongs to another use case as drift.
 
+Drift has two possible fixes, and choosing between them is a product decision, not yours: either the behaviour is
+wanted and the specification must describe it, or it is not and the code must lose it. Name both for every drift
+item and recommend neither. Fixing the wrong side makes the next audit — or the next spec review — find the same
+difference again from the other end.
+
 ## Step 6 — Report
 
 Answer in this shape and nothing else. No file writes, no patches, no "I went ahead and…".
@@ -204,7 +217,8 @@ Implementation 8/11 · Tests 6/11 · Spec: docs/use_cases/UC-001-register-person
 ### Drift
 
 1. `PersonView.java:120` offers a "Send welcome email" action that no step, flow, or rule of
-   UC-001 describes. Either the specification lost a flow or the code kept dropped behaviour.
+   UC-001 describes. Wanted → the specification needs a flow (`/use-case-spec UC-001`); not wanted → remove it
+   (`/implement UC-001`). The user decides which.
 
 ### Suggested status
 

@@ -185,6 +185,12 @@ reported and can be removed.
 `/spec-review` checks specifications against specifications. Whether code and tests realize a specification is the
 coverage check below.
 
+Both checks have an end point, so that a review does not turn into a loop. `/spec-review` ends with **Ready for
+Approved**: yes once the lint passes and no semantic warning is open; `info` findings never block it and are not
+turned into fix commands. `/coverage-check` is finished when every unit is `Covered` or `n/a`. A second run in the
+same conversation compares with the first and separates real changes from a judgment that merely wobbled, and drift
+between code and specification is a decision for you — which side is right — never fixed on one side by guesswork.
+
 ## Coverage check
 
 Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` and `aiup-angular-jpa` ship a read-only
