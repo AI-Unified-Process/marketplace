@@ -38,6 +38,9 @@ between them is the set of files under `docs/`, not a specific coding agent.
 
 Every artifact is a review point. Correcting an intermediate document is expected and is safer than compensating for
 an incorrect assumption in generated code.
+`/use-case-spec` asks first: before it writes a use case, it asks up to five questions whose answers change the
+specification and have no reasonable default, writes the answers into the steps and rules, and reports every default
+it chose without asking as an assumption.
 The `/implement` skills act on this: they ask before implementing a use case that is not yet `Approved`, and they
 report each gap in the specification as an open question — naming the step, flow, or rule — instead of closing it
 with an assumption. The answer goes into the specification through `/use-case-spec`, not into the code alone.

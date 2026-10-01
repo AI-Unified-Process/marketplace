@@ -58,7 +58,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Skip numbering steps in the Main Success Scenario
 - Omit alternative flows for error conditions
 - Invent an alternative flow only to fill the section — when no step has a meaningful alternative or exception
-  condition, say so with a placeholder (see workflow step 8)
+  condition, say so with a placeholder (see workflow step 9)
 - Leave postconditions undefined
 - Describe the reaction to a failure ("System displays an error message") as a failure postcondition — that
   is a step of the alternative flow; failure postconditions are guarantees that hold on every unsuccessful end
@@ -135,9 +135,17 @@ in the implementation, not the specification.
    then tell the user which use case looks like a subfunction or a summary, name the
    user goal it belongs to, and hand off to `/use-case-diagram`. A subfunction that the
    diagram draws as an `<<include>>` shared by several use cases is intended; leave it.
-3. Use TodoWrite to track progress — one item per use case file.
-4. For each use case, derive the filename with the rule in "File naming" above.
-5. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, trigger, and a
+3. **Clarify before writing.** Scan the sources for each use case with
+   [references/clarify-checklist.md](references/clarify-checklist.md) and ask the user the questions whose answer
+   changes the specification and has no reasonable default — at most five per use case, the most important first,
+   each with a recommended option. Write the answers into the steps, flows, and rules they affect, never into a
+   questions section. Decide everything else with the best default and report it as an assumption (step 16). When
+   no one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the
+   recommended option for every question and report it as an assumption as well. Never ask about implementation
+   choices; they do not belong in a use case.
+4. Use TodoWrite to track progress — one item per use case file.
+5. For each use case, derive the filename with the rule in "File naming" above.
+6. Write the Overview section: `Use Case ID`, primary actor, secondary actors, goal, trigger, and a
    `Status` from the "Status values" list above. The primary actors are the roles that pursue the
    goal. A use case often has one, but it may have several: list them comma-separated
    (`**Primary Actor:** Front Desk Clerk, Guest`) when each of them can start the use case on its
@@ -163,7 +171,7 @@ in the implementation, not the specification.
    never copy requirement text — `requirements.md` stays the source of truth.
    `/spec-review` uses the line to find requirements no use case covers and ids that
    do not exist. Omit the line only when there is no `docs/requirements.md`.
-6. Define preconditions — verifiable facts that must be true before the use case starts. They are
+7. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
    actions, and the use case does not check them again. **A precondition must not describe a
    condition that is established or evaluated during the use case**: when the fact depends on input
@@ -171,9 +179,9 @@ in the implementation, not the specification.
    it, or when an alternative flow handles its violation, it is not a precondition but a condition
    to handle in the Main Success Scenario and its alternative flow. Keep the stable state it rests
    on instead (`Room inventory is configured`).
-7. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
+8. Write the Main Success Scenario as numbered steps (start at 1, no gaps),
    alternating actor action and system response, ending with the goal achieved.
-8. Analyze **every** Main Success Scenario step for meaningful alternative or exception
+9. Analyze **every** Main Success Scenario step for meaningful alternative or exception
    conditions — can the actor decide differently, can the input be invalid, can a check fail,
    can an external system refuse or not answer? Document every extension you identify (error
    conditions, optional paths, exceptional situations); most real use cases have two or more.
@@ -186,7 +194,7 @@ in the implementation, not the specification.
    no meaningful alternative, replace the template flow with an italic placeholder that states the
    result, e.g. `_None — no step of the main success scenario can fail or branch._` The validator
    accepts the placeholder as a deliberate statement and warns only when the section is left empty.
-9. Define postconditions for both success and failure (both subsections non-empty).
+10. Define postconditions for both success and failure (both subsections non-empty).
    - **Success Postconditions** state what is true when the primary actor's goal is achieved.
    - **Failure Postconditions** describe the minimum guarantees that must hold for every unsuccessful
      termination of the use case — every alternative flow that ends with `Use case ends.`, a cancellation,
@@ -196,13 +204,13 @@ in the implementation, not the specification.
      valid", "No partial payment remains booked". A message, a notification, or a return to a screen is
      not a guarantee — it belongs in the alternative flow that handles the failure. A statement that
      holds for only one failure path belongs in that flow, not here.
-10. Document applicable business rules with `BR-XXX` IDs, numbered `BR-001`,
+11. Document applicable business rules with `BR-XXX` IDs, numbered `BR-001`,
     `BR-002`, … within the file. Every file starts again at `BR-001`; rule ids are
     scoped to their use case (see "Scope").
-11. Write each use case to its **own** file completely before moving to the next —
+12. Write each use case to its **own** file completely before moving to the next —
     never merge two use cases into one file, and never leave a planned file unwritten.
-12. Run the Completeness Checklist below; fix anything that fails.
-13. **Final verification (do this before declaring done):** list the contents of
+13. Run the Completeness Checklist below; fix anything that fails.
+14. **Final verification (do this before declaring done):** list the contents of
     `docs/use_cases/` and confirm every `UC-XXX` from your scope has exactly one
     file present, named `UC-XXX-<kebab-case-name>.md` (kebab-case of the diagram
     name — e.g. `Check In Guest` → `UC-002-check-in-guest.md`, never `UC-002-checkin-guest.md`). Rename any
@@ -219,18 +227,19 @@ in the implementation, not the specification.
     `bcrypt`, `hash`, `SQL`, …) in a step, which must be rewritten at the business
     level: a registration use case says "System records the new account" / "System
     confirms the account" — never how the password is stored or the session is created.
-14. Mark todo complete.
-15. **Quality gate — hand off, do not self-review.** The validator checks structure; it cannot judge
+15. Mark todo complete.
+16. **Quality gate — hand off, do not self-review.** The validator checks structure; it cannot judge
     whether a use case is a user goal, whether its actors are right, whether the scenario reaches the
     goal, whether every failing step has a flow, or whether rules and postconditions are testable.
-    That semantic review is `/spec-review`. Tell the user which files you wrote and offer
+    That semantic review is `/spec-review`. Tell the user which files you wrote, list what step 3
+    clarified, assumed, and left open (the report format is in the clarification checklist), and offer
     `/spec-review UC-XXX` for each of them (or `/spec-review` for the whole project after writing all
     use cases) before a use case moves to `Reviewed`. Do not run it yourself and do not restate its
     checklist here — one review, in one place.
 
 ## Completeness Checklist
 
-The validator in step 13 checks all of these mechanically — run it rather than
+The validator in step 14 checks all of these mechanically — run it rather than
 verifying by eye. The list remains the definition of done:
 
 - [ ] Each file is named `UC-XXX-<kebab-case-name>.md` using the name from the diagram, and documents exactly one use case.
