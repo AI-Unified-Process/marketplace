@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_BP-001" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI">
+  <bpmn:collaboration id="Collaboration_BP-001">
+    <bpmn:participant id="Participant_Library" name="City Library" processRef="BP-001" />
+  </bpmn:collaboration>
+  <bpmn:process id="BP-001" name="Book Loan" isExecutable="false">
+    <bpmn:documentation>Goal: A member borrows a book, or joins the waiting list when no copy is available.
+Trigger: A member wants to borrow a book.
+Requirements: FR-010, FR-011, FR-012
+Status: Draft</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_BP-001">
+      <bpmn:lane id="Lane_Member" name="Member">
+        <bpmn:flowNodeRef>StartEvent_BookWanted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ReserveBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_JoinWaitingList</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_MemberWaitlisted</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Librarian" name="Librarian">
+        <bpmn:flowNodeRef>Gateway_CopyAvailable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_LendBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_BookLent</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_BookWanted" name="Book wanted" />
+    <bpmn:userTask id="Activity_ReserveBook" name="UC-021 Reserve Book" />
+    <bpmn:exclusiveGateway id="Gateway_CopyAvailable" name="Copy available?" />
+    <bpmn:userTask id="Activity_LendBook" name="UC-022 Lend Book" />
+    <bpmn:userTask id="Activity_JoinWaitingList" name="UC-023 Join Waiting List" />
+    <bpmn:endEvent id="EndEvent_BookLent" name="Book lent" />
+    <bpmn:endEvent id="EndEvent_MemberWaitlisted" name="Member waitlisted" />
+    <bpmn:sequenceFlow id="Flow_BookWanted" sourceRef="StartEvent_BookWanted" targetRef="Activity_ReserveBook" />
+    <bpmn:sequenceFlow id="Flow_Reserved" sourceRef="Activity_ReserveBook" targetRef="Gateway_CopyAvailable" />
+    <bpmn:sequenceFlow id="Flow_CopyAvailable_Yes" name="yes" sourceRef="Gateway_CopyAvailable" targetRef="Activity_LendBook" />
+    <bpmn:sequenceFlow id="Flow_CopyAvailable_No" name="no" sourceRef="Gateway_CopyAvailable" targetRef="Activity_JoinWaitingList" />
+    <bpmn:sequenceFlow id="Flow_Lent" sourceRef="Activity_LendBook" targetRef="EndEvent_BookLent" />
+    <bpmn:sequenceFlow id="Flow_Waitlisted" sourceRef="Activity_JoinWaitingList" targetRef="EndEvent_MemberWaitlisted" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_BP-001">
+      <bpmndi:BPMNShape id="Participant_Library_di" bpmnElement="Participant_Library" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="828" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Member_di" bpmnElement="Lane_Member" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="798" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Librarian_di" bpmnElement="Lane_Librarian" isHorizontal="true">
+        <dc:Bounds x="190" y="200" width="798" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_BookWanted_di" bpmnElement="StartEvent_BookWanted">
+        <dc:Bounds x="302" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReserveBook_di" bpmnElement="Activity_ReserveBook">
+        <dc:Bounds x="420" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CopyAvailable_di" bpmnElement="Gateway_CopyAvailable" isMarkerVisible="true">
+        <dc:Bounds x="595" y="235" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_LendBook_di" bpmnElement="Activity_LendBook">
+        <dc:Bounds x="720" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_JoinWaitingList_di" bpmnElement="Activity_JoinWaitingList">
+        <dc:Bounds x="720" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_BookLent_di" bpmnElement="EndEvent_BookLent">
+        <dc:Bounds x="902" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_MemberWaitlisted_di" bpmnElement="EndEvent_MemberWaitlisted">
+        <dc:Bounds x="902" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_BookWanted_di" bpmnElement="Flow_BookWanted">
+        <di:waypoint x="338" y="140" />
+        <di:waypoint x="420" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reserved_di" bpmnElement="Flow_Reserved">
+        <di:waypoint x="520" y="140" />
+        <di:waypoint x="557" y="140" />
+        <di:waypoint x="557" y="260" />
+        <di:waypoint x="595" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CopyAvailable_Yes_di" bpmnElement="Flow_CopyAvailable_Yes">
+        <di:waypoint x="645" y="260" />
+        <di:waypoint x="720" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CopyAvailable_No_di" bpmnElement="Flow_CopyAvailable_No">
+        <di:waypoint x="620" y="235" />
+        <di:waypoint x="620" y="140" />
+        <di:waypoint x="720" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Lent_di" bpmnElement="Flow_Lent">
+        <di:waypoint x="820" y="260" />
+        <di:waypoint x="902" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Waitlisted_di" bpmnElement="Flow_Waitlisted">
+        <di:waypoint x="820" y="140" />
+        <di:waypoint x="902" y="140" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

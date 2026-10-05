@@ -52,13 +52,13 @@ later result remains traceable to the corresponding requirement or use case.
 Install `aiup-core` in every project. Add exactly one stack plugin when AI Unified Process supports the project's implementation
 stack.
 
-| Plugin                                      | Stack and responsibility                      | Construction skills                                                                                        |
-|---------------------------------------------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| [`aiup-core`](aiup-core/)                   | Stack-independent analysis and specifications | `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/test-case`, `/spec-review`, `/reverse-engineer` |
-| [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ                | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                 |
-| [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA              | Flyway, implementation, Spring Boot tests, Vitest, Playwright, coverage check                             |
-| [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                   |
-| [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                   |
+| Plugin                                      | Stack and responsibility                      | Construction skills                                                                                                                             |
+|---------------------------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`aiup-core`](aiup-core/)                   | Stack-independent analysis and specifications | `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`, `/test-case`, `/spec-review`, `/reverse-engineer` |
+| [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ                | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                                                       |
+| [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA              | Flyway, implementation, Spring Boot tests, Vitest, Playwright, coverage check                                                                   |
+| [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                                                        |
+| [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                                                        |
 
 `aiup-vaadin-jooq` and `aiup-angular-jpa` additionally ship a read-only `uc-coverage`
 sub-agent ([Vaadin](aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](aiup-angular-jpa/agents/uc-coverage.md)). It reports which parts of the specification have no code or no test behind them, and which code has no
@@ -124,7 +124,7 @@ docs/
 ├── entity_model.md                   # /entity-model
 ├── use_cases.puml                    # /use-case-diagram
 ├── processes/
-│   └── *.bpmn                        # business process models (optional), read by /test-case
+│   └── BP-001-*.bpmn                 # /business-process (optional), read by /test-case
 ├── use_cases/
 │   └── UC-001-*.md                   # /use-case-spec
 └── test_cases/

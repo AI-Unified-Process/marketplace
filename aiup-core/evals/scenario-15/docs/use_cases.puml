@@ -1,0 +1,17 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Member" as member
+actor "Librarian" as librarian
+
+rectangle "City Library" {
+    usecase "UC-021\nReserve Book" as UC021
+    usecase "UC-022\nLend Book" as UC022
+    usecase "UC-023\nJoin Waiting List" as UC023
+}
+
+member --> UC021
+member --> UC023
+librarian --> UC022
+
+@enduml

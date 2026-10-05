@@ -26,6 +26,7 @@ marketplace/
 │       ├── reverse-engineer/
 │       ├── use-case-diagram/
 │       ├── use-case-spec/
+│       ├── business-process/
 │       ├── test-case/
 │       └── spec-review/
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
@@ -149,6 +150,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Elaboration  | `/entity-model`       | Create entity model with Mermaid ER                                  |
 | Elaboration  | `/use-case-diagram`   | Generate PlantUML use case diagrams                                  |
 | Construction | `/use-case-spec`      | Write detailed use case specifications                               |
+| Construction | `/business-process`   | Model BPMN business processes (BP-*) from requirements and use cases |
 | Construction | `/test-case`          | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
 | Any          | `/spec-review`        | Lint and review the specification artifacts against each other      |
 | Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from code |
@@ -182,6 +184,22 @@ template `skills/requirements/references/glossary.md`; `/use-case-spec` and `/re
 Business rules stay numbered per use case, so "defined once" means no rule text copied between use cases, not
 globally unique rule ids. There is deliberately no syntax for entity references in use cases; entity consistency
 is judged from context in Part B.
+
+#### Business process
+
+`/business-process` writes BPMN 2.0 models to `docs/processes/BP-XXX-<name>.bpmn` from the requirements and the use
+case specifications; `/business-process BP-XXX` updates one. The `BP-XXX` id is both the file prefix and the `id` of
+the `<bpmn:process>` element, so it survives a round trip through a modeler; `spec_lint.py` reports
+`BP_ID_MISMATCH`, `DUPLICATE_ID`, and (for hand-drawn legacy models) `BP_NO_ID`, and `/test-case BP-XXX` cites it in
+the `**Process:**` line.
+
+- **Every activity is a specified use case.** When the flow needs a step without one, the skill writes nothing and
+  hands off to `/use-case-diagram` and `/use-case-spec`. The process sits above the use cases; it never replaces
+  them, and a use case never carries a process model (see the goal-level check in `/use-case-diagram`).
+- **The agent never writes diagram coordinates.** `skills/business-process/scripts/bpmn_layout.py` (standard library
+  only) adds DI for elements without a shape and keeps every existing shape byte for byte, so a layout tidied in a
+  modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in
+  the sibling test-case skill folder by glob, like `spec_lint.py` — keep one copy of the parser.
 
 ### Angular / JPA (stack-specific)
 

@@ -12,6 +12,7 @@ check is exact and gives the same result on every run:
 - ERROR  = the artifacts are inconsistent: a use case of the diagram has
            no specification (or the other way round), an id is duplicated,
            a reference points to nothing, a BPMN activity has no use case,
+           a process model's BP-XXX id does not match its file name,
            or a use case document does not parse (from validate_use_case.py).
 - WARN   = the artifacts are connected but weak: an uncovered functional
            requirement, a requirement status its use cases contradict, the
@@ -52,9 +53,9 @@ any WARN was found), 2 on usage errors. --trace always exits 0.
 Usage:
     spec_lint.py [--docs DIR] [--strict] [--format text|json]
                  [--baseline FILE | --no-baseline] [--update-baseline]
-                 [--only UC-XXX|TC-XXX]
+                 [--only UC-XXX|TC-XXX|BP-XXX]
     spec_lint.py --trace [--docs DIR] [--format text|json]
-                 [--only FR-XXX|UC-XXX|TC-XXX]
+                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX]
     spec_lint.py --self-test
 
 Requires Python 3.9+, standard library only.
@@ -88,6 +89,8 @@ RULE_REF = re.compile(
     r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)[\s,]+((?:BR|GR)-[A-Za-z0-9_-]+)")
 MD_LINK = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
 ENTITY_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9_]*)\s*$")
+BP_REF = re.compile(r"(?<![A-Za-z0-9])(BP-\d{3,})(?![0-9])")
+FILE_BP = re.compile(r"^(BP-\d{3,})-")
 
 ID_FIELDS = ("**Use Case ID:**", "**Use-Case-ID:**")
 NAME_FIELDS = ("**Use Case Name:**", "**Use-Case-Name:**")
@@ -498,6 +501,9 @@ def check_test_cases(project, specs):
     """TC ids unique; UC links and process links resolve."""
     used = set()
     tcs = {}
+    models = set(FILE_BP.match(os.path.basename(p)).group(1)
+                 for p in project.bpmn_paths
+                 if FILE_BP.match(os.path.basename(p)))
     for path in project.tc_paths:
         lines = read_lines(path)
         tid, tid_line = test_case_id(path, lines)
@@ -508,6 +514,12 @@ def check_test_cases(project, specs):
         else:
             tcs[tid] = path
         for number, line in prose_lines(lines):
+            process = field_value(line, ("**Process:**",))
+            for bid in BP_REF.findall(process or ""):
+                if bid not in models:
+                    project.add(ERROR, "DANGLING_REF", path, number, tid,
+                                "business process " + bid + " has no model "
+                                "docs/processes/" + bid + "-*.bpmn")
             for text, target in MD_LINK.findall(line):
                 if re.match(r"[a-z]+:", target) or target.startswith("#"):
                     continue
@@ -547,6 +559,7 @@ def check_bpmn(project, specs, bpmn):
     for uid, spec in specs.items():
         for name in spec.names():
             by_name.setdefault(name, uid)
+    owners = {}
     for path in project.bpmn_paths:
         with open(path, "rb") as handle:
             data = handle.read()
@@ -556,6 +569,7 @@ def check_bpmn(project, specs, bpmn):
             project.add(ERROR, "BPMN_INVALID", path, 0, "", str(exc))
             continue
         text = data.decode("utf-8", errors="replace").splitlines()
+        check_process_ids(project, path, model, text, owners)
         for activity in model["activities"]:
             number = next((i for i, line in enumerate(text, 1)
                            if 'id="' + activity["id"] + '"' in line), 0)
@@ -569,6 +583,37 @@ def check_bpmn(project, specs, bpmn):
                       "with this title")
             project.add(ERROR, "BPMN_UNMAPPED", path, number, activity["id"],
                         "activity '" + activity["name"] + "': " + reason)
+
+
+def check_process_ids(project, path, model, text, owners):
+    """A process model carries its BP-XXX id as process id and file prefix."""
+    name = os.path.basename(path)
+    prefix = FILE_BP.match(name)
+    prefix = prefix.group(1) if prefix else None
+    ids = [p["bpId"] for p in model.get("processes", []) if p.get("bpId")]
+    if not ids:
+        if prefix:
+            project.add(ERROR, "BP_ID_MISMATCH", path, 0, prefix,
+                        "the file name says " + prefix + " but no process "
+                        "has id=\"" + prefix + "\"")
+        else:
+            project.add(INFO, "BP_NO_ID", path, 0, "",
+                        "the process model has no BP-XXX process id; "
+                        "/business-process gives it one")
+        return
+    for bid in ids:
+        number = next((i for i, line in enumerate(text, 1)
+                       if 'id="' + bid + '"' in line), 0)
+        if bid != prefix:
+            project.add(ERROR, "BP_ID_MISMATCH", path, number, bid,
+                        "process " + bid + " is in a file named " + name
+                        + "; expected " + bid + "-<name>.bpmn")
+        if bid in owners:
+            project.add(ERROR, "DUPLICATE_ID", path, number, bid,
+                        "business process id " + bid + " is also used by "
+                        + os.path.basename(owners[bid]))
+        else:
+            owners[bid] = path
 
 
 def check_entities(project):
@@ -695,7 +740,9 @@ def read_test_cases(project):
                 ref = UC_REF.match(text.strip())
                 if ref and ref.group(1) not in use_cases:
                     use_cases.append(ref.group(1))
+        bid = BP_REF.search(process)
         test_cases.append({"id": tid, "process": process,
+                           "process_id": bid.group(1) if bid else "",
                            "use_cases": use_cases})
     return test_cases
 
@@ -747,7 +794,7 @@ def filter_trace(matrix, only):
             if only in (r["requirement"], r["use_case"])
             or only in r["test_cases"]]
     tcs = [t for t in matrix["test_cases"]
-           if only == t["id"] or only in t["use_cases"]]
+           if only in (t["id"], t["process_id"]) or only in t["use_cases"]]
     return {"requirements": rows, "test_cases": tcs}
 
 
@@ -954,7 +1001,7 @@ clerk --> UC002
 ## Overview
 
 **ID:** TC-001
-**Process:** [hotel.bpmn](../processes/hotel.bpmn) — main path
+**Process:** [BP-001 Hotel Stay](../processes/BP-001-hotel-stay.bpmn) — main path
 
 ## Flow
 
@@ -963,10 +1010,10 @@ clerk --> UC002
 | 1    | Create guest | Clerk records a guest | Mia       | [UC-001](../use_cases/UC-001-create-guest.md) |
 | 2    | Reserve room | Clerk reserves a room | Room 12   | [UC-002](../use_cases/UC-002-reserve-room.md) |
 """,
-    "processes/hotel.bpmn": """\
+    "processes/BP-001-hotel-stay.bpmn": """\
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="d">
-  <process id="p">
+  <process id="BP-001" name="Hotel Stay">
     <startEvent id="s"/>
     <userTask id="t1" name="UC-001 Create Guest"/>
     <userTask id="t2" name="Reserve Room"/>
@@ -1003,18 +1050,23 @@ BROKEN.update({
     "use_cases/UC-005-stray.md": spec_text("UC-005", "Stray"),
     "test_cases/TC-001-reserve-room.md": CLEAN[
         "test_cases/TC-001-reserve-room.md"].replace(
-        "hotel.bpmn)", "missing.bpmn)").replace(
+        "BP-001-hotel-stay.bpmn)", "missing.bpmn)").replace(
         "[UC-002](../use_cases/UC-002-reserve-room.md)",
         "[UC-009](../use_cases/UC-009-nothing.md)"),
-    "processes/hotel.bpmn": CLEAN["processes/hotel.bpmn"].replace(
+    "processes/BP-001-hotel-stay.bpmn": CLEAN[
+        "processes/BP-001-hotel-stay.bpmn"].replace(
         'name="Reserve Room"', 'name="Pay Invoice"'),
+    "processes/BP-002-checkout.bpmn": CLEAN[
+        "processes/BP-001-hotel-stay.bpmn"],
+    "processes/legacy.bpmn": CLEAN[
+        "processes/BP-001-hotel-stay.bpmn"].replace('"BP-001"', '"p"'),
 })
 
 BROKEN_EXPECTED = {
     "DUPLICATE_ID", "SPEC_MISSING", "NOT_IN_DIAGRAM", "DANGLING_REF",
     "BPMN_UNMAPPED", "FR_UNCOVERED", "BR_DUPLICATE", "WEAK_WORD",
     "GLOSSARY_AVOIDED_TERM", "GLOSSARY_DUPLICATE", "UC_UNUSED_BY_TC",
-    "REQ_STATUS_DRIFT",
+    "REQ_STATUS_DRIFT", "BP_ID_MISMATCH", "BP_NO_ID",
 }
 
 
@@ -1055,12 +1107,16 @@ def self_test():
             failures.append("trace: unlinked FR-003 has no row")
         tc1 = matrix["test_cases"][0] if matrix["test_cases"] else {}
         if tc1.get("use_cases") != ["UC-001", "UC-002"] \
-                or "hotel.bpmn" not in tc1.get("process", ""):
+                or "BP-001 Hotel Stay" not in tc1.get("process", "") \
+                or tc1.get("process_id") != "BP-001":
             failures.append("trace: TC-001 row wrong, got " + str(tc1))
         only = filter_trace(matrix, "UC-002")
         if [r["requirement"] for r in only["requirements"]] != ["FR-002"]:
             failures.append("trace: --only UC-002 kept "
                             + str(only["requirements"]))
+        if [t["id"] for t in filter_trace(matrix, "BP-001")["test_cases"]] \
+                != ["TC-001"]:
+            failures.append("trace: --only BP-001 lost TC-001")
         if "| FR-001" not in render_trace(matrix):
             failures.append("trace: rendered matrix lacks FR-001")
         if fr1 and (fr1["requirement_status"], fr1["derived_status"]) \
@@ -1096,6 +1152,9 @@ def self_test():
                        "missing.bpmn"):
             if not any(needle in m for m in dangling):
                 failures.append("broken: no DANGLING_REF for " + needle)
+        duplicates = [f.message for f in found if f.code == "DUPLICATE_ID"]
+        if not any("business process id BP-001" in m for m in duplicates):
+            failures.append("broken: no DUPLICATE_ID for BP-001")
 
         baseline = os.path.join(root, BASELINE_NAME)
         write_baseline(baseline, found, root)
@@ -1141,8 +1200,8 @@ def main(argv):
     parser.add_argument("--update-baseline", action="store_true",
                         help="accept all current findings into the baseline")
     parser.add_argument("--only", metavar="ID",
-                        help="report only findings about this UC-XXX or "
-                             "TC-XXX")
+                        help="report only findings about this UC-XXX, "
+                             "TC-XXX, or BP-XXX")
     parser.add_argument("--trace", action="store_true",
                         help="print the requirement -> use case -> business "
                              "rule -> test case matrix instead of findings")

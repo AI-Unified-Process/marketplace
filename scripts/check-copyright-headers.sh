@@ -31,6 +31,8 @@ fix=0
 # Stamping these would put an AI Unified Process copyright on documents the user authors, and the
 # use-case-spec validator rejects any content before the title line.
 EXCLUDED='
+aiup-core/skills/business-process/references/example.bpmn
+aiup-core/skills/business-process/references/process.bpmn
 aiup-core/skills/requirements/references/glossary.md
 aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md

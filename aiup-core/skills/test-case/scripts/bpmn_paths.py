@@ -9,6 +9,8 @@ Reads a .bpmn file (plain BPMN 2.0 XML, diagram interchange is ignored) and
 prints JSON that the test-case skill turns into one end-to-end test case per
 path:
 
+- processes   id, name, and bpId when the process id is a business process
+              id such as "BP-001" (written by the business-process skill)
 - lanes       lane name -> ids of the activities in that lane (a pool
               without lanes counts as one lane named after its participant)
 - activities  id, name, type, lane, and ucId when the name carries a use
@@ -72,6 +74,7 @@ FLOW_NODE_TYPES = (ACTIVITY_TYPES + PASS_THROUGH_TYPES + ALTERNATIVE_GATEWAYS
                    + EVENT_TYPES + ("parallelGateway",))
 
 UC_ID = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+)")
+BP_ID = re.compile(r"^BP-\d{3,}$")
 FORBIDDEN_DECLARATION = re.compile(rb"<!\s*(DOCTYPE|ENTITY)", re.IGNORECASE)
 MAX_PATHS = 500
 
@@ -86,6 +89,11 @@ def local(tag):
 
 def clean(text):
     return " ".join((text or "").split())
+
+
+def bp_id(process_id):
+    """The business process id when the process id is one, e.g. BP-001."""
+    return process_id if BP_ID.match(process_id or "") else None
 
 
 def uc_id(name):
@@ -114,6 +122,7 @@ def parse_xml(data):
 class Process:
     def __init__(self, element, pool_name):
         self.id = element.get("id", "")
+        self.label = clean(element.get("name")) or pool_name or ""
         self.nodes = {}        # id -> (type, name), direct children only
         self.order = []        # node ids in document order
         self.flows = []        # (id, name, source, target) in document order
@@ -335,10 +344,15 @@ def analyze(data):
         raise BpmnError("the model contains no <process>")
 
     warnings = []
+    summary = []
     lanes = {}
     activities = []
     paths = []
     for process in processes:
+        entry = {"id": process.id, "name": process.label}
+        if bp_id(process.id):
+            entry["bpId"] = bp_id(process.id)
+        summary.append(entry)
         for node_id in process.order:
             kind = process.kind(node_id)
             if kind not in ACTIVITY_TYPES:
@@ -371,7 +385,7 @@ def analyze(data):
                 paths.append(make_path(len(paths) + 1, process, start,
                                        terminal, steps))
 
-    return {"lanes": lanes, "activities": activities, "paths": paths,
+    return {"processes": summary, "lanes": lanes, "activities": activities, "paths": paths,
             "warnings": warnings}
 
 
@@ -401,7 +415,7 @@ NS = ('xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" '
 EXCLUSIVE_WITH_LANES = """<?xml version="1.0" encoding="UTF-8"?>
 <definitions %s>
   <collaboration id="c"><participant id="pool" name="Shop" processRef="p"/></collaboration>
-  <process id="p">
+  <process id="BP-001" name="Order Fulfillment">
     <laneSet id="ls">
       <lane id="l1" name="Customer"><flowNodeRef>s</flowNodeRef><flowNodeRef>a</flowNodeRef></lane>
       <lane id="l2" name="Clerk"><flowNodeRef>g</flowNodeRef><flowNodeRef>b</flowNodeRef>
@@ -479,6 +493,10 @@ def self_test():
     check("exclusive: name whitespace normalized",
           result["activities"][0]["name"] == "UC-001 Place Order")
     check("exclusive: no warnings", result["warnings"] == [])
+    check("exclusive: business process id",
+          result["processes"] == [{"id": "BP-001",
+                                   "name": "Order Fulfillment",
+                                   "bpId": "BP-001"}])
 
     result = analyze(PARALLEL_AND_LOOP.encode("utf-8"))
     check("parallel+loop: activity sequences",
@@ -487,6 +505,8 @@ def self_test():
     check("parallel+loop: rework decision recorded",
           [d["flowName"] for d in result["paths"][1]["decisions"]]
           == ["no", "yes"])
+    check("parallel+loop: no business process id",
+          "bpId" not in result["processes"][0])
 
     try:
         analyze(XXE.encode("utf-8"))

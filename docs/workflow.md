@@ -18,6 +18,7 @@ Inception          Elaboration                            Construction
 /requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  migration
                                                                           ↘  implementation
                                                                           ↘  tests
+                                                                          ↘  /business-process  →  /test-case
 ```
 
 `aiup-core` owns the stack-independent steps. A stack plugin owns migrations, implementation, and tests. The boundary
@@ -25,16 +26,16 @@ between them is the set of files under `docs/`, not a specific coding agent.
 
 ## Artifact flow
 
-| Artifact                  | Produced by         | Consumed by                                        |
-|---------------------------|---------------------|----------------------------------------------------|
-| `docs/vision.md`          | Product team        | `/requirements`                                    |
-| `docs/requirements.md`    | `/requirements`     | Specifications; construction reads the linked rows |
-| `docs/glossary.md`        | `/requirements`     | Specifications, implementations, `/spec-review`    |
-| `docs/entity_model.md`    | `/entity-model`     | Migrations and implementations                     |
-| `docs/use_cases.puml`     | `/use-case-diagram` | `/use-case-spec` and reviewers                     |
-| `docs/use_cases/UC-*.md`  | `/use-case-spec`    | Implementations and use case tests                 |
-| `docs/processes/*.bpmn`   | Business analysts   | `/test-case` (one test case per path)              |
-| `docs/test_cases/TC-*.md` | `/test-case`        | End-to-end journey tests                           |
+| Artifact                   | Produced by                              | Consumed by                                        |
+|----------------------------|------------------------------------------|----------------------------------------------------|
+| `docs/vision.md`           | Product team                             | `/requirements`                                    |
+| `docs/requirements.md`     | `/requirements`                          | Specifications; construction reads the linked rows |
+| `docs/glossary.md`         | `/requirements`                          | Specifications, implementations, `/spec-review`    |
+| `docs/entity_model.md`     | `/entity-model`                          | Migrations and implementations                     |
+| `docs/use_cases.puml`      | `/use-case-diagram`                      | `/use-case-spec` and reviewers                     |
+| `docs/use_cases/UC-*.md`   | `/use-case-spec`                         | Implementations and use case tests                 |
+| `docs/processes/BP-*.bpmn` | `/business-process` or business analysts | `/test-case` (one test case per path)              |
+| `docs/test_cases/TC-*.md`  | `/test-case`                             | End-to-end journey tests                           |
 
 Every artifact is a review point. Correcting an intermediate document is expected and is safer than compensating for
 an incorrect assumption in generated code.
@@ -54,7 +55,7 @@ the identifiers and markers defined here. Stable identifiers preserve two chains
 Requirements catalog         Specification                              Construction
 FR-* / NFR-* / C-*   ──→   UC-XXX  ──→  UC-XXX BR-YYY   ──→   implementation  ──→  use case tests
                               ↑
-BPMN process  ──→  path  ──→  TC-XXX (chains several use cases)   ──────────────→  journey test
+BP-XXX process  ──→  path  ──→  TC-XXX (chains several use cases)  ─────────────→  journey test
 ```
 
 The chain starts at the requirements catalog. Requirements engineering is the first discipline that produces
@@ -64,15 +65,16 @@ processes: one test case per path through a BPMN process model.
 
 ### Identifiers
 
-| Id        | Artifact                                               | Unique within | Cited elsewhere as |
-|-----------|--------------------------------------------------------|---------------|--------------------|
-| `FR-XXX`  | Functional requirement, `docs/requirements.md`         | Catalog       | `FR-XXX`           |
-| `NFR-XXX` | Non-functional requirement, `docs/requirements.md`     | Catalog       | `NFR-XXX`          |
-| `C-XXX`   | Constraint, `docs/requirements.md`                     | Catalog       | `C-XXX`            |
-| `UC-XXX`  | Use case, `docs/use_cases/UC-XXX-*.md` and the diagram | Project       | `UC-XXX`           |
-| `BR-YYY`  | Business rule, `### BR-YYY:` inside one use case       | Its use case  | `UC-XXX BR-YYY`    |
-| `A<n>`    | Alternative flow, `### A<n>:` inside one use case      | Its use case  | `UC-XXX A<n>`      |
-| `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`               | Project       | `TC-XXX`           |
+| Id        | Artifact                                                                                | Unique within | Cited elsewhere as |
+|-----------|-----------------------------------------------------------------------------------------|---------------|--------------------|
+| `FR-XXX`  | Functional requirement, `docs/requirements.md`                                          | Catalog       | `FR-XXX`           |
+| `NFR-XXX` | Non-functional requirement, `docs/requirements.md`                                      | Catalog       | `NFR-XXX`          |
+| `C-XXX`   | Constraint, `docs/requirements.md`                                                      | Catalog       | `C-XXX`            |
+| `UC-XXX`  | Use case, `docs/use_cases/UC-XXX-*.md` and the diagram                                  | Project       | `UC-XXX`           |
+| `BR-YYY`  | Business rule, `### BR-YYY:` inside one use case                                        | Its use case  | `UC-XXX BR-YYY`    |
+| `A<n>`    | Alternative flow, `### A<n>:` inside one use case                                       | Its use case  | `UC-XXX A<n>`      |
+| `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`                                                | Project       | `TC-XXX`           |
+| `BP-XXX`  | Business process, `docs/processes/BP-XXX-*.bpmn`; also the `id` of its `<bpmn:process>` | Project       | `BP-XXX`           |
 
 German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
 so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`. A rule that applies to several
@@ -91,7 +93,7 @@ cases and a use case never lists its test cases; the reverse direction is comput
 | Use case      | FR, NFR, C                         | The `**Requirements:**` line: the FRs it realizes, the NFRs and Cs that apply |
 | Use case      | Another use case's rule            | `UC-XXX BR-YYY` in the text                                                   |
 | Test case     | Use cases                          | The Use Case column of the Flow table, linked to the specification            |
-| Test case     | Process                            | The `**Process:**` line, linked to the `.bpmn` file, and the path it covers   |
+| Test case     | Process                            | The `**Process:**` line: `BP-XXX` linked to the `.bpmn` file, and the path    |
 | BPMN activity | Use case                           | The use case id in the activity name, or the same name as the use case title  |
 | Code          | Use case, rule                     | The implementation marker below                                               |
 | Test          | Use case or test case, flow, rules | The test markers below                                                        |

@@ -1,0 +1,1 @@
+{ "description": "Business process step without a use case is reported instead of modeled", "include": ["./docs"] }

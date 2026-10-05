@@ -92,6 +92,14 @@ jobs:
           python3 aiup-core/skills/test-case/scripts/bpmn_paths.py \
             aiup-core/skills/test-case/references/example-process.bpmn > /dev/null
 
+      - name: Check BPMN layout script and example process
+        run: |
+          python3 aiup-core/skills/business-process/scripts/bpmn_layout.py --self-test
+          python3 aiup-core/skills/business-process/scripts/bpmn_layout.py --check \
+            aiup-core/skills/business-process/references/example.bpmn
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py \
+            aiup-core/skills/business-process/references/example.bpmn > /dev/null
+
       - name: Check spec linter and eval fixtures
         run: |
           python3 aiup-core/skills/spec-review/scripts/spec_lint.py --self-test

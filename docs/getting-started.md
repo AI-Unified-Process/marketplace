@@ -117,14 +117,21 @@ For a journey across several use cases, first create a test-case document:
 /playwright-test TC-001
 ```
 
-If the business process is modeled in BPMN 2.0 (for example with the process editor of AI Unified Studio), derive one
-test case per path through the process instead. Each activity of the process must map to a specified use case — by a
-use case id in the activity name (`UC-001 Place Order`) or by the use case name — otherwise the skill stops and lists
-the unmatched activities:
+When several use cases form one business process — work handed over between roles, waiting for an event or a
+deadline, parallel branches — model the process in BPMN 2.0 and derive one test case per path through it.
+`/business-process` reads the requirements and the use case specifications, proposes the processes, and writes each
+one to `docs/processes/BP-XXX-<name>.bpmn` with a diagram layout that bpmn.io or the process editor of AI Unified
+Studio can open. Every process has a `BP-XXX` id; pass it to update that one process:
 
 ```text
-/test-case docs/processes/order.bpmn
+/business-process
+/business-process BP-001
+/test-case BP-001
 ```
+
+Each activity of the process must map to a specified use case — by a use case id in the activity name
+(`UC-001 Place Order`) or by the use case name. `/business-process` stops and proposes the missing use cases instead
+of modeling an activity without one, and `/test-case` stops and lists unmatched activities in a model drawn by hand.
 
 The `aiup-vaadin-jooq` and `aiup-angular-jpa` implementation and testing skills end by handing off to a coverage check
 they do not run themselves: `/coverage-check UC-001` delegates to the read-only `uc-coverage` sub-agent that ships with

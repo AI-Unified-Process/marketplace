@@ -21,14 +21,15 @@ reviewable files under `docs/`.
 | Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                       |
 | Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                             |
 | Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                              |
+| Construction | [`/business-process`](skills/business-process/SKILL.md) | BPMN business process models (`BP-XXX`) connecting the use cases     |
 | Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journeys across specified use cases or BPMN process paths |
 | Any          | [`/spec-review`](skills/spec-review/SKILL.md)           | Deterministic lint and advisory review of the specification quality  |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code       |
 
 ```text
-Inception          Elaboration                             Construction 
-─────────────     ───────────────────────────────────     ─────────────────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case
+Inception          Elaboration                             Construction
+─────────────     ───────────────────────────────────     ──────────────────────────────────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /business-process  →  /test-case
 ```
 
 Each skill reads the artifacts created by earlier steps. The linked `SKILL.md` files are the authoritative reference
@@ -82,7 +83,7 @@ your-project/
     ├── entity_model.md              # /entity-model
     ├── use_cases.puml               # /use-case-diagram
     ├── processes/
-    │   └── *.bpmn                   # business process models (optional), read by /test-case
+    │   └── BP-001-*.bpmn            # /business-process (optional), read by /test-case
     ├── use_cases/
     │   └── UC-001-*.md              # /use-case-spec
     └── test_cases/

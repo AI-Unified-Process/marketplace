@@ -129,7 +129,8 @@ in the implementation, not the specification.
    and a summary ("Manage Flight Operations") spans several. A scenario that hands the
    work over to another role, waits for an outside event or a deadline, or runs branches
    in parallel for different actors is a summary, too: its parts are separate user goals,
-   and the flow between them is a business process in BPMN (`docs/processes/`), not a
+   and the flow between them is a business process in BPMN (`docs/processes/`, written by
+   `/business-process`), not a
    section of the use case. Do not rename, merge, or
    split use cases yourself — the ids belong to the diagram. Write the specification,
    then tell the user which use case looks like a subfunction or a summary, name the

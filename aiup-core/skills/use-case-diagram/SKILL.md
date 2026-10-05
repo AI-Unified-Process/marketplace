@@ -65,8 +65,9 @@ result the primary actor walks away with. Test each use case with one question:
   the user goals it is made of. A use case is a summary, too, when its flow hands the work over to another role,
   waits for an outside event or a deadline, or runs branches in parallel for different actors — "Process Insurance
   Claim" with a clerk, an assessor, and a payout after approval. Each role's part is a user goal of its own; the
-  flow that connects them is a business process, modeled in BPMN in `docs/processes/`, whose activities are those
-  use cases and from which `/test-case` derives the test cases. Do not describe the process inside a use case or
+  flow that connects them is a business process, modeled in BPMN in `docs/processes/` by `/business-process` once
+  the use cases are specified; its activities are those use cases, and `/test-case BP-XXX` derives the test cases
+  from it. Do not describe the process inside a use case or
   attach a process model to it.
 
 A functional requirement that describes a step rather than a goal traces to the user goal use case that contains

@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the agent refuses to model a business process step that no specified use case covers: the return of the book is required (FR-013) but has no use case in the diagram or in docs/use_cases/, so no .bpmn file is written; instead the missing use case is proposed and the work is handed off to the use case skills.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No model written",
+      "description": "No .bpmn file is created under docs/processes/ (or anywhere else), and no activity for returning the book is modeled without a use case",
+      "max_score": 30
+    },
+    {
+      "name": "Missing step identified",
+      "description": "The report names the return of the book as the step that no specified use case covers, and states that every activity of a process must be a specified use case",
+      "max_score": 20
+    },
+    {
+      "name": "Use case proposed",
+      "description": "The report proposes a use case for the return (e.g. 'Return Book') with its primary actor (Member or Librarian, at the counter) and the requirement it realizes, FR-013",
+      "max_score": 20
+    },
+    {
+      "name": "Hand-off in order",
+      "description": "The report hands off to adding the use case to the diagram (/use-case-diagram), then specifying it (/use-case-spec), then modeling the process again (/business-process)",
+      "max_score": 20
+    },
+    {
+      "name": "Specification untouched",
+      "description": "requirements.md, use_cases.puml, and the existing use case specifications are not modified, and no new use case specification is invented",
+      "max_score": 10
+    }
+  ]
+}

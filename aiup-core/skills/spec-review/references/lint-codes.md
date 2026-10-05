@@ -22,10 +22,11 @@ errors.
 |----------|-------------------------|------------------------------------------------------------------------------------------------|---------------------|
 | ERROR    | `SPEC_MISSING`          | A use case in `use_cases.puml` has no `use_cases/UC-XXX-*.md`                                  | `/use-case-spec`    |
 | ERROR    | `NOT_IN_DIAGRAM`        | A specification (not `Obsolete`) whose use case is not in `use_cases.puml`                    | `/use-case-diagram` |
-| ERROR    | `DUPLICATE_ID`          | A UC, TC, FR, NFR, or C id, or an entity heading, is used twice                                | the owning skill    |
-| ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, or a `**Process:**` link points to nothing | the owning skill |
+| ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, or C id, or an entity heading, is used twice                            | the owning skill    |
+| ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, or a `**Process:**` link or `BP-XXX` id points to nothing | the owning skill |
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
+| ERROR    | `BP_ID_MISMATCH`        | A process model whose `BP-XXX` process id and file name prefix (`BP-XXX-<name>.bpmn`) differ  | `/business-process` |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no use case lists in `**Requirements:**`             | `/use-case-spec`    |
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |
@@ -33,6 +34,7 @@ errors.
 | WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column                                         | the owning skill    |
 | WARN     | `GLOSSARY_DUPLICATE`    | A term defined twice in `glossary.md`                                                          | `/requirements`     |
 | INFO     | `NO_TRACEABILITY`       | No use case has a `**Requirements:**` field, so FR coverage is not checked                     | `/use-case-spec`    |
+| INFO     | `BP_NO_ID`              | A process model without a `BP-XXX` process id (e.g. drawn before `/business-process`)          | `/business-process` |
 | INFO     | `UC_UNUSED_BY_TC`       | Test cases exist, but none of them includes this use case                                     | `/test-case`        |
 | INFO     | `BASELINE_STALE`        | A baseline entry that no longer matches any finding; refresh with `--update-baseline`          | —                   |
 | INFO     | `VALIDATOR_MISSING`, `BPMN_PARSER_MISSING` | A sibling skill is not installed, so its checks were skipped                | install `aiup-core` |
@@ -51,7 +53,7 @@ broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_RE
 | Option                       | Effect                                                                                  |
 |------------------------------|-----------------------------------------------------------------------------------------|
 | `--docs DIR`                 | documentation folder (default `docs`)                                                    |
-| `--only UC-XXX` / `TC-XXX`   | report only findings about this element                                                  |
+| `--only UC-XXX` / `TC-XXX` / `BP-XXX` | report only findings about this element                                         |
 | `--strict`                   | fail on warnings too                                                                     |
 | `--format json`              | print `{"findings": [...], "summary": {...}}`                                            |
 | `--baseline FILE`            | use this baseline (default `DIR/.spec-lint-baseline.json` when it exists)               |

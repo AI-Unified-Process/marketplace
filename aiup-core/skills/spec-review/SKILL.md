@@ -125,7 +125,9 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
 - a use case missing from, or extra in, the diagram → `/use-case-diagram`
 - requirements, uncovered FRs, requirement statuses, glossary terms and synonyms → `/requirements`
 - data that does not match the entity model → `/entity-model`
-- a test case or a BPMN activity without a use case → `/test-case`
+- a test case without a use case → `/test-case`
+- a BPMN activity without a use case, a process model without a `BP-XXX` id, or a summary use case whose flow belongs
+  in a process → `/business-process BP-XXX` (it hands a missing use case on to `/use-case-diagram`)
 
 When the user wants to accept the current lint findings (brownfield start), tell them to run
 `python3 scripts/spec_lint.py --docs docs --update-baseline` and commit `docs/.spec-lint-baseline.json`; accepted
@@ -162,7 +164,7 @@ back to a requirement, run the script with `--trace` instead of writing the matr
 
 ```bash
 python3 scripts/spec_lint.py --docs docs --trace                # whole project, Markdown
-python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, or TC- id
+python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, TC-, or BP- id
 ```
 
 It prints two tables: requirement (with its status, followed by the status its use cases make it when the two
