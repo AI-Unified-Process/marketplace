@@ -23,8 +23,8 @@
       "max_score": 12
     },
     {
-      "name": "Multi-column constraint line",
-      "description": "A '**Constraints:**' line appears after the ENROLLMENT attribute table stating that the end date must be after the start date (or equivalent wording)",
+      "name": "Multi-column constraints list",
+      "description": "A '#### Constraints' heading with a bullet list appears below the ENROLLMENT attribute table, with a bullet stating that the end date must be after the start date (or equivalent wording)",
       "max_score": 12
     },
     {

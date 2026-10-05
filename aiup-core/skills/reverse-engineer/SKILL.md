@@ -382,7 +382,7 @@ A key the database generates is `Primary Key, Sequence`. Use `Primary Key` for
 a natural key and for each column of a composite key, and
 `Primary Key, Foreign Key (TABLE.id)` for a composite key column that also
 references another table. Don't fall back to `Not Null` for a key column; the
-Constraints line can then name the composite key.
+`#### Constraints` list below the table can then name the composite key.
 
 Length/Precision comes from the **declared column type**, never from what
 the column happens to hold. An unbounded text column (`TEXT`, `CLOB`,

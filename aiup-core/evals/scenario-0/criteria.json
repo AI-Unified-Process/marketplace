@@ -54,7 +54,7 @@
     },
     {
       "name": "Multi-column constraint note",
-      "description": "The RESERVATION entity (or equivalent) includes a Constraints line after its attribute table noting that check-out date must be after check-in date",
+      "description": "The RESERVATION entity (or equivalent) includes a '#### Constraints' heading with a bullet list below its attribute table, with a bullet noting that check-out date must be after check-in date",
       "max_score": 7
     },
     {

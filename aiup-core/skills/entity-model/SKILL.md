@@ -134,9 +134,18 @@ The same tables are available in [references/REFERENCE.md](references/REFERENCE.
 
 ## Multi-Column Constraints
 
-If validation spans multiple columns, add after the table:
+If validation spans multiple columns, add a `#### Constraints` heading below the entity's
+attribute table and list each constraint as a bullet, one rule per bullet:
 
-**Constraints:** Check-out date must be after check-in date.
+```markdown
+#### Constraints
+
+- Check-out date must be after check-in date.
+- The number of guests must not exceed the room type's capacity.
+```
+
+Never write the constraints as a bold `**Constraints:**` line or as an extra table row, and
+omit the heading when the entity has no multi-column constraint.
 
 ## Workflow
 
@@ -147,7 +156,7 @@ If validation spans multiple columns, add after the table:
     - Write ### heading
     - Write one sentence description
     - Write attribute table with 5 columns
-    - Add constraints if needed
+    - Add a `#### Constraints` heading with a bullet list if needed
     - Mark todo complete
 5. Validate the document:
     - Every entity in the ER diagram has a corresponding attribute table section
@@ -156,5 +165,6 @@ If validation spans multiple columns, add after the table:
     - All foreign keys reference existing entities
     - Every foreign key has a relationship line in the ER diagram
     - Every entity heading is `###` with the name in UPPERCASE
+    - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
     - All validation rules use values from the Validation Rules table above
