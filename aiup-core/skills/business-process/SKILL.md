@@ -2,7 +2,7 @@
 name: business-process
 description: >
   Creates or updates BPMN 2.0 business process models (docs/processes/BP-XXX-*.bpmn)
-  from the requirements catalog and the use case specifications: one pool per
+  from the requirements catalog and the use case diagram: one pool per
   process, one lane per actor, every activity one use case, gateways for the
   decisions between them, and a diagram layout a modeler such as bpmn.io can open.
   Every process gets a BP-XXX id for communication and traceability; run it with
@@ -29,13 +29,18 @@ above the use cases: it connects user goals that different roles reach at differ
 business event to a business outcome. Every activity of the process is one use case, every lane is a role, and every
 path from the start to an end event is one end-to-end journey that `/test-case BP-XXX` turns into a test case.
 
+The process needs the use cases, not their specifications: the use case diagram names every activity and its actor,
+and the requirements say how the activities connect. A process can therefore be modeled right after
+`/use-case-diagram`, before or alongside `/use-case-spec`.
+
 ## Inputs
 
 $ARGUMENTS selects the scope. Text after the arguments that says where the project keeps its artifacts (e.g. "The
 BPMN process models live under `docs/bpmn/`") replaces the default folders named in this skill.
 
-- **No argument** — derive the processes from the whole specification. Read the inputs below, propose the list of
-  business processes (id, name, trigger, outcome, the use cases each one connects, and which existing models it
+- **No argument** — derive the processes from the requirements and the use case diagram. Read the inputs below,
+  propose the list of business processes (id, name, trigger, outcome, the use cases each one connects, and which
+  existing models it
   updates), and **ask the user to confirm the list before writing any file**.
 - **`BP-XXX`** (e.g. `/business-process BP-001`) — update that process only: `docs/processes/BP-XXX-*.bpmn`. Stop
   and tell the user when no such file exists.
@@ -44,10 +49,13 @@ BPMN process models live under `docs/bpmn/`") replaces the default folders named
 
 Read, in this order:
 
-- `docs/requirements.md` — the functional requirements say which business flows exist and what triggers and ends
-  them; their ids go into the process documentation.
-- `docs/use_cases.puml` and every specification `docs/use_cases/UC-*.md` — the activities. A use case's trigger,
-  preconditions, and postconditions say what comes before and after it; its primary actor is its lane.
+- `docs/requirements.md` — the functional requirements say which business flows exist, what triggers and ends them,
+  and which decisions lead from one use case to the next; their ids go into the process documentation.
+- `docs/use_cases.puml` — the activities. Every use case of the diagram is a candidate activity; the actor
+  associated with it is its lane. This is the only use case input the skill needs.
+- `docs/use_cases/UC-*.md` **only when they exist** — never required. A specification's trigger, preconditions,
+  postconditions, and alternative flows can sharpen the order and the decisions; where it contradicts the diagram or
+  the requirements, report it and follow the diagram.
 - `docs/glossary.md` when it exists — name events, gateways, and lanes with its terms, never with a synonym from its
   Avoid column.
 - `docs/processes/*.bpmn` — the existing models, so you never create a second model of the same process.
@@ -87,19 +95,22 @@ its diagram layout. Both paths are relative to the folder containing this SKILL.
   `processRef` set to the process id. Inside it, one `<bpmn:lane>` per role, named as the actor in the use case
   diagram; every flow node is listed in exactly one lane. A gateway or an event goes into the lane of the activity
   before it (a start event into the lane of the first activity). A single-role process still gets one lane.
-- **Every activity is exactly one use case** and is named `UC-XXX <Use Case Name>`, with id and name taken verbatim
-  from the specification. A use case whose primary actor is a person is a `userTask`; one whose primary actor is a
-  timer or an external system is a `serviceTask`. Put the activity in the lane of the use case's primary actor. The
+- **Every activity is exactly one use case of the diagram** and is named `UC-XXX <Use Case Name>`, with id and name
+  taken verbatim from `docs/use_cases.puml`. A use case whose actor is a person is a `userTask`; one whose actor is a
+  timer or an external system is a `serviceTask`. Put the activity in the lane of the actor associated with the use
+  case in the diagram (the primary actor when several are associated; take it from the specification when one exists,
+  otherwise ask). The
   same use case may appear in several processes, and twice in one process when the flow really returns to it.
-- **No activity without a use case.** If the flow needs a step that no specified use case covers, write no file;
+- **No activity without a use case.** If the flow needs a step that no use case of the diagram covers, write no file;
   see [Missing use cases](#missing-use-cases).
 - **Events are business events,** named in the past tense or as a state: a start event per trigger ("Book wanted",
   "Claim received"), an end event per distinct business outcome ("Book lent", "Member waitlisted"). Waiting for an
   outside event or a deadline is an intermediate catch event (message or timer) or a boundary event on the activity
   that is interrupted — never an activity.
 - **Decisions are gateways.** An exclusive gateway is named as a question ("Copy available?"), and each outgoing
-  sequence flow is named with the answer ("yes", "no"). Take the decision from the use cases: a postcondition or an
-  alternative flow that leads to a different next use case. Branches that different roles work on at the same time
+  sequence flow is named with the answer ("yes", "no"). Take the decision from the requirements (e.g. "when no copy is
+  available, the member joins the waiting list"), or from a specification's postcondition or alternative flow that
+  leads to a different next use case when one exists. Branches that different roles work on at the same time
   start at a parallel gateway and meet again at one.
 - **The main flow first.** Write the elements and the outgoing flows of a gateway in the order of the main business
   path; the layout puts the first branch on the main line and later branches below it.
@@ -114,14 +125,14 @@ its diagram layout. Both paths are relative to the folder containing this SKILL.
 
 ## Missing use cases
 
-The process is above the use cases, and its activities must exist below it: the lint (`BPMN_UNMAPPED`) and
-`/test-case` both reject an activity without a specified use case. When the flow you derive needs a step that no use
-case covers, **stop without writing the model** and report:
+The process is above the use cases, and its activities must exist below it: the lint (`BPMN_UNMAPPED`) rejects an
+activity that is no use case of the diagram. When the flow you derive needs a step that no use case of the diagram
+covers, **stop without writing the model** and report:
 
 - each missing step as a proposed use case — name (a user goal, see the goal-level check in `/use-case-diagram`),
   primary actor, and the `FR-*` it realizes, or "no requirement" when the catalog lacks one;
 - the hand-off: `/requirements` when a requirement is missing, then `/use-case-diagram` to add the use case, then
-  `/use-case-spec UC-XXX`, then `/business-process` again.
+  `/business-process` again. The new use case needs no specification for the model.
 
 Likewise, when a use case reads like a summary (it hands work to another role, waits for an event, or runs parallel
 branches), do not model its inside: name it and hand off to `/use-case-diagram` to split it.
@@ -171,11 +182,13 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 5. Validate with the path enumerator of the test-case skill — locate it with a glob for
    `**/*test-case/scripts/bpmn_paths.py`; the skill folder may carry a host prefix such as `tessl__test-case`:
    `python3 <that path> docs/processes/BP-XXX-<name>.bpmn`. It must report the process with its `bpId`, no
-   warnings, every activity with a `ucId` whose specification exists, and one path per expected journey. Fix and
-   rerun until it does.
+   warnings, every activity with a `ucId` that is a use case of the diagram, and one path per expected journey. Fix
+   and rerun until it does.
 6. Run the Completeness Checklist below; fix anything that fails.
 7. Report the created and updated files with their `BP-XXX` ids, the paths per process, and hand off:
-   `/test-case BP-XXX` to derive the test cases, and `/spec-review` to lint the specification set.
+   `/use-case-spec UC-XXX` for every activity whose use case is not specified yet — `/test-case BP-XXX` needs the
+   specifications to derive the test cases — then `/test-case BP-XXX`, and `/spec-review` to lint the specification
+   set.
 
 ## Completeness Checklist
 
@@ -184,8 +197,8 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 - [ ] The process has the documentation lines Goal, Trigger, Requirements, and Status.
 - [ ] One pool references the process; every flow node is in exactly one lane, and every lane is an actor of the use
       case diagram.
-- [ ] Every activity is named `UC-XXX <Use Case Name>` and has a specification in `docs/use_cases/`; it sits in the
-      lane of that use case's primary actor.
+- [ ] Every activity is named `UC-XXX <Use Case Name>` as in `docs/use_cases.puml`; it sits in the lane of that use
+      case's actor.
 - [ ] Every exclusive gateway is named as a question and all its outgoing flows are named.
 - [ ] Every path reaches an end event; `bpmn_paths.py` reports no warnings.
 - [ ] Every element has DI: `python3 scripts/bpmn_layout.py --check <file>` reports nothing.
@@ -194,7 +207,8 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 ## DO NOT
 
 - Write DI coordinates yourself — run `scripts/bpmn_layout.py`
-- Model a step without a specified use case, or a use case's internal steps, as an activity
+- Model a step that is no use case of the diagram, or a use case's internal steps, as an activity
+- Stop or ask for `/use-case-spec` because a use case of the process is not specified yet
 - Write a model before the user confirmed the process list (no-argument mode)
 - Create a second model of a process that already has a `BP-XXX` id — update it
 - Renumber, reuse, or delete a `BP-XXX` id; set an obsolete process to `Status: Obsolete`

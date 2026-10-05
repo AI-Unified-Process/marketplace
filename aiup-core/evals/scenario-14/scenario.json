@@ -1,1 +1,1 @@
-{ "description": "BPMN business process model derived from requirements and use case specifications", "include": ["./docs"] }
+{ "description": "BPMN business process model derived from requirements and the use case diagram, before any use case is specified", "include": ["./docs"] }

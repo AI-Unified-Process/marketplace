@@ -1,21 +1,21 @@
 {
-  "context": "Tests whether the agent models a business process in BPMN 2.0 from the requirements and use case specifications: a BP-XXX id in the file name and as the process id, one lane per actor, every activity one specified use case named with its UC id, an exclusive gateway with named outgoing flows for the copy-available decision, one end event per outcome, process documentation, and complete diagram interchange (DI) so a modeler can show it.",
+  "context": "Tests whether the agent models a business process in BPMN 2.0 from the requirements and the use case diagram alone (no use case is specified yet): a BP-XXX id in the file name and as the process id, one lane per actor, every activity one use case of the diagram named with its UC id, an exclusive gateway with named outgoing flows for the copy-available decision, one end event per outcome, process documentation, and complete diagram interchange (DI) so a modeler can show it.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "Business process id",
       "description": "Exactly one file is created, docs/processes/BP-001-book-loan.bpmn (BP-001 because no process exists yet), and its <bpmn:process> element has id=\"BP-001\" and name=\"Book Loan\"",
-      "max_score": 14
+      "max_score": 12
     },
     {
       "name": "Activities are the use cases",
       "description": "The model has exactly three activities, named 'UC-021 Reserve Book', 'UC-022 Lend Book', and 'UC-023 Join Waiting List' (user tasks); no activity stands for a technical step (validate, save, notify) or for something no use case specifies",
-      "max_score": 14
+      "max_score": 12
     },
     {
       "name": "Lanes are the actors",
       "description": "One pool (participant) references the process; it contains a Member lane with Reserve Book and Join Waiting List and a Librarian lane with Lend Book; every flow node is listed in exactly one lane",
-      "max_score": 12
+      "max_score": 10
     },
     {
       "name": "Decision as a gateway",
@@ -25,12 +25,12 @@
     {
       "name": "Business events",
       "description": "One start event named as the triggering business event (e.g. 'Book wanted') and two end events named as the two outcomes (e.g. 'Book lent', 'Member waitlisted'); every path from the start reaches an end event",
-      "max_score": 10
+      "max_score": 8
     },
     {
       "name": "Complete diagram layout",
       "description": "The file contains a bpmndi:BPMNDiagram whose plane has a BPMNShape with dc:Bounds for the pool, both lanes, and every event, gateway, and activity, and a BPMNEdge with waypoints for every sequence flow; no two shapes of flow nodes overlap",
-      "max_score": 14
+      "max_score": 12
     },
     {
       "name": "Process documentation",
@@ -46,6 +46,11 @@
       "name": "No implementation detail",
       "description": "No element name mentions screens, views, buttons, routes, HTTP, SQL, or database tables",
       "max_score": 8
+    },
+    {
+      "name": "No specification required",
+      "description": "The model is written although docs/use_cases/ holds no specification; the agent neither stops nor writes use case specifications itself, and its report hands off to /use-case-spec for UC-021, UC-022, and UC-023 before /test-case BP-001",
+      "max_score": 10
     }
   ]
 }

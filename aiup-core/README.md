@@ -20,8 +20,8 @@ reviewable files under `docs/`.
 | Inception    | [`/requirements`](skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`                   |
 | Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                       |
 | Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                             |
+| Elaboration  | [`/business-process`](skills/business-process/SKILL.md) | BPMN business process models (`BP-XXX`) connecting the use cases     |
 | Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                              |
-| Construction | [`/business-process`](skills/business-process/SKILL.md) | BPMN business process models (`BP-XXX`) connecting the use cases     |
 | Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journeys across specified use cases or BPMN process paths |
 | Any          | [`/spec-review`](skills/spec-review/SKILL.md)           | Deterministic lint and advisory review of the specification quality  |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code       |
@@ -29,7 +29,8 @@ reviewable files under `docs/`.
 ```text
 Inception          Elaboration                             Construction
 ─────────────     ───────────────────────────────────     ──────────────────────────────────────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /business-process  →  /test-case
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case
+                                                    └→  /business-process  ↗
 ```
 
 Each skill reads the artifacts created by earlier steps. The linked `SKILL.md` files are the authoritative reference

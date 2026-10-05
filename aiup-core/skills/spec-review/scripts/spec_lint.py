@@ -11,7 +11,8 @@ check is exact and gives the same result on every run:
 
 - ERROR  = the artifacts are inconsistent: a use case of the diagram has
            no specification (or the other way round), an id is duplicated,
-           a reference points to nothing, a BPMN activity has no use case,
+           a reference points to nothing, a BPMN activity is no use case of
+           the diagram or of a specification,
            a process model's BP-XXX id does not match its file name,
            or a use case document does not parse (from validate_use_case.py).
 - WARN   = the artifacts are connected but weak: an uncovered functional
@@ -82,6 +83,7 @@ TC_REF = re.compile(r"(TC-[A-Za-z0-9]+)")
 FILE_UC = re.compile(r"([SB]?UC-[A-Za-z0-9]+)")
 UC_REF = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)")
 PUML_UC = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)(?=\\n|\s|\"|\)|:|$)")
+PUML_LABEL = re.compile(r'usecase\s+"([^"]+)"|\(([^)]+)\)')
 REQ_ROW = re.compile(r"^\|\s*((?:FR|NFR|C)-[A-Za-z0-9_-]+)\s*\|")
 REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
 RULE_HEADING = re.compile(r"^###\s+((?:BR|GR)-[A-Za-z0-9_-]+)\s*:?\s*(.*)$")
@@ -324,15 +326,23 @@ def check_requirements(project):
 
 
 def check_diagram(project, specs):
-    """Every use case of the diagram has a spec and vice versa."""
+    """Every use case of the diagram has a spec and vice versa.
+
+    Returns the diagram's use cases as {id: normalized name}."""
     if not project.diagram_path:
-        return
-    diagram = {}
+        return {}
+    diagram, names = {}, {}
     for number, line in enumerate(read_lines(project.diagram_path), 1):
         if line.lstrip().startswith("'"):
             continue
         for uid in PUML_UC.findall(line):
             diagram.setdefault(uid, number)
+        for match in PUML_LABEL.finditer(line):
+            label = (match.group(1) or match.group(2)).replace("\\n", " ")
+            ids = PUML_UC.findall(label)
+            if len(ids) == 1:
+                names.setdefault(ids[0], normalize(
+                    PUML_UC.sub(" ", label, count=1)))
     for uid, number in diagram.items():
         if uid not in specs:
             project.add(ERROR, "SPEC_MISSING", project.diagram_path, number,
@@ -343,6 +353,7 @@ def check_diagram(project, specs):
             project.add(ERROR, "NOT_IN_DIAGRAM", spec.path, spec.id_line, uid,
                         "use case " + uid + " is not in "
                         + os.path.basename(project.diagram_path))
+    return {uid: names.get(uid, "") for uid in diagram}
 
 
 def load_specs(project):
@@ -547,7 +558,12 @@ def check_test_cases(project, specs):
                             "case")
 
 
-def check_bpmn(project, specs, bpmn):
+def check_bpmn(project, specs, diagram, bpmn):
+    """Every activity is a use case of the diagram or a specification.
+
+    A diagram use case without a specification is SPEC_MISSING already, so a
+    process may be modeled from the diagram before the use cases are
+    specified."""
     if not project.bpmn_paths:
         return
     if bpmn is None:
@@ -558,6 +574,9 @@ def check_bpmn(project, specs, bpmn):
     by_name = {}
     for uid, spec in specs.items():
         for name in spec.names():
+            by_name.setdefault(name, uid)
+    for uid, name in diagram.items():
+        if name:
             by_name.setdefault(name, uid)
     owners = {}
     for path in project.bpmn_paths:
@@ -574,13 +593,14 @@ def check_bpmn(project, specs, bpmn):
             number = next((i for i, line in enumerate(text, 1)
                            if 'id="' + activity["id"] + '"' in line), 0)
             uid = activity.get("ucId")
-            if uid and uid in specs:
+            if uid and (uid in specs or uid in diagram):
                 continue
             if not uid and normalize(activity["name"]) in by_name:
                 continue
-            reason = ("use case " + uid + " has no specification" if uid
-                      else "no use case id in the name and no specification "
-                      "with this title")
+            reason = ("use case " + uid + " is neither in the use case "
+                      "diagram nor specified" if uid
+                      else "no use case id in the name and no use case of "
+                      "the diagram or specification with this name")
             project.add(ERROR, "BPMN_UNMAPPED", path, number, activity["id"],
                         "activity '" + activity["name"] + "': " + reason)
 
@@ -709,12 +729,12 @@ def lint(docs, validator, bpmn):
     requirements = check_requirements(project)
     specs = load_specs(project)
     check_structure(project, specs, validator)
-    check_diagram(project, specs)
+    diagram = check_diagram(project, specs)
     check_traceability(project, specs, requirements)
     check_requirement_status(project, specs, requirements)
     check_rules(project, specs)
     check_test_cases(project, specs)
-    check_bpmn(project, specs, bpmn)
+    check_bpmn(project, specs, diagram, bpmn)
     check_entities(project)
     check_wording(project, specs, load_glossary(project))
     return sorted(project.findings,
@@ -1057,7 +1077,9 @@ BROKEN.update({
         "processes/BP-001-hotel-stay.bpmn"].replace(
         'name="Reserve Room"', 'name="Pay Invoice"'),
     "processes/BP-002-checkout.bpmn": CLEAN[
-        "processes/BP-001-hotel-stay.bpmn"],
+        "processes/BP-001-hotel-stay.bpmn"].replace(
+        'name="Reserve Room"', 'name="Cancel Room"').replace(
+        'name="UC-001 Create Guest"', 'name="UC-003 Cancel Room"'),
     "processes/legacy.bpmn": CLEAN[
         "processes/BP-001-hotel-stay.bpmn"].replace('"BP-001"', '"p"'),
 })
@@ -1152,6 +1174,10 @@ def self_test():
                        "missing.bpmn"):
             if not any(needle in m for m in dangling):
                 failures.append("broken: no DANGLING_REF for " + needle)
+        unmapped = [f.path for f in found if f.code == "BPMN_UNMAPPED"]
+        if any(p.endswith("BP-002-checkout.bpmn") for p in unmapped):
+            failures.append("broken: UC-003 is in the diagram but its "
+                            "activities were reported as BPMN_UNMAPPED")
         duplicates = [f.message for f in found if f.code == "DUPLICATE_ID"]
         if not any("business process id BP-001" in m for m in duplicates):
             failures.append("broken: no DUPLICATE_ID for BP-001")

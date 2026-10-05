@@ -119,7 +119,7 @@ For a journey across several use cases, first create a test-case document:
 
 When several use cases form one business process — work handed over between roles, waiting for an event or a
 deadline, parallel branches — model the process in BPMN 2.0 and derive one test case per path through it.
-`/business-process` reads the requirements and the use case specifications, proposes the processes, and writes each
+`/business-process` reads the requirements and the use case diagram, proposes the processes, and writes each
 one to `docs/processes/BP-XXX-<name>.bpmn` with a diagram layout that bpmn.io or the process editor of AI Unified
 Studio can open. Every process has a `BP-XXX` id; pass it to update that one process:
 
@@ -129,9 +129,11 @@ Studio can open. Every process has a `BP-XXX` id; pass it to update that one pro
 /test-case BP-001
 ```
 
-Each activity of the process must map to a specified use case — by a use case id in the activity name
-(`UC-001 Place Order`) or by the use case name. `/business-process` stops and proposes the missing use cases instead
-of modeling an activity without one, and `/test-case` stops and lists unmatched activities in a model drawn by hand.
+Each activity of the process must map to a use case of the diagram — by a use case id in the activity name
+(`UC-001 Place Order`) or by the use case name. The use cases need no specification yet, so you can model the process
+right after `/use-case-diagram`; `/test-case` needs the specifications, though. `/business-process` stops and proposes
+the missing use cases instead of modeling an activity without one, and `/test-case` stops and lists activities without
+a specified use case.
 
 The `aiup-vaadin-jooq` and `aiup-angular-jpa` implementation and testing skills end by handing off to a coverage check
 they do not run themselves: `/coverage-check UC-001` delegates to the read-only `uc-coverage` sub-agent that ships with

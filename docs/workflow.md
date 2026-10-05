@@ -16,9 +16,10 @@ versioned, human-reviewable artifacts that every later step consumes.
 Inception          Elaboration                            Construction
 ─────────────     ───────────────────────────────────     ─────────────────────────────────
 /requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  migration
-                                                                          ↘  implementation
-                                                                          ↘  tests
-                                                                          ↘  /business-process  →  /test-case
+                                                     │                    ↘  implementation
+                                                     │                    ↘  tests
+                                                     │                    ↘  /test-case
+                                                     └→ /business-process ↗
 ```
 
 `aiup-core` owns the stack-independent steps. A stack plugin owns migrations, implementation, and tests. The boundary
@@ -32,7 +33,7 @@ between them is the set of files under `docs/`, not a specific coding agent.
 | `docs/requirements.md`     | `/requirements`                          | Specifications; construction reads the linked rows |
 | `docs/glossary.md`         | `/requirements`                          | Specifications, implementations, `/spec-review`    |
 | `docs/entity_model.md`     | `/entity-model`                          | Migrations and implementations                     |
-| `docs/use_cases.puml`      | `/use-case-diagram`                      | `/use-case-spec` and reviewers                     |
+| `docs/use_cases.puml`      | `/use-case-diagram`                      | `/use-case-spec`, `/business-process`, reviewers   |
 | `docs/use_cases/UC-*.md`   | `/use-case-spec`                         | Implementations and use case tests                 |
 | `docs/processes/BP-*.bpmn` | `/business-process` or business analysts | `/test-case` (one test case per path)              |
 | `docs/test_cases/TC-*.md`  | `/test-case`                             | End-to-end journey tests                           |

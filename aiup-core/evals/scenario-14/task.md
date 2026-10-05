@@ -3,9 +3,9 @@
 ## Problem/Feature Description
 
 A city library's lending system follows the AI Unified Process. The requirements catalog is in `docs/requirements.md`,
-the use case diagram in `docs/use_cases.puml`, and the specified use cases in `docs/use_cases/`: a member reserves a
-book title; when a copy is available, a librarian lends it, otherwise the member joins the waiting list. There are no
-process models in the project yet.
+and the use case diagram in `docs/use_cases.puml`: a member reserves a book title; when a copy is available, a
+librarian lends it, otherwise the member joins the waiting list. The use cases are not specified yet, and there are no
+process models in the project.
 
 The business analysts want the book loan business process as a BPMN 2.0 model that they can open and refine in their
 modeling tool (bpmn.io), and that the QA team can later derive end-to-end test cases from. The team refers to every
