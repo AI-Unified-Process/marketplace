@@ -133,7 +133,8 @@ Inside a test that carries its use case id, a rule is named by its bare id (`bus
   rules → test cases, and test case → process → use cases, from `docs/` alone. `--only FR-014` answers "why does
   this exist, and what realizes it" for one id. Its Requirement Coverage table answers "are all requirements
   covered": active requirements linked to a use case, with every linking use case in a test case, and Verified.
-  `spec_lint.py --report` puts the counts, the coverage, the matrix, and the lint findings on one HTML page.
+  `/spec-review report` puts the counts, the coverage, the matrix, and the lint findings on one HTML page,
+  `docs/spec-report.html`; `/spec-review report FR-014` narrows it to one id.
 - **Code and tests:** `/coverage-check UC-XXX` (in `aiup-vaadin-jooq` and `aiup-angular-jpa`) maps every step, flow,
   rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
   above first. In the other stacks, searching for the markers gives the same answer by hand.

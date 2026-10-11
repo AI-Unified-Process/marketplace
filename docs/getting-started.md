@@ -104,6 +104,17 @@ untestable rules, wrong or missing actors, unreferenced NFRs and constraints, an
 entity model. The skill reports only; fixes go through
 `/use-case-spec`, `/requirements`, or `/use-case-diagram`.
 
+To see the state of the whole project on one page, generate the HTML report:
+
+```text
+/spec-review report
+```
+
+It writes `docs/spec-report.html` with the requirement coverage (which requirements are linked to a use case, reached
+by a test case, and verified), the traceability matrix from requirement to use case, business rules, and test cases,
+and the lint findings. `/spec-review report UC-001` narrows it to one id. Open the file in a browser; the ids link to
+the specification files.
+
 ## 5. Implement and test
 
 Once a use case specification exists, continue with the commands from the selected stack plugin. For example, the

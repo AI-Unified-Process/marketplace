@@ -169,7 +169,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   `--trace` prints the traceability matrix (requirement → use case → business rules → test cases, test case →
   process → use cases) and a requirement coverage summary (linked → in a test case → Verified, with the gaps by
   id) from the same parsed documents instead of findings; `--report` prints all of it plus the findings as one
-  self-contained HTML page. Neither writes a file; the user redirects the output.
+  self-contained HTML page. The script writes no file; `/spec-review report [ID]` redirects `--report` into
+  `docs/spec-report.html`.
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are
@@ -177,7 +178,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - **Converges.** The verdict states **Ready for Approved** (lint exit 0, no open semantic warning); `info`
   findings get no fix command, and a repeated run in the same conversation reports what changed since the last one
   instead of a fresh list. Without this, every fix is followed by a review that finds the next thing.
-- **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; it
+- **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; the
+  only file it writes is the generated page `docs/spec-report.html`, on `/spec-review report` alone. It
   hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
   `docs/`; `/coverage-check` compares specifications with code and stays stack-specific.
 

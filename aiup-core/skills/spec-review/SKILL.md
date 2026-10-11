@@ -30,6 +30,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 Review the specification artifacts under `docs/` for $ARGUMENTS — a use case (`UC-XXX`), a test case (`TC-XXX`), or
 nothing for the whole project — and report every finding with severity, file, line, and element id.
 
+When $ARGUMENTS starts with `report` (`/spec-review report`, `/spec-review report UC-001`), or the user asks for the
+HTML report, write the report page instead and skip the review: see [HTML Report](#html-report).
+
 The review has two parts, and keeping them apart is the point of this skill:
 
 | Part             | How                               | Result                      | May block a build |
@@ -48,7 +51,8 @@ location and nature, never by quoting the text itself.
 ## DO NOT
 
 - Edit, create, rename, or delete any file under `docs/` — not a specification, not the glossary, not the
-  `**Status:**` line, and not the baseline file `docs/.spec-lint-baseline.json`
+  `**Status:**` line, and not the baseline file `docs/.spec-lint-baseline.json`. The one exception is the generated
+  page `docs/spec-report.html`, written only by `/spec-review report`
 - Run `spec_lint.py --update-baseline` unless the user explicitly asks to accept the current findings
 - Give a semantic finding the severity `ERROR`, or present it as certain — Part B is advice
 - Change, drop, or re-word a lint finding; if you think one is wrong, say so underneath it
@@ -56,7 +60,7 @@ location and nature, never by quoting the text itself.
 
 ## Workflow
 
-1. **Resolve the scope** from `$ARGUMENTS`: `UC-001`, `UC001`, or a path to a specification → `UC-001`; `TC-001`
+1. **Resolve the scope** from `$ARGUMENTS` (`report …` is not a review; go to [HTML Report](#html-report)): `UC-001`, `UC001`, or a path to a specification → `UC-001`; `TC-001`
    likewise; nothing → the whole project. If an id resolves to no file under `docs/use_cases/` or
    `docs/test_cases/`, list the near matches and ask. State the scope in one line (`Reviewing UC-004.`).
 2. **Run the lint** (the script path is relative to this skill's directory; it finds `validate_use_case.py` and
@@ -182,18 +186,24 @@ writes no file. Whether code and tests realize the use cases is `/coverage-check
 
 ## HTML Report
 
-When the user wants everything on one page — to share it, open it in a browser, or keep it as a build artifact — run:
+`/spec-review report` writes one HTML page with the state of the whole project; `/spec-review report UC-001` (or any
+`FR-`, `UC-`, `TC-`, or `BP-` id) narrows it to that id. The user wants it to share the state, open it in a browser,
+or keep it as a build artifact. Resolve an id like step 1 of the workflow, then run:
 
 ```bash
-python3 scripts/spec_lint.py --docs docs --report > docs/spec-report.html
-python3 scripts/spec_lint.py --docs docs --report --only FR-014 > fr-014.html   # one FR-, UC-, TC-, or BP- id
+python3 scripts/spec_lint.py --docs docs --report > docs/spec-report.html              # whole project
+python3 scripts/spec_lint.py --docs docs --report --only UC-001 > docs/spec-report.html  # one id
 ```
+
+Always write `docs/spec-report.html`, replacing the previous page: ids link to their files relative to the docs
+folder, so the links only work there. Use another file name only when the user names one, and keep it in `docs/`.
+This page is the only file the skill writes, and only on this command.
 
 The page is self-contained (no external assets) and holds summary counts, the Requirement Coverage table, the trace
 matrix with requirement titles and a filter box, test case → process → use cases, and the lint findings after the
-baseline. Ids link to their files relative to the docs folder, so the links work when the page is saved there. The
-redirect is the user's choice of file; this skill writes no file itself, so run the command only when the user asked
-for the report, and tell them where it went. The page holds no semantic review (Part B).
+baseline. It holds no semantic review (Part B). After writing it, say where it is and repeat the counts from its
+header in one line (requirements, use cases, test cases, processes, errors, warnings); do not restate the tables.
+Whether to commit it or add it to `.gitignore` is the user's call.
 
 ## CI
 
