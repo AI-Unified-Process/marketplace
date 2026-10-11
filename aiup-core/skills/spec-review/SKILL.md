@@ -9,11 +9,11 @@ description: >
   an advisory semantic review (contradicting or duplicated rules, wrong level
   of detail, missing alternative flows, untestable rules, ambiguity, actors,
   NFRs and constraints, entity model consistency), plus a traceability matrix
-  and requirement coverage on request. Use when the user asks to "review the specs", "lint the use
-  cases", "find contradictions", "is this use case ready", "show the
-  traceability matrix", "which use cases realize FR-014", "are all requirements
-  covered", or wants a
-  specification quality gate in CI. It reports only and never edits a
+  and requirement coverage on request, also as HTML. Use when the user asks to
+  "review the specs", "lint the use cases", "find contradictions", "is this use
+  case ready", "show the traceability matrix", "which use cases realize
+  FR-014", "are all requirements covered", "HTML report", or wants a spec
+  quality gate in CI. It reports only and never edits a
   specification; checking code against a specification is /coverage-check.
 ---
 
@@ -180,6 +180,21 @@ matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no
 findings. If the user wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill
 writes no file. Whether code and tests realize the use cases is `/coverage-check`, not this matrix.
 
+## HTML Report
+
+When the user wants everything on one page — to share it, open it in a browser, or keep it as a build artifact — run:
+
+```bash
+python3 scripts/spec_lint.py --docs docs --report > docs/spec-report.html
+python3 scripts/spec_lint.py --docs docs --report --only FR-014 > fr-014.html   # one FR-, UC-, TC-, or BP- id
+```
+
+The page is self-contained (no external assets) and holds summary counts, the Requirement Coverage table, the trace
+matrix with requirement titles and a filter box, test case → process → use cases, and the lint findings after the
+baseline. Ids link to their files relative to the docs folder, so the links work when the page is saved there. The
+redirect is the user's choice of file; this skill writes no file itself, so run the command only when the user asked
+for the report, and tell them where it went. The page holds no semantic review (Part B).
+
 ## CI
 
 Only Part A belongs in a pipeline gate. It needs Python 3.9+ and nothing else; copy the three scripts of the
@@ -200,6 +215,9 @@ Bitbucket Pipelines:
     script:
       - python3 tools/aiup/spec-review/scripts/spec_lint.py --docs docs --strict
 ```
+
+To keep the HTML report of every build, add a step that runs `--report > spec-report.html` and publishes the file
+as a build artifact (`actions/upload-artifact` in GitHub Actions, `artifacts:` in Bitbucket Pipelines).
 
 `--strict` also fails on warnings; drop it to fail on errors only. `--format json` prints the findings as JSON for a
 pull request comment or an editor integration. Part B, when run in a pipeline, posts its report as a pull request

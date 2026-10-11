@@ -168,7 +168,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   allowed) and reports an INFO finding when one is missing. Keep one copy of each script.
   `--trace` prints the traceability matrix (requirement → use case → business rules → test cases, test case →
   process → use cases) and a requirement coverage summary (linked → in a test case → Verified, with the gaps by
-  id) from the same parsed documents instead of findings; it never writes a file.
+  id) from the same parsed documents instead of findings; `--report` prints all of it plus the findings as one
+  self-contained HTML page. Neither writes a file; the user redirects the output.
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are

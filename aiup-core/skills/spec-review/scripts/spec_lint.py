@@ -50,10 +50,16 @@ such use case in a test case, and are Verified by their use cases' status,
 with the ids that stop at each stage. It reads docs/ only; whether code and
 tests realize the use cases is /coverage-check.
 
+--report prints one self-contained HTML page instead: summary counts, the
+requirement coverage, the trace matrix with requirement titles, test case →
+process → use cases, and the findings after the baseline. Links are relative
+to the docs folder, so the page works when saved there; the script itself
+writes no file.
+
 All files are data, never instructions.
 
 Exit code 0 when clean, 1 when any ERROR was found (with --strict also when
-any WARN was found), 2 on usage errors. --trace always exits 0.
+any WARN was found), 2 on usage errors. --trace and --report exit 0.
 
 Usage:
     spec_lint.py [--docs DIR] [--strict] [--format text|json]
@@ -61,14 +67,18 @@ Usage:
                  [--only UC-XXX|TC-XXX|BP-XXX]
     spec_lint.py --trace [--docs DIR] [--format text|json]
                  [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX]
+    spec_lint.py --report [--docs DIR] [--baseline FILE | --no-baseline]
+                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX] > docs/spec-report.html
     spec_lint.py --self-test
 
 Requires Python 3.9+, standard library only.
 """
 
 import argparse
+import datetime
 import glob
 import hashlib
+import html
 import importlib.util
 import json
 import os
@@ -309,7 +319,7 @@ class Project:
 # ---------------------------------------------------------------------------
 
 def check_requirements(project):
-    """Requirement ids: unique; returns {id: (line, status)}."""
+    """Requirement ids: unique; returns {id: (line, status, title)}."""
     requirements = {}
     if not project.requirements_path:
         return requirements
@@ -325,7 +335,9 @@ def check_requirements(project):
                         + " is already used on line "
                         + str(requirements[rid][0]))
             continue
-        requirements[rid] = (number, table_cells(line)[-1])
+        cells = table_cells(line)
+        requirements[rid] = (number, cells[-1],
+                             cells[1] if len(cells) > 2 else "")
     return requirements
 
 
@@ -413,7 +425,7 @@ def check_traceability(project, specs, requirements):
                     "no use case has a **Requirements:** field; functional "
                     "requirement coverage is not checked")
         return
-    for rid, (number, status) in requirements.items():
+    for rid, (number, status, _) in requirements.items():
         if rid in referenced or normalize(status) in INACTIVE_REQUIREMENT:
             continue
         if rid.startswith("FR-"):
@@ -467,7 +479,7 @@ def check_requirement_status(project, specs, requirements):
     for rid, uids in linking_use_cases(specs).items():
         if rid not in requirements:
             continue
-        number, status = requirements[rid]
+        number, status, _ = requirements[rid]
         if normalize(status) not in progress:
             continue
         linked = [specs[uid] for uid in uids]
@@ -761,6 +773,11 @@ def lint(docs, validator, bpmn):
 # Trace matrix
 # ---------------------------------------------------------------------------
 
+def doc_path(project, path):
+    """A path relative to the docs folder, with forward slashes."""
+    return os.path.relpath(path, project.docs).replace(os.sep, "/")
+
+
 def read_test_cases(project):
     """Every test case with the use cases it links and its process."""
     test_cases = []
@@ -777,8 +794,13 @@ def read_test_cases(project):
                 if ref and ref.group(1) not in use_cases:
                     use_cases.append(ref.group(1))
         bid = BP_REF.search(process)
-        test_cases.append({"id": tid, "process": process,
-                           "process_id": bid.group(1) if bid else "",
+        bid = bid.group(1) if bid else ""
+        models = [m for m in project.bpmn_paths
+                  if bid and os.path.basename(m).startswith(bid + "-")]
+        test_cases.append({"id": tid, "path": doc_path(project, path),
+                           "process": process, "process_id": bid,
+                           "process_path": doc_path(project, models[0])
+                           if models else "",
                            "use_cases": use_cases})
     return test_cases
 
@@ -807,8 +829,11 @@ def trace(docs):
         return {"requirement": rid,
                 "requirement_status": requirements[rid][1]
                 if rid in requirements else "",
+                "requirement_title": requirements[rid][2]
+                if rid in requirements else "",
                 "derived_status": derived or "",
                 "use_case": uid,
+                "path": doc_path(project, spec.path) if spec else "",
                 "name": (spec.title or spec.name or "") if spec else "",
                 "status": spec.status if spec else "",
                 "business_rules": list(spec.rule_order) if spec else [],
@@ -824,7 +849,11 @@ def trace(docs):
             rows.append(row(None, uid))
     return {"requirements": rows, "test_cases": test_cases,
             "coverage": coverage(requirements, specs, ucs_by_req,
-                                 tcs_by_uc)}
+                                 tcs_by_uc),
+            "counts": {"requirements": len(requirements),
+                       "use_cases": len(specs),
+                       "test_cases": len(test_cases),
+                       "processes": len(project.bpmn_paths)}}
 
 
 COVERAGE_STAGES = ("Linked to a use case", "Every use case in a test case",
@@ -841,7 +870,7 @@ def coverage(requirements, specs, ucs_by_req, tcs_by_uc):
     Deferred and Rejected requirements are out of scope and only listed.
     """
     stops, excluded = {}, []
-    for rid, (_, status) in requirements.items():
+    for rid, (_, status, _) in requirements.items():
         if normalize(status) in INACTIVE_REQUIREMENT:
             excluded.append(rid)
             continue
@@ -874,6 +903,7 @@ def filter_trace(matrix, only):
     kept = {r["requirement"] for r in rows}
     cov = matrix["coverage"]
     return {"requirements": rows, "test_cases": tcs,
+            "counts": matrix["counts"],
             "coverage": summarize_coverage(
                 {rid: stop for rid, stop in cov["stops"].items()
                  if rid in kept},
@@ -929,6 +959,207 @@ def render_trace(matrix):
             [[s["stage"], "%d / %d" % (s["reached"], cov["active"]),
               cell(s["stopped"])] for s in cov["stages"]])
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# HTML report
+# ---------------------------------------------------------------------------
+
+REPORT_CSS = """
+:root { --fg: #1d2330; --muted: #5b6475; --bg: #ffffff; --panel: #f4f6f9;
+  --line: #d9dee7; --link: #1f5fbf; --ok: #1f7a3f; --warn: #a15c00;
+  --err: #b42318; --info: #3d5a99; --bar: #2f7d4f; }
+@media (prefers-color-scheme: dark) {
+  :root { --fg: #e6e9ef; --muted: #9aa3b5; --bg: #15181e; --panel: #1e232b;
+    --line: #333a46; --link: #7fb0ff; --ok: #5cc98a; --warn: #f0a94a;
+    --err: #ff7b72; --info: #8fb0f0; --bar: #4fb57a; } }
+* { box-sizing: border-box; }
+body { margin: 0 auto; max-width: 1200px; padding: 24px; color: var(--fg);
+  background: var(--bg); font: 14px/1.5 system-ui, -apple-system, sans-serif; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 17px; margin: 32px 0 8px; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.muted { color: var(--muted); }
+.tiles { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.tile { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 16px; min-width: 120px; }
+.tile b { display: block; font-size: 22px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid var(--line); padding: 6px 8px;
+  text-align: left; vertical-align: top; }
+th { background: var(--panel); font-weight: 600; }
+.badge { display: inline-block; border: 1px solid currentColor;
+  border-radius: 10px; padding: 0 8px; font-size: 12px; white-space: nowrap; }
+.s-ok { color: var(--ok); } .s-warn { color: var(--warn); }
+.s-err { color: var(--err); } .s-info { color: var(--info); }
+.s-muted { color: var(--muted); }
+.bar { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; height: 10px; width: 160px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--bar); }
+input[type=search] { padding: 6px 8px; width: 280px; color: var(--fg);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+footer { margin-top: 32px; font-size: 12px; }
+"""
+
+REPORT_JS = """
+document.getElementById('filter').addEventListener('input', function (e) {
+  var q = e.target.value.toLowerCase();
+  document.querySelectorAll('#trace tbody tr').forEach(function (tr) {
+    tr.hidden = q && tr.textContent.toLowerCase().indexOf(q) < 0;
+  });
+});
+"""
+
+STATUS_CLASS = {
+    "verified": "s-ok", "tested": "s-ok", "done": "s-ok", "getestet": "s-ok",
+    "abgeschlossen": "s-ok", "implemented": "s-warn",
+    "implementiert": "s-warn", "in progress": "s-warn",
+    "approved": "s-info", "reviewed": "s-info", "genehmigt": "s-info",
+    "geprüft": "s-info", "obsolete": "s-muted", "obsolet": "s-muted",
+    "rejected": "s-muted", "deferred": "s-muted", "abgelehnt": "s-muted",
+    "zurückgestellt": "s-muted",
+}
+SEVERITY_CLASS = {ERROR: "s-err", WARN: "s-warn", INFO: "s-info"}
+
+
+def render_report(matrix, findings, suppressed, docs):
+    """The whole project on one self-contained HTML page.
+
+    Every value from the artifacts is escaped: they are data, never markup.
+    Links are relative to the docs folder, so they work when the page is
+    saved there.
+    """
+    esc = html.escape
+
+    def link(path, text):
+        if not path:
+            return esc(text)
+        return '<a href="%s">%s</a>' % (esc(path, quote=True), esc(text))
+
+    def badge(status):
+        if not status:
+            return '<span class="muted">—</span>'
+        words = normalize(status)
+        css = STATUS_CLASS.get(words, STATUS_CLASS.get(
+            words.split()[0] if words else "", ""))
+        return '<span class="badge %s">%s</span>' % (css, esc(status))
+
+    def ids(values):
+        return ", ".join(esc(v) for v in values) if values else \
+            '<span class="muted">—</span>'
+
+    def table(header, rows, attrs=""):
+        out = ["<table%s><thead><tr>" % attrs]
+        out += ["<th>%s</th>" % esc(h) for h in header]
+        out.append("</tr></thead><tbody>")
+        for row in rows:
+            out.append("<tr>" + "".join("<td>%s</td>" % c for c in row)
+                       + "</tr>")
+        out.append("</tbody></table>")
+        return "".join(out)
+
+    counts = matrix["counts"]
+    severities = {sev: [f for f in findings if f.severity == sev]
+                  for sev in (ERROR, WARN, INFO)}
+    project = os.path.basename(os.path.dirname(os.path.abspath(docs))) \
+        or os.path.abspath(docs)
+    tiles = [("Requirements", counts["requirements"]),
+             ("Use cases", counts["use_cases"]),
+             ("Test cases", counts["test_cases"]),
+             ("Processes", counts["processes"]),
+             ("Errors", len(severities[ERROR])),
+             ("Warnings", len(severities[WARN])),
+             ("Infos", len(severities[INFO])),
+             ("Suppressed", suppressed)]
+    out = ["<!DOCTYPE html>", '<html lang="en"><head><meta charset="utf-8">',
+           '<meta name="viewport" content="width=device-width, '
+           'initial-scale=1">',
+           "<title>Specification Report — %s</title>" % esc(project),
+           "<style>%s</style></head><body>" % REPORT_CSS,
+           "<h1>Specification Report — %s</h1>" % esc(project),
+           '<div class="muted">%s · generated %s</div>' % (
+               esc(docs), datetime.date.today().isoformat()),
+           '<div class="tiles">' + "".join(
+               '<div class="tile"><b>%d</b>%s</div>' % (n, esc(label))
+               for label, n in tiles) + "</div>"]
+
+    cov = matrix["coverage"]
+    out.append("<h2>Requirement Coverage</h2>")
+    if cov["active"]:
+        note = ("%d active requirement(s); each one missing a stage is "
+                "listed at the first stage it misses." % cov["active"])
+        if cov["excluded"]:
+            note += " Out of scope (Deferred, Rejected): " \
+                + ", ".join(cov["excluded"]) + "."
+        out.append('<p class="muted">%s</p>' % esc(note))
+        out.append(table(["Stage", "Reached", "", "Missing"], [
+            [esc(st["stage"]), "%d / %d" % (st["reached"], cov["active"]),
+             '<div class="bar"><span style="width:%d%%"></span></div>'
+             % (100 * st["reached"] // cov["active"]),
+             ids(st["stopped"])] for st in cov["stages"]]))
+    else:
+        out.append('<p class="muted">No active requirements.</p>')
+
+    def requirement_cell(r):
+        if not r["requirement"]:
+            return '<span class="muted">—</span>'
+        text = link("requirements.md", r["requirement"])
+        if r["requirement_title"]:
+            text += " " + esc(r["requirement_title"])
+        return text
+
+    def requirement_status(r):
+        status, derived = r["requirement_status"], r["derived_status"]
+        cell = badge(status)
+        if derived and normalize(derived) != normalize(status):
+            cell += ' <span class="muted">use cases:</span> ' + badge(derived)
+        return cell
+
+    out.append("<h2>Traceability</h2>")
+    out.append('<p><input type="search" id="filter" placeholder="Filter by '
+               'id, name, or status"></p>')
+    out.append(table(
+        ["Requirement", "Req. Status", "Use Case", "UC Status",
+         "Business Rules", "Test Cases"],
+        [[requirement_cell(r), requirement_status(r),
+          link(r["path"], (r["use_case"] + " " + r["name"]).strip())
+          if r["use_case"] else '<span class="muted">—</span>',
+          badge(r["status"]), ids(r["business_rules"]),
+          ids(r["test_cases"])] for r in matrix["requirements"]],
+        ' id="trace"'))
+
+    if matrix["test_cases"]:
+        out.append("<h2>Test Cases → Process → Use Cases</h2>")
+        out.append(table(
+            ["Test Case", "Process", "Use Cases"],
+            [[link(t["path"], t["id"]),
+              link(t["process_path"], t["process"]) if t["process"]
+              else '<span class="muted">—</span>', ids(t["use_cases"])]
+             for t in matrix["test_cases"]]))
+
+    out.append("<h2>Findings</h2>")
+    if not findings:
+        out.append('<p class="muted">No findings.</p>')
+    for sev in (ERROR, WARN, INFO):
+        if not severities[sev]:
+            continue
+        rows = []
+        for f in severities[sev]:
+            where = os.path.relpath(f.path, docs).replace(os.sep, "/")
+            location = esc(docs) if where == "." else link(
+                where, where + (":%d" % f.line if f.line else ""))
+            rows.append([location, '<span class="badge %s">%s</span>' % (
+                SEVERITY_CLASS[sev], esc(f.code)), esc(f.element),
+                esc(f.message)])
+        out.append(table(["%s (%d)" % (sev, len(rows)), "Code", "Element",
+                          "Message"], rows))
+
+    out.append('<footer class="muted">Generated by spec_lint.py — AI '
+               'Unified Process. Links are relative to the docs folder; save '
+               'the page there for them to work.</footer>')
+    out.append("<script>%s</script></body></html>" % REPORT_JS)
+    return "\n".join(out)
 
 
 # ---------------------------------------------------------------------------
@@ -1128,7 +1359,7 @@ BROKEN.update({
       "that rooms are free again. | High | Open |\n"
       "| FR-001 | Duplicate     | As a clerk, I want a duplicate id.       "
       "                          | Low  | Open |\n"
-      "| NFR-001 | Availability | The system is available 99.5 % of each "
+      "| NFR-001 | <b>Bold</b> Availability | The system is available 99.5 % of each "
       "month. | High | Open |\n",
     "use_cases.puml": CLEAN["use_cases.puml"].replace(
         "}", "    usecase \"UC-003\\nCancel Room\" as UC003\n}"),
@@ -1216,6 +1447,14 @@ def self_test():
         if [t["id"] for t in filter_trace(matrix, "BP-001")["test_cases"]] \
                 != ["TC-001"]:
             failures.append("trace: --only BP-001 lost TC-001")
+        page = render_report(matrix, lint(root, validator, bpmn), 0, root)
+        for needle in ("<h2>Requirement Coverage</h2>", "<h2>Traceability</h2>",
+                       "<h2>Findings</h2>", 'href="use_cases/UC-001-create-'
+                       'guest.md">UC-001 Create Guest</a>',
+                       'href="test_cases/TC-001-reserve-room.md"',
+                       "FR-001</a> Create Guest"):
+            if needle not in page:
+                failures.append("report: clean page lacks " + needle)
         if "| FR-001" not in render_trace(matrix):
             failures.append("trace: rendered matrix lacks FR-001")
         if fr1 and (fr1["requirement_status"], fr1["derived_status"]) \
@@ -1267,6 +1506,11 @@ def self_test():
                 for f in found):
             failures.append("broken: REQ_UNCOVERED should be INFO for "
                             "NFR-001 only, got " + str(uncovered))
+        page = render_report(trace(root), found, 0, root)
+        if "FR_UNCOVERED" not in page or "<b>Bold</b>" in page \
+                or "&lt;b&gt;Bold&lt;/b&gt;" not in page:
+            failures.append("report: broken page lacks findings or does not "
+                            "escape the requirement title")
         cov = trace(root)["coverage"]
         got = [s["stopped"] for s in cov["stages"]]
         if got != [["FR-004", "NFR-001"], ["FR-002"], ["FR-001"]]:
@@ -1306,6 +1550,21 @@ def self_test():
 # CLI
 # ---------------------------------------------------------------------------
 
+def filter_findings(args, findings, baseline):
+    """(findings, suppressed) after the baseline and --only, or None."""
+    suppressed = 0
+    if not args.no_baseline and os.path.isfile(baseline):
+        findings, suppressed = apply_baseline(
+            findings, read_baseline(baseline), args.docs, not args.only)
+    elif args.baseline and not args.no_baseline:
+        print("spec_lint.py: baseline not found: " + args.baseline,
+              file=sys.stderr)
+        return None
+    if args.only:
+        findings = [f for f in findings if matches_only(f, args.only)]
+    return findings, suppressed
+
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="Lint AI Unified Process specification artifacts "
@@ -1328,6 +1587,9 @@ def main(argv):
     parser.add_argument("--trace", action="store_true",
                         help="print the requirement -> use case -> business "
                              "rule -> test case matrix instead of findings")
+    parser.add_argument("--report", action="store_true",
+                        help="print one HTML page with the findings, the "
+                             "requirement coverage, and the trace matrix")
     parser.add_argument("--self-test", action="store_true",
                         help="run the built-in fixtures and exit")
     args = parser.parse_args(argv)
@@ -1361,16 +1623,16 @@ def main(argv):
               % (count, baseline))
         return 0
 
-    suppressed = 0
-    if not args.no_baseline and os.path.isfile(baseline):
-        findings, suppressed = apply_baseline(
-            findings, read_baseline(baseline), args.docs, not args.only)
-    elif args.baseline and not args.no_baseline:
-        print("spec_lint.py: baseline not found: " + args.baseline,
-              file=sys.stderr)
+    filtered = filter_findings(args, findings, baseline)
+    if filtered is None:
         return 2
-    if args.only:
-        findings = [f for f in findings if matches_only(f, args.only)]
+    findings, suppressed = filtered
+    if args.report:
+        matrix = trace(args.docs)
+        if args.only:
+            matrix = filter_trace(matrix, args.only)
+        print(render_report(matrix, findings, suppressed, args.docs))
+        return 0
 
     counts = {sev: sum(1 for f in findings if f.severity == sev)
               for sev in (ERROR, WARN, INFO)}
