@@ -9,9 +9,10 @@ description: >
   an advisory semantic review (contradicting or duplicated rules, wrong level
   of detail, missing alternative flows, untestable rules, ambiguity, actors,
   NFRs and constraints, entity model consistency), plus a traceability matrix
-  on request. Use when the user asks to "review the specs", "lint the use
+  and requirement coverage on request. Use when the user asks to "review the specs", "lint the use
   cases", "find contradictions", "is this use case ready", "show the
-  traceability matrix", "which use cases realize FR-014", or wants a
+  traceability matrix", "which use cases realize FR-014", "are all requirements
+  covered", or wants a
   specification quality gate in CI. It reports only and never edits a
   specification; checking code against a specification is /coverage-check.
 ---
@@ -160,7 +161,7 @@ The lint findings need no such comparison; they are the same on every run.
 ## Trace Matrix
 
 When the user asks for a traceability matrix, or wants to know which use cases, business rules, and test cases trace
-back to a requirement, run the script with `--trace` instead of writing the matrix yourself:
+back to a requirement, or asks whether all requirements are covered, run the script with `--trace` instead of writing the matrix yourself:
 
 ```bash
 python3 scripts/spec_lint.py --docs docs --trace                # whole project, Markdown
@@ -169,7 +170,13 @@ python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, 
 
 It prints two tables: requirement (with its status, followed by the status its use cases make it when the two
 differ) → use case (with its status) → business rules → test cases, and test case → process → use cases. A requirement no use case links and a use case without a `**Requirements:**` line appear with
-`—`. `--format json` prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no
+`—`. A third table, **Requirement Coverage**, answers "are all requirements covered": for the active requirements
+(Deferred and Rejected are listed as out of scope) it counts how many are linked to a use case, have every linking use
+case in a test case, and are Verified by the status of their use cases, and lists each requirement that misses a stage
+at the first stage it misses. Hand-offs: not linked → `/use-case-spec` (or `/use-case-diagram` when no use case fits);
+not in a test case → `/test-case`; not Verified → `/coverage-check UC-XXX` for its use cases. An unlinked NFR or
+constraint may rightly apply to the whole system; say so instead of pushing a link. `--format json` prints the same
+matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no
 findings. If the user wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill
 writes no file. Whether code and tests realize the use cases is `/coverage-check`, not this matrix.
 
