@@ -5,7 +5,8 @@ description: >
   diagram, use case specifications, test cases, BPMN process models, entity
   model, glossary) against each other in two parts: a deterministic lint that
   can block a build (missing specifications, duplicate or unresolved ids,
-  uncovered FRs, unmapped BPMN activities, weak words, glossary synonyms) and
+  uncovered FRs, unmapped BPMN activities, actor mismatches, weak words,
+  glossary synonyms) and
   an advisory semantic review (contradicting or duplicated rules, wrong level
   of detail, missing alternative flows, untestable rules, ambiguity, actors,
   NFRs and constraints, entity model consistency), plus a traceability matrix
@@ -13,8 +14,8 @@ description: >
   "review the specs", "lint the use cases", "find contradictions", "is this use
   case ready", "show the traceability matrix", "which use cases realize
   FR-014", "are all requirements covered", "HTML report", or wants a spec
-  quality gate in CI. It reports only and never edits a
-  specification; checking code against a specification is /coverage-check.
+  quality gate in CI. It reports only, never edits a
+  specification; checking code against specs is /coverage-check.
 ---
 
 <!--

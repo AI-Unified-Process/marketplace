@@ -165,7 +165,9 @@ own and pursue the same goal through the same main success scenario. Report:
   the goal; it belongs in `**Secondary Actors:**`
 - a role or an external system that acts in a step or an alternative flow ("Payment Service confirms the payment",
   "Manager approves the discount") but is listed as neither a primary nor a secondary actor
-- an actor in the specification that the diagram does not connect to the use case, or the other way round
+- an actor in the specification that the diagram does not connect to the use case, or the other way round — the
+  lint reports this as `ACTOR_MISMATCH`; review only which side is right (a renamed role, a missing link, or a
+  role that should not take part)
 
 Severity: `warning` for "System" as a primary actor, for roles that pursue different goals, and for an external system
 missing from the actors (an implementation may build it instead of integrating it); `info` otherwise. The fix for the

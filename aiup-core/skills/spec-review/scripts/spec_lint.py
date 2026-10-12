@@ -16,7 +16,9 @@ check is exact and gives the same result on every run:
            a process model's BP-XXX id does not match its file name,
            or a use case document does not parse (from validate_use_case.py).
 - WARN   = the artifacts are connected but weak: an uncovered functional
-           requirement, a requirement status its use cases contradict, the
+           requirement, a requirement status its use cases contradict, an
+           actor of a use case the diagram does not connect to it (or the
+           other way round), the
            same business rule in two use cases, a weak word, a synonym the
            glossary says to avoid, or a rule of the use-case-spec skill that
            validate_use_case.py reports as broken.
@@ -98,6 +100,17 @@ FILE_UC = re.compile(r"([SB]?UC-[A-Za-z0-9]+)")
 UC_REF = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)")
 PUML_UC = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)(?=\\n|\s|\"|\)|:|$)")
 PUML_LABEL = re.compile(r'usecase\s+"([^"]+)"|\(([^)]+)\)')
+# PlantUML elements of a use case diagram: a quoted name, :actor:, (use case),
+# or a bare alias; actor and use case declarations; and the links between them.
+PUML_NODE = r'"[^"]+"|:[^:]+:|\([^)]+\)|[\w.]+'
+PUML_ACTOR = re.compile(r"^\s*actor\s+(" + PUML_NODE + r")(?:\s+as\s+("
+                        + PUML_NODE + r"))?", re.IGNORECASE)
+PUML_ACTOR_INLINE = re.compile(r"^\s*(:[^:]+:)\s+as\s+([\w.]+)")
+PUML_USECASE = re.compile(r"^\s*(?:usecase\s+)?(" + PUML_NODE
+                          + r")\s+as\s+(" + PUML_NODE + r")", re.IGNORECASE)
+PUML_LINK = re.compile(r"^\s*(" + PUML_NODE + r")\s*(<\|?|)([-.]+(?:(?:\[[^\]]*\]"
+                       r"|left|right|up|down|le|ri|do|l|r|u|d)[-.]+)?)(\|?>|)"
+                       r"\s*(" + PUML_NODE + r")")
 REQ_ROW = re.compile(r"^\|\s*((?:FR|NFR|C)-[A-Za-z0-9_-]+)\s*\|")
 REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
 RULE_HEADING = re.compile(r"^###\s+((?:BR|GR)-[A-Za-z0-9_-]+)\s*:?\s*(.*)$")
@@ -111,6 +124,11 @@ FILE_BP = re.compile(r"^(BP-\d{3,})-")
 ID_FIELDS = ("**Use Case ID:**", "**Use-Case-ID:**")
 NAME_FIELDS = ("**Use Case Name:**", "**Use-Case-Name:**")
 REQUIREMENTS_FIELDS = ("**Requirements:**", "**Anforderungen:**")
+PRIMARY_ACTOR_FIELDS = ("**Primary Actor:**", "**Primary Actors:**",
+                        "**Primärer Akteur:**", "**Primäre Akteure:**")
+SECONDARY_ACTOR_FIELDS = ("**Secondary Actors:**", "**Secondary Actor:**",
+                          "**Sekundäre Akteure:**", "**Sekundärer Akteur:**")
+NO_ACTOR = ("", "-", "—", "none", "n a", "keine", "keiner")
 STATUS_FIELD = "**Status:**"
 RULES_HEADINGS = ("## Business Rules", "## Geschäftsregeln")
 TITLE_PREFIX = "# Use Case:"
@@ -246,6 +264,8 @@ class Spec:
         self.title = None
         self.status = ""
         self.requirements = []   # (line, id)
+        self.actors = []         # (line, name, "primary" or "secondary")
+        self.actor_line = 1
         self.rules = {}          # rule id -> {"line", "name", "text"}
         self.rule_order = []
         in_rules = False
@@ -263,6 +283,17 @@ class Spec:
             value = field_value(line, (STATUS_FIELD,))
             if value is not None and not self.status:
                 self.status = value
+            for fields, kind in ((PRIMARY_ACTOR_FIELDS, "primary"),
+                                 (SECONDARY_ACTOR_FIELDS, "secondary")):
+                value = field_value(line, fields)
+                if value is None:
+                    continue
+                if kind == "primary":
+                    self.actor_line = number
+                for name in value.split(","):
+                    name = re.sub(r"\([^)]*\)", " ", name).strip(" *_`")
+                    if normalize(name) not in NO_ACTOR:
+                        self.actors.append((number, name, kind))
             value = field_value(line, REQUIREMENTS_FIELDS)
             if value is not None:
                 self.requirements += [(number, rid)
@@ -370,6 +401,130 @@ def check_diagram(project, specs):
                         "use case " + uid + " is not in "
                         + os.path.basename(project.diagram_path))
     return {uid: names.get(uid, "") for uid in diagram}
+
+
+def puml_name(token):
+    """The display name of a PlantUML node token, without its quotes."""
+    if token[:1] in "\":(" and len(token) > 1:
+        token = token[1:-1]
+    return " ".join(token.replace("\\n", " ").split())
+
+
+def read_diagram_actors(path):
+    """Actors, their links to use cases, and actor generalizations.
+
+    Returns ({actor key: (line, name)}, {use case id: {actor key}},
+    {actor key: {parent actor key}}); an actor key is the normalized name.
+    """
+    actors, aliases, uc_aliases = {}, {}, {}
+    lines = [(number, line) for number, line in
+             enumerate(read_lines(path), 1)
+             if not line.lstrip().startswith("'")]
+
+    def declare(number, name, alias=None):
+        key = normalize(name)
+        actors.setdefault(key, (number, name))
+        aliases[alias or name] = key
+        return key
+
+    for number, line in lines:
+        match = PUML_ACTOR.match(line)
+        if match:
+            first, second = match.group(1), match.group(2)
+            if second and second[:1] == '"' and first[:1] != '"':
+                first, second = second, first   # actor alias as "Name"
+            declare(number, puml_name(first),
+                    puml_name(second) if second else first)
+            continue
+        match = PUML_ACTOR_INLINE.match(line)
+        if match:
+            declare(number, puml_name(match.group(1)), match.group(2))
+            continue
+        match = PUML_USECASE.match(line)
+        if match:
+            for label, alias in ((match.group(1), match.group(2)),
+                                 (match.group(2), match.group(1))):
+                ids = PUML_UC.findall(puml_name(label))
+                if len(ids) == 1:
+                    uc_aliases[alias] = ids[0]
+                    break
+
+    def resolve(token, number):
+        if token[:1] == ":":
+            return "actor", declare(number, puml_name(token))
+        if token in aliases:
+            return "actor", aliases[token]
+        if token in uc_aliases:
+            return "usecase", uc_aliases[token]
+        ids = PUML_UC.findall(puml_name(token))
+        if len(ids) == 1:
+            return "usecase", ids[0]
+        return None, None
+
+    links, parents = {}, {}
+    for number, line in lines:
+        match = PUML_LINK.match(line)
+        if not match:
+            continue
+        left, right = resolve(match.group(1), number), \
+            resolve(match.group(5), number)
+        if "|" in match.group(2) + match.group(4):
+            child, parent = (left, right) if "|" in match.group(4) \
+                else (right, left)
+            if child[0] == parent[0] == "actor":
+                parents.setdefault(child[1], set()).add(parent[1])
+            continue
+        kinds = {left[0]: left[1], right[0]: right[1]}
+        if set(kinds) == {"actor", "usecase"}:
+            links.setdefault(kinds["usecase"], set()).add(kinds["actor"])
+    return actors, links, parents
+
+
+def ancestors(key, parents):
+    """The actor and every actor it inherits from (A --|> B)."""
+    found, todo = set(), [key]
+    while todo:
+        current = todo.pop()
+        if current not in found:
+            found.add(current)
+            todo.extend(parents.get(current, ()))
+    return found
+
+
+def check_actors(project, specs):
+    """A use case's actors in the specification and the diagram agree.
+
+    The diagram does not tell primary from secondary actors, so both lists
+    of the specification are compared with the actors linked to the use
+    case. A use case without any linked actor (an include target) is skipped,
+    and an actor inherits the use cases of its parent (Manager --|> Clerk).
+    """
+    if not project.diagram_path:
+        return
+    actors, links, parents = read_diagram_actors(project.diagram_path)
+    diagram = os.path.basename(project.diagram_path)
+    for uid, spec in specs.items():
+        linked = links.get(uid)
+        if not linked or spec.obsolete:
+            continue
+        listed = set()
+        for number, name, kind in spec.actors:
+            key = normalize(name)
+            listed |= ancestors(key, parents)
+            if ancestors(key, parents) & linked:
+                continue
+            if key in actors:
+                reason = "is not connected to " + uid + " in " + diagram
+            else:
+                reason = "is no actor of " + diagram
+            project.add(WARN, "ACTOR_MISMATCH", spec.path, number, uid,
+                        kind + " actor '" + name + "' " + reason)
+        for key in sorted(linked - listed):
+            _, name = actors.get(key, (0, key))
+            project.add(WARN, "ACTOR_MISMATCH", spec.path, spec.actor_line,
+                        uid, diagram + " connects actor '" + name + "' to "
+                        + uid + ", but the specification lists it as "
+                        "neither a primary nor a secondary actor")
 
 
 def load_specs(project):
@@ -758,6 +913,7 @@ def lint(docs, validator, bpmn):
     specs = load_specs(project)
     check_structure(project, specs, validator)
     diagram = check_diagram(project, specs)
+    check_actors(project, specs)
     check_traceability(project, specs, requirements)
     check_requirement_status(project, specs, requirements)
     check_rules(project, specs)
@@ -1374,7 +1530,8 @@ BROKEN.update({
         "UC-002", "Reserve Room",
         "\n**Requirements:** [FR-002](../requirements.md)\n",
         RULE_TEXT + "\n### BR-002: Deposit\n\nSee UC-001 BR-007 and "
-        "UC-042 BR-001.\n", status="Done"),
+        "UC-042 BR-001.\n", status="Done").replace(
+        "**Primary Actor:** Clerk", "**Primary Actor:** Receptionist"),
     "use_cases/UC-005-stray.md": spec_text("UC-005", "Stray"),
     "test_cases/TC-001-reserve-room.md": CLEAN[
         "test_cases/TC-001-reserve-room.md"].replace(
@@ -1397,6 +1554,36 @@ BROKEN_EXPECTED = {
     "BPMN_UNMAPPED", "FR_UNCOVERED", "BR_DUPLICATE", "WEAK_WORD",
     "GLOSSARY_AVOIDED_TERM", "GLOSSARY_DUPLICATE", "UC_UNUSED_BY_TC",
     "REQ_STATUS_DRIFT", "BP_ID_MISMATCH", "BP_NO_ID", "REQ_UNCOVERED",
+    "ACTOR_MISMATCH",
+}
+
+ACTOR_DIAGRAM = """\
+@startuml
+actor "Front Desk\\nClerk" as clerk
+actor manager as "Manager"
+:Payment Service: as pay
+actor Guest
+' actor Commented
+rectangle "Hotel" {
+    usecase "UC-001\\nCreate Guest" as UC001
+    (UC-002\\nReserve Room) as UC002
+    usecase UC003 as "UC-003\\nCancel Room"
+}
+clerk -up-> UC001
+UC002 <-- clerk
+UC002 .. pay
+manager --|> clerk
+Guest -[#blue]-> (UC-004 Check Out)
+:Night Auditor: -- UC003
+UC001 ..> UC002 : <<include>>
+@enduml
+"""
+
+ACTOR_LINKS = {
+    "UC-001": {"front desk clerk"},
+    "UC-002": {"front desk clerk", "payment service"},
+    "UC-003": {"night auditor"},
+    "UC-004": {"guest"},
 }
 
 
@@ -1472,6 +1659,28 @@ def self_test():
         if cov["active"] != 1 or cov["stages"][2]["stopped"] != ["FR-002"]:
             failures.append("coverage: --only UC-002 wrong, got " + str(cov))
 
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, {"use_cases.puml": ACTOR_DIAGRAM})
+        actors, links, parents = read_diagram_actors(
+            os.path.join(root, "use_cases.puml"))
+        if links != ACTOR_LINKS:
+            failures.append("actors: links wrong, got " + str(links))
+        if parents != {"manager": {"front desk clerk"}}:
+            failures.append("actors: generalization wrong, got "
+                            + str(parents))
+        if "commented" in actors:
+            failures.append("actors: commented actor was read")
+        write_fixture(root, {"use_cases/UC-002-reserve-room.md": spec_text(
+            "UC-002", "Reserve Room").replace(
+            "**Primary Actor:** Clerk", "**Primärer Akteur:** Manager\n"
+            "**Sekundäre Akteure:** Payment Service (PSP)")})
+        project = Project(root)
+        check_actors(project, load_specs(project))
+        if project.findings:
+            failures.append("actors: German fields or the generalization "
+                            "not matched, got " + str(
+                                [f.message for f in project.findings]))
+
     def uc(status):
         spec = Spec.__new__(Spec)
         spec.id, spec.status = "UC-X", status
@@ -1519,6 +1728,13 @@ def self_test():
         if any(p.endswith("BP-002-checkout.bpmn") for p in unmapped):
             failures.append("broken: UC-003 is in the diagram but its "
                             "activities were reported as BPMN_UNMAPPED")
+        mismatched = sorted(f.message for f in found
+                            if f.code == "ACTOR_MISMATCH")
+        if len(mismatched) != 2 or "Receptionist' is no actor" \
+                not in mismatched[0] or "actor 'Clerk' to UC-002" \
+                not in mismatched[1]:
+            failures.append("broken: ACTOR_MISMATCH wrong, got "
+                            + str(mismatched))
         duplicates = [f.message for f in found if f.code == "DUPLICATE_ID"]
         if not any("business process id BP-001" in m for m in duplicates):
             failures.append("broken: no DUPLICATE_ID for BP-001")
