@@ -111,9 +111,10 @@ Every requirement must pass these checks before finalizing:
 
 ## Error Recovery
 
-- **Incomplete source document**: List what is missing (roles, NFR categories, constraints) and ask the user to clarify
-  before proceeding
-- **Ambiguous requirement from user**: Rewrite it as a measurable requirement and ask the user to confirm the threshold
+- **Incomplete source document**: List what is missing (roles, NFR categories, constraints) and ask about it in the
+  clarification step (workflow step 2) before proceeding
+- **Ambiguous requirement from user**: Rewrite it as a measurable requirement and ask the user to confirm the threshold,
+  proposing a number
 - **Conflicting requirements**: Flag the conflict explicitly (e.g., "FR-003 requires real-time sync but C-002 limits to
   batch processing") and ask the user to resolve
 - **Missing stakeholder roles**: Default to generic roles (User, Admin, System) and note them for user review
@@ -128,30 +129,38 @@ Every requirement must pass these checks before finalizing:
 ## Workflow
 
 1. Read the vision document or project brief
-2. Use TodoWrite to create tasks for each requirement type
-3. Write the document header
-4. For functional requirements:
+2. **Clarify before writing.** Scan the sources with [references/clarify-checklist.md](references/clarify-checklist.md)
+   and ask the user the questions whose answer changes the catalog and has no reasonable default — at most five, the
+   most important first (scope and roles before quality thresholds), each with a recommended option; for a quality
+   threshold, propose a number. Write the answers into the rows and glossary terms they affect, never into a
+   questions section. Decide everything else with the best default and report it as an assumption (step 12). When no
+   one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended
+   option for every question and report it as an assumption as well.
+3. Use TodoWrite to create tasks for each requirement type
+4. Write the document header
+5. For functional requirements:
     - Identify user roles
     - Define user stories with clear goals and benefits
     - Assign priorities based on business value
-5. For non-functional requirements:
+6. For non-functional requirements:
     - Define measurable quality attributes
     - Categorize by NFR type
     - Ensure requirements are testable
-6. For constraints:
+7. For constraints:
     - Document technical and business limitations
     - Categorize by constraint type
     - Name the source of each regulatory or externally imposed constraint in the Source column
-7. Validate: run every requirement against the quality checks table above
+8. Validate: run every requirement against the quality checks table above
     - No duplicate IDs across all tables
     - All Status columns filled
     - **Hard gate:** every FR User Story matches "As a [role], I want [goal] so
       that [benefit]" — scan each row; any row missing "As a", "I want", or "so
       that" is rejected and rewritten before finalizing, no exceptions
     - All NFRs contain a measurable threshold
-8. When updating an existing catalog whose use cases exist, set the progress status of each requirement (Open,
+9. When updating an existing catalog whose use cases exist, set the progress status of each requirement (Open,
    In Progress, Implemented, Verified) from the `**Status:**` of the use cases that link it, as defined under
    Status in the reference; never change a Deferred or Rejected status on your own
-9. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
+10. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
    an Avoid synonym) in every requirement
-10. Mark todos complete
+11. Mark todos complete
+12. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist

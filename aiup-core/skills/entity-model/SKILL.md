@@ -150,15 +150,23 @@ omit the heading when the entity has no multi-column constraint.
 ## Workflow
 
 1. Read the requirements document
-2. Use TodoWrite to create a task for each entity
-3. Write the document header and ER diagram (relationships only)
-4. For each entity:
+2. **Clarify before writing.** Scan the sources with [references/clarify-checklist.md](references/clarify-checklist.md)
+   and ask the user the questions whose answer changes the model and has no reasonable default — at most five, the
+   most important first (entities and cardinality before ranges and lengths), each with a recommended option. Write
+   the answers into the relationship lines, Validation Rules cells, and constraints they affect, never into a
+   questions section. Decide everything else with the best default and report it as an assumption (step 7). When no
+   one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended
+   option for every question and report it as an assumption as well. Never ask about SQL types, indexes, or other
+   implementation choices.
+3. Use TodoWrite to create a task for each entity
+4. Write the document header and ER diagram (relationships only)
+5. For each entity:
     - Write ### heading
     - Write one sentence description
     - Write attribute table with 5 columns
     - Add a `#### Constraints` heading with a bullet list if needed
     - Mark todo complete
-5. Validate the document:
+6. Validate the document:
     - Every entity in the ER diagram has a corresponding attribute table section
     - Every attribute table has exactly 5 columns
     - No attributes appear inside the Mermaid diagram entity blocks
@@ -168,3 +176,4 @@ omit the heading when the entity has no multi-column constraint.
     - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
     - All validation rules use values from the Validation Rules table above
+7. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist
