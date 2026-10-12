@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_BP-002" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI">
+  <bpmn:collaboration id="Collaboration_BP-002">
+    <bpmn:participant id="Participant_Project" name="Project Team" processRef="BP-002" />
+  </bpmn:collaboration>
+  <bpmn:process id="BP-002" name="Brownfield Onboarding" isExecutable="false">
+    <bpmn:documentation>Goal: An existing system without a specification has a reviewed specification whose use case statuses reflect the code and tests that exist.
+Trigger: An existing system without a specification is to be changed.
+Requirements: FR-001, FR-007, FR-009, FR-010, FR-013, FR-014, FR-023
+Status: Draft</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_BP-002">
+      <bpmn:lane id="Lane_Developer" name="Developer">
+        <bpmn:flowNodeRef>StartEvent_ExistingSystemToChange</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ReverseEngineerExistingSystem</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_BusinessAnalyst" name="Business Analyst">
+        <bpmn:flowNodeRef>Activity_ReviewSpecification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RecoveredSpecificationCorrect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_SpecifyUseCase</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_WriteRequirementsCatalog</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Tester" name="Tester">
+        <bpmn:flowNodeRef>Activity_AuditCoverage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_SpecificationRecovered</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_ExistingSystemToChange" name="Existing system to be changed" />
+    <bpmn:userTask id="Activity_ReverseEngineerExistingSystem" name="UC-008 Reverse-Engineer Existing System" />
+    <bpmn:userTask id="Activity_ReviewSpecification" name="UC-006 Review Specification" />
+    <bpmn:exclusiveGateway id="Gateway_RecoveredSpecificationCorrect" name="Recovered specification correct?" />
+    <bpmn:userTask id="Activity_WriteRequirementsCatalog" name="UC-001 Write Requirements Catalog" />
+    <bpmn:userTask id="Activity_SpecifyUseCase" name="UC-004 Specify Use Case" />
+    <bpmn:userTask id="Activity_AuditCoverage" name="UC-014 Audit Coverage" />
+    <bpmn:endEvent id="EndEvent_SpecificationRecovered" name="Specification recovered" />
+    <bpmn:sequenceFlow id="Flow_ExistingSystemToChange_ReverseEngineerExistingSystem" sourceRef="StartEvent_ExistingSystemToChange" targetRef="Activity_ReverseEngineerExistingSystem" />
+    <bpmn:sequenceFlow id="Flow_ReverseEngineerExistingSystem_ReviewSpecification" sourceRef="Activity_ReverseEngineerExistingSystem" targetRef="Activity_ReviewSpecification" />
+    <bpmn:sequenceFlow id="Flow_ReviewSpecification_RecoveredSpecificationCorrect" sourceRef="Activity_ReviewSpecification" targetRef="Gateway_RecoveredSpecificationCorrect" />
+    <bpmn:sequenceFlow id="Flow_RecoveredSpecificationCorrect_Yes" name="yes" sourceRef="Gateway_RecoveredSpecificationCorrect" targetRef="Activity_WriteRequirementsCatalog" />
+    <bpmn:sequenceFlow id="Flow_RecoveredSpecificationCorrect_No" name="no" sourceRef="Gateway_RecoveredSpecificationCorrect" targetRef="Activity_SpecifyUseCase" />
+    <bpmn:sequenceFlow id="Flow_SpecifyUseCase_ReviewSpecification" sourceRef="Activity_SpecifyUseCase" targetRef="Activity_ReviewSpecification" />
+    <bpmn:sequenceFlow id="Flow_WriteRequirementsCatalog_AuditCoverage" sourceRef="Activity_WriteRequirementsCatalog" targetRef="Activity_AuditCoverage" />
+    <bpmn:sequenceFlow id="Flow_AuditCoverage_SpecificationRecovered" sourceRef="Activity_AuditCoverage" targetRef="EndEvent_SpecificationRecovered" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_BP-002">
+      <bpmndi:BPMNShape id="Participant_Project_di" bpmnElement="Participant_Project" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1128" height="480" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Developer_di" bpmnElement="Lane_Developer" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1098" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_BusinessAnalyst_di" bpmnElement="Lane_BusinessAnalyst" isHorizontal="true">
+        <dc:Bounds x="190" y="200" width="1098" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Tester_di" bpmnElement="Lane_Tester" isHorizontal="true">
+        <dc:Bounds x="190" y="440" width="1098" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_ExistingSystemToChange_di" bpmnElement="StartEvent_ExistingSystemToChange">
+        <dc:Bounds x="302" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReverseEngineerExistingSystem_di" bpmnElement="Activity_ReverseEngineerExistingSystem">
+        <dc:Bounds x="420" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReviewSpecification_di" bpmnElement="Activity_ReviewSpecification">
+        <dc:Bounds x="570" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RecoveredSpecificationCorrect_di" bpmnElement="Gateway_RecoveredSpecificationCorrect" isMarkerVisible="true">
+        <dc:Bounds x="745" y="235" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_WriteRequirementsCatalog_di" bpmnElement="Activity_WriteRequirementsCatalog">
+        <dc:Bounds x="870" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SpecifyUseCase_di" bpmnElement="Activity_SpecifyUseCase">
+        <dc:Bounds x="870" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AuditCoverage_di" bpmnElement="Activity_AuditCoverage">
+        <dc:Bounds x="1020" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_SpecificationRecovered_di" bpmnElement="EndEvent_SpecificationRecovered">
+        <dc:Bounds x="1202" y="482" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_ExistingSystemToChange_ReverseEngineerExistingSystem_di" bpmnElement="Flow_ExistingSystemToChange_ReverseEngineerExistingSystem">
+        <di:waypoint x="338" y="140" />
+        <di:waypoint x="420" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReverseEngineerExistingSystem_ReviewSpecification_di" bpmnElement="Flow_ReverseEngineerExistingSystem_ReviewSpecification">
+        <di:waypoint x="520" y="140" />
+        <di:waypoint x="545" y="140" />
+        <di:waypoint x="545" y="260" />
+        <di:waypoint x="570" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewSpecification_RecoveredSpecificationCorrect_di" bpmnElement="Flow_ReviewSpecification_RecoveredSpecificationCorrect">
+        <di:waypoint x="670" y="260" />
+        <di:waypoint x="745" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecoveredSpecificationCorrect_Yes_di" bpmnElement="Flow_RecoveredSpecificationCorrect_Yes">
+        <di:waypoint x="795" y="260" />
+        <di:waypoint x="870" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecoveredSpecificationCorrect_No_di" bpmnElement="Flow_RecoveredSpecificationCorrect_No">
+        <di:waypoint x="770" y="285" />
+        <di:waypoint x="770" y="380" />
+        <di:waypoint x="870" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SpecifyUseCase_ReviewSpecification_di" bpmnElement="Flow_SpecifyUseCase_ReviewSpecification">
+        <di:waypoint x="920" y="340" />
+        <di:waypoint x="920" y="205" />
+        <di:waypoint x="620" y="205" />
+        <di:waypoint x="620" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_WriteRequirementsCatalog_AuditCoverage_di" bpmnElement="Flow_WriteRequirementsCatalog_AuditCoverage">
+        <di:waypoint x="970" y="260" />
+        <di:waypoint x="995" y="260" />
+        <di:waypoint x="995" y="500" />
+        <di:waypoint x="1020" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AuditCoverage_SpecificationRecovered_di" bpmnElement="Flow_AuditCoverage_SpecificationRecovered">
+        <di:waypoint x="1120" y="500" />
+        <di:waypoint x="1202" y="500" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
