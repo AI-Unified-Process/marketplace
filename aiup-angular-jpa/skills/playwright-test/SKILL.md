@@ -107,6 +107,25 @@ match the current specification instead of creating a second file**:
   Preconditions, or Postconditions changed
 - Run the whole file afterwards, not only the tests you added
 
+## When a Test Fails
+
+The specification is the oracle, not the code. Take every expected value from the specification or
+the test data, never from what the code returns when you run it. When a test fails, decide which
+side is wrong before you change anything:
+
+- **The test's mechanics** — a locator, a wait, navigation, a fixture, setup, or test data that
+  does not satisfy the preconditions: fix the test.
+- **A value or outcome the specification states** — a message, a count, a status, a calculated
+  value, a step that must or must not happen: the code disagrees with the specification. Do not
+  change, weaken (`toBeGreaterThan(0)`, `toBeTruthy()`, `expect.any(String)`, a partial match
+  instead of the full message), or delete the assertion, and do not disable the test (`.skip`,
+  `.todo`, `.fixme`, a commented-out assertion). Leave it failing and report the step or rule, the
+  value the specification expects, and the value the code produced. Which side is wrong is the
+  user's call: the code (`/implement`) or the specification (`/use-case-spec`, or `/test-case` for a
+  test case).
+
+An expected value changes only when the specification has changed — see the section above.
+
 ## Test Data
 
 Use existing test data from Flyway migrations (backend project — location
@@ -312,7 +331,8 @@ state with a plain boolean check.
     - Clean up test-created data in `test.afterEach`, ideally via the API — for a test case,
       exactly the records its Postconditions list
 8. Run tests with `npx playwright test` to verify
-9. On failure: confirm both the backend and Angular dev server are running,
+9. On failure, decide first whether the test or the code is wrong — see
+   [When a Test Fails](#when-a-test-fails). For a failure in the test itself: confirm both the backend and Angular dev server are running,
    verify test data exists in the Flyway migrations, use
    `npx playwright test --debug` or `--headed` for visual debugging
 10. Report the result and hand off to `/coverage-check UC-XXX` (or `TC-XXX` for a journey) — see

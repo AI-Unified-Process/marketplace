@@ -29,8 +29,11 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void view_displays_grid_with_data() {
         navigate(ManagePersonsView.class);
 
+        // Expected values come from the Flyway test data (100 persons, sorted by first name),
+        // never from a run of the code.
         Grid<PersonRecord> grid = $(Grid.class).single();
-        assertThat(test(grid).size()).isGreaterThan(0);
+        assertThat(test(grid).size()).isEqualTo(100);
+        assertThat(test(grid).getRow(0).getFirstName()).isEqualTo("Eula");
     }
 
     @Test
@@ -59,6 +62,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
 
         test($(Button.class).withText("Save").single()).click();
 
+        // Main success scenario step 4: the exact message the specification states
         Notification notification = $(Notification.class).single();
         assertThat(test(notification).getText()).isEqualTo("Saved successfully");
     }
@@ -68,15 +72,18 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void form_submission_creates_record() {
         navigate(ManagePersonsView.class);
 
-        test($(TextField.class).withCaption("Name").single()).setValue("Test Name");
+        test($(TextField.class).withCaption("First Name").single()).setValue("Test Name");
         test($(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
         test($(DatePicker.class).withCaption("Birth Date").single())
                 .setValue(LocalDate.of(1990, 1, 1));
 
         test($(Button.class).withText("Save").single()).click();
 
+        // Postcondition: the new person is listed — 100 from the test data plus the one created
         Grid<PersonRecord> grid = $(Grid.class).single();
-        assertThat(test(grid).size()).isEqualTo(1);
+        assertThat(test(grid).size()).isEqualTo(101);
+        assertThat(grid.getGenericDataView().getItems().map(PersonRecord::getFirstName))
+                .contains("Test Name");
     }
 
     @Test
@@ -84,10 +91,11 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void required_field_shows_validation_error() {
         navigate(ManagePersonsView.class);
 
-        TextField nameField = $(TextField.class).withCaption("Name").single();
+        TextField nameField = $(TextField.class).withCaption("First Name").single();
         test(nameField).clear();
         test($(Button.class).withText("Save").single()).click();
 
+        // BR-002: the first name is required — message as the specification words it
         assertThat(nameField.isInvalid()).isTrue();
         assertThat(nameField.getErrorMessage()).isEqualTo("Field is required");
     }
@@ -105,6 +113,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
         ConfirmDialog dialog = $(ConfirmDialog.class).single();
         test(dialog).confirm();
 
+        // Postcondition of A2: the selected person is removed
         assertThat($(ConfirmDialog.class).exists()).isFalse();
         assertThat(test(grid).size()).isEqualTo(99);
     }

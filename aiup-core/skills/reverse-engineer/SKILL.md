@@ -239,9 +239,10 @@ Create `docs/use_cases/` and write one file per use case named
   user action on a route or view for an interactive use case, the
   schedule of a `@Scheduled` job or cron task for a time trigger, the
   message or webhook a listener consumes for an external system's event),
-  status (`Implemented` is
-  usually the right status when reverse-engineering working code; use
-  `Draft` only if the implementation is partial or you're unsure). Add
+  status (always `Draft`, even for working code: a recovered specification
+  describes what the code does, not what it should do, and a test derived
+  from it before a human has approved it only restates the code — see
+  step 8). Add
   the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
   only when a `docs/requirements.md` already exists and its ids match the
   use case; otherwise omit the line — never invent requirement ids.
@@ -474,6 +475,12 @@ endpoints/files you couldn't classify (be honest about gaps), and a
 recommendation for what the user should review first — typically the
 use cases where the main success scenario was hard to recover, since
 those are the ones most likely to need a human pass.
+
+Every specification you wrote is `Draft`. Say so, and say why: the code
+was the only source, so a bug in it is now written down as required
+behaviour. The user reviews each use case against what the system should
+do and sets `Approved` before tests are written from it; from there the
+status moves on as for any other use case.
 
 ## DO NOT
 

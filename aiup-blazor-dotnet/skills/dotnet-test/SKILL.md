@@ -40,6 +40,24 @@ implementation instead of creating a second test class**:
 - Leave passing tests the spec still requires untouched
 - Run the whole test class afterwards, not only the methods you added
 
+## When a Test Fails
+
+The specification is the oracle, not the code. Take every expected value from the specification or
+the test data, never from what the code returns when you run it. When a test fails, decide which
+side is wrong before you change anything:
+
+- **The test's mechanics** — a locator, a wait, navigation, a fixture, setup, or test data that
+  does not satisfy the preconditions: fix the test.
+- **A value or outcome the specification states** — a message, a count, a status, a calculated
+  value, a step that must or must not happen: the code disagrees with the specification. Do not
+  change, weaken (`Assert.NotEmpty`, `Assert.True(count > 0)`, `Assert.Contains` instead of the full
+  message), or delete the assertion, and do not disable the test (`Skip = "…"`, a commented-out
+  assertion). Leave it failing and report the step or rule, the value the specification expects, and
+  the value the code produced. Which side is wrong is the user's call: the code (`/implement`) or
+  the specification (`/use-case-spec`).
+
+An expected value changes only when the specification has changed — see the section above.
+
 ## Traceability
 
 Every test names the use case, the scenario, and the business rules it verifies, so the AI Unified
@@ -102,7 +120,7 @@ convention; then follow that one.
    - **Act**: Execute the handler or service method using a *new, separate* `DbContext` instance to prevent EF Core change tracking from masking bugs.
    - **Assert**: Verify expected outcome, returned DTOs, or database state using a *third* fresh `DbContext` instance.
 5. **Verification**:
-   - Execute `dotnet test` to confirm tests pass.
+   - Execute `dotnet test` to confirm tests pass; on a failure, decide first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails).
 6. **Next Step Guidance**:
    - Conclude your response by guiding the user on E2E testing:
    > "Next step: Run `/playwright-test` to generate native C# end-to-end browser tests for your use cases."

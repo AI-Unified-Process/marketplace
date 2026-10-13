@@ -4,7 +4,7 @@
 
 The HR team has finished building an Employee Management view in their Vaadin web application. The view shows a grid of employees and lets managers add new employees through a dialog form. When adding a new employee, the form collects First Name, Last Name, Department (a combo box), and Email. On successful save, the grid refreshes and a confirmation notification appears. If required fields are left blank, validation errors appear and the dialog stays open.
 
-Your task is to write Playwright integration tests for this view that cover the main user journeys. The use case spec is in `docs/use-cases/UC-030-manage-employees.md`. An API reference for the element library you must use is in `references/dramafinder-api.md`, and an example test file showing patterns and import style is in `references/ExampleViewIT.java`.
+Your task is to write Playwright integration tests for this view that cover the main user journeys. The use case spec is in `docs/use-cases/UC-030-manage-employees.md`. An API reference for the element library you must use is in `references/dramafinder-api.md`, and an example test file showing patterns and import style is in `references/UC001ManagePersonsIT.java`.
 
 The view is served at the path `/employees` on a locally running Spring Boot server (the base URL will be injected at test runtime). You do not have a running application — write the test code only.
 

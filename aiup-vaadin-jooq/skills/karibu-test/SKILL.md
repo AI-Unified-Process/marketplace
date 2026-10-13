@@ -50,6 +50,24 @@ match the current specification instead of creating a second test class**:
 - Update the test data (Flyway test migrations) when the spec's data requirements changed
 - Run the whole test class afterwards, not only the methods you added
 
+## When a Test Fails
+
+The specification is the oracle, not the code. Take every expected value from the specification or
+the test data, never from what the code returns when you run it. When a test fails, decide which
+side is wrong before you change anything:
+
+- **The test's mechanics** — a locator, a wait, navigation, a fixture, setup, or test data that
+  does not satisfy the preconditions: fix the test.
+- **A value or outcome the specification states** — a message, a count, a status, a calculated
+  value, a step that must or must not happen: the code disagrees with the specification. Do not
+  change, weaken (`isGreaterThan(0)`, `isNotEmpty()`, `contains` instead of the full message), or
+  delete the assertion, and do not disable the test (`@Disabled`, a commented-out assertion). Leave
+  it failing and report the step or rule, the value the specification expects, and the value the
+  code produced. Which side is wrong is the user's call: the code (`/implement`) or the
+  specification (`/use-case-spec`).
+
+An expected value changes only when the specification has changed — see the section above.
+
 ## Test Class Naming and `@UseCase` Annotation
 
 Karibu tests are **use case tests**. Each test class verifies the behavior of exactly one use case
@@ -263,7 +281,7 @@ Use AssertJ or Karibu Testing assertions:
     - Assert expected outcomes
     - Clean up test data if created during the test
 7. Run tests to verify they pass
-8. If a test fails:
+8. If a test fails, decide first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails). For a failure in the test itself:
     - Check component locators with `_dump()` to inspect the component tree
     - Verify test data exists in the Flyway test migrations
     - Ensure navigation to the correct view before finding components

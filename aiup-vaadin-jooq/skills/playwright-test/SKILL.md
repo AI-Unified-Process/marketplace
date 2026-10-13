@@ -86,6 +86,24 @@ it to match the current specification instead of creating a second test class**:
   Postconditions changed
 - Run the whole test class afterwards, not only the tests you added
 
+## When a Test Fails
+
+The specification is the oracle, not the code. Take every expected value from the specification or
+the test data, never from what the code returns when you run it. When a test fails, decide which
+side is wrong before you change anything:
+
+- **The test's mechanics** — a locator, a wait, navigation, a fixture, setup, or test data that
+  does not satisfy the preconditions: fix the test.
+- **A value or outcome the specification states** — a message, a count, a status, a calculated
+  value, a step that must or must not happen: the code disagrees with the specification. Do not
+  change, weaken (`isGreaterThan(0)`, `isNotEmpty()`, `contains` instead of the full message), or
+  delete the assertion, and do not disable the test (`@Disabled`, a commented-out assertion). Leave
+  it failing and report the step or rule, the value the specification expects, and the value the
+  code produced. Which side is wrong is the user's call: the code (`/implement` or
+  `/implement-hilla`) or the specification (`/use-case-spec`, or `/test-case` for a test case).
+
+An expected value changes only when the specification has changed — see the section above.
+
 ## Test Data
 
 Use existing test data from Flyway migrations in `src/test/resources/db/migration`. If your test creates data, clean up in `@AfterEach` — through the UI or targeted deletes, and make cleanup idempotent (the test may have failed midway, leaving only part of the data behind). Test case **Preconditions** should be satisfied by the Flyway test data; if they aren't, extend the test migrations rather than inserting through back doors. For test case journeys, the document's **Postconditions** section is the cleanup contract — remove exactly the records it lists, in the stated order.
@@ -96,7 +114,7 @@ Integration tests for one view. Read the use case specification, plan the tests,
 
 One use case → one test class named `UC<id><PascalCaseName>IT` (e.g. `UC-001-create-reservation.md` → `UC001CreateReservationIT`).
 
-Use [references/ExampleViewIT.java](references/ExampleViewIT.java) as the starting point for new test classes. The path is relative to the folder containing this SKILL.md, not to the project root.
+Use [references/UC001ManagePersonsIT.java](references/UC001ManagePersonsIT.java) as the starting point for new test classes. The path is relative to the folder containing this SKILL.md, not to the project root.
 
 ## Test Case Journeys (TC-*)
 
@@ -203,7 +221,7 @@ are all you need) to configure this optional server.
    - Assert outcomes using auto-retry assertions — for a test case, assert the Validation section's expectations at the end of the flow
    - Clean up test-created data in `@AfterEach`
 9. Run tests with `./mvnw verify -Pit` to verify
-10. On failure: check view loaded, verify test data in Flyway migrations, use `isGreaterThan()` for grid counts, add `waitForGridToStopLoading()` for async grids
+10. On failure, decide first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails). For a failure in the test itself: check the view loaded, verify the test data in the Flyway migrations, count grid rows with `getTotalRowCount()` (the viewport renders only some rows), add `waitForGridToStopLoading()` for async grids
 11. Report the result and hand off to `/coverage-check UC-XXX` (or `TC-XXX` for a journey) — see
    [Coverage Check](#coverage-check) below
 

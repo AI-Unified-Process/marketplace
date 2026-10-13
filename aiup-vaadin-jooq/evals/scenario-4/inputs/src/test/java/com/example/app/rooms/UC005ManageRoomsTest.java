@@ -31,8 +31,9 @@ class UC005ManageRoomsTest {
     @Test
     @UseCase(id = "UC-005")
     void rooms_are_displayed_in_grid() {
+        // V001__test_data.sql inserts five rooms
         var grid = _get(Grid.class);
-        assertThat(GridKt._size(grid)).isGreaterThan(0);
+        assertThat(GridKt._size(grid)).isEqualTo(5);
     }
 
     @Test

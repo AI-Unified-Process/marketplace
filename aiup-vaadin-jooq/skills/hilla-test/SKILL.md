@@ -71,6 +71,25 @@ exist, **update them to match the current specification instead of creating para
 - Update the test data (Flyway test migrations) when the spec's data requirements changed
 - Run the whole suite afterwards, not only what you added
 
+## When a Test Fails
+
+The specification is the oracle, not the code. Take every expected value from the specification or
+the test data, never from what the code returns when you run it. When a test fails, decide which
+side is wrong before you change anything:
+
+- **The test's mechanics** — a locator, a wait, navigation, a fixture, setup, or test data that
+  does not satisfy the preconditions: fix the test.
+- **A value or outcome the specification states** — a message, a count, a status, a calculated
+  value, a step that must or must not happen: the code disagrees with the specification. Do not
+  change, weaken (`toBeGreaterThan(0)`, `toBeTruthy()`, `expect.any(String)`, a partial match
+  instead of the full message; in Java `isGreaterThan(0)`, `isNotEmpty()`), or delete the assertion,
+  and do not disable the test (`.skip`, `.todo`, `.fixme`, a commented-out assertion, `@Disabled`).
+  Leave it failing and report the step or rule, the value the specification expects, and the value
+  the code produced. Which side is wrong is the user's call: the code (`/implement-hilla`) or the
+  specification (`/use-case-spec`).
+
+An expected value changes only when the specification has changed — see the section above.
+
 ## Use Case Traceability
 
 Both suites are **use case tests**: each verifies exactly one use case from
@@ -301,7 +320,9 @@ the project root). They demonstrate the naming conventions, the endpoint-mocking
 1. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify the main success
    scenario, alternative flows (A1, A2, …), and referenced business rules (BR-XXX)
 2. Read the view (`src/main/frontend/views/*.tsx`), the `@BrowserCallable` service, and the
-   generated client (`Frontend/generated/endpoints`) to learn the real method and DTO shapes
+   generated client (`Frontend/generated/endpoints`) to learn the real method and DTO shapes —
+   the mechanics only: the expected values the tests assert come from the specification and the
+   test data, never from what the service returns
 3. Check the frontend test environment; if Vitest is not set up, do the one-time setup above
 4. Check whether a `UseCase` annotation type exists in the project; create it if not
 5. Look for existing tests for this use case on both layers — if found, follow "If Tests for
@@ -312,10 +333,11 @@ the project root). They demonstrate the naming conventions, the endpoint-mocking
 8. Write the backend suite `UC<id><Name>ServiceTest`: seed data via Flyway test migrations,
    call the service directly, assert results and `EndpointException` flows, annotate every
    method with `@UseCase`
-9. Run both suites (`npm test -- --run` and `mvn test -Dtest=UC<id>*`) and fix failures
-10. If a frontend test fails: confirm the spied method name matches the generated client, that
+9. Run both suites (`npm test -- --run` and `mvn test -Dtest=UC<id>*`); on a failure, decide
+   first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails)
+10. If a frontend test fails in the test itself: confirm the spied method name matches the generated client, that
     every `userEvent` and `waitFor` is awaited, and that mocked DTO fields match the generated
-    types. If a backend test fails: verify the Flyway seed data and that cleanup from a
+    types. If a backend test fails in the test itself: verify the Flyway seed data and that cleanup from a
     previous run isn't leaking
 11. Mark todos complete
 12. Report the result and hand off to `/coverage-check UC-XXX` — see

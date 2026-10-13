@@ -30,8 +30,11 @@ class UC001ManagePersonsTest extends KaribuTest {
     void view_displays_grid_with_data() {
         UI.getCurrent().navigate(ManagePersonsView.class);
 
-        var grid = _get(Grid.class);
-        assertThat(GridKt._size(grid)).isGreaterThan(0);
+        // Expected values come from the Flyway test data (100 persons, sorted by first name),
+        // never from a run of the code.
+        Grid<PersonRecord> grid = _get(Grid.class);
+        assertThat(GridKt._size(grid)).isEqualTo(100);
+        assertThat(GridKt._get(grid, 0).getFirstName()).isEqualTo("Eula");
     }
 
     @Test
@@ -64,6 +67,7 @@ class UC001ManagePersonsTest extends KaribuTest {
 
         _click(_get(Button.class, spec -> spec.withCaption("Save")));
 
+        // Main success scenario step 4: the exact message the specification states
         expectNotifications("Saved successfully");
     }
 
@@ -72,11 +76,13 @@ class UC001ManagePersonsTest extends KaribuTest {
     void form_submission_creates_record() {
         UI.getCurrent().navigate(ManagePersonsView.class);
 
-        _setValue(_get(TextField.class, spec -> spec.withLabel("Name")), "Test Name");
+        _setValue(_get(TextField.class, spec -> spec.withLabel("First Name")), "Test Name");
         _click(_get(Button.class, spec -> spec.withCaption("Save")));
 
-        var grid = _get(Grid.class);
-        assertThat(GridKt._size(grid)).isEqualTo(1);
+        // Postcondition: the new person is listed — 100 from the test data plus the one created
+        Grid<PersonRecord> grid = _get(Grid.class);
+        assertThat(GridKt._size(grid)).isEqualTo(101);
+        assertThat(GridKt._findAll(grid)).extracting(PersonRecord::getFirstName).contains("Test Name");
     }
 
     @Test
@@ -84,10 +90,12 @@ class UC001ManagePersonsTest extends KaribuTest {
     void required_field_shows_validation_error() {
         UI.getCurrent().navigate(ManagePersonsView.class);
 
-        TextField nameField = _get(TextField.class, spec -> spec.withLabel("Name"));
+        TextField nameField = _get(TextField.class, spec -> spec.withLabel("First Name"));
         _setValue(nameField, "");
         _click(_get(Button.class, spec -> spec.withCaption("Save")));
 
+        // BR-002: the first name is required — message as the specification words it
         assertThat(nameField.isInvalid()).isTrue();
+        assertThat(nameField.getErrorMessage()).isEqualTo("Field is required");
     }
 }

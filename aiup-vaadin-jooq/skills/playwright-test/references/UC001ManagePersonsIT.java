@@ -20,8 +20,13 @@ import org.vaadin.addons.dramafinder.element.textfield.TextFieldElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Integration test for UC-001 "Manage Persons". Every expected value comes from the use case
+ * specification or the Flyway test data (100 persons, sorted by name), never from a run of the code.
+ */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class ExampleViewIT extends AbstractBasePlaywrightIT {
+@DisplayName("UC-001: Manage Persons")
+class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
 
     @LocalServerPort
     private int port;
@@ -33,7 +38,7 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
 
     @Override
     public String getView() {
-        return "example";
+        return "persons";
     }
 
     @Nested
@@ -46,7 +51,7 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
             GridElement grid = GridElement.get(page);
 
             // Use total count — viewport limits rendered rows
-            assertThat(grid.getTotalRowCount()).isGreaterThan(0);
+            assertThat(grid.getTotalRowCount()).isEqualTo(100);
         }
 
         @Test
@@ -67,13 +72,12 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
         @DisplayName("Selecting a row populates the form")
         void select_row_populates_form() {
             GridElement grid = GridElement.get(page);
-            var cell = grid.findCell(0, "Name");
-            String expectedName = cell.get().getCellContentLocator().innerText();
-
             grid.select(0);
 
+            // First row of the test data — not read back from the grid, which would only
+            // compare the view with itself
             TextFieldElement nameField = TextFieldElement.getByLabel(page, "Name");
-            nameField.assertValue(expectedName);
+            nameField.assertValue("Eula Lane");
         }
 
         @Test
@@ -95,7 +99,7 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
     }
 
     @Nested
-    @DisplayName("Form Validation")
+    @DisplayName("A1: Required Field Missing")
     class FormValidation {
 
         @Test
@@ -110,6 +114,7 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
             ButtonElement saveButton = ButtonElement.getByText(page, "Save");
             saveButton.click();
 
+            // BR-002: the name is required — message as the specification words it
             nameField.assertInvalid();
             nameField.assertErrorMessage("Field is required");
         }
@@ -117,7 +122,7 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
     }
 
     @Nested
-    @DisplayName("Dialog Interactions")
+    @DisplayName("A2: Delete Confirmation")
     class DialogInteractions {
 
         @Test
@@ -135,7 +140,9 @@ class ExampleViewIT extends AbstractBasePlaywrightIT {
             ButtonElement cancelButton = ButtonElement.getByText(dialog.getLocator(), "Cancel");
             cancelButton.click();
 
+            // A2: cancelling keeps the person
             dialog.assertClosed();
+            assertThat(grid.getTotalRowCount()).isEqualTo(100);
         }
 
     }
