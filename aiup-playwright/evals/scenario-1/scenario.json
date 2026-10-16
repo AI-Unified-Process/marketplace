@@ -1,0 +1,6 @@
+{
+  "description": "playwright-e2e-test: reconcile an existing UC-* end-to-end test with the specification",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether flyway-schema adds a column to an existing table (released to production, as the project's CHANGELOG.md records — the task does not say so) with a new ALTER TABLE migration instead of editing V001, derives the constraint from the entity model, marks the CHECK constraint that enforces BR-001, leaves the correct Markers rows alone, and hands over to the persistence skill.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Applied migration untouched",
+      "description": "V001__create_product_table.sql is byte-for-byte unchanged (the skill never edits a migration that may already have run; CHANGELOG.md shows it is in production)",
+      "max_score": 18
+    },
+    {
+      "name": "New ALTER TABLE migration",
+      "description": "A new file V002__<description>.sql in src/main/resources/db/migration adds the discount column with ALTER TABLE product; the description names the table or column, not the use case",
+      "max_score": 15
+    },
+    {
+      "name": "Column from the entity model",
+      "description": "discount is INTEGER NOT NULL DEFAULT 0 (the default lets existing rows satisfy NOT NULL), snake_case",
+      "max_score": 12
+    },
+    {
+      "name": "CHECK constraint for the range",
+      "description": "A CHECK constraint restricts discount to 0..50 (BETWEEN 0 AND 50 or equivalent)",
+      "max_score": 12
+    },
+    {
+      "name": "Business rule marker",
+      "description": "The CHECK constraint has '-- UC-012 BR-001: ...' on the line directly above it",
+      "max_score": 14
+    },
+    {
+      "name": "Markers rows left as they are",
+      "description": "The flyway-schema rows of the Markers table already match; docs/architecture/development.md is not changed otherwise, and no other file under docs/ is edited",
+      "max_score": 9
+    },
+    {
+      "name": "Handover and hand-off",
+      "description": "The response contains a 'Handover from flyway-schema (UC-012)' block naming the file and the new column with its constraint, and ends with 'Next: /jooq-persistence UC-012'",
+      "max_score": 12
+    },
+    {
+      "name": "No code or tests",
+      "description": "No Java classes, test classes, or test data migrations are created",
+      "max_score": 8
+    }
+  ]
+}

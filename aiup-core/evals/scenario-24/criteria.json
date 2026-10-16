@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether /use-case-test, in a Vaadin Flow + REST + jOOQ project whose Development View names the UI as the integration layer, tests UC-002 (no **Layers:** line, so offered through both the UI and the API) once in the integration layer with vaadin-flow-ui-test, runs spring-rest-test as the second entry layer for the API's own contract only (main success scenario through the endpoint, every alternative flow's response, the input validation mapping — not every business rule's boundary), runs neither jooq-persistence-test nor spring-service-test, changes no production code, and hands off to /use-case-coverage. The test skills are installed in .claude/skills.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Opening line",
+      "description": "Before the first test skill runs, the agent states in one line that vaadin-flow-ui-test (UI, the integration layer from the **Integration layer:** line) and spring-rest-test (the API as a second entry layer) run, and that the persistence and service layers are skipped because the integration layer covers them",
+      "max_score": 8
+    },
+    {
+      "name": "Both entry layers chosen from the missing Layers line",
+      "description": "The agent recognizes that UC-002 has no **Layers:** line, so every entry layer of the project offers it — the UI and the API — and does not treat it as UI-only or ask which layers to test",
+      "max_score": 10
+    },
+    {
+      "name": "UI tests cover the whole use case",
+      "description": "vaadin-flow-ui-test is run (Skill tool or its SKILL.md followed) and a UC002RegisterForWorkshopTest extending SpringBrowserlessTest drives RegisterForWorkshopView against the real service and database: the main success scenario with the message \"You are registered for <title>.\" and the registration read back, A1–A3 with their full messages, and BR-001, BR-002, and BR-003 each with an allowed and a rejected case at the boundary (last free place vs. fully booked; just over vs. under 24 hours before start; a second email vs. the same email); every method carries @UseCase(id = \"UC-002\", …); the time comes from a fixed Clock",
+      "max_score": 18
+    },
+    {
+      "name": "API tests for the contract",
+      "description": "spring-rest-test is run and a UC002RegisterForWorkshopApiTest tests the endpoint's own contract: POST /api/workshops/{id}/registrations returns 201 for the main success scenario, A1, A2, and A3 each return 409 Problem Details with the specification's full message as detail, and invalid input (blank name, malformed email) returns 400; every method carries @UseCase(id = \"UC-002\", …)",
+      "max_score": 15
+    },
+    {
+      "name": "API does not repeat the rule boundaries",
+      "description": "The API test class does not repeat the allowed and rejected boundary cases of BR-001, BR-002, and BR-003 (e.g. no 'exactly 24 hours' or 'last free place' pair); each rule is reached only through its alternative flow's rejection, and the boundaries stay in the UI tests",
+      "max_score": 10
+    },
+    {
+      "name": "No persistence or service tests",
+      "description": "jooq-persistence-test and spring-service-test are not run, and no RegistrationRepository or RegistrationService test class (UC002…RepositoryTest, UC002…ServiceTest, or similar) is written",
+      "max_score": 12
+    },
+    {
+      "name": "Bottom-up order and one annotation",
+      "description": "The test skills run in the order API, then UI; exactly one UseCase annotation is bootstrapped in the test sources (src/test/java/com/example/workshops/usecase/UseCase.java) and shared by both classes",
+      "max_score": 7
+    },
+    {
+      "name": "Production code and documents untouched",
+      "description": "No file under src/main is changed, and no file under docs/ is changed except the Markers table of docs/architecture/development.md, which gains the spring-rest-test and vaadin-flow-ui-test rows with the other rows kept",
+      "max_score": 10
+    },
+    {
+      "name": "Report and hand-off",
+      "description": "The final report lists the tests per layer and the layers skipped, says that no suite could be run instead of claiming it passed, leaves UC-002's **Status:** line alone, runs no coverage audit, and ends with `Next: /use-case-coverage UC-002`",
+      "max_score": 10
+    }
+  ]
+}

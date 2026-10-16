@@ -1,0 +1,6 @@
+{
+  "description": "angular-ui-test: UI-layer Vitest tests for a page, with a spec/code disagreement",
+  "include": [
+    "./inputs"
+  ]
+}

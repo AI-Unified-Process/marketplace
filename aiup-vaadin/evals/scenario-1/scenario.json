@@ -1,0 +1,6 @@
+{
+  "description": "hilla-ui: delegating @BrowserCallable endpoint and React view",
+  "include": [
+    "./inputs"
+  ]
+}

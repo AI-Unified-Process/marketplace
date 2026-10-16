@@ -32,21 +32,26 @@ set -euo pipefail
 # The stub accepts plugin and skill as free text so that a new skill does not force
 # an update of every repository. The guarantee moves here: only a combination of this
 # catalogue reaches a prompt. The catalogue mirrors the plugins of this marketplace -
-# the name alone would not do, because flyway-migration, implement and playwright-test
-# exist in both stack plugins and mean different work in each - and a new skill
-# changes it in the same pull request that adds the skill. It is the same list as in
-# the reusable workflow; a change touches both.
+# the name alone would not do, because implement and playwright-test exist in several
+# stack plugins and mean different work in each - and a new skill changes it in the
+# same pull request that adds the skill. Read-only skills (spec-review, the coverage
+# audits) are left out. It is the same list as in the reusable workflow; a change
+# touches both, and scripts/check-generate-catalogue.sh fails CI when the two differ
+# or a skill on disk is in neither.
 case "$PLUGIN/$SKILL" in
   aiup-core/requirements) ;;
   aiup-core/entity-model) ;;
   aiup-core/use-case-diagram) ;;
+  aiup-core/business-process) ;;
   aiup-core/use-case-spec) ;;
   aiup-core/test-case) ;;
   aiup-core/reverse-engineer) ;;
+  aiup-core/architecture) ;;
   aiup-vaadin-jooq/flyway-migration) ;;
   aiup-vaadin-jooq/implement) ;;
   aiup-vaadin-jooq/implement-hilla) ;;
   aiup-vaadin-jooq/browserless-test) ;;
+  aiup-vaadin-jooq/hilla-test) ;;
   aiup-vaadin-jooq/playwright-test) ;;
   aiup-angular-jpa/flyway-migration) ;;
   aiup-angular-jpa/implement) ;;
@@ -63,6 +68,26 @@ case "$PLUGIN/$SKILL" in
   aiup-nestjs-nextjs/nest-test) ;;
   aiup-nestjs-nextjs/react-test) ;;
   aiup-nestjs-nextjs/playwright-test) ;;
+  aiup-core/use-case-implement) ;;
+  aiup-core/use-case-test) ;;
+  aiup-core/test-case-implement) ;;
+  aiup-flyway/flyway-schema) ;;
+  aiup-jooq/jooq-persistence) ;;
+  aiup-jooq/jooq-persistence-test) ;;
+  aiup-jpa/jpa-persistence) ;;
+  aiup-jpa/jpa-persistence-test) ;;
+  aiup-spring-boot/spring-service) ;;
+  aiup-spring-boot/spring-rest) ;;
+  aiup-spring-boot/spring-service-test) ;;
+  aiup-spring-boot/spring-rest-test) ;;
+  aiup-vaadin/vaadin-flow-ui) ;;
+  aiup-vaadin/hilla-ui) ;;
+  aiup-vaadin/vaadin-flow-ui-test) ;;
+  aiup-vaadin/hilla-ui-test) ;;
+  aiup-vaadin/vaadin-e2e-test) ;;
+  aiup-angular/angular-ui) ;;
+  aiup-angular/angular-ui-test) ;;
+  aiup-playwright/playwright-e2e-test) ;;
   *)
     echo "ERROR: '$SKILL' of '$PLUGIN' is not in the catalogue of this marketplace" >&2
     exit 1 ;;
@@ -77,7 +102,9 @@ esac
 # specification it already fulfils.
 hint=""
 case "$SKILL" in
-  implement | implement-hilla | browserless-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test | playwright-test)
+  implement | implement-hilla | browserless-test | hilla-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test | playwright-test \
+    | use-case-implement | use-case-test | test-case-implement \
+    | flyway-schema | jooq-persistence | jooq-persistence-test | jpa-persistence | jpa-persistence-test | spring-service | spring-service-test | spring-rest | spring-rest-test | vaadin-flow-ui | vaadin-flow-ui-test | hilla-ui | hilla-ui-test | angular-ui | angular-ui-test | vaadin-e2e-test | playwright-e2e-test)
     # Only the skills that turn a specification into code or tests care how the
     # specification moved; the document skills rewrite their artifact as a whole.
     # The subject of these skills is the path of the specification. A subject that
@@ -107,16 +134,62 @@ esac
 # --- Run the skill ----------------------------------------------------------------
 npm install --global --no-fund --no-audit @anthropic-ai/claude-code
 
-# All plugins are installed, only the chosen one runs: telling them apart would cost
-# an extra step to save a few seconds of installation time. The marketplace is added
-# by URL, not from the clone of the stub: the plugins run at their published version,
-# the v1 tag only pins this script (docs/generate-workflow-versioning.md).
+# >>> plugin selection - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+# A project uses either layer plugins or one combined stack plugin, never both: commands
+# such as /implement exist in several stack plugins, and a layer project whose session also
+# holds a combined plugin runs the wrong skill. So only aiup-core and the plugins the run
+# needs are installed. A combined stack plugin brings everything itself. A layer run takes
+# the layer plugins that the project's Development View names in its Layers table, plus the
+# chosen plugin; without a Development View (and always for /architecture, which discovers
+# the installed layer skills to choose from) it takes every layer plugin, still without the
+# combined ones. The document skills of aiup-core need nothing but core. The skills of each
+# layer plugin are listed here because the Layers table names skills, not plugins;
+# scripts/check-generate-catalogue.sh keeps this list in step with the skills on disk.
+layer_skills="aiup-flyway:flyway-schema
+aiup-jooq:jooq-persistence aiup-jooq:jooq-persistence-test
+aiup-jpa:jpa-persistence aiup-jpa:jpa-persistence-test
+aiup-spring-boot:spring-service aiup-spring-boot:spring-service-test aiup-spring-boot:spring-rest aiup-spring-boot:spring-rest-test
+aiup-vaadin:vaadin-flow-ui aiup-vaadin:vaadin-flow-ui-test aiup-vaadin:hilla-ui aiup-vaadin:hilla-ui-test aiup-vaadin:vaadin-e2e-test
+aiup-angular:angular-ui aiup-angular:angular-ui-test
+aiup-playwright:playwright-e2e-test"
+view=docs/architecture/development.md
+all_layers=""
+from_view=""
+for pair in $layer_skills; do
+  layer_plugin=${pair%%:*}
+  layer_skill=${pair#*:}
+  case " $all_layers " in *" $layer_plugin "*) ;; *) all_layers="$all_layers $layer_plugin" ;; esac
+  if [ -f "$view" ] && grep -Eq "^\|.*\`$layer_skill\`" "$view"; then
+    case " $from_view " in *" $layer_plugin "*) ;; *) from_view="$from_view $layer_plugin" ;; esac
+  fi
+done
+case "$PLUGIN/$SKILL" in
+  aiup-vaadin-jooq/* | aiup-angular-jpa/* | aiup-blazor-dotnet/* | aiup-nestjs-nextjs/*)
+    plugins="aiup-core $PLUGIN" ;;
+  aiup-core/architecture)
+    plugins="aiup-core$all_layers" ;;
+  aiup-core/use-case-implement | aiup-core/use-case-test | aiup-core/test-case-implement)
+    if [ -n "$from_view" ]; then plugins="aiup-core$from_view"; else plugins="aiup-core$all_layers"; fi ;;
+  aiup-core/*)
+    plugins="aiup-core" ;;
+  *)
+    if [ -n "$from_view" ]; then
+      plugins="aiup-core$from_view"
+      case " $plugins " in *" $PLUGIN "*) ;; *) plugins="$plugins $PLUGIN" ;; esac
+    else
+      plugins="aiup-core$all_layers"
+    fi ;;
+esac
+echo "Plugins for $PLUGIN/$SKILL: $plugins"
+# <<< plugin selection
+
+# The marketplace is added by URL, not from the clone of the stub: the plugins run at
+# their published version, the v1 tag only pins this script
+# (docs/generate-workflow-versioning.md).
 claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.git
-claude plugin install aiup-core@ai-unified-process-marketplace
-claude plugin install aiup-vaadin-jooq@ai-unified-process-marketplace
-claude plugin install aiup-angular-jpa@ai-unified-process-marketplace
-claude plugin install aiup-blazor-dotnet@ai-unified-process-marketplace
-claude plugin install aiup-nestjs-nextjs@ai-unified-process-marketplace
+for plugin in $plugins; do
+  claude plugin install "$plugin@ai-unified-process-marketplace"
+done
 
 # The artifact locations (UC-033 BR-008) and the diff of the specification follow the
 # slash command; empty values leave the prompt as the bare command. Everything after
@@ -148,13 +221,14 @@ IS_SANDBOX=1 claude -p "$prompt" \
 # request is only open or is rejected. Nobody has to watch the pull request afterwards
 # and no second commit follows the merge.
 advance_status() {
-  # Only the two steps that move the status of a use case. The end-to-end test
-  # follows a test case, not a use case, and moves nothing.
+  # Only the steps that move the status of a use case. The end-to-end test follows
+  # a test case, not a use case, and moves nothing; neither does a layer skill run on
+  # its own, because one layer does not make a use case Implemented.
   local target english german
   case "$SKILL" in
-    implement | implement-hilla)
+    implement | implement-hilla | use-case-implement)
       target=3; english=Implemented; german=Implementiert ;;
-    browserless-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test)
+    browserless-test | hilla-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test | use-case-test)
       target=4; english=Tested; german=Getestet ;;
     *)
       return 0 ;;

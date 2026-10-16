@@ -1,0 +1,21 @@
+{
+  "name": "workshops",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@vaadin/hilla-file-router": "25.3.2",
+    "@vaadin/hilla-react-signals": "25.3.2",
+    "@vaadin/react-components": "25.3.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@testing-library/react": "16.3.0",
+    "@vitest/browser": "3.2.4",
+    "playwright": "1.55.0",
+    "vitest": "3.2.4"
+  }
+}

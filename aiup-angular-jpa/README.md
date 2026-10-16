@@ -6,6 +6,12 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # aiup-angular-jpa
 
+> **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-flyway`, `aiup-jpa`,
+> `aiup-spring-boot`, `aiup-angular`, and `aiup-playwright`, run by `/architecture`, `/use-case-implement`, `/use-case-test`, and
+> `/use-case-coverage` in `aiup-core` (3.0.0 or later). This plugin keeps working and will be removed with `aiup-core`
+> 4.0.0; do not install it together with the layer plugins in one project. See [Layered stacks](../docs/workflow.md#workflow)
+> and the [migration guide](../docs/migration.md) for moving an existing project.
+
 `aiup-angular-jpa` is the AI Unified Process construction plugin for an [Angular](https://angular.dev) frontend and a
 [Spring Boot](https://spring.io/projects/spring-boot) backend using JPA/Hibernate. It turns the artifacts produced by
 [`aiup-core`](../aiup-core/) into database migrations, a REST API, an Angular UI, and tests across both applications.
@@ -99,7 +105,7 @@ Depending on the configured agent, skills may be exposed as slash commands or in
 /plugin install aiup-angular-jpa
 ```
 
-See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+See the marketplace [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## Prerequisites
 

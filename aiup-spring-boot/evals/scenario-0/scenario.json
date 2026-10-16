@@ -1,0 +1,6 @@
+{
+  "description": "Implement the service layer of a use case on top of an existing jOOQ repository (flat module)",
+  "include": [
+    "./inputs"
+  ]
+}

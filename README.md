@@ -39,8 +39,9 @@ Inception          Elaboration                            Construction
                                                                           ↘  tests
 ```
 
-`aiup-core` owns the stack-independent path from vision to specifications. One stack plugin continues from those
-specifications into migrations, application code, and tests.
+`aiup-core` owns the stack-independent path from vision to specifications. Construction continues either with
+layer plugins — one per technology, combined per project and run by `/use-case-implement` and `/use-case-test` in `aiup-core` —
+or with one combined stack plugin.
 
 Each step reads the files produced by earlier steps. You can review or edit an artifact before continuing, and every
 later result remains traceable to the corresponding requirement or use case.
@@ -49,14 +50,44 @@ later result remains traceable to the corresponding requirement or use case.
 
 ## Choose your plugins
 
-Install `aiup-core` in every project. Add exactly one stack plugin when AI Unified Process supports the project's implementation
-stack.
+Install `aiup-core` in every project. For construction, combine **layer plugins** — one per technical layer — or add
+exactly one **combined stack plugin**. Do not mix both in one project.
+
+### Layer plugins
+
+Pick one plugin per layer the project has. `/architecture` records the combination in the Development View,
+`docs/architecture/development.md`; `/use-case-implement UC-001` runs the layer skills bottom-up, `/use-case-test UC-001` writes
+the tests from the integration layer up — the topmost layer whose tests run in process against the real database,
+except an API next to a Vaadin Flow or Hilla UI that does not call it, so the layers below need no tests of their own
+(that API still gets its own contract tests when the use case is offered through it) — and `/use-case-coverage UC-001`
+audits the result. A use case offered through only some entry
+points (an administration screen without an API) says so in its `**Layers:**` line, and only those layers are built
+and tested.
+
+| Plugin                                  | Layer                 | Skills                                                                                       |
+|-----------------------------------------|-----------------------|----------------------------------------------------------------------------------------------|
+| [`aiup-flyway`](aiup-flyway/)           | Migration             | `/flyway-schema`                                                                             |
+| [`aiup-jooq`](aiup-jooq/)               | Persistence           | `/jooq-persistence`, `/jooq-persistence-test`                                                |
+| [`aiup-jpa`](aiup-jpa/)                 | Persistence           | `/jpa-persistence`, `/jpa-persistence-test`                                                  |
+| [`aiup-spring-boot`](aiup-spring-boot/) | Service, REST API     | `/spring-service`, `/spring-rest`, `/spring-service-test`, `/spring-rest-test`               |
+| [`aiup-vaadin`](aiup-vaadin/)           | UI (Flow, Hilla), E2E | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
+| [`aiup-angular`](aiup-angular/)         | UI                    | `/angular-ui`, `/angular-ui-test`                                                            |
+| [`aiup-playwright`](aiup-playwright/)   | E2E (TypeScript)      | `/playwright-e2e-test`                                                                       |
+
+| Project                     | Plugins next to `aiup-core`                                                      |
+|-----------------------------|----------------------------------------------------------------------------------|
+| REST API, Spring Boot, jOOQ | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`                                   |
+| REST API, Spring Boot, JPA  | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`                                    |
+| Vaadin Flow or Hilla, jOOQ  | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
+| Vaadin Flow and a REST API  | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
+| Angular, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+
+### Combined stack plugins
 
 | Plugin                                      | Stack and responsibility                      | Construction skills                                                                                                                             |
 |---------------------------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`aiup-core`](aiup-core/)                   | Stack-independent analysis and specifications | `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`, `/test-case`, `/spec-review`, `/reverse-engineer` |
-| [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ                | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                                                       |
-| [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA              | Flyway, implementation, Spring Boot tests, Vitest, Playwright, coverage check                                                                   |
+| [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ (deprecated)   | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                                                       |
+| [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA (deprecated) | Flyway, implementation, Spring Boot tests, Vitest, Playwright, coverage check                                                                   |
 | [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                                                        |
 | [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                                                        |
 
@@ -65,6 +96,15 @@ sub-agent ([Vaadin](aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](aiup-angu
 specification behind it. The `/coverage-check` skill of each plugin runs that
 audit on demand and judges implementation and tests together; the implementation and testing skills end by handing
 off to it rather than running it themselves, so a construction round stays fast.
+
+`aiup-vaadin-jooq` and `aiup-angular-jpa` are deprecated in favour of the layer plugins and will be removed with
+`aiup-core` 4.0.0. The [migration guide](docs/migration.md) walks an existing project through the switch.
+`aiup-blazor-dotnet` stays a combined plugin: its Vertical Slice Architecture keeps a use case's handler and data
+access together in one slice, which horizontal layer plugins would split apart.
+
+`aiup-core` itself ships `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`,
+`/test-case`, `/spec-review`, `/reverse-engineer`, and, for layer plugins, `/architecture`, `/use-case-implement`,
+`/use-case-test`, `/use-case-coverage`, `/test-case-implement`, and `/test-case-coverage`.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,
 so the specifications can feed a custom implementation workflow.
@@ -79,20 +119,26 @@ goals, scope, and constraints. A copy-ready [vision template](docs/templates/vis
 ```text
 /plugin marketplace add ai-unified-process/marketplace
 /plugin install aiup-core
-/plugin install aiup-vaadin-jooq
+/plugin install aiup-flyway
+/plugin install aiup-jooq
+/plugin install aiup-spring-boot
 ```
 
-Replace `aiup-vaadin-jooq` with the selected stack plugin.
+This example is a REST API with Spring Boot and jOOQ; install the layer plugins of your project, or one combined
+stack plugin instead.
 
 ### Any supported agent through Tessl
 
 ```sh
 tessl init --agent agents
 tessl install ai-unified-process/aiup-core
-tessl install ai-unified-process/aiup-vaadin-jooq
+tessl install ai-unified-process/aiup-flyway
+tessl install ai-unified-process/aiup-jooq
+tessl install ai-unified-process/aiup-spring-boot
 ```
 
-Tessl installs versioned skills and maps their MCP servers into the configured agent layout.
+Tessl installs versioned skills and maps each plugin's MCP servers (its bundled `.mcp.json`) into the configured agent
+layout.
 Replace `agents` with a host-specific identifier such as `claude-code`, `cursor`, `gemini`, `codex`, `copilot`, or
 `copilot-vscode` when you do not want the vendor-neutral layout.
 
@@ -127,8 +173,11 @@ docs/
 │   └── BP-001-*.bpmn                 # /business-process (optional), read by /test-case
 ├── use_cases/
 │   └── UC-001-*.md                   # /use-case-spec
-└── test_cases/
-    └── TC-001-*.md                   # /test-case
+├── test_cases/
+│   └── TC-001-*.md                   # /test-case
+└── architecture/                     # /architecture (layer plugins only)
+    ├── README.md                     # index of the 4+1 views
+    └── development.md                # Development View: layer → technology → skill → test skill
 ```
 
 Stack plugins consume these files and place generated code and tests according to the conventions of the target
@@ -171,7 +220,9 @@ skill and document carries its copyright header and that each plugin ships `LICE
 |--------------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AI Unified Process, and create the first artifacts |
 | [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects                       |
+| [Migration guide](docs/migration.md)                         | Moving a project from `aiup-vaadin-jooq` or `aiup-angular-jpa` to the layer plugins          |
 | [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |
+| [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |
 | [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |
 | [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                                        |
 | [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis followed by Vaadin/jOOQ construction            |
@@ -188,7 +239,15 @@ marketplace/
 ├── aiup-angular-jpa/
 ├── aiup-blazor-dotnet/
 ├── aiup-nestjs-nextjs/
+├── aiup-flyway/
+├── aiup-jooq/
+├── aiup-jpa/
+├── aiup-spring-boot/
+├── aiup-vaadin/
+├── aiup-angular/
+├── aiup-playwright/
 ├── docs/
+├── pipelines/
 └── scripts/
 ```
 

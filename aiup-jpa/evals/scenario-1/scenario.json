@@ -1,0 +1,6 @@
+{
+  "description": "jpa-persistence in a hexagonal reactor: creates the outbound port and its adapter, stops at the service layer",
+  "include": [
+    "./inputs"
+  ]
+}

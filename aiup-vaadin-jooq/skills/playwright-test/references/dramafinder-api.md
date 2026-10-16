@@ -139,6 +139,11 @@ Works with `java.time.LocalDate`. The String value/`setValue(String)` uses the v
 Scope lookups within a dialog by passing `dialog.getLocator()` to another element's factory, e.g.
 `ButtonElement.getByText(dialog.getLocator(), "Confirm")`.
 
+`DialogElement` matches `<vaadin-dialog>` only. There is no wrapper for `<vaadin-confirm-dialog>` (checked up to
+`1.2.0`); in Vaadin 25 that element has the role `alertdialog` with its header as accessible name, so locate it
+with `page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName(header)).and(page.locator("vaadin-confirm-dialog"))`
+and pass that locator to `ButtonElement.getByText(locator, text)`.
+
 ### `NotificationElement`
 
 Wraps `<vaadin-notification-card>`.

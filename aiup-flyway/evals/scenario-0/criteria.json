@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether flyway-schema takes the migration location from docs/architecture/development.md in a hexagonal reactor, numbers the migration after the existing main migrations only (not the V1000 test data migration), creates only the guest table the use case needs, follows the schema conventions, marks the UNIQUE constraint that enforces BR-001, maintains its Markers rows, and hands over to the persistence skill.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Migration in the recorded location",
+      "description": "The new migration is written to hotel-persistence/src/main/resources/db/migration, not to the app, domain, or a root-level src directory",
+      "max_score": 12
+    },
+    {
+      "name": "Next version number from the main migrations",
+      "description": "The new file is V003__<description>.sql (following V001 and V002), not numbered after the V1000 test data migration, and its description names the table, not the use case",
+      "max_score": 11
+    },
+    {
+      "name": "Only the missing table",
+      "description": "The migration creates the guest table (and its sequence) and does not recreate or alter room_type or room; existing migrations are unchanged",
+      "max_score": 10
+    },
+    {
+      "name": "Sequence primary key and snake_case",
+      "description": "A sequence guest_seq is created and the id defaults to nextval('guest_seq'); no identity or auto-increment; all columns are snake_case (first_name, last_name, birth_date)",
+      "max_score": 10
+    },
+    {
+      "name": "Columns follow the entity model",
+      "description": "first_name and last_name VARCHAR(100) NOT NULL, email VARCHAR(255) NOT NULL, birth_date DATE NOT NULL, and a version INTEGER NOT NULL column (default 0) for optimistic locking",
+      "max_score": 10
+    },
+    {
+      "name": "Business rule marker on the unique constraint",
+      "description": "The UNIQUE constraint on email has an SQL comment '-- UC-003 BR-001: ...' on the line directly above it, in the qualified form",
+      "max_score": 12
+    },
+    {
+      "name": "Markers table updated",
+      "description": "docs/architecture/development.md gains the two Migration rows of flyway-schema: a Code row with the '-- UC-XXX BR-YYY:' SQL comment marker and a Name row whose location is hotel-persistence/src/main/resources/db/migration/V*__*.sql; the existing All row is unchanged and no other document under docs/ is edited",
+      "max_score": 10
+    },
+    {
+      "name": "Handover block",
+      "description": "The response ends with a 'Handover from flyway-schema (UC-003)' block listing the file, the guest table with its columns, and the constraint linked to UC-003 BR-001",
+      "max_score": 9
+    },
+    {
+      "name": "Hand-off to the persistence skill",
+      "description": "The response ends with 'Next: /jooq-persistence UC-003' (the persistence skill from docs/architecture/development.md), and does not run or suggest a coverage audit as the next step",
+      "max_score": 9
+    },
+    {
+      "name": "No code or tests",
+      "description": "No Java classes, repositories, test classes, or test data migrations are created",
+      "max_score": 7
+    }
+  ]
+}

@@ -308,9 +308,9 @@ void save_rejects_duplicate_email() {
 
 ## Templates
 
-Use [references/UC001ManagePersonsViewTest.tsx](references/UC001ManagePersonsViewTest.tsx) as
+Use [references/UC001ManagePersonsViewTest.tsx.md](references/UC001ManagePersonsViewTest.tsx.md) as
 the structure for the frontend suite and
-[references/UC001ManagePersonsServiceTest.java](references/UC001ManagePersonsServiceTest.java)
+[references/UC001ManagePersonsServiceTest.java.md](references/UC001ManagePersonsServiceTest.java.md)
 for the backend suite (both paths are relative to the folder containing this SKILL.md, not to
 the project root). They demonstrate the naming conventions, the endpoint-mocking seam, the
 `@UseCase` annotation, and how alternative flows map onto spec headings.

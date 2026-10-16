@@ -1,0 +1,15 @@
+{
+  "description": "A test case journey in a REST service without a UI or E2E layer is not automated as a browser test",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

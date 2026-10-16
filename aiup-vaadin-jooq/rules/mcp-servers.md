@@ -1,3 +1,9 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Optional MCP servers for the Vaadin/jOOQ skills
 
 The `aiup-vaadin-jooq` skills work without any MCP servers — they fall back to your
@@ -37,8 +43,8 @@ agent's MCP configuration file.
 
 ## Note for Tessl-installed users
 
-Tessl does not ship MCP server definitions with a plugin — installing this plugin via
-`tessl install` configures only the Tessl bridge. Configure the servers above manually
-if you want the enhanced documentation lookups. Users who install the plugin through
-the Claude Code marketplace get these servers automatically from the plugin's
-`.mcp.json`.
+Tessl ships these servers with the plugin: `tessl install` reads the plugin's bundled
+`.mcp.json` and writes them into the MCP configuration of each agent it configures, as
+the Claude Code marketplace install does. If your agent does not list them after the
+install — an agent Tessl does not configure, or a manual skill copy — configure the
+servers above manually as shown.

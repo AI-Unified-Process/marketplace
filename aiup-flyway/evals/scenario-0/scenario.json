@@ -1,0 +1,6 @@
+{
+  "description": "Migration layer of a use case placed in the module docs/architecture/development.md records, with a business rule marker on the constraint",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "hilla-ui-test: Vitest view tests with the endpoint mocked",
+  "include": [
+    "./inputs"
+  ]
+}

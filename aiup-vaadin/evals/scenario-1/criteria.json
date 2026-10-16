@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether hilla-ui builds a @BrowserCallable endpoint that only delegates to GuestService and a file-routed React view using the generated client and useForm, with the specification's messages verbatim, the BR marker in the view, no business logic in the endpoint, and a Handover.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "BrowserCallable endpoint",
+      "description": "A class annotated @BrowserCallable (com.vaadin.hilla) such as GuestEndpoint is created, secured with @PermitAll or @RolesAllowed, and mentions UC-020",
+      "max_score": 10
+    },
+    {
+      "name": "Endpoint only delegates",
+      "description": "Each endpoint method calls a GuestService method with the same parameter and return types — the guest list as a list(offset, limit) / count() pair passed through to the service (not a fixed page such as list(0, 1000)); the endpoint has no age or email-uniqueness check, no @Transactional, and does not use GuestRepository or DSLContext",
+      "max_score": 12
+    },
+    {
+      "name": "Errors reach the browser with their message",
+      "description": "EmailAlreadyRegisteredException (and the BR-002 IllegalArgumentException) are turned into an EndpointException carrying the service's message, not swallowed or replaced by a generic text",
+      "max_score": 10
+    },
+    {
+      "name": "File-routed view with ViewConfig",
+      "description": "A .tsx view under src/main/frontend/views/ (e.g. guests.tsx) has a default export named after the use case (e.g. RegisterGuestView), exports a ViewConfig with a title/menu entry, and carries UC-020 in a file comment",
+      "max_score": 8
+    },
+    {
+      "name": "Generated client, no fetch",
+      "description": "The view imports the endpoint from Frontend/generated/endpoints and never calls fetch or a hand-written REST client; no REST controller is created",
+      "max_score": 11
+    },
+    {
+      "name": "useForm with the generated model",
+      "description": "The form uses useForm with the generated GuestRegistrationModel and spreads field(model.x) on the first name, last name, email, and date of birth fields",
+      "max_score": 10
+    },
+    {
+      "name": "BR-002 validator with marker",
+      "description": "The view adds a client-side validator for the date of birth (addValidator via useFormPart or useForm) with the message \"The guest must be at least 18 years old\", and // UC-020 BR-002: sits directly above it",
+      "max_score": 10
+    },
+    {
+      "name": "Messages verbatim",
+      "description": "On success the view shows exactly \"Guest registered\" and reloads the list; on an EndpointError it shows the error's message",
+      "max_score": 11
+    },
+    {
+      "name": "Markers rows and Handover",
+      "description": "docs/architecture/development.md's Markers table gains the three hilla-ui rows while the All, Migration, Persistence, and Service rows stay unchanged, and the answer ends with a 'Handover from hilla-ui (UC-020)' block naming the endpoint methods, the view and its route, the labels, and the messages",
+      "max_score": 10
+    },
+    {
+      "name": "No tests, no other layer",
+      "description": "No test files are created and GuestService, GuestRepository, the records, and the migrations are unchanged",
+      "max_score": 8
+    }
+  ]
+}

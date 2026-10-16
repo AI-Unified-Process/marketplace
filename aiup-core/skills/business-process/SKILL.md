@@ -85,8 +85,8 @@ Refer to a process as `BP-XXX` in conversation, in reports, and in hand-offs.
 
 ## Template
 
-Use [references/process.bpmn](references/process.bpmn) as the structure of the semantic model and see
-[references/example.bpmn](references/example.bpmn) for a complete model with two lanes, a decision, two outcomes, and
+Use [references/process.bpmn.md](references/process.bpmn.md) as the structure of the semantic model and see
+[references/example.bpmn.md](references/example.bpmn.md) for a complete model with two lanes, a decision, two outcomes, and
 its diagram layout. Both paths are relative to the folder containing this SKILL.md, not to the project root.
 
 ## Modeling rules

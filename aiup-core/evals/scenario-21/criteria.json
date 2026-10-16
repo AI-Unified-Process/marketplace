@@ -1,0 +1,36 @@
+{
+  "context": "Tests whether /test-case-implement stops in a REST service whose Development View marks the UI and E2E layers '–': there is no browser journey to automate, the test case stays a manual script, and the chained use cases are tested with /use-case-test. The agent must not write a substitute journey test, must not suggest adding a browser E2E layer to a service without a UI, and must not change any file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Development View read",
+      "description": "The agent reads docs/architecture/development.md and names the E2E row marked '–' (and the missing UI layer) as the reason the journey cannot be automated here",
+      "max_score": 15
+    },
+    {
+      "name": "No test written",
+      "description": "No test file is created in any form — no Playwright, REST Assured, MockMvc, or other journey test for TC-001 and no single use case test — and no production code is changed",
+      "max_score": 30
+    },
+    {
+      "name": "Manual script",
+      "description": "The answer says that a project without a UI has no browser journey to automate and that TC-001 stays a manual test script",
+      "max_score": 15
+    },
+    {
+      "name": "Use cases tested with /use-case-test",
+      "description": "The answer points to /use-case-test for the use cases the journey chains, naming UC-001, UC-002, and UC-003 (e.g. /use-case-test UC-002)",
+      "max_score": 15
+    },
+    {
+      "name": "No E2E layer suggested",
+      "description": "The answer does not suggest adding an E2E layer, installing aiup-playwright or aiup-vaadin, or writing a browser test for this REST service",
+      "max_score": 15
+    },
+    {
+      "name": "Documents unchanged",
+      "description": "No file under docs/ is changed; TC-001's **Status:** line still reads Approved",
+      "max_score": 10
+    }
+  ]
+}

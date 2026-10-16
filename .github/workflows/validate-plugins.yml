@@ -23,6 +23,15 @@ jobs:
       - name: Check SKILL.md front matter against the Agent Skills limits
         run: bash scripts/check-skill-frontmatter.sh
 
+      - name: Check the layer catalog against the layer.md of every layer skill
+        run: bash scripts/check-layer-catalog.sh
+
+      - name: Check the @UseCase annotation is identical in every layer test skill
+        run: bash scripts/check-usecase-annotation.sh
+
+      - name: Check the generate workflow catalogue against the skills on disk
+        run: bash scripts/check-generate-catalogue.sh
+
       - name: Check copyright headers, LICENSE and NOTICE
         run: bash scripts/check-copyright-headers.sh
 
@@ -88,17 +97,22 @@ jobs:
 
       - name: Check BPMN path enumerator and example process
         run: |
+          # The BPMN references ship as Markdown (Tessl publishes only .md and .py files from a skill);
+          # extract the XML of the code block before handing it to the scripts.
+          extract() { awk '/^```xml$/{f=1;next} /^```$/{f=0} f' "$1" > "$2"; }
+          extract aiup-core/skills/test-case/references/example-process.bpmn.md "$RUNNER_TEMP/example-process.bpmn"
           python3 aiup-core/skills/test-case/scripts/bpmn_paths.py --self-test
-          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py \
-            aiup-core/skills/test-case/references/example-process.bpmn > /dev/null
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py "$RUNNER_TEMP/example-process.bpmn" > /dev/null
 
       - name: Check BPMN layout script and example process
         run: |
+          extract() { awk '/^```xml$/{f=1;next} /^```$/{f=0} f' "$1" > "$2"; }
+          extract aiup-core/skills/business-process/references/example.bpmn.md "$RUNNER_TEMP/example.bpmn"
+          extract aiup-core/skills/business-process/references/process.bpmn.md "$RUNNER_TEMP/process.bpmn"
           python3 aiup-core/skills/business-process/scripts/bpmn_layout.py --self-test
-          python3 aiup-core/skills/business-process/scripts/bpmn_layout.py --check \
-            aiup-core/skills/business-process/references/example.bpmn
-          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py \
-            aiup-core/skills/business-process/references/example.bpmn > /dev/null
+          python3 aiup-core/skills/business-process/scripts/bpmn_layout.py --check "$RUNNER_TEMP/example.bpmn"
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py "$RUNNER_TEMP/example.bpmn" > /dev/null
+          python3 aiup-core/skills/test-case/scripts/bpmn_paths.py "$RUNNER_TEMP/process.bpmn" > /dev/null
 
       - name: Check spec linter and eval fixtures
         run: |

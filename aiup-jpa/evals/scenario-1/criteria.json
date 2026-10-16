@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether jpa-persistence, run directly for the Persistence layer before the service layer exists, creates the domain record and the outbound port the adapter implements in a hexagonal reactor, imitates the RoomType exemplar, marks the uniqueness check with the qualified business rule marker, and stops at its layer boundary with a Handover.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Domain record without framework imports",
+      "description": "A Guest record exists in hotel-domain (e.g. com.example.hotel.domain.guest.Guest) with the entity model's fields and no jakarta.persistence, org.springframework, or Lombok import",
+      "max_score": 9
+    },
+    {
+      "name": "Outbound port as a plain sibling interface",
+      "description": "A GuestRepository interface is created in hotel-business in the guest feature package (next to where RoomTypeRepository sits for room types), not in a port subpackage, and its methods use the domain Guest type only, never an entity",
+      "max_score": 10
+    },
+    {
+      "name": "Port offers what UC-020 needs and nothing speculative",
+      "description": "The port has a save method and an email check (e.g. existsByEmail); it does not add unrelated methods such as delete or search that UC-020 does not call",
+      "max_score": 7
+    },
+    {
+      "name": "Separate entity in the adapter module",
+      "description": "GuestEntity is an @Entity in hotel-postgres (postgres.guest.model package) with explicit no-args constructor and getters, no Lombok, and its id generated from guest_seq",
+      "max_score": 8
+    },
+    {
+      "name": "Sequence allocation matches the migration",
+      "description": "The id mapping declares a @SequenceGenerator for guest_seq with allocationSize = 1, matching INCREMENT BY 1 in V2__create_guest.sql (not the default 50)",
+      "max_score": 7
+    },
+    {
+      "name": "Spring Data repository, converters, and adapter imitate RoomType",
+      "description": "GuestJpaRepository extends JpaRepository<GuestEntity, Long> in postgres.guest.query; hand-written static GuestConverter and GuestEntityConverter in postgres.guest.converter (no MapStruct); GuestRepositoryImpl annotated @Repository in postgres.guest implements the business GuestRepository port, and its save calls saveAndFlush so a unique-constraint violation surfaces inside the service method",
+      "max_score": 10
+    },
+    {
+      "name": "Qualified business rule marker on the email check",
+      "description": "The query method or adapter method that checks for an existing email carries the comment // UC-020 BR-001: directly above it",
+      "max_score": 8
+    },
+    {
+      "name": "No migration written and no ddl-auto change",
+      "description": "No new Flyway migration is created and V2__create_guest.sql is unchanged; spring.jpa.hibernate.ddl-auto is not set to update, create, or create-drop anywhere",
+      "max_score": 8
+    },
+    {
+      "name": "Stops at the layer boundary",
+      "description": "No GuestService, no GuestController, no DTO, no inbound port or use-case interface, and no test class is created",
+      "max_score": 10
+    },
+    {
+      "name": "Markers table rows added",
+      "description": "docs/architecture/development.md gains Markers rows for Persistence / jpa-persistence (Name and Code), the existing All row is kept, and no other file under docs/ is modified",
+      "max_score": 8
+    },
+    {
+      "name": "Handover block for the service layer",
+      "description": "The final report ends with a Handover from jpa-persistence (UC-020) block listing the Guest record, the GuestRepository port with its method signatures, the exception save raises for a duplicate email (DataIntegrityViolationException), and the files they live in, followed by 'Next: /spring-service UC-020'",
+      "max_score": 8
+    },
+    {
+      "name": "Domain stays free of persistence code",
+      "description": "Nothing added to hotel-domain or hotel-business imports jakarta.persistence or org.springframework.data",
+      "max_score": 7
+    }
+  ]
+}

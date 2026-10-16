@@ -56,10 +56,10 @@
 
 ## Business Rules
 
-### BR-011: Capacity limit
+### BR-001: Capacity limit
 
 A course never has more enrollments than its capacity.
 
-### BR-012: First enrollment activates
+### BR-002: First enrollment activates
 
 A student's status changes from "Registered" to "Active" with their first enrollment.

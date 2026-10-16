@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether hilla-ui-test writes a Vitest + React Testing Library suite named by the UC-XXX convention, mocks the generated GuestEndpoint with vi.spyOn, takes expected values from the specification (the view shows 'Guest saved', the spec says 'Guest registered'), does the one-time setup, and adds the one Java endpoint contract test the skill requires (role access over HTTP, the A1 EndpointException message) while leaving business rules to the existing service tests of the integration layer.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "File and describe naming",
+      "description": "The suite is a file UC-020-<slug>.test.tsx (e.g. UC-020-register-guest.test.tsx) under src/main/frontend/tests/ with a top-level describe('UC-020: Register Guest', ...) and it titles naming the scenario ('main scenario - …', 'A1: …')",
+      "max_score": 10
+    },
+    {
+      "name": "One-time Vitest setup",
+      "description": "Dev dependencies vitest, @vitest/browser-webdriverio (Vitest 4; not the separate @vitest/browser and webdriverio packages of Vitest 3), @testing-library/react, and @testing-library/user-event are added to package.json, a \"test\": \"vitest\" script is added, and a vitest.config.ts wrapping overrideVaadinConfig from ./vite.generated includes src/main/frontend/tests and sets browser.provider to webdriverio() imported from @vitest/browser-webdriverio",
+      "max_score": 8
+    },
+    {
+      "name": "Endpoint mocked with vi.spyOn",
+      "description": "GuestEndpoint from Frontend/generated/endpoints is mocked with vi.spyOn for list and register (no fetch mocking, no running server), and mocks are restored after each test",
+      "max_score": 10
+    },
+    {
+      "name": "Mock data uses generated field names",
+      "description": "Mocked guests use the Guest fields id, firstName, lastName, email, dateOfBirth, with values matching the specification or the test data",
+      "max_score": 6
+    },
+    {
+      "name": "Semantic queries and awaited userEvent",
+      "description": "Fields and buttons are found with getByLabelText / getByRole using the view's labels (First name, Last name, Email, Date of birth, Register), and every userEvent call is awaited",
+      "max_score": 7
+    },
+    {
+      "name": "Main scenario asserts the specified message",
+      "description": "The main scenario asserts that register was called with the entered values and that \"Guest registered\" — the specification's text, not \"Guest saved\" from the code — is shown, as a full-text match",
+      "max_score": 11
+    },
+    {
+      "name": "A1 via EndpointError",
+      "description": "The A1 test rejects register with new EndpointError('Email already registered') and asserts that exact message is shown",
+      "max_score": 8
+    },
+    {
+      "name": "Endpoint contract test class",
+      "description": "One Java class UC020RegisterGuestEndpointTest is written next to the service tests (src/test/java/com/example/hotel/guest/), annotated @SpringBootTest with @AutoConfigureMockMvc, and every method carries the existing @UseCase(id = \"UC-020\", ...) from com.example.hotel.usecase — no second UseCase annotation is created",
+      "max_score": 10
+    },
+    {
+      "name": "Role access tested over HTTP",
+      "description": "Because GuestEndpoint is @RolesAllowed(\"FRONT_DESK\"), access is tested over HTTP with MockMvc (POST /connect/GuestEndpoint/<method> with .with(csrf())), not by calling the bean: a FRONT_DESK user is admitted, an authenticated user with another role gets 403, and a request without authentication gets 401; spring-security-test is added to pom.xml in test scope",
+      "max_score": 9
+    },
+    {
+      "name": "A1 rejection message at the endpoint",
+      "description": "The contract test arranges A1 with an email of the test data (e.g. anna.berger@example.com) and asserts an EndpointException carrying the full message \"Email already registered\" (or, over HTTP, a 400 with that message in the body)",
+      "max_score": 7
+    },
+    {
+      "name": "Business rules left to the integration layer",
+      "description": "No GuestService test is written or changed (UC020RegisterGuestServiceTest stays as it is), and the endpoint contract test has no BR-002 age boundary cases and no data checks beyond one delegating call",
+      "max_score": 6
+    },
+    {
+      "name": "Production untouched, failure reported, hand-off",
+      "description": "guests.tsx, GuestEndpoint, and the other production files are unchanged; the answer says the main-scenario test is expected to fail on \"Guest saved\" vs \"Guest registered\", adds the four hilla-ui-test Markers rows without touching the others, and ends with Next: /vaadin-e2e-test UC-020",
+      "max_score": 8
+    }
+  ]
+}

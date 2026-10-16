@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 AI Unified Process Marketplace is a collection of plugins for Claude Code that implement the AI Unified Process
-methodology. The repository is structured as a marketplace with a two-layer architecture: a stack-agnostic core and
-technology-specific plugins.
+methodology. The repository is structured as a marketplace: a stack-agnostic core, layer plugins (one per technology
+of one technical layer, combined per project), and older combined stack plugins.
 
 ## Repository Structure
 
@@ -20,6 +20,8 @@ marketplace/
 │   ├── .mcp.json                 # context7 (Claude Code format)
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
+│   ├── agents/                   # Sub-agents (Claude Code)
+│   │   └── uc-coverage-layered.md  # Read-only coverage auditor; markers from docs/architecture/development.md
 │   └── skills/                   # All workflow steps as skills (slash commands)
 │       ├── requirements/
 │       ├── entity-model/
@@ -28,7 +30,13 @@ marketplace/
 │       ├── use-case-spec/
 │       ├── business-process/
 │       ├── test-case/
-│       └── spec-review/
+│       ├── spec-review/
+│       ├── architecture/         # writes docs/architecture/development.md (layer → skill)
+│       ├── use-case-implement/   # runs the layer skills bottom-up
+│       ├── use-case-test/        # runs the layer test skills from the integration layer up
+│       ├── use-case-coverage/    # front door to uc-coverage-layered
+│       ├── test-case-implement/  # runs the E2E test skill for a TC-* journey
+│       └── test-case-coverage/   # front door to uc-coverage-layered for a TC-* journey
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
@@ -85,6 +93,13 @@ marketplace/
 │       ├── nest-test/
 │       ├── react-test/
 │       └── playwright-test/
+├── aiup-flyway/                  # Layer plugin: migration (flyway-schema)
+├── aiup-jooq/                    # Layer plugin: persistence (jooq-persistence, jooq-persistence-test)
+├── aiup-jpa/                     # Layer plugin: persistence (jpa-persistence, jpa-persistence-test)
+├── aiup-spring-boot/             # Layer plugin: service + REST (spring-service, spring-rest, *-test)
+├── aiup-vaadin/                  # Layer plugin: UI + E2E (vaadin-flow-ui, hilla-ui, *-test, vaadin-e2e-test)
+├── aiup-angular/                 # Layer plugin: UI (angular-ui, angular-ui-test)
+├── aiup-playwright/              # Layer plugin: E2E for TypeScript (playwright-e2e-test)
 ├── docs/                         # User guides, installation docs, and reusable templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
 ├── scripts/                      # Validation and publication helpers
@@ -93,13 +108,89 @@ marketplace/
 
 ## Plugin Architecture
 
-### Two-Layer Design
+### Core, layer plugins, and combined stack plugins
 
-- **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack.
-- **vaadin-jooq** — Stack-specific: implementation and testing for the Vaadin + jOOQ stack. Requires core.
-- **angular-jpa** — Stack-specific: implementation and testing for the Angular + JPA stack. Requires core.
-- **blazor-dotnet** — Stack-specific: implementation and testing for C# / Blazor on .NET 10. Requires core.
-- **nestjs-nextjs** — Stack-specific: implementation and testing for NestJS / Drizzle and Next.js. Requires core.
+- **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack. Also
+  owns the construction orchestrators for layer plugins: `/architecture`, `/use-case-implement`, `/use-case-test`,
+  `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
+- **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
+  `aiup-playwright`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.0.0,
+  declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
+  it). Tessl's plugin manifest has no dependency field — `tessl.json` is the project file that links the directory to
+  a Tessl project — so Tessl users install core explicitly.
+- **Combined stack plugins** — UI, backend, and data access in one plugin. `aiup-vaadin-jooq` and `aiup-angular-jpa`
+  are deprecated (superseded by the layer plugins, removed with aiup-core 4.0.0). `aiup-blazor-dotnet` stays
+  combined for good: its Vertical Slice Architecture keeps a use case's handler and data access in one slice, which
+  horizontal layers would split. `aiup-nestjs-nextjs` stays until its layers are split out. Require core.
+
+A project uses either layer plugins or one combined stack plugin, never both.
+
+#### Layered construction
+
+The design answers "REST API + Spring Boot + jOOQ, no UI": a combined plugin cannot express it, a combination of
+layer plugins can. Rules that hold it together:
+
+- **The Development View is the contract, at one path.** It is always `docs/architecture/development.md`, and no
+  skill reads any other file for the layers — one path keeps every reader free of a layout rule. `/architecture`
+  writes the Layers table (layer → technology → skill → test skill → location), the `**Integration layer:**` line,
+  module layout, API contract, and commands from the template `aiup-core/skills/architecture/references/development.md`,
+  and the index `docs/architecture/README.md` from `references/architecture-readme.md` when it is missing (neither is
+  copyright-stamped; both land in the user's project).
+- **The folder is Kruchten's 4+1, the one document is `development.md`.** For most projects the Development View is
+  the whole architecture documentation; a team that writes the other views adds `logical.md`, `process.md`,
+  `physical.md`, and `adr/` next to it, and the use cases are the +1 outside the folder. `/architecture` owns only
+  the `## Layers` and `## Markers` sections, writes `## Module layout`, `## API contract`, and `## Commands` only when
+  their heading is missing, and never touches the other views or an ADR (the skills find ADRs with the glob
+  `docs/**/adr/*.md`). A `docs/architecture.md` is the team's document: `/architecture` reads it as input and, when
+  no Development View exists, asks whether to move it into the folder — it never moves it unasked.
+- **Layer plugins describe themselves.** Each build skill, and each E2E test skill, ships `references/layer.md` with
+  its catalog row (plugin, layer, skill, test skill, Tests run, Detect); `/architecture` discovers installed skills by
+  listing `*/references/layer.md` in the project's skill folders (`.claude/skills/`, `.github/skills/`, … — hidden,
+  Tessl-symlinked, and gitignored in managed mode, so a default `rg` or a `find` without `-L` misses them), in
+  `~/.claude/skills/`, and, for Claude Code marketplace installs, under each `installPath` of
+  `~/.claude/plugins/installed_plugins.json` minus plugins disabled in `enabledPlugins` (fallback: the sibling
+  plugins in the marketplace cache, newest version). Where the host lists the session's skills, that list decides
+  what is installed — the cache also holds uninstalled plugins. So a layer plugin works without a core release.
+- **Teams bring their own layer skills.** A skill with a `references/layer.md` is discovered like ours; one without
+  it counts when the user names it for a layer, and `/architecture` asks for its Tests run. The contract a layer
+  skill fulfils is `docs/guides/layer-skill.md`; keep it in step with the skeleton below. The Plugins table of
+  `references/layer-catalog.md` only names plugins to install; `scripts/check-layer-catalog.sh` keeps it and the
+  `layer.md` files in step. A new layer plugin adds a `layer.md` and, when it lives in this marketplace, its row.
+- **A use case names its entry layers.** The optional `**Layers:**` line of a use case (German `**Schichten:**`)
+  lists `UI`, `API`, or `Service` alone; without it, every entry layer of the project offers the use case. It is
+  what makes a Vaadin Flow UI plus a public REST API expressible: `/use-case-implement` builds only the named entry
+  layers, `/use-case-test` tests in the topmost in-process layer the use case uses, and the coverage agent reports no
+  gap for a layer the line leaves out. The line names entry points, never a technology; `validate_use_case.py` warns
+  on any other value.
+- **Shared rules live once, in core.** `/use-case-implement` owns inputs, status check, reconcile-existing,
+  specification gaps, and the BR marker rule; `/use-case-test` owns "If tests already exist", "When a Test Fails", and
+  "Which Layer Tests What". Layer skills and `/test-case-implement` refer to these by slash command and must not copy
+  them back; `/test-case-coverage` likewise applies the presentation rules of `/use-case-coverage`.
+- **Bottom-up with a Handover.** Layers run migration → persistence → service → API → UI (→ E2E for tests). Each layer
+  skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on.
+- **One integration layer.** The topmost layer whose test skill runs in process against the real database (the
+  catalog's Tests run column: `vaadin-flow-ui-test`, `spring-rest-test`, `spring-service-test`, the persistence
+  tests; `hilla-ui-test` and `angular-ui-test` mock the backend, the E2E skills run the application) is the
+  project's integration layer — except an API layer that serves other clients next to a UI that does not call it
+  (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI): it never counts and tests only its own
+  contract. So Flow (+ REST) → UI, Hilla (+ REST) → Service, Angular → API (the UI reaches the service through it),
+  REST only → API, no entry layer → Service. `/architecture` records it as the `**Integration layer:**` line under
+  the Layers table; `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
+  layers below, with three exceptions: a second in-process entry layer the use case is offered through (the API next
+  to a Vaadin Flow or Hilla UI) gets its own contract tests by default, even below the integration layer; tests that
+  already exist there are reconciled; and units the integration layer's skill reports it cannot reach are tested in
+  their own layer. A use case is tested once, there — every business rule with its allowed and rejected case
+  included — not once per layer. The coverage agent reads the line so a skipped layer is never a gap, but reports a
+  missing contract test of such a second entry layer as one.
+- **One `@UseCase` shape.** The Java layer test skills each carry the annotation, since no skill can link another's
+  file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ.
+- **Markers come from the project.** Each layer skill ships `references/markers.md` and keeps its own rows in the
+  Markers table of `docs/architecture/development.md` in sync; `agents/uc-coverage-layered.md` reads that table instead of a fixed
+  marker list, so core needs no knowledge of any stack's markers and no glob into another plugin.
+- **Names never collide with combined stacks.** Core's orchestrators are `use-case-<step>` and `test-case-<step>`
+  names, next to `/use-case-spec` and `/test-case`, and layer skills are `<technology>-<layer>[-test]`, so old and
+  new plugins can coexist on Tessl (`tessl__<skill>`). The names are final: they stay when the combined stacks are gone.
+- **Layer skills run standalone too** (`/jooq-persistence UC-001`), reading the same inputs and implementing one layer.
 
 ### Marketplace Configuration
 
@@ -137,6 +228,11 @@ or `../../rules/mcp-servers.md` resolves to nothing. Rules, enforced by `scripts
   carry a host prefix such as `tessl__use-case-spec`". Keep one copy of such files; do not duplicate them into every
   skill that needs them.
 - Skills hand off to other skills by slash command (`/coverage-check`), not by a link to the other `SKILL.md`.
+- A skill folder holds only `.md` and `.py` files. Tessl publishes nothing else and drops the rest silently, so a
+  `references/process.bpmn` or `references/Example.java` exists in the repository but not in the installed skill
+  (#37). Wrap such a file in Markdown as one fenced code block, named after the file it holds
+  (`references/Example.java.md`); CI extracts the XML of the BPMN examples from their code blocks before running the
+  scripts on them.
 
 ## AI Unified Process Workflow
 
@@ -144,16 +240,22 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 
 ### Core (stack-agnostic)
 
-| Phase        | Skill (slash command) | Description                                                          |
-|--------------|-----------------------|----------------------------------------------------------------------|
-| Inception    | `/requirements`       | Generate requirements from vision                                    |
-| Elaboration  | `/entity-model`       | Create entity model with Mermaid ER                                  |
-| Elaboration  | `/use-case-diagram`   | Generate PlantUML use case diagrams                                  |
-| Elaboration  | `/business-process`   | Model BPMN business processes (BP-*) from requirements and use cases |
-| Construction | `/use-case-spec`      | Write detailed use case specifications                               |
-| Construction | `/test-case`          | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
-| Any          | `/spec-review`        | Lint and review the specification artifacts against each other      |
-| Any          | `/reverse-engineer`   | Recover use case diagram, use case specs, and entity model from code |
+| Phase        | Skill (slash command)  | Description                                                          |
+|--------------|------------------------|----------------------------------------------------------------------|
+| Inception    | `/requirements`        | Generate requirements from vision                                    |
+| Elaboration  | `/entity-model`        | Create entity model with Mermaid ER                                  |
+| Elaboration  | `/use-case-diagram`    | Generate PlantUML use case diagrams                                  |
+| Elaboration  | `/business-process`    | Model BPMN business processes (BP-*) from requirements and use cases |
+| Construction | `/use-case-spec`       | Write detailed use case specifications                               |
+| Construction | `/test-case`           | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
+| Any          | `/spec-review`         | Lint and review the specification artifacts against each other       |
+| Any          | `/reverse-engineer`    | Recover use case diagram, use case specs, and entity model from code |
+| Construction | `/architecture`        | Record the layer plugins of a layered stack in the Development View  |
+| Construction | `/use-case-implement`  | Implement a use case by running the layer skills bottom-up           |
+| Construction | `/use-case-test`       | Test a use case by running the layer test skills                     |
+| Construction | `/use-case-coverage`   | Audit a UC-* in a layered stack (uc-coverage-layered agent)          |
+| Construction | `/test-case-implement` | Automate a TC-* journey by running the E2E test skill                |
+| Construction | `/test-case-coverage`  | Audit a TC-* journey in a layered stack (uc-coverage-layered agent)  |
 
 #### Spec review
 
@@ -209,7 +311,27 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
   modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in
   the sibling test-case skill folder by glob, like `spec_lint.py` — keep one copy of the parser.
 
-### Angular / JPA (stack-specific)
+### Layer plugins (Java)
+
+| Plugin             | Layer             | Skills                                                                                  |
+|--------------------|-------------------|-----------------------------------------------------------------------------------------|
+| `aiup-flyway`      | Migration         | `/flyway-schema`                                                                        |
+| `aiup-jooq`        | Persistence       | `/jooq-persistence`, `/jooq-persistence-test`                                           |
+| `aiup-jpa`         | Persistence       | `/jpa-persistence`, `/jpa-persistence-test`                                             |
+| `aiup-spring-boot` | Service, API      | `/spring-service`, `/spring-rest`, `/spring-service-test`, `/spring-rest-test`          |
+| `aiup-vaadin`      | UI, E2E           | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
+| `aiup-angular`     | UI                | `/angular-ui`, `/angular-ui-test`                                                       |
+| `aiup-playwright`  | E2E (TypeScript)  | `/playwright-e2e-test`                                                                  |
+
+Every layer skill follows the same skeleton: Instructions, Scope (consumes / produces / never touches), Run Directly
+or from /use-case-implement, technology sections with where the BR marker goes in this layer, Markers, DO NOT, Workflow,
+Handover, Resources. Hilla's `@BrowserCallable` endpoint belongs to `/hilla-ui`, not to an API layer; Vaadin Flow needs
+no API layer; an API layer next to Flow or Hilla serves other clients. `hilla-ui-test` also writes one Java endpoint
+contract test (access annotation, `EndpointException` message per flow), because neither the mocked view tests nor
+the service tests run the endpoint. A new layer plugin needs a `references/layer.md` in its build skill (or its E2E
+test skill) and a row in the Plugins table of `aiup-core/skills/architecture/references/layer-catalog.md`.
+
+### Angular / JPA (stack-specific, deprecated)
 
 | Phase        | Skill (slash command) | Description                                                   |
 |--------------|-----------------------|---------------------------------------------------------------|
@@ -234,7 +356,7 @@ skills hand off to `/coverage-check UC-XXX`.
 | Construction | `/dotnet-test`        | Create backend integration tests for EF Core and domain handlers     |
 | Construction | `/playwright-test`    | Create native C# Playwright E2E tests (`Microsoft.Playwright.Xunit`) |
 
-### Vaadin/jOOQ (stack-specific)
+### Vaadin/jOOQ (stack-specific, deprecated)
 
 | Phase        | Skill (slash command) | Description                                                           |
 |--------------|-----------------------|-----------------------------------------------------------------------|
@@ -321,8 +443,8 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
   directory, because `tessl plugin publish ./<plugin>` packages the plugin directory alone —
   a root-only NOTICE would never reach the published package.
 - Every SKILL.md, skill reference document, sub-agent definition under `aiup-*/agents/`, plugin
-  README, and `docs/` page carries an HTML-comment copyright header directly after any YAML front
-  matter.
+  rule under `aiup-*/rules/`, plugin README, and `docs/` page carries an HTML-comment copyright header
+  directly after any YAML front matter. Every plugin directory must have a README.
 - `scripts/check-copyright-headers.sh` verifies this (run in CI by `validate-plugins.yml`);
   `--fix` inserts missing headers and re-syncs the LICENSE/NOTICE copies. **New skills must carry
   the header or CI fails.**
@@ -340,6 +462,9 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
 - Skill behavior is authoritative in each `skills/*/SKILL.md`.
 - Maintainers changing the shared generation workflows must read
   [`docs/generate-workflow-versioning.md`](docs/generate-workflow-versioning.md) before moving the `v1` tag.
+  `scripts/check-generate-catalogue.sh` keeps the catalogue, the skill lists, and the plugin selection of
+  `.github/workflows/aiup-generate.yml` and `pipelines/aiup-generate.sh` identical and in step with the skills on disk;
+  a new skill is added to both, or to the script's `LEFT_OUT` list when the Studio must never run it.
 
 ## Releasing to the Tessl Registry
 
@@ -358,7 +483,9 @@ Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registr
   that set the version) when it is missing. `scripts/release-notes.sh <plugin>` writes the notes from the
   plugin's commits since its previous version, grouped by Conventional Commits type (`feat`, `fix`, other)
   with the issues from `Refs`/`Closes`/`Fixes` lines — so commit subjects are the release notes: write them
-  for users, and name the issue in the body.
+  for users, and name the issue in the body. A commit that releases several plugins gives each its own notes
+  with body lines `<plugin-dir>: <text>` (`aiup-flyway: feat: add /flyway-schema`), which replace the subject
+  for that plugin; without them every plugin gets the same subject line.
 - Adding a new plugin requires wiring it into the workflow: add it to the job `matrix` **and** to the
   `on.push.paths` filter — otherwise it is never published.
 - Each plugin's committed `evals/` scenarios are uploaded on publish and drive the registry's Impact

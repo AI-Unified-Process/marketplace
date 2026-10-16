@@ -22,14 +22,30 @@ Use the agent identifier supported by your Tessl version, such as `claude-code`,
 
 ## Install plugins
 
-Install `aiup-core` and one stack plugin:
+Install `aiup-core` and the layer plugins of your stack — Tessl does not install `aiup-core` with a layer package, so
+name it explicitly — for example a REST API with Spring Boot and jOOQ:
 
 ```sh
 tessl install ai-unified-process/aiup-core
-tessl install ai-unified-process/aiup-vaadin-jooq
+tessl install ai-unified-process/aiup-flyway
+tessl install ai-unified-process/aiup-jooq
+tessl install ai-unified-process/aiup-spring-boot
 ```
 
-Available stack packages are:
+Available layer packages are:
+
+```text
+ai-unified-process/aiup-flyway
+ai-unified-process/aiup-jooq
+ai-unified-process/aiup-jpa
+ai-unified-process/aiup-spring-boot
+ai-unified-process/aiup-vaadin
+ai-unified-process/aiup-angular
+ai-unified-process/aiup-playwright
+```
+
+Instead of layer packages, a project can use one combined stack package (`aiup-vaadin-jooq` and `aiup-angular-jpa` are
+deprecated and will be removed with `aiup-core` 4.0.0; the [migration guide](../migration.md) moves an existing project to the layer packages):
 
 ```text
 ai-unified-process/aiup-vaadin-jooq
@@ -38,7 +54,8 @@ ai-unified-process/aiup-blazor-dotnet
 ai-unified-process/aiup-nestjs-nextjs
 ```
 
-Use only `aiup-core` for an unsupported implementation stack. Use only one of the four stack packages in a project.
+Use only `aiup-core` for an unsupported implementation stack. Use either layer packages or one of the four stack
+packages in a project, never both.
 
 ## Versions and team use
 
@@ -51,7 +68,8 @@ per-agent skill links (for example `.github/skills/tessl__<skill>`) are committe
 Codespace has the skills immediately. In managed mode they are ignored by git and every clone must run
 `tessl install` first — in a Codespace, put it in the devcontainer's `postCreateCommand`.
 
-Tessl maps skills and MCP configuration into the selected agent layouts. Slash-command behavior can still differ
+Tessl maps skills and MCP configuration into the selected agent layouts: it writes the MCP servers of each plugin's
+bundled `.mcp.json` into every configured agent's MCP configuration. Slash-command behavior can still differ
 between hosts; when a command is not exposed, invoke the skill by intent, for example "implement UC-001".
 
 ## Verify the installation

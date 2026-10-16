@@ -1,0 +1,51 @@
+{
+  "name": "hotel",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "@vaadin/hilla-file-router": "25.3.2",
+    "@vaadin/hilla-frontend": "25.3.2",
+    "@vaadin/hilla-lit-form": "25.3.2",
+    "@vaadin/hilla-react-auth": "25.3.2",
+    "@vaadin/hilla-react-crud": "25.3.2",
+    "@vaadin/hilla-react-form": "25.3.2",
+    "@vaadin/hilla-react-i18n": "25.3.2",
+    "@vaadin/hilla-react-signals": "25.3.2",
+    "@vaadin/react-components": "25.3.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-router": "7.9.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "@vaadin/hilla-generator-cli": "25.3.2",
+    "@vitejs/plugin-react": "5.0.3",
+    "typescript": "5.9.2",
+    "vite": "7.1.5"
+  },
+  "vaadin": {
+    "dependencies": {
+      "@vaadin/hilla-file-router": "25.3.2",
+      "@vaadin/hilla-frontend": "25.3.2",
+      "@vaadin/hilla-lit-form": "25.3.2",
+      "@vaadin/hilla-react-auth": "25.3.2",
+      "@vaadin/hilla-react-crud": "25.3.2",
+      "@vaadin/hilla-react-form": "25.3.2",
+      "@vaadin/hilla-react-i18n": "25.3.2",
+      "@vaadin/hilla-react-signals": "25.3.2",
+      "@vaadin/react-components": "25.3.2",
+      "react": "19.1.1",
+      "react-dom": "19.1.1",
+      "react-router": "7.9.1"
+    },
+    "devDependencies": {
+      "@types/react": "19.1.13",
+      "@types/react-dom": "19.1.9",
+      "@vaadin/hilla-generator-cli": "25.3.2",
+      "@vitejs/plugin-react": "5.0.3",
+      "typescript": "5.9.2",
+      "vite": "7.1.5"
+    }
+  }
+}

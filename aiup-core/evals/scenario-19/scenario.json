@@ -1,0 +1,15 @@
+{
+  "description": "Tests of a use case in a Hilla and REST project start at the service layer as the integration layer, derived while the Integration layer line is missing",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "aiup-spring-boot",
+  "description": "AI Unified Process Spring Boot layers - service and REST API implementation and tests",
+  "version": "3.0.0",
+  "author": {
+    "name": "Simon Martinelli",
+    "email": "simon@martinelli.ch",
+    "url": "https://unifiedprocess.ai"
+  },
+  "dependencies": [
+    {
+      "name": "aiup-core",
+      "version": ">=3.0.0"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<h1>Guests</h1>
+<a routerLink="/guests/new">New Guest</a>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (guest of guests(); track guest.id) {
+            <tr>
+                <td>{{ guest.firstName }}</td>
+                <td>{{ guest.lastName }}</td>
+                <td>{{ guest.email }}</td>
+            </tr>
+        }
+    </tbody>
+</table>

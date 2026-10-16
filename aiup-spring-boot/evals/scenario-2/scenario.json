@@ -1,0 +1,6 @@
+{
+  "description": "Write service layer tests for a use case's business rules, reusing the project's UseCase annotation and Testcontainers setup",
+  "include": [
+    "./inputs"
+  ]
+}

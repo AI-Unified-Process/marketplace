@@ -1,0 +1,20 @@
+{
+  "description": "Read-only coverage audit of a UI-only use case in a Vaadin Flow and REST project with an untested business rule and a drifted alternative flow",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    },
+    "agents": {
+      "type": "directory",
+      "path": "./agents",
+      "installPath": ".claude/agents"
+    }
+  }
+}

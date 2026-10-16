@@ -139,6 +139,8 @@ void registration_fails_when_postal_code_invalid() { ... }
 
 ## Maven Dependency
 
+On Vaadin 25.1 (Browserless 1.0) one artifact holds both base classes:
+
 ```xml
 <dependency>
     <groupId>com.vaadin</groupId>
@@ -146,6 +148,21 @@ void registration_fails_when_postal_code_invalid() { ... }
     <scope>test</scope>
 </dependency>
 ```
+
+From Vaadin 25.2 (Browserless 1.1) `SpringBrowserlessTest` lives in its own artifact: a Spring Boot project declares
+`com.vaadin:browserless-test-spring` instead, next to `spring-boot-starter-test`; `browserless-test-junit6` keeps
+only `BrowserlessTest` for non-Spring projects. When `SpringBrowserlessTest` does not resolve, this artifact is what
+is missing.
+
+```xml
+<dependency>
+    <groupId>com.vaadin</groupId>
+    <artifactId>browserless-test-spring</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+The version comes from the Vaadin BOM.
 
 ## DO NOT
 
@@ -169,7 +186,7 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 
 ## Base Test Class
 
-Extend `com.vaadin.testbench.unit.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`. The base class creates the Vaadin session, UI, and component tree inside the JUnit JVM.
+Extend `com.vaadin.browserless.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`. The base class creates the Vaadin session, UI, and component tree inside the JUnit JVM.
 
 ```java
 @SpringBootTest
@@ -178,11 +195,11 @@ class PersonViewTest extends SpringBrowserlessTest {
 }
 ```
 
-For non-Spring projects, extend `com.vaadin.testbench.unit.BrowserlessTest` instead.
+For non-Spring projects, extend `com.vaadin.browserless.BrowserlessTest` instead.
 
 ## Template
 
-Use [references/UC001ManagePersonsTest.java](references/UC001ManagePersonsTest.java) as the test
+Use [references/UC001ManagePersonsTest.java.md](references/UC001ManagePersonsTest.java.md) as the test
 class structure (the path is relative to the folder containing this SKILL.md, not to the project
 root). It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
 every test method, and how to map alternative flows (`scenario = "A1: …"`) and business rules

@@ -101,6 +101,11 @@ VARCHAR, TEXT, CHAR, bigint, numeric, serial, smallint, UUID, Timestamp, or Enum
 The Length/Precision column holds the bare value (e.g. `10,2`) — never a type
 expression like `DECIMAL(10,2)`.
 
+The seven types are the complete list. Binary content (a document, an image) has no type of its own: it is a
+`String` with `-` as Length/Precision and a Description that begins with `Binary content:` (`Binary content: the
+signed contract as PDF`); its Validation Rules are `Not Null` or `Optional` as for any field. The migration
+skill of every stack maps exactly that combination to a binary column, and the persistence code follows the column.
+
 ## Validation Rules (use only these values)
 
 Compose every Validation Rules cell from this vocabulary, using the exact wording —

@@ -1,0 +1,10 @@
+{
+  "description": "Architecture of a REST service with Spring Boot and jOOQ is recorded without a UI layer while no layer plugin is installed yet",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    }
+  }
+}
