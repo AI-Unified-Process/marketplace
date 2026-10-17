@@ -43,7 +43,7 @@ in and leave the value out.
   migrations and the jOOQ classes generated from them.
 - **Produces:** repository classes, the record types they return and accept, and the jOOQ code generation setup when
   the project has none — in a hexagonal layout also the outbound port and the domain records it speaks in (see
-  "Where the Code Lives"). The Handover lists the method signatures and record types the service layer calls.
+  "Where the Code Lives"). The Handover lists the method signatures and record types the service layer (without one, the UI) calls.
 - **Never touches:** migrations (a missing table or column goes back to `/flyway-schema UC-XXX`), the service, API,
   and UI layers, generated sources, tests, and anything under `docs/` other than the Markers table of
   `docs/architecture/development.md`.
@@ -317,6 +317,11 @@ The service layer owns the transaction boundary (`@Transactional` on the service
 auto-configuration makes the `DSLContext` take part in it. Repositories carry no `@Transactional` and never call
 `ctx.transaction(...)`, unless the project's existing repositories do.
 
+**Without a service layer** (the Layers table of `docs/architecture/development.md` marks Service `–`, and a Vaadin
+Flow view calls the repository), the repository is the transaction boundary: `@Transactional(readOnly = true)` on
+the class, a plain `@Transactional` on every writing method, and a use case step that needs two writes to succeed
+together gets one repository method that performs both — never two calls from the view.
+
 ## Business Rule Markers
 
 `/use-case-implement` owns the marker rule. In this layer, the marker goes directly above the query condition that
@@ -343,7 +348,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Run one query per row of a list (N+1); use a join or `multiset`.
 - Put business decisions into a repository beyond the query condition that enforces a rule, or write a service, an
   inbound port, or an API DTO — that is the layers above.
-- Add `@Transactional` to repositories when the project does not.
+- Add `@Transactional` to repositories when the project does not and has a service layer.
 
 ## Workflow
 
@@ -401,7 +406,8 @@ Handover from jooq-persistence (UC-001)
 ```
 
 Run directly, end with a `Next:` line naming the service skill of `docs/architecture/development.md` (for example
-`Next: /spring-service UC-001`), or `Next: /use-case-implement UC-001` when the file is missing. Never run the coverage
+`Next: /spring-service UC-001`; the UI skill when Service is `–`), or `Next: /use-case-implement UC-001` when the
+file is missing. Never run the coverage
 audit.
 
 ## Resources

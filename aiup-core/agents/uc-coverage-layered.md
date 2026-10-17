@@ -144,7 +144,8 @@ out).
 
 Units are not multiplied per layer: each unit gets one row, with the evidence from whichever layers
 realize it. A business rule belongs in the service layer (and possibly also in the persistence or UI
-layer); a client-side UI that enforces a rule the service does not is `Partial`, because any other
+layer) — in a project whose Layers table marks Service `–`, in the view or form and the persistence
+layer; a client-side UI that enforces a rule the service does not is `Partial`, because any other
 client of the API bypasses it. Test evidence may come from any layer: a rule whose allowed and
 rejected cases a Browserless or API test asserts is covered without a service or repository test,
 and a missing persistence or service test is not a gap when the integration layer's tests exercise

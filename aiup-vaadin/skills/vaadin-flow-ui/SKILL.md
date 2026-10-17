@@ -4,8 +4,8 @@ description: >
   Implements the UI layer of a use case (UC-XXX) as server-side Java with Vaadin Flow: @Route views inside the
   application layout, Grids with lazy data providers that call the service layer, forms with Binder and Bean
   Validation, dialogs and ConfirmDialogs, notifications with the messages the specification states, navigation,
-  and view access control for the roles the use case names. Calls the service layer directly — no REST layer,
-  no jOOQ or JPA in a view. Use when the user asks to "build the Vaadin view for UC-001", "implement the UI layer
+  and view access control for the roles the use case names. Calls the service layer directly — or the
+  repositories, when the project has no service layer — never a REST layer, never jOOQ or JPA in a view. Use when the user asks to "build the Vaadin view for UC-001", "implement the UI layer
   with Vaadin Flow", "create a Vaadin form", "add a grid for this use case", or mentions @Route views, Binder,
   server-side Java UI, or Vaadin Flow in a project that combines layer plugins. Normally run by /use-case-implement
   after the service layer; it can be run directly. For Hilla (React) views use /hilla-ui.
@@ -22,7 +22,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Implement the UI layer of use case $ARGUMENTS with Vaadin Flow: the views, forms, grids, dialogs, and
-notifications the actor works with, written in server-side Java against the service layer. Do not create tests;
+notifications the actor works with, written in server-side Java against the service layer (or the persistence
+layer, when the project has no service layer — see "Without a Service Layer"). Do not create tests;
 `/vaadin-flow-ui-test` follows.
 
 If the Vaadin MCP server is configured, call `get_vaadin_primer` and `get_new_apis` for the project's Vaadin
@@ -43,12 +44,13 @@ in and leave the value out.
 - **Consumes** only the service API from the service layer's Handover (`spring-service`; in a hexagonal project
   the service's inbound methods): the service class, its method signatures,
   the records or DTOs it returns, and the exceptions it throws for the alternative flows. Without a Handover (run
-  directly), read the existing service classes instead.
+  directly), read the existing service classes instead. When the Layers table of `docs/architecture/development.md`
+  marks Service `–`, it consumes the persistence layer's Handover (or the existing repositories) the same way.
 - **Produces** the `@Route` views, their forms and dialogs, and the menu entry — everything the actor sees.
 - **Never touches** the service, persistence, or migration layer, jOOQ or JPA types, tests, or anything under
   `docs/` other than this skill's rows of the Markers table in `docs/architecture/development.md`. When the view needs a
-  method the service does not offer, stop and report it as a gap of the service layer; do not reach into a
-  repository, query the database from the view, or add the method yourself.
+  method the layer below does not offer, stop and report it as a gap of that layer; do not bypass a service to
+  reach a repository, query the database from the view, or add the method yourself.
 
 ## Run Directly or from /use-case-implement
 
@@ -61,6 +63,26 @@ ADRs when present, and `docs/architecture/development.md` — and apply the same
 assumption (ask, or leave that part out and list it under **Open questions**), never edit a test or a file under
 `docs/` other than the Markers table, reconcile an existing view instead of building a second one. Implement this
 layer only and say that `/use-case-implement UC-XXX` runs all layers.
+
+## Without a Service Layer
+
+A project may decide against a service layer — a thin `ui` + `domain` design, usually recorded in an ADR. The
+Layers table then marks Service `–`, and the view calls the repositories the persistence layer handed over. The
+decision is the project's; do not add a service, and read "the service" in the rest of this skill as "the
+repository":
+
+- Inject the repository through the constructor and follow the project's conventions for the field. A repository
+  holding a `DSLContext` or an `EntityManager` is not serializable: where the project keeps views serializable,
+  the field is `transient`, and listeners read the field, never a captured constructor parameter.
+- The repository's methods and record types are the view's whole API. Still no `DSLContext`, `EntityManager`, or
+  generated jOOQ record in a view.
+- No `@Transactional` in a view. Each repository call is its own transaction; a step whose writes must succeed
+  together is a gap of the persistence layer — one repository method that performs both.
+- The business rules the service would check live in the form and the view — a Binder validator, a guard, a lookup
+  before the write — together with the query condition or database constraint below where one fits. Map the
+  persistence exceptions (`DuplicateKeyException`, `DataIntegrityViolationException`, an empty `Optional`) onto
+  the alternative flow's message, on the field it concerns.
+- The view's access annotation is the only access check; there is no service to repeat it.
 
 ## Views and Routing
 
@@ -148,7 +170,8 @@ binder.forField(birthDate)
 ```
 
 A rule the UI enforces is still enforced by the service; the UI marker is in addition to the service marker,
-never instead of it.
+never instead of it. Without a service layer the UI marker is the rule's enforcement, next to the persistence or
+migration marker where the layer below enforces it too.
 
 ## Markers
 
@@ -157,8 +180,10 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
 
-- Inject a repository, `DSLContext`, `EntityManager`, or a generated jOOQ record into a view
-- Put a business rule only in the view; the service owns it, the view adds feedback
+- Inject a repository into a view when the project has a service layer, or a `DSLContext`, `EntityManager`, or a
+  generated jOOQ record ever
+- Put a business rule only in the view when there is a service; the service owns it, the view adds feedback
+- Add a service layer the Layers table marks `–`
 - Create a REST controller or a DTO the service does not already return
 - Load a whole table into a grid with `setItems(service.findAll())` when the service offers paging
 - Paraphrase a message the specification words; use it verbatim
@@ -168,8 +193,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Workflow
 
 1. Read the inputs — from `/use-case-implement`, or directly as described above.
-2. Read the service Handover (or the service classes) and the existing views, the main layout, and the security
-   configuration for the conventions to follow.
+2. Read the service Handover (or the service classes; without a service layer, the persistence Handover or the
+   repositories) and the existing views, the main layout, and the security configuration for the conventions to
+   follow.
 3. Determine the Vaadin version and the active theme from `pom.xml` and the `AppShellConfigurator`; with the Vaadin
    MCP server, read the primer for that version.
 4. Search for an existing view of this use case (the view name the spec implies, `UC-XXX` in Javadoc); if one

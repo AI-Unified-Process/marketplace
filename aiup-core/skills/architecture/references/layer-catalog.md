@@ -17,7 +17,7 @@ Process marketplace. A project combines one plugin per layer with `aiup-core`.
 | Persistence | Data access: queries, repositories, entity mapping, projections into records | Migration           |
 | Service     | Business logic: transactions, business rules, orchestration                  | Persistence         |
 | API         | Remote contract for a separate client: endpoints, DTOs, error format         | Service             |
-| UI          | Views, forms, grids, navigation                                              | Service (or API)    |
+| UI          | Views, forms, grids, navigation                                              | Service (or API)¹   |
 | E2E         | Browser tests of a use case or a test case journey                           | UI                  |
 
 A server-side UI (Vaadin Flow) and a Hilla UI call the service layer directly. Hilla's `@BrowserCallable` endpoint
@@ -25,6 +25,13 @@ is part of the Hilla UI skill, not of a separate API layer. A client-side UI (An
 reaches the service through it. An API layer next to a server-side or Hilla UI is valid: it serves other clients —
 a mobile app, a partner system — and not the UI. A REST service without a UI has no UI and no E2E layer; its API
 tests are the outermost tests.
+
+¹ **A Vaadin Flow UI may sit on the persistence layer.** A project can decide against a service layer — a thin
+`ui` + `domain` design, usually recorded in an ADR: the Service row is `–`, the view calls the repositories, the
+repository is the transaction boundary, and the view and its form enforce the business rules, with the query
+condition or database constraint below where one fits. This holds only while the Flow UI is the single entry
+point: an API layer needs the service layer, because both entry layers would have to enforce the same rules, and a
+Hilla UI needs it, because its `@BrowserCallable` endpoint is a remote API the browser calls.
 
 ## Entry layers of a use case
 

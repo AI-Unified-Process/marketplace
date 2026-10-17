@@ -41,9 +41,9 @@ in and leave the value out.
 
 - **Consumes** the Handover of the Migration layer (`/flyway-schema`): the tables, columns, sequences, and
   constraints this use case needs. Without a Handover, the existing migrations under `db/migration` are the schema.
-- **Produces** what the Service layer calls: the repositories or, in a hexagonal layout, the outbound port and its
+- **Produces** what the Service layer (without one, the UI) calls: the repositories or, in a hexagonal layout, the outbound port and its
   adapter, with the query methods and projections the use case needs — listed in the [Handover](#handover).
-- **Never touches** another layer (services, transaction boundaries, controllers, DTOs of the API, views), tests,
+- **Never touches** another layer (services, transaction boundaries outside Transactions below, controllers, DTOs of the API, views), tests,
   migrations, or anything under `docs/` other than this skill's rows of the Markers table in
   `docs/architecture/development.md`.
 
@@ -250,6 +250,11 @@ project uses it). Add only the methods this use case calls.
   persistence context. A single entity is changed by loading and modifying it.
 - Transactions belong to the service layer. Do not put `@Transactional` on repository methods for business
   transactions; a `@Modifying` query needs the caller's transaction.
+- **Without a service layer** (the Layers table of `docs/architecture/development.md` marks Service `–`, and a
+  Vaadin Flow view calls the repository), the repository is the transaction boundary: Spring Data's own methods are
+  transactional already; a custom writing method or a `@Modifying` query gets `@Transactional`, and a use case step
+  that needs two writes to succeed together gets one repository method (a `default` method or a fragment) that
+  performs both — never two calls from the view.
 
 ### Fetch strategy and N+1
 
@@ -294,7 +299,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Put a JPA, Spring, or Jakarta import in a hexagonal domain module, or return an `@Entity` through a port.
 - Invent an inbound port, a service class, a controller, or a DTO of the API — that is the layers above.
 - Add query methods "for later" that no use case calls.
-- Put business transactions or business rule decisions in a repository or an adapter.
+- Put business transactions or business rule decisions in a repository or an adapter while the project has a
+  service layer.
 - Create tests — `/jpa-persistence-test` writes them, run by `/use-case-test`.
 - Edit anything under `docs/` other than this skill's rows of the Markers table.
 
@@ -352,7 +358,8 @@ Layout: hexagonal (hotel-domain, hotel-business, hotel-postgres)
 
 For a flat layout, list the entity, the repository methods, and the projections instead of the port, and say that
 the service calls `saveAndFlush` for a write whose violation it translates. When run
-directly, add one line: `Next: /spring-service UC-XXX` (or the Service skill named in `docs/architecture/development.md`), or
+directly, add one line: `Next: /spring-service UC-XXX` (or the Service skill named in `docs/architecture/development.md`; the UI skill when
+Service is `–`), or
 `/use-case-implement UC-XXX` for all layers. Never run the coverage audit.
 
 ## Resources

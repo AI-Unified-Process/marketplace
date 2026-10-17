@@ -337,7 +337,9 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
 Every layer skill follows the same skeleton: Instructions, Scope (consumes / produces / never touches), Run Directly
 or from /use-case-implement, technology sections with where the BR marker goes in this layer, Markers, DO NOT, Workflow,
 Handover, Resources. Hilla's `@BrowserCallable` endpoint belongs to `/hilla-ui`, not to an API layer; Vaadin Flow needs
-no API layer; an API layer next to Flow or Hilla serves other clients. `hilla-ui-test` also writes one Java endpoint
+no API layer; an API layer next to Flow or Hilla serves other clients. Vaadin Flow as the only entry point may also go
+without a service layer (Service `–`, a thin `ui` + `domain` design): `/vaadin-flow-ui` then calls the repositories,
+and the persistence skills make the repository the transaction boundary. `hilla-ui-test` also writes one Java endpoint
 contract test (access annotation, `EndpointException` message per flow), because neither the mocked view tests nor
 the service tests run the endpoint. A new layer plugin needs a `references/layer.md` in its build skill (or its E2E
 test skill) and a row in the Plugins table of `aiup-core/skills/architecture/references/layer-catalog.md`.

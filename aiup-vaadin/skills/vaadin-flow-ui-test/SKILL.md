@@ -162,7 +162,8 @@ The version comes from the Vaadin BOM.
 
 ## Test Data Strategy
 
-The view calls the real service and the real database; nothing is mocked.
+The view calls the real service (or, without a service layer, the real repository) and the real database;
+nothing is mocked.
 
 An existing test data convention of the project always comes first (for example versioned test migrations in
 `src/test/resources/db/migration`). Without one, the default is:
@@ -293,7 +294,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
 
-- Mock the service with Mockito — the view runs against the real service and database
+- Mock the service or repository with Mockito — the view runs against the real layers below and the database
 - Use `@Transactional` on tests (transaction boundaries must stay intact)
 - Create test data through services, repositories, or `DSLContext` — seed through the Flyway test data; the one
   exception is the competing change a rule needs (see Test Data Strategy)
