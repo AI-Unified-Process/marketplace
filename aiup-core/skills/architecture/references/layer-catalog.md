@@ -84,6 +84,20 @@ is tested in the first row its `**Layers:**` line names; a use case without the 
 `/use-case-test` runs the test skills from that layer upwards and writes no tests of their own for the layers below;
 what each layer tests is in `/use-case-test`, "Which Layer Tests What".
 
+## E2E scope
+
+Browser tests are the slow and expensive layer, and a team decides how many it wants. With an E2E layer, the
+Development View records the decision on one line under the Integration layer table:
+
+| `**E2E scope:**`           | `/use-case-test` (UC-*)                                                  | `/test-case-implement` (TC-*) |
+|----------------------------|--------------------------------------------------------------------------|-------------------------------|
+| `Use cases and test cases` | an E2E test per use case offered through the UI, after the integration layer | the journey                   |
+| `Test cases only`          | no E2E test; the integration layer tests the use case alone              | the journey                   |
+
+A Development View without the line counts as `Use cases and test cases`, the behaviour before the line existed.
+A project without an E2E layer has no line. Only `/architecture` writes it; `/use-case-test`, the E2E test skills,
+and the coverage agent read it.
+
 ## Plugins
 
 The layer plugins of this marketplace. `/architecture` discovers the installed skills from their own

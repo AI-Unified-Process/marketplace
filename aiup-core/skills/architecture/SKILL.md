@@ -109,7 +109,7 @@ their heading is missing or they hold only the template's placeholder, and touch
 
 | Section                                | On every run                                                                                       |
 |----------------------------------------|----------------------------------------------------------------------------------------------------|
-| `## Layers`                            | Created or updated: the table, the Integration layer table, the explanation, and any decision prose under the heading |
+| `## Layers`                            | Created or updated: the table, the Integration layer table, the E2E scope line, the explanation, and any decision prose under the heading |
 | `## Markers`                           | Created when missing with the `All` row; existing rows are kept, the layer skills own theirs      |
 | `## Module layout`, `## API contract`, `## Commands` | Written when the heading is missing, or when the section still holds only the template's placeholder comment or a table with empty cells. A section with content of its own is the team's, whatever it says; leave it |
 | Header, everything else                | Written on a new file only, from the template. Never rewritten                                     |
@@ -134,7 +134,10 @@ a missing `## Markers` goes at the end of the file.
    with the layers as questions and the discovered skills (and, for a layer none covers, the catalog's plugins) as
    options, and offer `–` for a layer the project does not need. Ask about a layer even in an existing project when
    two technologies fit (both JPA and jOOQ on the classpath), and never pick one silently. A constraint in the
-   requirements that fixes a technology is not a question: name it as the reason. When there is a
+   requirements that fixes a technology is not a question: name it as the reason. With an E2E layer and no
+   `**E2E scope:**` line yet, ask in the same round whether browser tests cover use cases and test cases, or test
+   cases only (the catalog's section "E2E scope"); an ADR that already decides it is not a question either — name
+   it as the reason. When there is a
    `docs/architecture.md` and no Development View, ask in the same round whether to move it.
 4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular) needs an
    API layer, and a use case offered through its UI is built and tested in that API layer too. A server-side UI (Vaadin Flow) and a Hilla UI call the service directly and need none; an API layer
@@ -149,6 +152,9 @@ a missing `## Markers` goes at the end of the file.
      start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read
      Tests run from each `layer.md`; for a team's own skill without one, use the answer to step 3. You are the only
      skill that derives this table; the others look it up;
+   - with an E2E layer, the `**E2E scope:**` line under the Integration layer table — `Use cases and test cases` or
+     `Test cases only`, from step 3. Keep an existing line unless the user asks to change it; without an E2E layer,
+     drop the line;
    - when the section is missing or still the template's placeholder (see the table above): the Module layout and,
      with an API layer, the API contract. Record what the project does; for a new project record what the user
      chose. Without an API layer, drop the template's API contract section, as its comment says. Leave a section
@@ -200,6 +206,11 @@ the service): rewrite the Integration layer table and say that `/use-case-test` 
 API layer next to a Vaadin Flow or Hilla UI adds the API row and moves no other; say that the use cases offered
 through only one of the two need a `**Layers:**` line, and that `/use-case-implement` otherwise builds both for every
 use case.
+
+Changing the E2E scope to `Test cases only` leaves the existing use case browser tests in place: say that
+`/use-case-test` writes no new ones and the coverage agent no longer counts a missing one as a gap, and that
+deleting the existing ones is the team's call. Changing it to `Use cases and test cases` makes the next
+`/use-case-test` run of every use case offered through the UI add one.
 
 ## DO NOT
 

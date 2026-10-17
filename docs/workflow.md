@@ -35,7 +35,9 @@ Inception          Elaboration                            Construction
   `/architecture` derives it once per entry layer and records it in the Integration layer table; an API next to a
   Vaadin Flow or Hilla UI serves other clients, is the integration layer only of the use cases offered through it
   alone, and gets contract tests of its own for the use cases it offers next to the UI. A REST service without a UI uses the same skills
-  without the UI layer.
+  without the UI layer. The `**E2E scope:**` line under the Integration layer table says whether `/use-case-test`
+  adds a browser test per use case (`Use cases and test cases`, the default) or leaves browser tests to the TC-*
+  journeys (`Test cases only`).
 
 The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:
 the combined plugins do not read `docs/architecture/development.md`. The boundary between `aiup-core` and construction is the set

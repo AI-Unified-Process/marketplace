@@ -69,6 +69,11 @@ A test case is the user's call to fix on either side too: the code (`/use-case-i
 If the argument is a name without a prefix, locate the document (`docs/use_cases/` vs `docs/test_cases/`, or the
 heading `# Use Case:` vs `# Test Case:`); if it is still ambiguous, ask which artifact is meant.
 
+A use case test needs the use case in the E2E scope: when the `**E2E scope:**` line of
+`docs/architecture/development.md` reads `Test cases only`, run directly with a `UC-*`, say that the project keeps
+browser tests to its journeys and ask before writing one; `/use-case-test UC-XXX e2e` is the explicit request and
+needs no question. A test case is in scope under either value.
+
 ## Setup
 
 Check `package.json` and the repository root first. When `@playwright/test` and `playwright.config.ts` exist, use

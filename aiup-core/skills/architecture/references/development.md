@@ -34,6 +34,12 @@ names, or in the first row when it has no such line. That layer's tests run in p
 and exercise every layer below it, so `/use-case-test` runs its test skill and the ones above it and writes no tests
 of their own for the layers below unless a run names them (`/use-case-test UC-001 persistence`).
 
+**E2E scope:** Use cases and test cases
+
+`Use cases and test cases`: `/use-case-test` adds a browser test to every use case offered through the UI, and
+`/test-case-implement` automates the TC-* journeys. `Test cases only`: browser tests are written for the journeys
+alone, and a use case is tested in its integration layer. A project without an E2E layer drops the line.
+
 ## Module layout
 
 <!-- Flat single module or hexagonal multi-module; the root package; where each layer's code and tests live. -->

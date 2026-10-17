@@ -3,10 +3,10 @@ name: use-case-test
 description: >
   Writes the tests for a use case (UC-XXX) by running the test skills recorded in
   docs/architecture/development.md from the integration layer up — looked up in its Integration layer table for the
-  entry layer the use case is offered through — plus end-to-end; a lower layer gets tests only as a second entry layer or when named. Owns the rules every
+  entry layer the use case is offered through — plus E2E per the E2E scope; a lower layer gets tests only as a second entry layer or when named. Owns the rules every
   test layer shares: the specification is the oracle, a test that disagrees with the code stays failing, existing
   tests are reconciled rather than duplicated, and every test carries the use case id. Use when the user asks to
-  "test UC-001", "write the tests for this use case", "test only the service layer of UC-001",
+  "test UC-001", "write the tests for this use case", "test only the service layer",
   or mentions tests for a use case in a project that combines layer plugins (aiup-jooq, aiup-jpa,
   aiup-spring-boot, aiup-vaadin, aiup-angular, aiup-playwright). With a combined stack plugin (aiup-vaadin-jooq,
   aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs), use its test skills. A TC-* journey is
@@ -39,7 +39,7 @@ test; name the file it lives in and leave the value out.
 | Token                                                     | Meaning                                                            |
 |-----------------------------------------------------------|--------------------------------------------------------------------|
 | `UC-001`, `UC001`, or a path to a specification            | the use case — normalise to `UC-001`                               |
-| `persistence`, `service`, `api`, `ui`, `e2e`               | run exactly the named layers, in bottom-up order — also a layer below the integration layer, which otherwise gets no tests; never an entry layer the `**Layers:**` line leaves out |
+| `persistence`, `service`, `api`, `ui`, `e2e`               | run exactly the named layers, in bottom-up order — also a layer below the integration layer, which otherwise gets no tests, and `e2e` under an E2E scope of `Test cases only`; never an entry layer the `**Layers:**` line leaves out |
 | a diff after the path                                     | the specification change the tests must follow — see below         |
 
 ## If Tests for This Use Case Already Exist
@@ -107,7 +107,9 @@ there — not once per layer:
   lower layer is written only when the arguments name it.
 - **A UI layer above the integration layer** whose tests mock the backend (Hilla, Angular) tests what the UI
   decides and that a rejection reaches the actor with the specified message, not the rule again.
-- **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule.
+- **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule — and
+  only when the `**E2E scope:**` line under the Integration layer table reads `Use cases and test cases` or is
+  missing. `Test cases only` leaves browser tests to `/test-case-implement`: the use case gets none.
 - **A second entry layer that also runs in process** — an API next to a Vaadin Flow or Hilla UI, both of which the
   use case offers — tests its own contract, not the use case again: the main success scenario through its entry point, every
   alternative flow's response or message as the caller sees it, and the input validation mapping. A business
@@ -121,7 +123,8 @@ repeats another layer.
 
 **The use case's own integration layer.** The `**Layers:**` line of the use case (German `**Schichten:**`) names the
 entry layers that offer it — `UI`, `API`, or `Service` alone; without the line, every entry layer of the project
-does. The layers it leaves out get no tests, and E2E runs only when the use case is offered through the UI. A
+does. The layers it leaves out get no tests, and E2E runs only when the use case is offered through the UI and the
+E2E scope covers use cases. A
 client-side UI that reaches the service through the API (Angular) implies its API layer: `UI` there runs the API
 test skill too, as the integration layer (the layer catalog of `/architecture`, "Entry layers of a use case"). An
 entry layer the line names that the Layers table marks `–` is a contradiction between the specification and the
@@ -142,7 +145,8 @@ Run each test skill by its name from the Test skill column with the id as argume
 another skill, locate `*<skill>/SKILL.md` in the skill folders `/architecture` names in "The layer skills" —
 hidden, often symlinked and gitignored, so list them directly (the folder may carry a host prefix such as
 `tessl__`) — and follow it as an instruction document. Before the first layer, state in one line what will run,
-which layers are skipped because the integration layer covers them, and which the `**Layers:**` line leaves out.
+which layers are skipped because the integration layer covers them, which the `**Layers:**` line leaves out, and
+whether the E2E scope leaves out the E2E layer.
 
 ## Workflow
 
@@ -151,8 +155,8 @@ which layers are skipped because the integration layer covers them, and which th
    `**Requirements:**` line — exactly those rows — because a linked NFR or constraint with an observable limit needs
    a test too.
 2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
-3. Read the Development View, `docs/architecture/development.md`, its Integration layer table, and the use
-   case's `**Layers:**` line. When the Development View does not exist, stop and hand off to `/architecture`, which
+3. Read the Development View, `docs/architecture/development.md`, its Integration layer table and the
+   `**E2E scope:**` line under it, and the use case's `**Layers:**` line. When the Development View does not exist, stop and hand off to `/architecture`, which
    also offers to move a `docs/architecture.md` into the folder; when only the Integration layer table is
    missing, stop and hand off to `/architecture` as well. Stop on a contradiction between the `**Layers:**` line
    and the Layers table (see "Which Layer Tests What").
@@ -161,7 +165,8 @@ which layers are skipped because the integration layer covers them, and which th
 5. Decide which layers run. With layer tokens in the arguments, exactly the named layers run. Without, the
    default set runs: the use case's integration layer, every layer above it that the use case uses, every other
    entry layer the use case uses whose test skill runs in process (the API next to a Vaadin Flow or Hilla UI), and
-   every lower layer with existing tests. Either way skip every layer marked `–`, every row whose Test skill is `–` (the
+   every lower layer with existing tests — but not the E2E layer when the E2E scope reads `Test cases only`, also
+   not to reconcile existing browser tests of the use case (leave them as they are). Either way skip every layer marked `–`, every row whose Test skill is `–` (the
    migration layer has none), and every entry layer the `**Layers:**` line leaves out. When a test skill of a layer
    that runs is not installed (by the rules of `/architecture`, section "The layer skills"), name the plugin that
    ships it — or, for a skill no catalog plugin ships, say the team's skill is missing — and stop; a skill missing for a layer that does not

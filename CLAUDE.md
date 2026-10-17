@@ -187,6 +187,12 @@ layer plugins can. Rules that hold it together:
   their own layer. A use case is tested once, there — every business rule with its allowed and rejected case
   included — not once per layer. The coverage agent reads the table so a skipped layer is never a gap, but reports a
   missing contract test of such a second entry layer as one.
+- **The E2E scope is the team's decision, recorded once.** With an E2E layer, `/architecture` writes the line
+  `**E2E scope:** Use cases and test cases` or `Test cases only` under the Integration layer table — asked in its
+  question round, or taken from an ADR that decides it. `/use-case-test` runs the E2E test skill for a use case only
+  under the first value (a missing line counts as it); the coverage agent then reports a missing use case browser
+  test as a gap, under `Test cases only` it does not. TC-* journeys are in scope under either value. The rule lives
+  in the section "E2E scope" of `layer-catalog.md`.
 - **One `@UseCase` shape.** The Java layer test skills each carry the annotation, since no skill can link another's
   file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ.
 - **Markers come from the project.** Each layer skill ships `references/markers.md` and keeps its own rows in the
