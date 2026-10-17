@@ -51,7 +51,8 @@ these sections of it to the journey, reading "use case" as "test case":
   a diff after the path is the definitive list of what changed.
 - **When a Test Fails** — the test case is the oracle: an expected value comes from the Flow table, the test data,
   or the Validation items, never from what the application shows.
-- **Test Markers** — the test carries the `TC-XXX` id and names each step after its Flow row.
+- **Test Markers** — the test carries the `TC-XXX` id and names each step after its Flow row; where the E2E rows of
+  the Markers table prescribe it, it also names the use cases the Flow links (`@TestCase(useCases = …)` in Vaadin).
 
 If `/use-case-test` is not installed, say so and stop; aiup-core ships both skills together.
 

@@ -162,6 +162,11 @@ missing use case browser test is no gap and the E2E rows of the Markers table ne
 an existing one still counts as evidence. A test case (TC-*) needs its journey test under either
 value.
 
+**Journey itinerary.** When an E2E marker names the use cases a journey walks (Vaadin's
+`@TestCase(id = "TC-XXX", useCases = {…})`), compare that list with the use cases the Flow table's
+Use Case column links. A use case in one and not the other is drift, in either direction; a journey
+test whose E2E row prescribes such a marker and lacks it is a traceability gap.
+
 **Domain vocabulary** — an implementation written before those conventions existed still counts.
 Derive the likely names from the specification (the view or page the actor works in, the entity and
 its repository or handler, the literal labels and messages the steps mention) and grep for those

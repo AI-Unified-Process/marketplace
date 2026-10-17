@@ -4,9 +4,10 @@ description: >
   Writes the end-to-end tests of a Vaadin application (Flow or Hilla) with Playwright for Java and the Drama
   Finder library's type-safe, accessibility-first element wrappers, against the running application. Two kinds:
   a use case test (UC-XXX) — one class UC<id><Name>IT with @Nested groups per alternative flow — and a test case
-  journey (TC-XXX) — one class TC<id><Name>IT walking the whole Flow table across views in a single test with a
-  // Step <n>: comment per row. Use when the user asks to "write Playwright tests", "write E2E tests for UC-001",
-  "automate TC-001", "test the user journey in the browser", "write IT tests", or mentions end-to-end, browser
+  journey (TC-XXX) — one class TC<id><Name>IT, annotated @TestCase(id, useCases) with the use cases its Flow links,
+  walking the whole Flow table across views in a single test with a // Step <n>: comment per row. Use when the user
+  asks to "write Playwright tests", "write E2E tests for UC-001", "automate TC-001", "test the user journey in the
+  browser", "write IT tests", or mentions end-to-end, browser
   tests, Playwright for Vaadin, or Drama Finder in a project that combines layer plugins. Normally run by /use-case-test
   as the last layer, and the only one /test-case-implement TC-XXX runs; it can be run directly.
 ---
@@ -47,7 +48,8 @@ leave the value out.
 
 - **Consumes** the running application, the use case or test case document, the use cases a test case's Flow
   links, and the project's test data.
-- **Produces** one `UC<id><Name>IT` or `TC<id><Name>IT` class under `src/test/java`.
+- **Produces** one `UC<id><Name>IT` or `TC<id><Name>IT` class under `src/test/java`, and the `@TestCase` annotation
+  in the test sources when a journey needs it and the project has none.
 - **Never touches** production code, the tests of other layers, or anything under `docs/` other than this skill's
   rows of the Markers table in `docs/architecture/development.md`.
 
@@ -123,16 +125,51 @@ A test case document (sections **Overview**, **Roles**, **Preconditions**, **Flo
 end state are the subject; do not re-test each use case's details here.
 
 One test case → one class `TC<id><PascalCaseName>IT` (`TC-001-customer-onboarding.md` →
-`TC001CustomerOnboardingIT`). Start from
+`TC001CustomerOnboardingIT`), annotated `@TestCase(id = "TC-001", useCases = {"UC-001", "UC-004"})`. Start from
 [references/TC001CustomerOnboardingIT.java.md](references/TC001CustomerOnboardingIT.java.md).
+
+`@TestCase` sits on the class, because a test case has one coverage unit, the journey, where `@UseCase` sits on a
+method. `useCases` is the journey's itinerary, which the class name cannot carry: every use case the Use Case column
+of the Flow table links, each once, in the order of their first row — no more and no fewer, so a sensor or the
+coverage audit can compare the two in both directions. When the Flow changes, change the list with it.
+
+**Bootstrap step.** Before writing a journey, search the test sources of the module under test for
+`@interface TestCase` and reuse the annotation when it is there. Create it only when it is missing, next to
+`UseCase.java` (`src/test/java/<root package>/usecase/TestCase.java`), never in `src/main/java`. A project's own
+annotation counts when it has `id` and `useCases`; otherwise create it with exactly this shape:
+
+```java
+package com.example.app.usecase;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Marks the journey test that automates a docs/test_cases/TC-XXX-*.md document and names the use cases its Flow
+ * table links, in the order of their first row.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface TestCase {
+
+    String id();
+
+    String[] useCases();
+
+}
+```
 
 | Test case section          | Test code                                                                                             |
 |----------------------------|-------------------------------------------------------------------------------------------------------|
-| **Overview** (ID, Goal)    | `@DisplayName("TC-001: <goal>")` on the journey's `@Test` method (or the class)                        |
+| **Overview** (ID, Goal)    | `@TestCase(id = "TC-001", useCases = {…})` on the class; `@DisplayName("TC-001: <goal>")` on the journey's `@Test` method |
 | **Roles**                  | Log in as that role if the application has authentication                                             |
 | **Preconditions**          | The test data (see Test Data); assert them at the start if cheap to check                            |
 | **Flow** table             | One private step method per row, called in order from a single `@Test`, each call with `// Step <n>: <name>` |
-| Flow **Use Case** column   | Read the linked `UC-*.md` — they define the routes, labels, and messages the step interacts with       |
+| Flow **Use Case** column   | Read the linked `UC-*.md` — they define the routes, labels, and messages the step interacts with; their ids are `@TestCase(useCases)` |
 | Flow **Test Data** column  | The literal values the step enters                                                                    |
 | **Validation**             | Final assertions after the flow (or at the step where the rule becomes observable)                    |
 | **Postconditions**         | The `@AfterEach` cleanup, in the stated order (dependent records first); without the section, derive the created data from the Flow |
@@ -212,9 +249,11 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 1. Decide the test type: use case (UC-*) or journey (TC-*).
 2. Read the inputs — from `/use-case-test` or `/test-case-implement`, or directly as described above; for a journey, every use case its Flow links.
 3. Look for an existing `UC<id>*IT` / `TC<id>*IT` class; reconcile instead of duplicating.
-4. Plan: `@Nested` groups per scenario for a use case; one private step method per Flow row for a journey.
+4. Plan: `@Nested` groups per scenario for a use case; one private step method per Flow row for a journey, and the
+   `@TestCase` annotation (bootstrap step) with the use cases the Flow links.
 5. Look up every element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md).
-6. Write the class: `AbstractBasePlaywrightIT`, `@SpringBootTest(webEnvironment = RANDOM_PORT)`, `getUrl()`,
+6. Write the class: `AbstractBasePlaywrightIT`, `@SpringBootTest(webEnvironment = RANDOM_PORT)`, `@TestCase` for a
+   journey, `getUrl()`,
    `getView()`, the tests with expected values from the specification and test data, and the `@AfterEach` cleanup.
 7. Run it (`./mvnw verify -Pit -Dit.test=UC001*IT`, or the End-to-end tests command in `docs/architecture/development.md`).
    On a failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check that the view loaded,

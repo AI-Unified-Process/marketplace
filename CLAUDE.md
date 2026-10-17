@@ -194,7 +194,9 @@ layer plugins can. Rules that hold it together:
   test as a gap, under `Test cases only` it does not. TC-* journeys are in scope under either value. The rule lives
   in the section "E2E scope" of `layer-catalog.md`.
 - **One `@UseCase` shape.** The Java layer test skills each carry the annotation, since no skill can link another's
-  file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ.
+  file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ. A Java
+  journey carries `@TestCase(id, useCases)` on the class, `useCases` being the use cases its Flow table links;
+  only `/vaadin-e2e-test` writes it, so its one copy needs no check until a second Java E2E skill exists.
 - **Markers come from the project.** Each layer skill ships `references/markers.md` and keeps its own rows in the
   Markers table of `docs/architecture/development.md` in sync; `agents/uc-coverage-layered.md` reads that table instead of a fixed
   marker list, so core needs no knowledge of any stack's markers and no glob into another plugin.

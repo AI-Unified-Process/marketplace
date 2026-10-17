@@ -14,6 +14,7 @@ package com.example.app.e2e;
 
 import java.util.List;
 
+import com.example.app.usecase.TestCase;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
@@ -41,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * AssertJ's assertThat checks values; PlaywrightAssertions.assertThat checks locators and retries.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestCase(id = "TC-001", useCases = {"UC-001", "UC-004"})
 class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
 
     private static final String CUSTOMER_NAME = "Jane Doe";
