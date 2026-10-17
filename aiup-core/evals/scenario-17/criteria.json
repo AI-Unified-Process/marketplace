@@ -18,6 +18,11 @@
       "max_score": 15
     },
     {
+      "name": "E2E scope recorded",
+      "description": "Under the Integration layer table, docs/architecture/development.md has the line `**E2E scope:** Test cases only`, taken from the team's decision in the task rather than asked again or guessed",
+      "max_score": 10
+    },
+    {
       "name": "Layers line explained",
       "description": "The report or the Development View says that a use case offered through only the UI or only the API names it in its **Layers:** line (e.g. FR-002 opening hours is UI only), and that without the line both layers are built",
       "max_score": 15
@@ -30,12 +35,12 @@
     {
       "name": "Index written",
       "description": "docs/architecture/README.md exists and names development.md as the Development View; no logical, process, or physical view file is written",
-      "max_score": 10
+      "max_score": 5
     },
     {
       "name": "Nothing else changed",
       "description": "No Java source is written, pom.xml is unchanged, and docs/requirements.md is unchanged",
-      "max_score": 10
+      "max_score": 5
     }
   ]
 }

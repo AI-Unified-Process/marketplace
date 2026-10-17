@@ -242,7 +242,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    Vitest suite.
 8. Update this skill's rows of the Markers table.
 9. Report the tests written, the command, and the result, listing every test left failing with the expected and
-   actual value. End with `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer, otherwise
+   actual value. End with `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer and
+   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
    `Next: /use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources

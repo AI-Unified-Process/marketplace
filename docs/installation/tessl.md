@@ -22,8 +22,9 @@ Use the agent identifier supported by your Tessl version, such as `claude-code`,
 
 ## Install plugins
 
-Install `aiup-core` and the layer plugins of your stack — Tessl does not install `aiup-core` with a layer package, so
-name it explicitly — for example a REST API with Spring Boot and jOOQ:
+Install `aiup-core` and the layer plugins of your stack. Tessl does not install a package's dependencies, so name
+them explicitly: every layer package needs `aiup-core`, and `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also need
+`aiup-spring-boot`. For example a REST API with Spring Boot and jOOQ:
 
 ```sh
 tessl install ai-unified-process/aiup-core

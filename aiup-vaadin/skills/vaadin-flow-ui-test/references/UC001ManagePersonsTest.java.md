@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * vaadin-flow-ui Handover and the specification.
  */
 @SpringBootTest
+@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 @WithMockUser(roles = "ADMIN")   // the actor's role, as @RolesAllowed("ADMIN") on the view
 class UC001ManagePersonsTest extends SpringBrowserlessTest {
 

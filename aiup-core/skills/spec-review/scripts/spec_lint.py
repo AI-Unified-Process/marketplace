@@ -50,7 +50,8 @@ Markdown tables (or JSON with --format json), followed by the requirement
 coverage: how many active requirements are linked to a use case, have every
 such use case in a test case, and are Verified by their use cases' status,
 with the ids that stop at each stage. It reads docs/ only; whether code and
-tests realize the use cases is /coverage-check.
+tests realize the use cases is /use-case-coverage (layer plugins) or
+/coverage-check (combined stack plugins).
 
 --report prints one self-contained HTML page instead: summary counts, the
 requirement coverage, the trace matrix with requirement titles, test case →

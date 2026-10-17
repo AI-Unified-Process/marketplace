@@ -56,6 +56,7 @@ Testing is not carried over; Browserless Testing supersedes it.
 
 ```sh
 tessl install ai-unified-process/aiup-core
+tessl install ai-unified-process/aiup-spring-boot
 tessl install ai-unified-process/aiup-vaadin
 ```
 
@@ -67,8 +68,9 @@ tessl install ai-unified-process/aiup-vaadin
 /plugin install aiup-vaadin
 ```
 
-Install the plugins of the other layers (`aiup-flyway`, `aiup-jooq` or `aiup-jpa`, `aiup-spring-boot`) the same
-way. Do not combine layer plugins with the combined `aiup-vaadin-jooq` plugin in one project. See the marketplace
+Claude Code installs `aiup-core` and `aiup-spring-boot` with this plugin; Tessl does not, so name them as above.
+Install the plugins of the other layers (`aiup-flyway`, `aiup-jooq` or `aiup-jpa`) the same way. Do not combine
+layer plugins with the combined `aiup-vaadin-jooq` plugin in one project. See the marketplace
 [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## MCP servers

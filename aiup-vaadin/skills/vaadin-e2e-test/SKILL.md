@@ -103,7 +103,9 @@ in through the login view as the role the actor has, with test users from the te
 An existing test data convention of the project always comes first (for example versioned test migrations in
 `src/test/resources/db/migration`). Without one, the default is a repeatable Flyway migration per use case,
 `src/test/resources/db/testdata/R__uc<id>_<slug>.sql` (for a journey, the files of the use cases its Flow links),
-with `classpath:db/testdata` added to `spring.flyway.locations` in the test configuration. A use case's
+with the location added on the test class
+(`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`), not in a
+`src/test/resources/application.properties`, which would shadow the main configuration. A use case's
 **Preconditions** and a test case's **Preconditions** are satisfied by that data; extend it when they are not,
 rather than inserting through back doors. A test that creates data cleans it up in `@AfterEach` — through the UI
 or targeted deletes — idempotently, because the test may have failed midway. For a journey, the document's

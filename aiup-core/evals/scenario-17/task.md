@@ -11,7 +11,8 @@ An architect once wrote `docs/architecture.md` by hand. The team has agreed to m
 as the Development View, keeping what it says.
 
 Before the first use case is implemented, the team wants the technical layers recorded, so that the construction
-skills know which layer skills to run.
+skills know which layer skills to run. Browser tests are slow on the clinic's build server, so the team wants them
+only for the end-to-end test cases, not for every use case.
 
 ## Output Specification
 

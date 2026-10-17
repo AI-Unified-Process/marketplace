@@ -8,7 +8,8 @@ project follows the AI Unified Process; the requirements catalog, the entity mod
 `docs/`, all approved.
 
 Before the first use case is implemented, the team wants the technical layers recorded, so that the construction
-skills know which layer skills to run.
+skills know which layer skills to run. The team wants browser tests for every use case offered through the UI as
+well as for the end-to-end test cases.
 
 ## Output Specification
 

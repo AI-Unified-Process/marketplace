@@ -297,7 +297,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; the
   only file it writes is the generated page `docs/spec-report.html`, on `/spec-review report` alone. It
   hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
-  `docs/`; `/coverage-check` compares specifications with code and stays stack-specific.
+  `docs/`; comparing specifications with code is `/use-case-coverage` (layer plugins) or a combined stack's
+  `/coverage-check`.
 
 The glossary (`docs/glossary.md`, columns `Term | Definition | Avoid`) is written by `/requirements` from the
 template `skills/requirements/references/glossary.md`; `/use-case-spec` and `/reverse-engineer` use its terms.

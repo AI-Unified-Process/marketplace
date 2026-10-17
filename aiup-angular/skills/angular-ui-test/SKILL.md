@@ -166,7 +166,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    `whenStable()`, an unexpected request `verify()` reports); leave a disagreement with the specification failing.
 8. Update the Markers table of `docs/architecture/development.md` — see [Markers](#markers).
 9. Report: the tests written, the command and its result, and every test left failing with expected and actual
-   value. Run directly, end with `Next: /playwright-e2e-test UC-XXX` when the project has an E2E layer, otherwise
+   value. Run directly, end with `Next: /playwright-e2e-test UC-XXX` when the project has an E2E layer and
+   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
    `Next: /use-case-coverage UC-XXX`. Do not run the coverage audit.
 
 ## Resources

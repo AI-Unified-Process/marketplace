@@ -173,10 +173,11 @@ An existing test data convention of the project always comes first (for example 
 | Repeatable Flyway migration    | `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`     | Test data of one use case |
 | Manual cleanup                 | `@AfterEach` method                                       | Remove test-created data |
 
-Add `classpath:db/testdata` to `spring.flyway.locations` in the test configuration
-(`src/test/resources/application.properties`) when it is not there yet. The use case's preconditions are
-satisfied by the test data; extend the use case's test data file when they are not. Remove only the data a test
-created, through the UI or a targeted delete, and make the cleanup idempotent.
+Add the location on the test class
+(`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`), not in
+a `src/test/resources/application.properties`, which would shadow the main configuration. The use case's
+preconditions are satisfied by the test data; extend the use case's test data file when they are not. Remove only
+the data a test created, through the UI or a targeted delete, and make the cleanup idempotent.
 
 A rule that needs a competing change — a stale version on save, an email registered after the actor opened the
 form — arranges that row through the repository or service after the view has loaded the original. This is the one
@@ -325,8 +326,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 7. Update this skill's rows of the Markers table.
 8. Report the tests written, the command, and the result, listing every test left failing with the expected and
    actual value, and every unit of the specification no view of this use case reaches. End with
-   `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer, otherwise `Next: /use-case-coverage UC-XXX`. Never
-   run the coverage audit.
+   `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer and
+   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
+   `Next: /use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources
 

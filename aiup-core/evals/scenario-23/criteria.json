@@ -5,7 +5,7 @@
     {
       "name": "Layers from the installed skills",
       "description": "The Layers table of docs/architecture/development.md names flyway-schema for Migration, jpa-persistence and jpa-persistence-test for Persistence, spring-service and spring-service-test for Service, spring-rest and spring-rest-test for API, angular-ui and angular-ui-test for UI, and for E2E a Skill of '–' with playwright-e2e-test as Test skill",
-      "max_score": 20
+      "max_score": 15
     },
     {
       "name": "Integration layer is the API",
@@ -13,9 +13,14 @@
       "max_score": 20
     },
     {
+      "name": "E2E scope recorded",
+      "description": "Under the Integration layer table, docs/architecture/development.md has the line `**E2E scope:** Use cases and test cases`, taken from the team's decision in the task rather than asked again or guessed",
+      "max_score": 10
+    },
+    {
       "name": "Angular reaches the service through the API",
       "description": "The combination is not reported as invalid, and the report or the Development View says that the Angular UI reaches the service through the API, so a use case offered through the UI (UC-002, **Layers:** UI) is built and tested in the API layer too",
-      "max_score": 10
+      "max_score": 5
     },
     {
       "name": "Locations",

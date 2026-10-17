@@ -49,7 +49,9 @@ Claude Code:
 ```
 
 Tessl: remove the combined package from the project and install the layer packages, for example
-`tessl install ai-unified-process/aiup-flyway`. See the [Tessl guide](installation/tessl.md); for other agents see
+`tessl install ai-unified-process/aiup-flyway`. Tessl does not install dependencies: install `aiup-core` and, with
+`aiup-jooq`, `aiup-jpa`, or `aiup-vaadin`, also `aiup-spring-boot` explicitly. See the
+[Tessl guide](installation/tessl.md); for other agents see
 [Agent Plugins and manual setup](installation/other-agents.md).
 
 ## 2. Record the architecture

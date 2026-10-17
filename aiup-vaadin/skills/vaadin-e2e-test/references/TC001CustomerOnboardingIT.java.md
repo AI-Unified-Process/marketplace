@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.TestPropertySource;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
 import org.vaadin.addons.dramafinder.element.ComboBoxElement;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * AssertJ's assertThat checks values; PlaywrightAssertions.assertThat checks locators and retries.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 @TestCase(id = "TC-001", useCases = {"UC-001", "UC-004"})
 class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
 
