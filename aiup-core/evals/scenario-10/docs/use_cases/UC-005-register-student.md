@@ -53,6 +53,6 @@
 
 ## Business Rules
 
-### BR-010: Unique email
+### BR-001: Unique email
 
 Every student's email address is unique across all students.

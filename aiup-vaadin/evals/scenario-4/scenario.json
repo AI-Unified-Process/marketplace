@@ -1,0 +1,6 @@
+{
+  "description": "vaadin-e2e-test: TC-* journey with Drama Finder",
+  "include": [
+    "./inputs"
+  ]
+}

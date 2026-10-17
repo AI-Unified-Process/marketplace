@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether jooq-persistence writes a ProductRepository in the project's conventions: @Repository with a constructor-injected DSLContext, projections into Java records via Records.mapping (never fetchInto(Dto.class)), a category filter built from DSL.noCondition, paging with a matching count, the BR-001 in-stock condition marked with the qualified business rule comment, no @Transactional, no jOOQ types in the signatures, the Markers rows, the Handover, and the hand-off to the service skill.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Repository per aggregate",
+      "description": "A ProductRepository class annotated @Repository in com.example.shop.persistence with the DSLContext injected through the constructor, matching CustomerRepository",
+      "max_score": 11
+    },
+    {
+      "name": "Records.mapping into a Java record",
+      "description": "The catalog query projects id, name, category, and price into a Java record (not named ...Record) with Records.mapping(X::new); fetchInto(SomeDto.class) is not used",
+      "max_score": 13
+    },
+    {
+      "name": "BR-001 condition with marker",
+      "description": "The query excludes products with in_stock = false in every case (with or without a category), and the comment '// UC-010 BR-001: ...' sits directly above that condition",
+      "max_score": 13
+    },
+    {
+      "name": "Optional category filter",
+      "description": "The category filter is optional and built type-safely (DSL.noCondition() or equivalent), with no SQL string concatenation",
+      "max_score": 9
+    },
+    {
+      "name": "Paging and count",
+      "description": "The list method takes offset and limit (or a page) with a stable orderBy on name, and a count method uses the same conditions",
+      "max_score": 11
+    },
+    {
+      "name": "No jOOQ types leak",
+      "description": "Public repository methods return records, lists, Optional, or primitives and take domain arguments, not Condition, Field, Result, or Record",
+      "max_score": 8
+    },
+    {
+      "name": "No transactions in the repository",
+      "description": "The repository carries no @Transactional and does not call ctx.transaction",
+      "max_score": 8
+    },
+    {
+      "name": "Markers table updated",
+      "description": "docs/architecture/development.md gains the Persistence rows of jooq-persistence (Code and Name); the All row stays, and no other file under docs/ is edited",
+      "max_score": 9
+    },
+    {
+      "name": "Handover and hand-off",
+      "description": "The response contains a 'Handover from jooq-persistence (UC-010)' block with the method signatures and record types, and ends with 'Next: /spring-service UC-010'",
+      "max_score": 10
+    },
+    {
+      "name": "Layer only",
+      "description": "No service, controller, migration, or test class is created, and generated sources are not hand-written",
+      "max_score": 8
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "jpa-persistence in a flat project: maps a new table onto the Flyway schema and writes an N+1-free search query",
+  "include": [
+    "./inputs"
+  ]
+}

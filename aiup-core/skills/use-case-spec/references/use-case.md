@@ -10,7 +10,8 @@
 **Trigger:** [The event that starts the use case — an actor's request, a point in time, or a message from an external system; not a state that is already true]  
 **Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete  
 
-**Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)
+**Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)  
+**Layers:** [UI, API, or Service — the entry layers that offer this use case; omit this line when every entry layer of the project offers it]
 
 ## Preconditions
 

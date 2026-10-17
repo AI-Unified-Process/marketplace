@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "aiup-playwright",
+  "version": "3.0.0",
+  "description": "AI Unified Process end-to-end layer - Playwright browser tests for use cases and test case journeys of any web UI",
+  "author": {
+    "name": "Simon Martinelli",
+    "email": "simon@martinelli.ch",
+    "url": "https://unifiedprocess.ai"
+  },
+  "homepage": "https://unifiedprocess.ai",
+  "repository": "https://github.com/AI-Unified-Process/marketplace"
+}

@@ -1,0 +1,6 @@
+{
+  "description": "jpa-persistence-test: @DataJpaTest on Testcontainers with Flyway test data for a query with logic of its own",
+  "include": [
+    "./inputs"
+  ]
+}

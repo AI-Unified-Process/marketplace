@@ -19,7 +19,7 @@
     },
     {
       "name": "Extends SpringBrowserlessTest",
-      "description": "The test class extends com.vaadin.testbench.unit.SpringBrowserlessTest",
+      "description": "The test class extends com.vaadin.browserless.SpringBrowserlessTest",
       "max_score": 8
     },
     {

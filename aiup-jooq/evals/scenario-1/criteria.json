@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether jooq-persistence loads a parent with its children in one query using MULTISET mapped with Records.mapping, carries the version into the read record, guards the confirm update with the version check and a version increment, reports a stale update to the service instead of throwing or overwriting, marks the OPEN-status condition with the business rule comment, and keeps transactions out of the repository.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Repository for the aggregate",
+      "description": "A @Repository for the order aggregate (e.g. PurchaseOrderRepository or OrderRepository) with constructor-injected DSLContext; no separate repository for order lines",
+      "max_score": 11
+    },
+    {
+      "name": "MULTISET for the lines",
+      "description": "The order detail is read in one query with multiset(select ... from ORDER_LINE ... where ... = PURCHASE_ORDER.ID) converted with Records.mapping into a record list; no query per order line",
+      "max_score": 18
+    },
+    {
+      "name": "Product name joined",
+      "description": "Each line record carries the product name via a join or implicit join to PRODUCT",
+      "max_score": 9
+    },
+    {
+      "name": "Version in the read record",
+      "description": "The order detail record includes the version so the service can pass it back for the update",
+      "max_score": 11
+    },
+    {
+      "name": "Optimistic locking on the update",
+      "description": "The confirm update has WHERE id = ? AND version = ?, sets version = version + 1, and returns whether a row was updated (boolean or row count) instead of overwriting silently",
+      "max_score": 18
+    },
+    {
+      "name": "BR-001 marker",
+      "description": "Where the repository restricts the update to status OPEN, '// UC-020 BR-001: ...' is directly above that condition (or, if the agent leaves the rule to the service, it says so and puts no misleading marker)",
+      "max_score": 11
+    },
+    {
+      "name": "No fetchInto and no @Transactional",
+      "description": "fetchInto(Dto.class) is not used for projections and the repository carries no @Transactional",
+      "max_score": 10
+    },
+    {
+      "name": "Handover",
+      "description": "A 'Handover from jooq-persistence (UC-020)' block lists the read and confirm method signatures and the record types, noting that the update reports a stale version; ends with 'Next: /spring-service UC-020'",
+      "max_score": 12
+    }
+  ]
+}

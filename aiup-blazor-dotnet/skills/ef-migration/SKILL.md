@@ -30,6 +30,7 @@ Create a native EF Core C# Migration (`dotnet ef migrations add <MigrationName>`
    - Represent entities as C# classes with file-scoped namespaces and modern properties (`public required string Name { get; set; }`).
    - Declare navigation properties safely for Nullable Reference Types (e.g. `public List<OrderItem> Items { get; set; } = [];` or `public Customer Customer { get; set; } = null!;`).
    - Implement `IEntityTypeConfiguration<T>` for Fluent API mappings (table names, column types, `HasPrecision(18, 2)` for decimal fields, `HasConversion<string>()` for enums, foreign keys, and unique indexes).
+   - Map an attribute the entity model types `String`, with Length/Precision `-` and a Description that begins with `Binary content:` (a photo, a signed contract as PDF), to a binary column: a `byte[]` property, which EF Core stores as `varbinary(max)` on SQL Server and `bytea` on PostgreSQL — never a `string` or Base64 text.
    - Register configurations in `OnModelCreating(ModelBuilder modelBuilder)` (or use `modelBuilder.ApplyConfigurationsFromAssembly(...)`).
 4. **Generate EF Core Migration**:
    - Run `dotnet ef migrations add UCXXX_Description` using CLI. For multi-project solutions, specify project flags (e.g. `dotnet ef migrations add UCXXX_Description --project src/MyApp.Data --startup-project src/MyApp.Web`).

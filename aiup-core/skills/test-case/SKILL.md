@@ -10,8 +10,8 @@ description: >
   whenever the user lists several use case IDs (UC-*) and wants one test
   definition spanning them, or wants test cases derived from a business
   process (BP-001), a BPMN process model, or a .bpmn file (one test case per path
-  through the process) — the resulting TC-* document is what e2e test
-  skills (e.g. /playwright-test TC-001) automate.
+  through the process) — the resulting TC-* document is what /test-case-implement
+  TC-001 (layer plugins) or a stack's /playwright-test TC-001 automates.
 ---
 
 <!--
@@ -22,7 +22,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Test Case Document
 
-Create a test case document in `docs/test_cases/` for the use cases named in $ARGUMENTS — or, when $ARGUMENTS names a BPMN business process model, one test case per path through that process. A test case describes **one end-to-end user journey** that chains several use cases across views, carrying state from step to step (data created in step 1 is used in step 3). It is the authority that end-to-end test skills automate — `/playwright-test TC-001` reads this document and turns each Flow row into a test step, so precision here directly becomes test code.
+Create a test case document in `docs/test_cases/` for the use cases named in $ARGUMENTS — or, when $ARGUMENTS names a BPMN business process model, one test case per path through that process. A test case describes **one end-to-end user journey** that chains several use cases across views, carrying state from step to step (data created in step 1 is used in step 3). It is the authority that end-to-end test skills automate — `/test-case-implement TC-001` with layer plugins, `/playwright-test TC-001` with a combined stack plugin, reads this document and turns each Flow row into a test step, so precision here directly becomes test code.
 
 ## Inputs
 
@@ -60,7 +60,7 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
    python3 scripts/bpmn_paths.py docs/processes/order.bpmn
    ```
 
-   [scripts/bpmn_paths.py](scripts/bpmn_paths.py) prints JSON: `processes` (id, name, and `bpId` when the process id is a business process id such as `BP-001`), `lanes` (lane name → activity ids), `activities` (id, name, type, lane, and `ucId` when the name carries a use case id), `paths` (the ordered steps of each path — activities, gateway decisions with their flow names, events), and `warnings`. It rejects files with a DOCTYPE or entity declaration; stop and tell the user if it does. Report every warning. [references/example-process.bpmn](references/example-process.bpmn) is a small model with two lanes and two paths. Where Python is unavailable, read the XML yourself and apply the same rules:
+   [scripts/bpmn_paths.py](scripts/bpmn_paths.py) prints JSON: `processes` (id, name, and `bpId` when the process id is a business process id such as `BP-001`), `lanes` (lane name → activity ids), `activities` (id, name, type, lane, and `ucId` when the name carries a use case id), `paths` (the ordered steps of each path — activities, gateway decisions with their flow names, events), and `warnings`. It rejects files with a DOCTYPE or entity declaration; stop and tell the user if it does. Report every warning. [references/example-process.bpmn.md](references/example-process.bpmn.md) is a small model with two lanes and two paths. Where Python is unavailable, read the XML yourself and apply the same rules:
    - Activities are `task`, `userTask`, `manualTask`, `serviceTask`, `sendTask`, `receiveTask`, `scriptTask`, `businessRuleTask`, and `callActivity`. Gateways and events are not use cases.
    - Exclusive, inclusive, event-based, and complex gateways, several outgoing flows on one activity, and boundary events are alternatives — each outgoing flow starts its own path.
    - Parallel gateways run every branch: the branches are serialized within one path in the document order of their sequence flows, up to the converging gateway.
@@ -98,7 +98,7 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 - **Step names are short and action-oriented** — each Flow row's Name becomes the step method name in the automated test, and step numbers run from 1 without gaps.
 - **Test Data holds literal values** (`Acme Corp, Widget, 5`) — the exact strings the test will type. Use `-` when a step needs none. Concrete values are what make the document executable; placeholders like "a valid customer" cannot be automated.
 - **Link each action step to its use case** with a relative link: `[UC-010](../use_cases/UC-010-create-order.md)`.
-- **Don't re-test per-use-case detail.** Every validation message and grid column is the use case test's job (`/playwright-test UC-*`); the journey and its end state are the subject here. A typical Flow has 3–8 steps.
+- **Don't re-test per-use-case detail.** Every validation message and grid column is the use case test's job (`/use-case-test UC-*`, or `/playwright-test UC-*` with a combined stack plugin); the journey and its end state are the subject here. A typical Flow has 3–8 steps.
 - **Preconditions must be satisfiable before the test runs** — reference the seeded test data that provides them (e.g. a Flyway test migration) so the automation knows where they come from.
 - **Validation lists cross-cutting end-state checks** — numbered, each with a bold name, each observable through the UI after the flow completes (final status, record counts, state visible on another view).
 - **Postconditions inventory the data the journey leaves behind** — the automated test derives its cleanup from this list. Name every record the flow creates or changes (with its literal test data values) and any deletion-order constraint from business rules (dependent records before their parents). Seeded data stays untouched — don't list it as something to remove.
@@ -111,7 +111,7 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 3. Design the journey: the business-meaningful order of the use cases (in process mode, the path's sequence flow), the roles involved, the state carried between steps, and where verification steps belong.
 4. Write the document from the template: Overview (ID, Goal, Priority, Status, and in process mode Process), Roles, Preconditions, Flow table, Validation, Postconditions. Process mode writes one document per path.
 5. Run the Completeness Checklist below; fix anything that fails.
-6. Report the created (and in process mode updated or obsoleted) files and suggest the matching e2e test command (e.g. `/playwright-test TC-XXX`).
+6. Report the created (and in process mode updated or obsoleted) files and suggest the matching e2e test command: `/test-case-implement TC-XXX` when `docs/architecture/development.md` exists (layer plugins), otherwise the combined stack plugin's `/playwright-test TC-XXX`. Automating a journey needs an E2E layer: when the Development View's E2E row is missing or its Test skill is `–` (a REST service without a UI), say that the test case stays a manual script until `/architecture` adds an E2E layer, and suggest no command.
 
 ## Completeness Checklist
 

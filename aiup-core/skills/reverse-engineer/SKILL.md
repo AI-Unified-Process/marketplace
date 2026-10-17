@@ -57,12 +57,14 @@ documents that break them are rejected exactly like forward-engineered ones:
 6. **Every attribute table has exactly these 5 columns, in this order:**
    `Attribute | Description | Data Type | Length/Precision | Validation Rules`.
 7. **Data types come from the closed AI Unified Process list** — `Long`, `String`,
-   `Integer`, `Decimal`, `Boolean`, `Date`, `DateTime`, 'BLOB' — and nothing else.
-   Raw SQL/ORM types (`VARCHAR`, `bigint`, `numeric`, `TEXT`) are banned, and
+   `Integer`, `Decimal`, `Boolean`, `Date`, `DateTime` — and nothing else.
+   Raw SQL/ORM types (`VARCHAR`, `bigint`, `numeric`, `TEXT`, `BLOB`) are banned, and
    so are invented "business types" (`Money`, `Email Address`, `Identifier`,
    `Timestamp`, `Quantity`, `PersonName`, `Text`). An email column is
    `String` with validation `Not Null, Format: Email`; a price is
-   `Decimal` with `10,2`.
+   `Decimal` with `10,2`; a binary column (`BLOB`, `bytea`, `byte[]`) is
+   `String` with `-` and a Description that begins with `Binary content:`
+   (`Binary content: the signed contract as PDF`).
 8. **Validation Rules cells use only the `/entity-model` vocabulary** and are
    never empty.
 
@@ -245,7 +247,11 @@ Create `docs/use_cases/` and write one file per use case named
   step 8). Add
   the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
   only when a `docs/requirements.md` already exists and its ids match the
-  use case; otherwise omit the line — never invent requirement ids.
+  use case; otherwise omit the line — never invent requirement ids. Add
+  a `**Layers:**` line only when the code offers the use case through
+  fewer entry points than the system has: `UI` when only a view or route
+  realizes it, `API` when only an endpoint does, `Service` when only a
+  job or listener does.
 - **Preconditions**: derive from auth checks, route guards, validation
   guards that fail fast, and required upstream state (e.g. "guest is
   registered" if the route requires a session). Preconditions are states,
@@ -373,7 +379,7 @@ Map types to the AI Unified Process type vocabulary (`Long`, `String`, `Integer`
 `Decimal`, `Boolean`, `Date`, `DateTime`) — don't leak `VARCHAR(255)` or
 `bigint` into the document, and don't substitute descriptive "business types"
 of your own (`Money`, `Email Address`, `Hashed String`, `Timestamp`,
-`Identifier`, `Positive Integer`): the seven v types are the complete
+`Identifier`, `Positive Integer`): the seven types are the complete
 list, and semantics belong in the Description and Validation Rules columns,
 not the Data Type column. Map validation to the AI Unified Process vocabulary too
 (`Primary Key, Sequence`, `Primary Key`, `Primary Key, Foreign Key (TABLE.id)`,

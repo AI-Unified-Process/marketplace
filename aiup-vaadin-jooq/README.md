@@ -6,6 +6,13 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # aiup-vaadin-jooq
 
+> **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-flyway`, `aiup-jooq`,
+> `aiup-spring-boot`, and `aiup-vaadin`, run by `/architecture`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
+> `aiup-core` (3.0.0 or later). The layer plugins also cover a REST API without a Vaadin UI. This plugin keeps
+> working and will be removed with `aiup-core` 4.0.0; do not install it together with the layer plugins in one
+> project. See [Layered stacks](../docs/workflow.md#workflow) and the [migration guide](../docs/migration.md)
+> for moving an existing project.
+
 `aiup-vaadin-jooq` is the AI Unified Process construction plugin for applications built with
 [Vaadin](https://vaadin.com) or Hilla and [jOOQ](https://www.jooq.org). It turns the entity model and use case
 specifications produced by [`aiup-core`](../aiup-core/) into migrations, application code, and tests.
@@ -96,7 +103,7 @@ Depending on the configured agent, skills may be exposed as slash commands or in
 /plugin install aiup-vaadin-jooq
 ```
 
-See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+See the marketplace [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## Prerequisites
 

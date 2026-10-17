@@ -1,0 +1,15 @@
+{
+  "description": "Architecture of an Angular client with a Spring Boot REST API and JPA is recorded with the API as the integration layer",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

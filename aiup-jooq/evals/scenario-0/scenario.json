@@ -1,0 +1,6 @@
+{
+  "description": "jOOQ repository with record projections, paging, a dynamic filter, and a business rule marker on the query condition",
+  "include": [
+    "./inputs"
+  ]
+}

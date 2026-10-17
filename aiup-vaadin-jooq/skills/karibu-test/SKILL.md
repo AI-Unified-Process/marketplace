@@ -166,7 +166,7 @@ Create test data using Flyway migrations in `src/test/resources/db/migration`.
 
 ## Template
 
-Use [references/UC001ManagePersonsTest.java](references/UC001ManagePersonsTest.java) as the test
+Use [references/UC001ManagePersonsTest.java.md](references/UC001ManagePersonsTest.java.md) as the test
 class structure (the path is relative to the folder containing this SKILL.md, not to the project
 root). It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annotation on
 every test method, and how to map alternative flows (`scenario = "A1: …"`) and business rules

@@ -40,6 +40,7 @@ this order on save):
 **Status:** <status value>
 
 **Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
+**Layers:** UI                                      (optional)
 
 ## Preconditions
 
@@ -101,6 +102,7 @@ and empty files are English) and preserved on save.
 | Use case trigger     | `**Trigger:**` (Overview)     | `**Auslösendes Ereignis:**` (reads `**Trigger:**` too) |
 | Status               | `**Status:**`                 | `**Status:**` (same)    |
 | Requirements         | `**Requirements:**`           | `**Anforderungen:**`    |
+| Layers               | `**Layers:**`                 | `**Schichten:**` (reads `**Layers:**` too) |
 | Preconditions        | `## Preconditions`            | `## Vorbedingungen`     |
 | Main scenario        | `## Main Success Scenario`    | `## Hauptablauf`        |
 | Alternative flows    | `## Alternative Flows`        | `## Alternativabläufe`  |
@@ -133,7 +135,7 @@ Status values (either language is readable in any document):
    on save.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
-   Secondary Actors, Trigger and Requirements are optional. Primary
+   Secondary Actors, Trigger, Requirements and Layers are optional. Primary
    Actor holds one role or a comma-separated list of roles; the label
    stays singular (`**Primary Actor:**`, `**Primärer Akteur:**`) in
    both cases.
@@ -206,6 +208,15 @@ The `/use-case-spec` skill additionally requires:
   alternative-flow triggers), or repeats a precondition word for word.
   Whether it is really an event and not a state is judged by
   `/spec-review`.
+
+- A `**Layers:**` / `**Schichten:**` line is optional; absent, the use
+  case is offered through every entry layer of the project. When
+  present it lists `UI`, `API`, or both comma-separated, or `Service`
+  alone — the same tokens in both languages, backticks and a trailing
+  period tolerated. The validator warns (`LAYERS_INVALID`,
+  `LAYERS_EMPTY`) on any other value, which is usually a technology
+  (`REST`, `Vaadin`) the Development View maps instead, and
+  (`LAYERS_DUPLICATE`) on a layer named twice.
 
 - All five template sections and both postcondition subsections exist.
 - The use case id matches `[SB]?UC-[A-Za-z0-9_-]+` and the filename

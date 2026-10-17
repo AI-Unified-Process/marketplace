@@ -5,17 +5,17 @@
     {
       "name": "Extends AbstractBasePlaywrightIT",
       "description": "The test class extends AbstractBasePlaywrightIT from the Drama Finder library (org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT), not any other base class",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "@SpringBootTest RANDOM_PORT",
       "description": "The test class is annotated with @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "No raw page.locator() calls",
       "description": "The test file contains NO calls to page.locator(...) — Drama Finder element wrappers are used exclusively for all element lookups",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Drama Finder element wrappers used",
@@ -50,12 +50,12 @@
     {
       "name": "@Nested with @DisplayName",
       "description": "Related tests are grouped in at least two @Nested inner classes, each annotated with @DisplayName",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Scoped lookup inside dialog",
       "description": "At least one element lookup inside the dialog is scoped by passing dialog.getLocator() (not page) to the element factory method",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Validation assertion uses assertInvalid",

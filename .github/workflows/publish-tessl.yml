@@ -31,6 +31,13 @@ on:
       - 'aiup-angular-jpa/**'
       - 'aiup-blazor-dotnet/**'
       - 'aiup-nestjs-nextjs/**'
+      - 'aiup-flyway/**'
+      - 'aiup-jooq/**'
+      - 'aiup-jpa/**'
+      - 'aiup-spring-boot/**'
+      - 'aiup-vaadin/**'
+      - 'aiup-angular/**'
+      - 'aiup-playwright/**'
       - '.github/workflows/publish-tessl.yml'
   workflow_dispatch:
 
@@ -43,7 +50,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plugin: [aiup-core, aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs]
+        plugin: [aiup-core, aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs,
+                 aiup-flyway, aiup-jooq, aiup-jpa, aiup-spring-boot, aiup-vaadin, aiup-angular, aiup-playwright]
     steps:
       - uses: actions/checkout@v6
         with:

@@ -53,12 +53,14 @@ LANGUAGES = {
             "secondary_actors": "**Secondary Actors:**",
             "goal": "**Goal:**",
             "requirements": "**Requirements:**",
+            "layers": "**Layers:**",
             "uc_trigger": "**Trigger:**",
             "trigger": "**Trigger:**",
             "flow": "**Flow:**",
         },
         "uc_trigger_aliases": ["**Trigger:**"],
         "trigger_aliases": ["**Trigger:**"],
+        "layers_aliases": ["**Layers:**"],
         "rule_prefix": "BR",
     },
     "de": {
@@ -79,6 +81,7 @@ LANGUAGES = {
             "secondary_actors": "**Sekundäre Akteure:**",
             "goal": "**Ziel:**",
             "requirements": "**Anforderungen:**",
+            "layers": "**Schichten:**",
             # distinct from the alternative-flow label "Auslöser"
             "uc_trigger": "**Auslösendes Ereignis:**",
             "trigger": "**Auslöser:**",
@@ -87,6 +90,8 @@ LANGUAGES = {
         "uc_trigger_aliases": ["**Auslösendes Ereignis:**", "**Trigger:**"],
         # German documents in the wild often keep the English "Trigger" label
         "trigger_aliases": ["**Auslöser:**", "**Trigger:**"],
+        # and the English "Layers" label, which the skills cite
+        "layers_aliases": ["**Schichten:**", "**Layers:**"],
         "rule_prefix": "GR",
     },
 }
@@ -111,6 +116,10 @@ RULE_LABEL = re.compile(r"(?:BR|GR)-[A-Za-z0-9_-]+\s*:\s*.*")
 RULE_NUMBER = re.compile(r"(?:BR|GR)-(\d+)\s*:")
 PLACEHOLDER = re.compile(r"_[^_].*_|\*[^*].*\*")
 UC_ID_GRAMMAR = re.compile(r"[SB]?UC-[A-Za-z0-9_-]+")
+
+# The entry layers a use case is offered through (optional **Layers:** line);
+# the same tokens in every language. Migration and persistence are implied.
+LAYER_VALUES = ["UI", "API", "Service"]
 
 STEP_REFERENCE = re.compile(r"\((?:step|schritt)\s*\d", re.IGNORECASE)
 FLOW_TERMINATION = re.compile(
@@ -306,6 +315,12 @@ def parse_overview(doc, lines, index):
         elif line.startswith(fields["requirements"]):
             overview["requirements"] = \
                 line[len(fields["requirements"]):].strip()
+            index += 1
+        elif any(line.startswith(a) for a in lang["layers_aliases"]):
+            alias = next(a for a in lang["layers_aliases"]
+                         if line.startswith(a))
+            overview["layers"] = line[len(alias):].strip()
+            overview["layers_line"] = index + 1
             index += 1
         elif any(line.startswith(a) for a in lang["uc_trigger_aliases"]):
             alias = next(a for a in lang["uc_trigger_aliases"]
@@ -620,6 +635,49 @@ def check_contract(doc, path):
                         "trigger is the event that starts the use case, a "
                         "precondition is what is already true: " + trigger)
 
+    # The layers line is optional (absent: every entry layer the project has),
+    # but when present it names entry layers only, never a technology.
+    layers = doc.overview.get("layers")
+    if layers is not None and layers.startswith("[") \
+            and layers.endswith("]"):
+        doc.add(doc.overview.get("layers_line", 0), WARN, "LAYERS_INVALID",
+                "the layers line still holds the template placeholder; name "
+                "the entry layers (" + ", ".join(LAYER_VALUES) + ") or omit "
+                "the line when every entry layer of the project offers the "
+                "use case")
+    elif layers is not None:
+        layers_line = doc.overview.get("layers_line", 0)
+        # Tolerate `UI` in backticks and a trailing period, as for ids.
+        tokens = [v.strip().strip("`").strip()
+                  for v in layers.strip().rstrip(".").split(",")]
+        values, seen, duplicates = [], set(), []
+        for v in tokens:
+            if not v:
+                continue
+            if v.lower() in seen:
+                duplicates.append(v)
+                continue
+            seen.add(v.lower())
+            values.append(v)
+        if duplicates:
+            doc.add(layers_line, WARN, "LAYERS_DUPLICATE",
+                    "the layers line names a layer twice: "
+                    + ", ".join(duplicates))
+        known = {v.lower(): v for v in LAYER_VALUES}
+        unknown = [v for v in values if v.lower() not in known]
+        if not values:
+            doc.add(layers_line, WARN, "LAYERS_EMPTY",
+                    "the layers line names no layer; omit it when the use "
+                    "case uses every entry layer of the project")
+        elif unknown:
+            doc.add(layers_line, WARN, "LAYERS_INVALID",
+                    "unknown layer " + ", ".join(unknown) + "; the layers "
+                    "line lists entry layers only: " + ", ".join(LAYER_VALUES))
+        elif "service" in [v.lower() for v in values] and len(values) > 1:
+            doc.add(layers_line, WARN, "LAYERS_INVALID",
+                    "Service means no actor reaches the use case through a "
+                    "UI or an API; it is not combined with them: " + layers)
+
     if not doc.main_scenario and not doc.main_scenario_placeholder \
             and "main_scenario" in doc.sections_seen:
         doc.add(0, WARN, "MAIN_SCENARIO_EMPTY",
@@ -710,6 +768,7 @@ VALID_EN = """\
 **Status:** Approved
 
 **Requirements:** [FR-001, FR-002](../requirements.md)
+**Layers:** UI
 
 ## Preconditions
 
@@ -761,6 +820,7 @@ VALID_DE_TOLERANT = """\
 **Ziel:** Eine Mitteilung erfassen und dem Team zustellen
 **Auslösendes Ereignis:** Eine Kundin meldet einen Sachverhalt telefonisch
 **Status:** ✅ Implementiert (2025-07-11)
+**Schichten:** UI
 
 **Priorität:** Hoch
 
@@ -818,6 +878,7 @@ INVALID = """\
 **Goal:** Show every error class
 **Trigger:** User is logged in
 **Status:** In Progress
+**Layers:** UI, Batch
 
 ## Preconditions
 
@@ -878,11 +939,38 @@ def self_test():
     expect("valid-de", doc.problems, [], forbidden_severity=ERROR)
     expect("valid-de", doc.problems, [], forbidden_severity=WARN)
 
+    for line, codes in (("**Layers:** `UI`, `API`.", []),
+                        ("**Layers:** Service, Service", ["LAYERS_DUPLICATE"]),
+                        ("**Layers:** UI, UI, API", ["LAYERS_DUPLICATE"])):
+        doc = parse_document(VALID_EN.replace("**Layers:** UI", line))
+        check_contract(doc, "UC-001-create-reservation.md")
+        found = sorted(p.code for p in doc.problems)
+        if found != codes:
+            failures.append("layers " + line + ": expected " + str(codes)
+                            + ", got " + str(found))
+
+    doc = parse_document(VALID_DE_TOLERANT.replace("**Schichten:**",
+                                                   "**Layers:**"))
+    check_contract(doc, "UC-013a-mitteilung-erfassen.md")
+    if doc.overview.get("layers") != "UI":
+        failures.append("valid-de: English **Layers:** label not accepted")
+    expect("valid-de-layers", doc.problems, [], forbidden_severity=WARN)
+
+    doc = parse_document(VALID_EN.replace(
+        "**Layers:** UI", "**Layers:** [UI, API, or Service — the entry "
+        "layers that offer this use case]"))
+    check_contract(doc, "UC-001-create-reservation.md")
+    found = [p for p in doc.problems if p.code == "LAYERS_INVALID"]
+    if len(found) != 1 or "UI, API, Service" not in found[0].message:
+        failures.append("layers placeholder: expected one LAYERS_INVALID "
+                        "naming UI, API, Service, got "
+                        + str([p.message for p in doc.problems]))
+
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")
     expect("invalid", doc.problems,
            ["STATUS_INVALID", "UNEXPECTED_CONTENT", "FLOW_INCOMPLETE",
-            "UC_TRIGGER_IS_PRECONDITION"])
+            "UC_TRIGGER_IS_PRECONDITION", "LAYERS_INVALID"])
 
     if failures:
         for failure in failures:

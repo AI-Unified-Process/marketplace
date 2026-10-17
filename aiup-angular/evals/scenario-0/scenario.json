@@ -1,0 +1,6 @@
+{
+  "description": "angular-ui: build the UI layer of a use case from the API layer's Handover",
+  "include": [
+    "./inputs"
+  ]
+}

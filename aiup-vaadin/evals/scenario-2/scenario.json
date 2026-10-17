@@ -1,0 +1,6 @@
+{
+  "description": "vaadin-flow-ui-test: Browserless tests with the spec as oracle",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -10,7 +10,7 @@
     {
       "name": "Single test method for the whole journey",
       "description": "The complete test case flow (register patient, verify listed, book appointment, verify confirmation) runs inside ONE @Test method — NOT split into multiple @Test methods that depend on each other's state or on execution order",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Flow order and step traceability",
@@ -25,7 +25,7 @@
     {
       "name": "Dialog 'Name' field scoped, not the page filter",
       "description": "The Name field inside the \"Register Patient\" dialog is located with a lookup scoped to dialog.getLocator() — a page-level TextFieldElement.getByLabel(page, \"Name\") would hit the filter field and is not used for the dialog input",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Test Data values used verbatim",
@@ -45,17 +45,17 @@
     {
       "name": "Validation section asserted",
       "description": "Both Validation entries are asserted after the flow: the appointments grid contains the patient's appointment with \"Dr. Smith\", and the patient's status on the patients grid is \"Active\"",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Cleanup deletes appointment before patient",
       "description": "An @AfterEach cleanup removes the created appointment FIRST and the created patient SECOND (per BR-041), tolerates a test that failed midway (existence checks), and removes only data this test case created",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "No raw page.locator() calls",
       "description": "The test file contains NO calls to page.locator(...) and no XPath — Drama Finder element wrappers are used exclusively",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "No Thread.sleep / waitForTimeout",

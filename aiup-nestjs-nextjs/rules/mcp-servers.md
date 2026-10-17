@@ -1,3 +1,9 @@
+<!--
+Copyright 2025-2026 Simon Martinelli and the AI Unified Process contributors.
+Part of the AI Unified Process — https://unifiedprocess.ai
+Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+-->
+
 # Optional MCP servers for the NestJS/Next.js skills
 
 The `aiup-nestjs-nextjs` skills work without any MCP servers — they fall back to your own
@@ -53,7 +59,7 @@ here.
 
 ## Note for Tessl-installed users
 
-Tessl does not ship MCP server definitions with a plugin — installing this plugin via
-`tessl install` configures only the Tessl bridge. Configure the server above manually if you
-want browser automation during `playwright-test`. Users who install the plugin through the
-Claude Code marketplace get it automatically from the plugin's `.mcp.json`.
+Tessl ships it with the plugin: `tessl install` reads the plugin's bundled `.mcp.json` and
+writes it into the MCP configuration of each agent it configures, as the Claude Code
+marketplace install does. If your agent does not list it after the install — an agent Tessl
+does not configure, or a manual skill copy — configure the server above manually as shown.

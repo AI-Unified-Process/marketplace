@@ -1,0 +1,6 @@
+{
+  "description": "A new column for an existing table goes into a new migration, never into the applied one",
+  "include": [
+    "./inputs"
+  ]
+}

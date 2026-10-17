@@ -100,6 +100,12 @@ in place rather than adding a second definition**:
 | date (no time)         | `text()` or `date()` | Match what the project already uses for dates             |
 | instant / timestamp    | `timestamp()`        | Store UTC                                                 |
 | enumeration            | `text()` + CHECK     | Or `pgEnum` where the project already uses it             |
+| binary content         | `bytea` custom type  | See the note below                                        |
+
+An attribute the entity model types `String`, with Length/Precision `-` and a Description that begins with
+`Binary content:` (a photo, a signed contract as PDF), is a binary column: `bytea` — never `text()` or Base64
+text. Use pg-core's `bytea()` where the installed `drizzle-orm` exports it; otherwise declare it once with
+`customType<{ data: Buffer }>({ dataType: () => 'bytea' })` and reuse it.
 
 ## Money columns — detect, don't decide
 

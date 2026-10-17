@@ -9,14 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
-import org.vaadin.addons.dramafinder.element.button.ButtonElement;
-import org.vaadin.addons.dramafinder.element.checkbox.CheckboxElement;
-import org.vaadin.addons.dramafinder.element.combobox.ComboBoxElement;
-import org.vaadin.addons.dramafinder.element.datepicker.DatePickerElement;
-import org.vaadin.addons.dramafinder.element.dialog.DialogElement;
-import org.vaadin.addons.dramafinder.element.grid.GridElement;
-import org.vaadin.addons.dramafinder.element.notification.NotificationElement;
-import org.vaadin.addons.dramafinder.element.textfield.TextFieldElement;
+import org.vaadin.addons.dramafinder.element.ButtonElement;
+import org.vaadin.addons.dramafinder.element.CheckboxElement;
+import org.vaadin.addons.dramafinder.element.ComboBoxElement;
+import org.vaadin.addons.dramafinder.element.DatePickerElement;
+import org.vaadin.addons.dramafinder.element.DialogElement;
+import org.vaadin.addons.dramafinder.element.GridElement;
+import org.vaadin.addons.dramafinder.element.NotificationElement;
+import org.vaadin.addons.dramafinder.element.TextFieldElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

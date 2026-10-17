@@ -4,6 +4,11 @@
 # that set the current one (the version in .tessl-plugin/plugin.json). Commits are grouped by their
 # Conventional Commits type; issues named on a Refs/Closes/Fixes line of the body are appended.
 #
+# A commit that changes several plugins can give each its own notes: every body line
+# "<plugin-dir>: <text>" becomes one entry of that plugin instead of the subject, e.g.
+# "aiup-flyway: feat: add /flyway-schema". A "feat:" or "fix:" prefix on the text picks its group;
+# without one the entry joins the group of the commit's type.
+#
 # Usage: scripts/release-notes.sh <plugin-dir>
 # Prints "<tag> <commit>" instead of the notes with --tag, e.g. "aiup-core-v2.16.0 b3d53ce…".
 set -euo pipefail
@@ -37,12 +42,25 @@ while IFS= read -r sha; do
   [ -n "$sha" ] || continue
   subject=$(git log -1 --format=%s "$sha")
   refs=$(git log -1 --format=%b "$sha" | grep -iE '^(refs|closes|fixes)\b' | grep -oE '#[0-9]+' | sort -u | paste -sd ' ' - || true)
-  line="- $subject (${sha:0:7}${refs:+, $refs})"
-  case "$subject" in
-    feat*) features+="$line"$'\n' ;;
-    fix*) fixes+="$line"$'\n' ;;
-    *) other+="$line"$'\n' ;;
-  esac
+  entries=$(git log -1 --format=%b "$sha" | sed -n "s/^$plugin: //p")
+  if [ -z "$entries" ]; then
+    entries="$subject"
+  fi
+  while IFS= read -r entry; do
+    type="$subject"
+    case "$entry" in
+      feat:*|feat\(*|feat!:*|fix:*|fix\(*)
+        type="$entry"
+        entry="${entry#*: }"
+        ;;
+    esac
+    line="- $entry (${sha:0:7}${refs:+, $refs})"
+    case "$type" in
+      feat*) features+="$line"$'\n' ;;
+      fix*) fixes+="$line"$'\n' ;;
+      *) other+="$line"$'\n' ;;
+    esac
+  done <<< "$entries"
 done < <(git log --no-merges --format=%H "$range" -- "$plugin")
 
 sections=""

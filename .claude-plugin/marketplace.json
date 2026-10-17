@@ -9,17 +9,17 @@
     {
       "name": "aiup-core",
       "source": "./aiup-core",
-      "description": "AI Unified Process core - stack-agnostic requirements, entity model, and use cases"
+      "description": "AI Unified Process core - stack-agnostic requirements, entity model, and use cases, plus the construction orchestrators for layer plugins"
     },
     {
       "name": "aiup-vaadin-jooq",
       "source": "./aiup-vaadin-jooq",
-      "description": "AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests"
+      "description": "Deprecated — use the layer plugins. AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-angular-jpa",
       "source": "./aiup-angular-jpa",
-      "description": "AI Unified Process for the Angular/JPA stack - migrations, implementation, tests"
+      "description": "Deprecated — use the layer plugins. AI Unified Process for the Angular/JPA stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-blazor-dotnet",
@@ -30,6 +30,41 @@
       "name": "aiup-nestjs-nextjs",
       "source": "./aiup-nestjs-nextjs",
       "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests"
+    },
+    {
+      "name": "aiup-flyway",
+      "source": "./aiup-flyway",
+      "description": "AI Unified Process migration layer - Flyway schema migrations from the entity model"
+    },
+    {
+      "name": "aiup-jooq",
+      "source": "./aiup-jooq",
+      "description": "AI Unified Process persistence layer - jOOQ repositories, projections, and repository tests"
+    },
+    {
+      "name": "aiup-jpa",
+      "source": "./aiup-jpa",
+      "description": "AI Unified Process persistence layer with Spring Data JPA - entities, repositories, and repository tests"
+    },
+    {
+      "name": "aiup-spring-boot",
+      "source": "./aiup-spring-boot",
+      "description": "AI Unified Process Spring Boot layers - service and REST API implementation and tests"
+    },
+    {
+      "name": "aiup-vaadin",
+      "source": "./aiup-vaadin",
+      "description": "AI Unified Process UI layer with Vaadin - Flow and Hilla views, Browserless and Vitest view tests, and Playwright end-to-end tests"
+    },
+    {
+      "name": "aiup-angular",
+      "source": "./aiup-angular",
+      "description": "AI Unified Process UI layer for Angular - standalone components, signals, HttpClient services, Vitest component tests"
+    },
+    {
+      "name": "aiup-playwright",
+      "source": "./aiup-playwright",
+      "description": "AI Unified Process end-to-end layer - Playwright browser tests for use cases and test case journeys of any web UI"
     }
   ]
 }

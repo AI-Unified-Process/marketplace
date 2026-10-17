@@ -13,12 +13,8 @@ error() {
   fail=$((fail + 1))
 }
 
-mapfile -t files < <(
-  find docs -type f -name '*.md' -print | sort
-  printf '%s\n' README.md aiup-*/README.md
-)
-
-for file in "${files[@]}"; do
+# No mapfile: macOS ships bash 3. One path per line, so a name with a space stays one path.
+while IFS= read -r file; do
   while IFS= read -r -d '' line_number && IFS= read -r -d '' target; do
     case "$target" in
       http://*|https://*|mailto:*|\#*) continue ;;
@@ -31,6 +27,6 @@ for file in "${files[@]}"; do
       error "$file:$line_number: broken relative link: $target"
     fi
   done < <(perl -ne 'while (/\[[^\]]*\]\(([^)]+)\)/g) { print "$.", "\0", $1, "\0" }' "$file")
-done
+done < <(find docs -type f -name '*.md' -print | sort; printf '%s\n' README.md aiup-*/README.md)
 
 [ "$fail" -eq 0 ]

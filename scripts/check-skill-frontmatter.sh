@@ -21,23 +21,61 @@ def error(message):
     print(f"ERROR: {message}", file=sys.stderr)
     errors += 1
 
+def fold(parts):
+    """YAML line folding: lines join with a space, an empty line becomes a line break."""
+    out = ""
+    for part in parts:
+        if not part:
+            out += "\n"
+        elif not out or out.endswith("\n"):
+            out += part
+        else:
+            out += " " + part
+    return out.strip()
+
 def field(front_matter, key):
-    """Returns a top-level scalar, folding `>` and `|` block scalars and stripping quotes."""
+    """Returns a top-level scalar: plain, single- or double-quoted, or a `>`/`|` block scalar.
+
+    Plain and quoted scalars may continue on indented lines (a long description wrapped by an editor); those are
+    folded with spaces like YAML does, so a wrapped 1250-character description is measured in full."""
     lines = front_matter.splitlines()
     for i, line in enumerate(lines):
-        match = re.match(rf"^{key}:\s*(.*)$", line)
+        match = re.match(rf"^{re.escape(key)}:(?:\s+(.*))?$", line)
         if not match:
             continue
-        value = match.group(1).strip()
-        if value[:1] in (">", "|"):
-            block = []
-            for next_line in lines[i + 1:]:
-                if next_line and not next_line[0].isspace():
-                    break
-                block.append(next_line.strip())
-            joiner = " " if value[0] == ">" else "\n"
-            return joiner.join(part for part in block if part).strip()
-        return value.strip("'\"")
+        value = (match.group(1) or "").strip()
+        continuation = []
+        for next_line in lines[i + 1:]:
+            if next_line.strip() and not next_line[0].isspace():
+                break
+            continuation.append(next_line)
+        while continuation and not continuation[-1].strip():
+            continuation.pop()
+        if re.match(r"^[>|][0-9+-]*(\s+#.*)?$", value):
+            block = [part.strip() for part in continuation]
+            if value[0] == ">":
+                return fold(block)
+            return "\n".join(block).strip()
+        if value[:1] in ("'", '"'):
+            quote = value[0]
+            text = fold([value[1:]] + [part.strip() for part in continuation])
+            if quote == '"':
+                body, escaped = [], False
+                for ch in text:
+                    if escaped:
+                        body.append(ch)
+                        escaped = False
+                    elif ch == "\\":
+                        escaped = True
+                    elif ch == '"':
+                        break
+                    else:
+                        body.append(ch)
+                return "".join(body).strip()
+            body = re.match(r"^((?:[^']|'')*)'?", text).group(1)
+            return body.replace("''", "'").strip()
+        value = re.sub(r"\s+#.*$", "", value)
+        return fold([value] + [part.strip() for part in continuation])
     return None
 
 skills = sorted(glob.glob("aiup-*/skills/*/SKILL.md"))

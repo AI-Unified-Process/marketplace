@@ -1,0 +1,6 @@
+{
+  "description": "vaadin-flow-ui: Flow view on top of the service Handover",
+  "include": [
+    "./inputs"
+  ]
+}

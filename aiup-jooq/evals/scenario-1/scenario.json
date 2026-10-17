@@ -1,0 +1,6 @@
+{
+  "description": "jOOQ order detail with MULTISET lines and an update guarded by optimistic locking",
+  "include": [
+    "./inputs"
+  ]
+}

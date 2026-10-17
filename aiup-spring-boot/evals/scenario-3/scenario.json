@@ -1,0 +1,6 @@
+{
+  "description": "Write API tests for a use case, following the project's existing legacy MockMvc convention",
+  "include": [
+    "./inputs"
+  ]
+}
