@@ -9,7 +9,7 @@
     },
     {
       "name": "Integration layer is the API",
-      "description": "Under the Layers table a line starting with '**Integration layer:**' names the API layer with spring-rest-test — not the UI (angular-ui-test mocks the backend) and not the Service",
+      "description": "Under the Layers table an Integration layer table's UI row names the API layer with spring-rest-test — not the UI (angular-ui-test mocks the backend) and not the Service — and its API row names the API as well",
       "max_score": 20
     },
     {

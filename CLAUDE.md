@@ -134,7 +134,7 @@ layer plugins can. Rules that hold it together:
 
 - **The Development View is the contract, at one path.** It is always `docs/architecture/development.md`, and no
   skill reads any other file for the layers — one path keeps every reader free of a layout rule. `/architecture`
-  writes the Layers table (layer → technology → skill → test skill → location), the `**Integration layer:**` line,
+  writes the Layers table (layer → technology → skill → test skill → location), the Integration layer table,
   module layout, API contract, and commands from the template `aiup-core/skills/architecture/references/development.md`,
   and the index `docs/architecture/README.md` from `references/architecture-readme.md` when it is missing (neither is
   copyright-stamped; both land in the user's project).
@@ -170,21 +170,22 @@ layer plugins can. Rules that hold it together:
   them back; `/test-case-coverage` likewise applies the presentation rules of `/use-case-coverage`.
 - **Bottom-up with a Handover.** Layers run migration → persistence → service → API → UI (→ E2E for tests). Each layer
   skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on.
-- **One integration layer.** The topmost layer whose test skill runs in process against the real database (the
-  catalog's Tests run column: `vaadin-flow-ui-test`, `spring-rest-test`, `spring-service-test`, the persistence
-  tests; `hilla-ui-test` and `angular-ui-test` mock the backend, the E2E skills run the application) is the
-  project's integration layer — except an API layer that serves other clients next to a UI that does not call it
-  (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI): it never counts and tests only its own
-  contract. So Flow (+ REST) → UI, Hilla (+ REST) → Service, Angular → API (the UI reaches the service through it),
-  REST only → API, no entry layer → Service. The rule and its lookup table live once, in the section "Tests run,
-  and the integration layer" of `layer-catalog.md`; only `/architecture` applies it and records the result as the
-  `**Integration layer:**` line under the Layers table. `/use-case-test` and the coverage agent read the line and
-  never derive it — a missing line is a hand-off to `/architecture`. `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
+- **One integration layer per entry point.** Start at the entry layer a use case is offered through: when its test
+  skill runs in process against the real database (the catalog's Tests run column: `vaadin-flow-ui-test`,
+  `spring-rest-test`, `spring-service-test`, the persistence tests), that is the integration layer; when it mocks the
+  backend (`hilla-ui-test`, `angular-ui-test`), it is the layer that entry layer calls. So Flow → UI, Hilla → Service,
+  Angular → API, REST → API, Service → Service; an API next to Flow or Hilla never moves the UI's integration layer,
+  because the UI does not call it. The rule lives once, in the section "Tests run, and the integration layer" of
+  `layer-catalog.md`. Only `/architecture` applies it and records the result as the Integration layer table under
+  the Layers table — one row per entry layer, in the order UI, API, Service; a use case is tested in the first row
+  its `**Layers:**` line names, or the first row without the line. `/use-case-test`, the coverage agent, and the
+  layer test skills look the layer up and never derive it; a missing table is a hand-off to `/architecture`.
+  `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
   layers below, with three exceptions: a second in-process entry layer the use case is offered through (the API next
   to a Vaadin Flow or Hilla UI) gets its own contract tests by default, even below the integration layer; tests that
   already exist there are reconciled; and units the integration layer's skill reports it cannot reach are tested in
   their own layer. A use case is tested once, there — every business rule with its allowed and rejected case
-  included — not once per layer. The coverage agent reads the line so a skipped layer is never a gap, but reports a
+  included — not once per layer. The coverage agent reads the table so a skipped layer is never a gap, but reports a
   missing contract test of such a second entry layer as one.
 - **One `@UseCase` shape.** The Java layer test skills each carry the annotation, since no skill can link another's
   file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ.

@@ -43,8 +43,8 @@ out.
 - **Tests** the endpoints of the use case: the status of every flow, the `Location` of a created resource, the JSON
   field names and formats of request and response, the Problem Details body of every rejection, and field errors
   for invalid input.
-- **Tests the business rules too** when the `**Integration layer:**` line of `docs/architecture/development.md` names
-  the API, or for an `API`-only use case (its `**Layers:**` line): every rule gets its allowed and its rejected
+- **Tests the business rules too** when the Integration layer table of `docs/architecture/development.md` names
+  the API for this use case (behind an Angular client, in a REST service, or for an `API`-only use case): every rule gets its allowed and its rejected
   request at the boundary the rule names, with the full `detail` message, and the postconditions are read back
   through the API. Units no endpoint of the use case reaches are listed in the report. Next to a Vaadin Flow or Hilla
   UI, for a use case offered through both, these tests cover the endpoint's contract only — the main success

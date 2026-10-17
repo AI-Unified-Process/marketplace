@@ -20,13 +20,18 @@ integration layer up, and `/use-case-coverage` searches for the markers in the l
 | UI          | –                        | –                | –                    | –                |
 | E2E         | –                        | –                | –                    | –                |
 
-**Integration layer:** API — `spring-rest-test` runs in process against the real service and database.
+**Integration layer:**
 
-A layer the project does not have is marked `–` in every column (a UI layer in a REST service). The integration
-layer is the topmost layer whose tests run in process against the real database; its tests exercise every layer
-below it, so `/use-case-test` runs its test skill and the ones above it and writes no tests of their own for the layers
-below unless a run names them (`/use-case-test UC-001 persistence`). A use case whose `**Layers:**` line names only some
-entry layers (`UI`, `API`, `Service`) is built only in those, and tested in the topmost in-process layer it uses.
+| Use case offered through | Tested in | Test skill |
+|--------------------------|-----------|------------|
+| API                      | API       | `spring-rest-test` |
+| Service                  | Service   | `spring-service-test` |
+
+A layer the project does not have is marked `–` in every column (a UI layer in a REST service). The Integration
+layer table has a row per entry layer of the project: a use case is tested in the first row its `**Layers:**` line
+names, or in the first row when it has no such line. That layer's tests run in process against the real database
+and exercise every layer below it, so `/use-case-test` runs its test skill and the ones above it and writes no tests
+of their own for the layers below unless a run names them (`/use-case-test UC-001 persistence`).
 
 ## Module layout
 

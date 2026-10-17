@@ -54,7 +54,7 @@
     },
     {
       "name": "Honest report and hand-off",
-      "description": "The report says the tests were not run (no Docker/Maven), does not claim they pass, and ends with 'Next: /spring-rest-test UC-010', the test skill of the Integration layer line",
+      "description": "The report says the tests were not run (no Docker/Maven), does not claim they pass, and ends with 'Next: /spring-rest-test UC-010', the test skill of the first row of the Integration layer table",
       "max_score": 8
     }
   ]

@@ -106,8 +106,8 @@ the open question stated, never `Covered` on reading alone.
 Search, do not assume. Use the id markers first, then the domain vocabulary.
 
 **Id markers.** Read the Development View first, `docs/architecture/development.md`. Its Layers table names the
-technology and the skills of every layer, its `**Integration layer:**` line names the layer whose tests run in process
-against the real database and so exercise every layer below it, and its Markers table lists, per
+technology and the skills of every layer, its Integration layer table names, per entry layer, the layer whose tests
+run in process against the real database and so exercise every layer below it, and its Markers table lists, per
 layer, the markers the layer skills write into code and tests. Grep for every row of that table. In
 addition, in every project:
 
@@ -122,17 +122,17 @@ offer it — `UI`, `API`, or `Service` alone. An entry layer it leaves out has n
 and that is not a gap; an endpoint or view of this use case in a layer it leaves out is drift. A client-side UI
 that reaches the service through the API (Angular) implies its API layer: for a use case offered through `UI`
 there, the API endpoints are part of the use case and its integration layer, never drift and never an omitted
-layer. The project's integration layer applies to a use case without a `**Layers:**` line and to one
-whose line names `UI`; a use case whose line leaves out `UI` is tested in the API layer when the line
-names `API` (also next to a Vaadin Flow or Hilla UI), and in the service layer when it names
-`Service` alone. Judge the test evidence against that layer.
+layer. The use case's integration layer is the first row of the Integration layer table that its
+`**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row.
+Judge the test evidence against that layer.
 
 When the Development View does not exist, say so at the top of the report, audit with the two generic
 markers and the domain vocabulary alone, and name `/architecture` as the step that makes the next
 audit precise.
 
-When the Development View has no `**Integration layer:**` line, say so at the top of the report and
-name `/architecture` as the step that records it. Do not derive the layer yourself: judge the test
+When the Development View has no Integration layer table (or only the single `**Integration layer:**`
+line of an earlier version), say so at the top of the report and name `/architecture` as the step that
+writes it. Do not derive the layer yourself: judge the test
 evidence of every layer, and state that the audit could not tell which layer integrates.
 
 When the Markers table has no row for a layer the Layers table lists, report that under Gaps as a

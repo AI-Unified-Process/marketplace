@@ -57,8 +57,8 @@ exactly one **combined stack plugin**. Do not mix both in one project.
 
 Pick one plugin per layer the project has. `/architecture` records the combination in the Development View,
 `docs/architecture/development.md`; `/use-case-implement UC-001` runs the layer skills bottom-up, `/use-case-test UC-001` writes
-the tests from the integration layer up — the topmost layer whose tests run in process against the real database,
-except an API next to a Vaadin Flow or Hilla UI that does not call it, so the layers below need no tests of their own
+the tests from the integration layer up — from the entry layer the use case is offered through, the first layer whose
+tests run in process against the real database, so the layers below need no tests of their own
 (that API still gets its own contract tests when the use case is offered through it) — and `/use-case-coverage UC-001`
 audits the result. A use case offered through only some entry
 points (an administration screen without an API) says so in its `**Layers:**` line, and only those layers are built

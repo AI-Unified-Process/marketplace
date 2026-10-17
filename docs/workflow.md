@@ -30,10 +30,11 @@ Inception          Elaboration                            Construction
   `aiup-playwright`): one plugin per technology, combined per project. `/architecture` records the combination in
   `docs/architecture/development.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
   names (`/test-case-implement` and `/test-case-coverage` the E2E layer of a journey) — `/use-case-implement` bottom-up (migration, persistence, service, API, UI), `/use-case-test` from the integration
-  layer up: the topmost layer whose tests run in process against the real database (the Browserless tests of a
-  Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own.
-  `/architecture` derives it once and records it as the `**Integration layer:**` line; an API next to a Vaadin Flow
-  or Hilla UI serves other clients, never counts, and gets contract tests of its own for the use cases it offers. A REST service without a UI uses the same skills
+  layer up: from the entry layer the use case is offered through, the first layer whose tests run in process
+  against the real database (the Browserless tests of a Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own.
+  `/architecture` derives it once per entry layer and records it in the Integration layer table; an API next to a
+  Vaadin Flow or Hilla UI serves other clients, is the integration layer only of the use cases offered through it
+  alone, and gets contract tests of its own for the use cases it offers next to the UI. A REST service without a UI uses the same skills
   without the UI layer.
 
 The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:

@@ -24,8 +24,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Write the service layer tests of $ARGUMENTS for a Spring Boot application. This is the layer where the business rules
-are decided. When the `**Integration layer:**` line of `docs/architecture/development.md` names the service (behind
-a Hilla UI, or with no entry layer above it), or a direct run finds no layer above the service, this skill tests the
+are decided. When the Integration layer table of `docs/architecture/development.md` names the service for this use
+case (behind a Hilla UI, or for a `Service`-only use case), or a direct run finds no layer above the service, this skill tests the
 use case — each rule once, with its allowed and its rejected case. Otherwise it writes only the tests
 `/use-case-test` asks for; "Which Layer Tests What" of `/use-case-test` decides which. Do not change production code.
 

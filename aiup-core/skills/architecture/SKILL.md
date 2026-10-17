@@ -36,8 +36,8 @@ when it is missing; the other views are written by the team and never by this sk
 The Development View connects the stack-agnostic construction skills of `aiup-core` with the layer plugins:
 
 - `/use-case-implement UC-XXX` runs the Skill column bottom-up, for the layers the use case's `**Layers:**` line names.
-- `/use-case-test UC-XXX` runs the Test skill column from the integration layer up — the `**Integration layer:**` line
-  under the Layers table, the topmost layer whose tests run in process against the real database.
+- `/use-case-test UC-XXX` runs the Test skill column from the integration layer up — the row of the Integration
+  layer table under the Layers table for the entry layer the use case is offered through.
 - `/use-case-coverage UC-XXX` searches for the markers in the Markers table, which the layer skills maintain.
 
 Use the templates [references/development.md](references/development.md) and
@@ -109,7 +109,7 @@ their heading is missing or they hold only the template's placeholder, and touch
 
 | Section                                | On every run                                                                                       |
 |----------------------------------------|----------------------------------------------------------------------------------------------------|
-| `## Layers`                            | Created or updated: the table, the `**Integration layer:**` line, the explanation, and any decision prose under the heading |
+| `## Layers`                            | Created or updated: the table, the Integration layer table, the explanation, and any decision prose under the heading |
 | `## Markers`                           | Created when missing with the `All` row; existing rows are kept, the layer skills own theirs      |
 | `## Module layout`, `## API contract`, `## Commands` | Written when the heading is missing, or when the section still holds only the template's placeholder comment or a table with empty cells. A section with content of its own is the team's, whatever it says; leave it |
 | Header, everything else                | Written on a new file only, from the template. Never rewritten                                     |
@@ -120,8 +120,8 @@ a missing `## Markers` goes at the end of the file.
 ## Workflow
 
 1. **Read what is there.** Read `docs/architecture/development.md` when it exists — this run updates it, never
-   replaces it. A file without the `**Integration layer:**` line gets it in this run. Read
-   `docs/architecture/README.md` when it exists, `docs/requirements.md` for constraints (`C-*`) that fix a
+   replaces it. A file without the Integration layer table — or with the single `**Integration layer:**` line of
+   an earlier version — gets the table in this run. Read `docs/architecture/README.md` when it exists, `docs/requirements.md` for constraints (`C-*`) that fix a
    technology, the architecture decision records when the project has them (glob `docs/**/adr/*.md`), and a
    `docs/architecture.md` when there is one (see *An existing docs/architecture.md*).
 2. **Discover the layer skills** — see *The layer skills* — and **detect the stack** of an existing project with
@@ -144,11 +144,11 @@ a missing `## Markers` goes at the end of the file.
 5. **Write the Development View** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
-   - the `**Integration layer:**` line under the table, with its test skill, by the section "Tests run, and the
-     integration layer" of the [layer catalog](references/layer-catalog.md) — its lookup table first, its rule
-     with the Tests run column of each `layer.md` only for a combination the table does not list. For a team's own
-     skill without a `layer.md`, use the answer to step 3. You are the only skill that derives this line; the
-     others read it;
+   - the Integration layer table under the Layers table — one row per entry layer, in the order UI, API, Service —
+     by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
+     start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read
+     Tests run from each `layer.md`; for a team's own skill without one, use the answer to step 3. You are the only
+     skill that derives this table; the others look it up;
    - when the section is missing or still the template's placeholder (see the table above): the Module layout and,
      with an API layer, the API contract. Record what the project does; for a new project record what the user
      chose. Without an API layer, drop the template's API contract section, as its comment says. Leave a section
@@ -195,10 +195,11 @@ This is the only file this skill deletes, and only after the user said yes.
 A changed row changes what the next `/use-case-implement` builds, not what earlier runs built. When the user replaces a
 technology (JPA instead of jOOQ), say that existing code stays as it is until a use case is reimplemented, and
 remove the Markers rows of the replaced skill only when no code or test of it remains. Replacing the UI or API
-technology can move the integration layer (see the lookup table of the layer catalog): rewrite the
-`**Integration layer:**` line and say that `/use-case-test` now runs different layers. Adding an API layer next to a
-Vaadin Flow or Hilla UI does not move it; say that the use cases offered through only one of the two need a
-`**Layers:**` line, and that `/use-case-implement` otherwise builds both for every use case.
+technology can move the integration layer of its row (Hilla instead of Vaadin Flow moves the UI row from the UI to
+the service): rewrite the Integration layer table and say that `/use-case-test` now runs different layers. Adding an
+API layer next to a Vaadin Flow or Hilla UI adds the API row and moves no other; say that the use cases offered
+through only one of the two need a `**Layers:**` line, and that `/use-case-implement` otherwise builds both for every
+use case.
 
 ## DO NOT
 

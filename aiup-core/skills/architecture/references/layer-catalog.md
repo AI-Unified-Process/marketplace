@@ -35,7 +35,7 @@ The line narrows only the entry layers: migration, persistence, and service run 
 without it (a layer with nothing to do for the use case says so), and E2E follows the UI.
 
 **A client-side UI that reaches the service through the API (Angular) implies its API layer.** A use case offered
-through `UI` is built in the API layer too, tested there (the API is that project's integration layer), and its
+through `UI` is built in the API layer too, tested there (the UI row of the Integration layer table names the API), and its
 endpoints are part of the use case, not drift — whether or not the `**Layers:**` line also names `API`.
 
 ## Tests run, and the integration layer
@@ -45,34 +45,41 @@ tests run the application context inside the JVM against the real database, so e
 real; *backend mocked* means the UI test stubs the layer below; *running application* means black-box browser
 tests.
 
-This section is the only place that derives the integration layer. `/architecture` applies it once and records the
-result as the `**Integration layer:**` line under the Layers table of `docs/architecture/development.md`; every
-other skill and the coverage agent read that line and never derive it again.
+This section is the only place that derives the integration layer. `/architecture` applies it once per entry layer
+and records the result as the Integration layer table under the Layers table of `docs/architecture/development.md`;
+every other skill and the coverage agent look the layer up in that table and never derive it again.
 
-**The rule.** The project's **integration layer** is the topmost layer of its Layers table, in the bottom-up order
-migration → persistence → service → API → UI, whose test skill runs *in process, real database* — except an API
-layer next to a UI that does not call it (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI
-layer). Such an API serves other clients, never counts as the integration layer, and tests only its own contract.
+**The rule.** Start at the entry layer through which a use case is offered. When its test skill runs *in process,
+real database*, that layer is the **integration layer**. When it does not — a UI whose tests mock the backend — the
+integration layer is the layer that entry layer calls, by the same rule:
 
-**The rule as a lookup.** Apply the table; derive with the rule only for a combination it does not list (a team's
-own layer skill):
+| Entry layer | Its tests              | Integration layer                                         |
+|-------------|------------------------|-----------------------------------------------------------|
+| Vaadin Flow | in process             | UI                                                        |
+| Hilla       | backend mocked         | Service — the `@BrowserCallable` endpoint calls it directly |
+| Angular     | backend mocked         | API — the UI reaches the service through it               |
+| REST API    | in process             | API                                                       |
+| Service     | in process             | Service (Persistence when the project has no service layer) |
 
-| Entry layers of the project | Integration layer      |
-|-----------------------------|------------------------|
-| Vaadin Flow (± REST API)    | UI                     |
-| Hilla (± REST API)          | Service                |
-| Angular + REST API          | API                    |
-| REST API, no UI             | API                    |
-| none                        | Service (or Persistence when there is no service layer) |
+Because the rule starts at the entry point, an API next to a Vaadin Flow or Hilla UI never moves the UI's
+integration layer: the UI does not call it. It is the integration layer only of the use cases offered through it
+alone. A layer built without a layer skill (Skill column `–`) has no `layer.md`: count a server-side technology
+(Spring MVC, a JVM UI framework) as *in process, real database*, and ask about any other. E2E is never an entry
+layer and never the integration layer.
 
-A layer built without a layer skill (Skill column `–`) has no `layer.md`: count a server-side technology (Spring
-MVC, a JVM UI framework) as *in process, real database*, and ask about any other. E2E is never the integration
-layer.
+**Recorded per entry layer.** The Integration layer table has one row per entry layer of the project, in the order
+UI, API, Service — the service row always, because a use case can be offered through the service alone. A use case
+is tested in the first row its `**Layers:**` line names; a use case without the line, in the first row:
 
-**A use case's own integration layer.** The project's line applies to a use case without a `**Layers:**` line and
-to one whose line names `UI`. A use case whose line leaves out `UI` is tested in the API layer when the line names
-`API`, and in the service layer when it names `Service` alone — so an `API`-only use case is tested in the API
-layer next to a Vaadin Flow or a Hilla UI as well.
+```markdown
+**Integration layer:**
+
+| Use case offered through | Tested in | Test skill            |
+|--------------------------|-----------|-----------------------|
+| UI                       | UI        | `vaadin-flow-ui-test` |
+| API                      | API       | `spring-rest-test`    |
+| Service                  | Service   | `spring-service-test` |
+```
 
 `/use-case-test` runs the test skills from that layer upwards and writes no tests of their own for the layers below;
 what each layer tests is in `/use-case-test`, "Which Layer Tests What".

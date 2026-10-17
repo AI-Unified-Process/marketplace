@@ -105,7 +105,7 @@ with a verdict, say so underneath it and leave the row alone.
   `/use-case-test UC-XXX` for test gaps — narrowed to a layer below the integration layer of
   `docs/architecture/development.md` (`/use-case-test UC-XXX service`) only when the report says the unit is unreachable from
   it — `/architecture` when the report says `docs/architecture/development.md` or its
-  `**Integration layer:**` line is missing, and a rerun of the layer skill named in the Layers table when the report says its Markers rows
+  Integration layer table is missing, and a rerun of the layer skill named in the Layers table when the report says its Markers rows
   are missing (the layer skills own those rows; `/architecture` adds only the `All` row; a test skill below
   the integration layer that never ran has none to add). Offer them; run one only if the user says yes.
 - Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the

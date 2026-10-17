@@ -154,10 +154,11 @@ then work use case by use case:
 entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
 test only those layers.
 `/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
-tests from the integration layer up: the topmost layer whose tests run in process against the real database (the
-Browserless tests of a Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of
-their own. A REST API next to a UI that does not call it (Vaadin Flow, Hilla) is never the integration layer; when a
-use case is offered through it as well, `/use-case-test` writes its contract tests too, even though it sits below the
+tests from the integration layer up: starting at the entry layer the use case is offered through, the first layer
+whose tests run in process against the real database (the Browserless tests of a Vaadin Flow UI, the service tests
+behind a Hilla UI, the API tests of a REST service), so the layers below it need no tests of their own. A REST API
+next to a UI that does not call it (Vaadin Flow, Hilla) is the integration layer only of the use cases offered
+through it alone; when a use case is offered through it as well, `/use-case-test` writes its contract tests too, even though it sits below the
 integration layer. Both take a layer to narrow the run, for example `/use-case-implement UC-001 api` or `/use-case-test UC-001
 persistence` for a lower layer.
 

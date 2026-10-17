@@ -1,10 +1,10 @@
 {
-  "context": "Tests whether /use-case-test picks the right layers in a Hilla + REST + jOOQ project whose Development View lacks the **Integration layer:** line: it derives the service layer as the integration layer (the REST API next to a Hilla UI never counts, the Hilla tests mock the backend), says the line is missing and names /architecture, runs spring-service-test for the whole use case, spring-rest-test only for its own contract, hilla-ui-test and vaadin-e2e-test because UC-002 is offered through the UI, writes no persistence tests, changes no production code, and hands off to /use-case-coverage. The test skills are installed in .claude/skills.",
+  "context": "Tests whether /use-case-test picks the right layers in a Hilla + REST + jOOQ project by looking up the Integration layer table of the Development View: UC-002 has no **Layers:** line, so its first row applies — the UI row, which names the Service (the Hilla tests mock the backend, and the REST API next to the UI is not what the UI calls). It runs spring-service-test for the whole use case, spring-rest-test only for its own contract, hilla-ui-test and vaadin-e2e-test because UC-002 is offered through the UI, writes no persistence tests, changes no production code, and hands off to /use-case-coverage. The test skills are installed in .claude/skills.",
   "type": "weighted_checklist",
   "checklist": [
     {
-      "name": "Integration layer derived",
-      "description": "The agent says that docs/architecture/development.md has no **Integration layer:** line, names /architecture as the step that records it, and derives the Service layer (spring-service-test) as the integration layer — not the API layer, because a REST API next to a Hilla UI serves other clients and never counts, and not the UI, because hilla-ui-test mocks the backend",
+      "name": "Integration layer looked up",
+      "description": "The agent takes the integration layer from the UI row of the Integration layer table in docs/architecture/development.md (UC-002 has no **Layers:** line) and names the Service layer (spring-service-test) — not the API layer and not the UI — without deriving it anew or suggesting /architecture",
       "max_score": 15
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "name": "Production code and documents untouched",
-      "description": "No file under src/main/java, src/main/frontend/views, or src/main/resources/db/migration is changed, and no file under docs/ is changed except the Markers table of docs/architecture/development.md; the **Integration layer:** line is not added by this run",
+      "description": "No file under src/main/java, src/main/frontend/views, or src/main/resources/db/migration is changed, and no file under docs/ is changed except the Markers table of docs/architecture/development.md; the Integration layer table is unchanged",
       "max_score": 10
     },
     {

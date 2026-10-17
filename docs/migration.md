@@ -60,7 +60,7 @@ Tessl: remove the combined package from the project and install the layer packag
 
 The skill detects Flyway, jOOQ or JPA, Spring Boot, and Vaadin or Angular from the build files and the source tree,
 asks only where two technologies fit, and writes the Development View: the Layers table with the skill and the test
-skill of each layer, the `**Integration layer:**` line, the module layout, the API contract when there is one, and
+skill of each layer, the Integration layer table, the module layout, the API contract when there is one, and
 the build and test commands, in `docs/architecture/development.md` with a `README.md` index of the 4+1 views. When the
 project already has a `docs/architecture.md`, the skill reads it and asks whether to move it into the folder as the
 Development View. Nothing in the code changes.

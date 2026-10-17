@@ -41,8 +41,8 @@ Angular. The service never depends on a web or UI type.
 | Hilla, jOOQ                   | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
 
-A use case is tested once, in the project's integration layer, which `/architecture` records as the
-`**Integration layer:**` line of `docs/architecture/development.md`:
+A use case is tested once, in the integration layer of the entry layer it is offered through, which `/architecture`
+records in the Integration layer table of `docs/architecture/development.md`:
 
 | Project                            | Integration layer | What this plugin's test skills write                                                |
 |------------------------------------|-------------------|-------------------------------------------------------------------------------------|
@@ -51,8 +51,8 @@ A use case is tested once, in the project's integration layer, which `/architect
 | Hilla (with or without REST)       | Service           | `/spring-service-test`: every business rule; `/spring-rest-test`: the contract only |
 | No entry layer                     | Service           | `/spring-service-test`: every business rule                                         |
 
-A REST API next to a Vaadin Flow or Hilla UI serves other clients; the UI does not call it, so it never becomes the
-integration layer. Below the integration layer, `/spring-service-test` only reconciles existing tests and covers
+A REST API next to a Vaadin Flow or Hilla UI serves other clients; the UI does not call it, so it is the integration
+layer only of the use cases offered through the API alone. Below the integration layer, `/spring-service-test` only reconciles existing tests and covers
 units the integration layer's skill reports it cannot reach. In a Vaadin or Hilla application without a public API,
 the API layer is marked `–` in `docs/architecture/development.md` and `/spring-rest` does not run.
 

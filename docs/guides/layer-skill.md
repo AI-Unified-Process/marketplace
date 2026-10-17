@@ -41,10 +41,10 @@ One row of the layer catalog, in a table with exactly these columns:
   real database, so every layer below is exercised), `backend mocked` (the tests stub the layer below), or
   `running application` (black-box tests against the started application). A row whose **Test skill** is `–` has
   `–` here too, and only such a row: a layer without a test skill, such as the migration layer, runs no tests.
-- `/architecture` derives the project's integration layer, where `/use-case-test` tests every business rule, from
-  this column — the topmost row whose tests run `in process, real database`, with the exception of an API layer
-  next to a UI that does not call it. The rule and its lookup table are in the layer catalog of `/architecture`,
-  section "Tests run, and the integration layer"; a layer skill only states its Tests run correctly.
+- `/architecture` derives the integration layer of each entry layer, where `/use-case-test` tests every business
+  rule, from this column: the entry layer itself when its tests run `in process, real database`, otherwise the
+  layer it calls. The rule is in the layer catalog of `/architecture`, section "Tests run, and the integration
+  layer"; a layer skill only states its Tests run correctly.
 - **Detect** names the evidence in an existing project. Put the source-tree evidence first (an annotation, a file
   pattern); a dependency that another technology also brings is not enough on its own.
 

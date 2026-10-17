@@ -59,7 +59,7 @@
     },
     {
       "name": "Markers rows and hand-off",
-      "description": "docs/architecture/development.md gains the jpa-persistence-test Markers rows (Test and Name), and the report names the test command and ends with 'Next: /spring-rest-test UC-031', the test skill of the Integration layer line",
+      "description": "docs/architecture/development.md gains the jpa-persistence-test Markers rows (Test and Name), and the report names the test command and ends with 'Next: /spring-rest-test UC-031', the test skill of the first row of the Integration layer table",
       "max_score": 8
     }
   ]

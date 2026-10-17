@@ -261,7 +261,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Hand-off
 
 Run from `/use-case-test`, return to it. Run directly, end with one `Next:` line naming the integration layer's test skill
-from the `**Integration layer:**` line of `docs/architecture/development.md` (for example `Next: /vaadin-flow-ui-test UC-001`),
+from the Integration layer table of `docs/architecture/development.md` (for example `Next: /vaadin-flow-ui-test UC-001`),
 or `Next: /use-case-coverage UC-001` when this was the last test layer. Never run the coverage audit.
 
 ## Resources

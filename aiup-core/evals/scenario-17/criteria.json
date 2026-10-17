@@ -14,7 +14,7 @@
     },
     {
       "name": "Integration layer is the UI",
-      "description": "Under the Layers table a line '**Integration layer:** UI' names vaadin-flow-ui-test, not the API",
+      "description": "Under the Layers table an Integration layer table's first row, UI, names the UI layer with vaadin-flow-ui-test — not the API — and an API row names the API layer with spring-rest-test for API-only use cases",
       "max_score": 15
     },
     {

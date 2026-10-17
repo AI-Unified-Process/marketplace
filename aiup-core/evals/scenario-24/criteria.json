@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "Opening line",
-      "description": "Before the first test skill runs, the agent states in one line that vaadin-flow-ui-test (UI, the integration layer from the **Integration layer:** line) and spring-rest-test (the API as a second entry layer) run, and that the persistence and service layers are skipped because the integration layer covers them",
+      "description": "Before the first test skill runs, the agent states in one line that vaadin-flow-ui-test (UI, the integration layer from the UI row of the Integration layer table) and spring-rest-test (the API as a second entry layer) run, and that the persistence and service layers are skipped because the integration layer covers them",
       "max_score": 8
     },
     {

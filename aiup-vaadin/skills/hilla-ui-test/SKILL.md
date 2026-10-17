@@ -57,7 +57,7 @@ entry — into generated code, test data, or your summary; name the file it live
 What to test in this layer, following "Which Layer Tests What" of `/use-case-test`: every step and alternative flow the
 actor sees, that the view sends the right data to the endpoint, that a rule's rejection reaches the actor (a
 field error, or the `EndpointError` message), and what the view shows afterwards. The rule itself is tested in the
-integration layer the `**Integration layer:**` line of `docs/architecture/development.md` names — the service
+integration layer the Integration layer table of `docs/architecture/development.md` names for the UI — the service
 layer of a Hilla stack, even next to a REST API that serves other clients: its tests run through the real
 persistence layer and database, which these mocked tests do not.
 
@@ -189,7 +189,7 @@ endpoint, a `@SpringBootTest` with `@AutoConfigureMockMvc`:
 
 Nothing else: no business rule boundaries (the integration layer's tests own them) and no happy-path data checks
 beyond one call that proves the endpoint delegates. Annotate each method with `@UseCase` from the Java test skill
-of the integration layer (the `**Integration layer:**` line of `docs/architecture/development.md`), which created
+of the integration layer (the Integration layer table of `docs/architecture/development.md`), which created
 the annotation; when it is missing, run that skill first rather than defining the annotation here. A module whose
 test sources cannot see that annotation gets its own copy, identical to the one the integration layer's skill
 created. In Spring Boot 4 `@AutoConfigureMockMvc` lives in `org.springframework.boot.webmvc.test.autoconfigure` and

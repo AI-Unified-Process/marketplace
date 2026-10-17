@@ -1,5 +1,5 @@
 {
-  "description": "Tests of a use case in a Hilla and REST project start at the service layer as the integration layer, derived while the Integration layer line is missing",
+  "description": "Tests of a use case in a Hilla and REST project start at the service layer, looked up in the UI row of the Integration layer table",
   "fixtures": {
     "project": {
       "type": "directory",

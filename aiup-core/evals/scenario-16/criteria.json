@@ -29,7 +29,7 @@
     },
     {
       "name": "Integration layer",
-      "description": "Under the Layers table a line starting with '**Integration layer:**' names the API layer, not the Service or Persistence layer",
+      "description": "Under the Layers table an Integration layer table has an API row that names the API layer with spring-rest-test and a Service row with spring-service-test, and no UI row; not a single '**Integration layer:**' line",
       "max_score": 10
     },
     {
