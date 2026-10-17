@@ -144,16 +144,11 @@ a missing `## Markers` goes at the end of the file.
 5. **Write the Development View** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
-   - the `**Integration layer:**` line under the table, with its test skill: the topmost layer of this project's
-     Layers table (in the bottom-up order migration → persistence → service → API → UI) whose test skill runs *in process, real database* by its `layer.md` — except an API layer that
-     serves other clients next to a UI that does not call it (Vaadin Flow; Hilla, whose `@BrowserCallable`
-     endpoint belongs to the UI layer), which never counts and tests only its own contract. Vaadin Flow, with or
-     without a REST API, gives the UI; Hilla, with or without a REST API, the Service; Angular the API, through
-     which its UI reaches the service; a REST service the API; no entry layer the Service (or Persistence). A layer
-     whose Skill is `–` — built without a layer skill — has no `layer.md` (the E2E row is not one: its `layer.md`
-     ships with its Test skill, and E2E is never the integration layer): count a server-side technology (Spring MVC, a JVM UI framework) as *in
-     process, real database*, and ask about any other. For a team's own skill without a `layer.md`, use the answer
-     to step 3;
+   - the `**Integration layer:**` line under the table, with its test skill, by the section "Tests run, and the
+     integration layer" of the [layer catalog](references/layer-catalog.md) — its lookup table first, its rule
+     with the Tests run column of each `layer.md` only for a combination the table does not list. For a team's own
+     skill without a `layer.md`, use the answer to step 3. You are the only skill that derives this line; the
+     others read it;
    - when the section is missing or still the template's placeholder (see the table above): the Module layout and,
      with an API layer, the API contract. Record what the project does; for a new project record what the user
      chose. Without an API layer, drop the template's API contract section, as its comment says. Leave a section
@@ -200,11 +195,10 @@ This is the only file this skill deletes, and only after the user said yes.
 A changed row changes what the next `/use-case-implement` builds, not what earlier runs built. When the user replaces a
 technology (JPA instead of jOOQ), say that existing code stays as it is until a use case is reimplemented, and
 remove the Markers rows of the replaced skill only when no code or test of it remains. Replacing the UI or API
-technology can move the integration layer (Hilla instead of Vaadin Flow moves it from the UI to the service, Angular
-instead of Vaadin Flow to the API): rewrite the `**Integration layer:**` line and say that `/use-case-test` now runs
-different layers. Adding an API layer next to a Vaadin Flow or Hilla UI does not move it — that API serves other
-clients and never counts as the integration layer; say that the use cases offered through only one of the two need
-a `**Layers:**` line, and that `/use-case-implement` otherwise builds both for every use case.
+technology can move the integration layer (see the lookup table of the layer catalog): rewrite the
+`**Integration layer:**` line and say that `/use-case-test` now runs different layers. Adding an API layer next to a
+Vaadin Flow or Hilla UI does not move it; say that the use cases offered through only one of the two need a
+`**Layers:**` line, and that `/use-case-implement` otherwise builds both for every use case.
 
 ## DO NOT
 

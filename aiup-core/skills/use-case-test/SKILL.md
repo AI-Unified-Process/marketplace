@@ -86,14 +86,10 @@ covers a scenario names it, so `/use-case-coverage` can map it — and reads the
 
 ## Which Layer Tests What
 
-The `**Integration layer:**` line under the Layers table of `docs/architecture/development.md` names the topmost layer whose
-test skill runs in process against the real service and database — except an API layer that serves other clients
-next to a UI that does not call it (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI layer),
-which never counts as the integration layer and tests only its own contract. So it is the UI in a Vaadin Flow stack
-with or without a REST API (`vaadin-flow-ui-test`), the service behind a Hilla UI with or without a REST API
-(`spring-service-test`), the API behind an Angular client or in a REST service without a UI (`spring-rest-test`),
-and the service when the project has no entry layer. Its tests exercise every layer below it for real, so a use
-case is tested once, there — not once per layer:
+The `**Integration layer:**` line under the Layers table of `docs/architecture/development.md` names the layer whose
+test skill runs in process against the real service and database. `/architecture` derives it; read it, never derive
+it again. Its tests exercise every layer below it for real, so a use case is tested once, there — not once per
+layer:
 
 - **The integration layer tests the use case**: the main success scenario, every alternative flow, every business
   rule with its allowed and its rejected case at the boundary the rule names, the preconditions, the postconditions
@@ -130,18 +126,13 @@ client-side UI that reaches the service through the API (Angular) implies its AP
 test skill too, as the integration layer (the layer catalog of `/architecture`, "Entry layers of a use case"). An
 entry layer the line names that the Layers table marks `–` is a contradiction between the specification and the
 architecture: stop before the first layer and ask whether `/architecture` adds the layer or `/use-case-spec UC-XXX`
-corrects the line. When the line keeps the use case out of the project's integration layer, its integration layer is the topmost layer it uses
-whose test skill runs in process against the real database: an `API`-only use case of a Vaadin Flow application
-with a REST API is tested in the API layer (`spring-rest-test`), a `Service`-only use case in the service layer
+corrects the line. The project's integration layer applies to a use case without a `**Layers:**` line and to one
+whose line names `UI`. A use case whose line leaves out `UI` is tested in the API layer when the line names `API`
+(`spring-rest-test`, also next to a Vaadin Flow or Hilla UI), and in the service layer when it names `Service` alone
 (`spring-service-test`). Name the integration layer of this run in the opening line.
 
-When the `**Integration layer:**` line is missing (a `docs/architecture/development.md` written before it existed),
-derive the integration layer with the rule above from the Tests run column of the `references/layer.md` that each
-layer skill of the Layers table ships — find them where `/architecture` looks, its section "The layer skills": the
-project's skill folders (hidden, often symlinked and gitignored, so list them directly; folders may carry a host
-prefix such as `tessl__`), the user's own skill folder, and, in Claude Code, the enabled plugins listed in
-`~/.claude/plugins/installed_plugins.json`. A skill without a `layer.md` — the team's own — has no Tests run cell:
-ask. Say that the line is missing, and name `/architecture` as the step that records it.
+When the `**Integration layer:**` line is missing, do not derive it here: say so, stop, and hand off to
+`/architecture`, which records it without touching the rest of the file.
 
 ## Running a Test Skill
 
@@ -162,8 +153,8 @@ which layers are skipped because the integration layer covers them, and which th
 2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
 3. Read the Development View, `docs/architecture/development.md`, its `**Integration layer:**` line, and the use
    case's `**Layers:**` line. When the Development View does not exist, stop and hand off to `/architecture`, which
-   also offers to move a `docs/architecture.md` into the folder; when only the integration line is missing, see
-   "Which Layer Tests What". Stop on a contradiction between the `**Layers:**` line and the Layers table (see
+   also offers to move a `docs/architecture.md` into the folder; when only the integration line is missing, stop
+   and hand off to `/architecture` as well. Stop on a contradiction between the `**Layers:**` line and the Layers table (see
    "Which Layer Tests What").
 4. Search for existing tests of this use case — see "If Tests for This Use Case Already Exist". Note which layers
    below the integration layer already hold tests of it: they run, to reconcile them.

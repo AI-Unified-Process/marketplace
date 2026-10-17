@@ -45,18 +45,37 @@ tests run the application context inside the JVM against the real database, so e
 real; *backend mocked* means the UI test stubs the layer below; *running application* means black-box browser
 tests.
 
-The topmost layer of a project's Layers table, in the bottom-up order migration → persistence → service → API →
-UI, whose test skill runs *in process, real database* is the project's
-**integration layer** — except an API layer that serves other clients next to a UI that does not call it (Vaadin
-Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI layer): such an API never counts as the integration
-layer and tests only its own contract. So Vaadin Flow, with or without a REST API, integrates in the UI; Hilla, with
-or without a REST API, in the service; Angular in the API, through which its UI reaches the service; a REST service
-without a UI in the API; a project without an entry layer in the service (or the persistence layer).
-`/architecture` records it as the `**Integration layer:**` line under the Layers table of
-`docs/architecture/development.md`. For a use case that its `**Layers:**` line keeps out of that layer, the
-integration layer is the topmost in-process layer the use case uses: an `API`-only use case of a Vaadin Flow
-application with a REST API is tested in the API layer. `/use-case-test` runs the test skills from that layer upwards and
-writes no tests of their own for the layers below; the rules are in `/use-case-test`, "Which Layer Tests What".
+This section is the only place that derives the integration layer. `/architecture` applies it once and records the
+result as the `**Integration layer:**` line under the Layers table of `docs/architecture/development.md`; every
+other skill and the coverage agent read that line and never derive it again.
+
+**The rule.** The project's **integration layer** is the topmost layer of its Layers table, in the bottom-up order
+migration → persistence → service → API → UI, whose test skill runs *in process, real database* — except an API
+layer next to a UI that does not call it (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI
+layer). Such an API serves other clients, never counts as the integration layer, and tests only its own contract.
+
+**The rule as a lookup.** Apply the table; derive with the rule only for a combination it does not list (a team's
+own layer skill):
+
+| Entry layers of the project | Integration layer      |
+|-----------------------------|------------------------|
+| Vaadin Flow (± REST API)    | UI                     |
+| Hilla (± REST API)          | Service                |
+| Angular + REST API          | API                    |
+| REST API, no UI             | API                    |
+| none                        | Service (or Persistence when there is no service layer) |
+
+A layer built without a layer skill (Skill column `–`) has no `layer.md`: count a server-side technology (Spring
+MVC, a JVM UI framework) as *in process, real database*, and ask about any other. E2E is never the integration
+layer.
+
+**A use case's own integration layer.** The project's line applies to a use case without a `**Layers:**` line and
+to one whose line names `UI`. A use case whose line leaves out `UI` is tested in the API layer when the line names
+`API`, and in the service layer when it names `Service` alone — so an `API`-only use case is tested in the API
+layer next to a Vaadin Flow or a Hilla UI as well.
+
+`/use-case-test` runs the test skills from that layer upwards and writes no tests of their own for the layers below;
+what each layer tests is in `/use-case-test`, "Which Layer Tests What".
 
 ## Plugins
 
@@ -79,9 +98,10 @@ plugin outside this marketplace needs no row here. `scripts/check-layer-catalog.
 | `aiup-angular`     | UI          | `angular-ui`       | `angular-ui-test`          | backend mocked              |
 | `aiup-playwright`  | E2E         | –                  | `playwright-e2e-test`      | running application         |
 
-The Java layer plugins build on Spring Boot and need `aiup-spring-boot` installed next to them: its service layer is
-what their persistence, UI, and tests connect to, and `jpa-persistence` reads the module layout reference of
-`spring-service`.
+`aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` build on Spring Boot and declare `aiup-spring-boot` as a plugin
+dependency, so Claude Code installs it with them: its service layer is what their persistence, UI, and tests connect
+to, and the persistence skills read the module layout reference of `spring-service`. Tessl has no dependency field; install
+`aiup-spring-boot` next to them there. `aiup-flyway`, `aiup-angular`, and `aiup-playwright` need only `aiup-core`.
 
 ## Common combinations
 

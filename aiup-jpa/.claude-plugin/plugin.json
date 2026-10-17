@@ -11,6 +11,10 @@
     {
       "name": "aiup-core",
       "version": ">=3.0.0"
+    },
+    {
+      "name": "aiup-spring-boot",
+      "version": ">=3.0.0"
     }
   ]
 }

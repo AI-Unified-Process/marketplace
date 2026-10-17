@@ -31,10 +31,9 @@ Inception          Elaboration                            Construction
   `docs/architecture/development.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
   names (`/test-case-implement` and `/test-case-coverage` the E2E layer of a journey) — `/use-case-implement` bottom-up (migration, persistence, service, API, UI), `/use-case-test` from the integration
   layer up: the topmost layer whose tests run in process against the real database (the Browserless tests of a
-  Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own — except an
-  API layer that serves other clients next to a UI that does not call it (Vaadin Flow; Hilla, whose
-  `@BrowserCallable` endpoint belongs to the UI): it never counts as the integration layer, and when a use case is
-  offered through it as well, it gets contract tests of its own. A REST service without a UI uses the same skills
+  Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own.
+  `/architecture` derives it once and records it as the `**Integration layer:**` line; an API next to a Vaadin Flow
+  or Hilla UI serves other clients, never counts, and gets contract tests of its own for the use cases it offers. A REST service without a UI uses the same skills
   without the UI layer.
 
 The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:

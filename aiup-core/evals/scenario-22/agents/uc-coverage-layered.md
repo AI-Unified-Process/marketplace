@@ -122,24 +122,18 @@ offer it — `UI`, `API`, or `Service` alone. An entry layer it leaves out has n
 and that is not a gap; an endpoint or view of this use case in a layer it leaves out is drift. A client-side UI
 that reaches the service through the API (Angular) implies its API layer: for a use case offered through `UI`
 there, the API endpoints are part of the use case and its integration layer, never drift and never an omitted
-layer. When it keeps the use case out of the project's integration layer, the use case's integration layer is the topmost layer it uses whose
-tests run in process (an `API`-only use case next to a Vaadin Flow UI is tested in the API layer); judge the test
-evidence against that layer.
+layer. The project's integration layer applies to a use case without a `**Layers:**` line and to one
+whose line names `UI`; a use case whose line leaves out `UI` is tested in the API layer when the line
+names `API` (also next to a Vaadin Flow or Hilla UI), and in the service layer when it names
+`Service` alone. Judge the test evidence against that layer.
 
 When the Development View does not exist, say so at the top of the report, audit with the two generic
 markers and the domain vocabulary alone, and name `/architecture` as the step that makes the next
 audit precise.
 
 When the Development View has no `**Integration layer:**` line, say so at the top of the report and
-name `/architecture` as the step that records it. Derive the layer the way `/use-case-test` does: the
-topmost layer of the Layers table (in the bottom-up order migration → persistence → service → API →
-UI) whose test skill runs in process against the real database — the
-Tests run column of the skill's `references/layer.md`, found in the project's skill folders
-(`.claude/skills/`, `.github/skills/`, … — hidden, often symlinked and gitignored, so list them
-directly), in `~/.claude/skills/`, or under the `installPath` of the plugins in
-`~/.claude/plugins/installed_plugins.json` — except an API layer that serves other clients next to a
-Vaadin Flow or Hilla UI, which never counts. When no `layer.md` is readable, do not guess one: judge
-the test evidence of every layer, and state that the audit could not tell which layer integrates.
+name `/architecture` as the step that records it. Do not derive the layer yourself: judge the test
+evidence of every layer, and state that the audit could not tell which layer integrates.
 
 When the Markers table has no row for a layer the Layers table lists, report that under Gaps as a
 traceability gap of the layer skill, not of the use case — except for a test skill that has not run

@@ -116,8 +116,10 @@ marketplace/
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
   `aiup-playwright`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.0.0,
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
-  it). Tessl's plugin manifest has no dependency field — `tessl.json` is the project file that links the directory to
-  a Tessl project — so Tessl users install core explicitly.
+  it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot`: their skills build on its service
+  layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. A layer skill that reads a file of another
+  plugin must declare that plugin as a dependency. Tessl's plugin manifest has no dependency field — `tessl.json` is the project file that links the directory to
+  a Tessl project — so Tessl users install core, and `aiup-spring-boot` where it is declared, explicitly.
 - **Combined stack plugins** — UI, backend, and data access in one plugin. `aiup-vaadin-jooq` and `aiup-angular-jpa`
   are deprecated (superseded by the layer plugins, removed with aiup-core 4.0.0). `aiup-blazor-dotnet` stays
   combined for good: its Vertical Slice Architecture keeps a use case's handler and data access in one slice, which
@@ -174,8 +176,10 @@ layer plugins can. Rules that hold it together:
   project's integration layer — except an API layer that serves other clients next to a UI that does not call it
   (Vaadin Flow; Hilla, whose `@BrowserCallable` endpoint belongs to the UI): it never counts and tests only its own
   contract. So Flow (+ REST) → UI, Hilla (+ REST) → Service, Angular → API (the UI reaches the service through it),
-  REST only → API, no entry layer → Service. `/architecture` records it as the `**Integration layer:**` line under
-  the Layers table; `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
+  REST only → API, no entry layer → Service. The rule and its lookup table live once, in the section "Tests run,
+  and the integration layer" of `layer-catalog.md`; only `/architecture` applies it and records the result as the
+  `**Integration layer:**` line under the Layers table. `/use-case-test` and the coverage agent read the line and
+  never derive it — a missing line is a hand-off to `/architecture`. `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
   layers below, with three exceptions: a second in-process entry layer the use case is offered through (the API next
   to a Vaadin Flow or Hilla UI) gets its own contract tests by default, even below the integration layer; tests that
   already exist there are reconciled; and units the integration layer's skill reports it cannot reach are tested in
