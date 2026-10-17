@@ -431,8 +431,9 @@ rules. Every `/implement` skill marks the code that enforces a business rule wit
 always qualified, because rule ids are numbered per use case. A change to a marker or a test marker must be
 made in the skill, in the stack's `uc-coverage` agent (where one exists), and in that table together.
 
-Each stack plugin ships its own `/implement` and testing skills. Install exactly one stack plugin with `aiup-core` in
-a project so commands shared by several stack plugins do not collide.
+Each combined stack plugin ships its own `/implement` and testing skills. A project installs `aiup-core` with either
+layer plugins (one per technical layer) or exactly one combined stack plugin, never both: two combined plugins share
+command names and would collide, and a combined plugin next to layer plugins would build the same use case twice.
 
 ## Copyright and attribution
 
