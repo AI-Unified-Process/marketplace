@@ -110,7 +110,8 @@ say so in the report.
 
 Annotate every test method with `@UseCase`: `id` the `**Use Case ID:**`, `scenario` `Main Success Scenario` (the
 default) or the alternative flow heading, `businessRules` the bare rule ids whose rejection the test shows reaching
-the caller.
+the caller, `requirements` the `NFR-XXX` and `C-XXX` ids of the `**Requirements:**` line whose limit the test asserts
+at the API (a required role, a maximum payload, a response format) — never an `FR-*` id.
 
 **Bootstrap.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
 when it is there — the service and persistence test skills create the same one. Create it only when it is missing,
@@ -128,8 +129,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 ## What to Test
 

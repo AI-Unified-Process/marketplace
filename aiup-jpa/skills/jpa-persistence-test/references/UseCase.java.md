@@ -27,5 +27,7 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```

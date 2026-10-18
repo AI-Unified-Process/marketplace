@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "UseCase annotation bootstrapped in the test sources",
-      "description": "An annotation type UseCase is created at src/test/java/com/example/hotel/usecase/UseCase.java (never under src/main/java) with id(), scenario() default \"Main Success Scenario\", and businessRules() default {}, RUNTIME retention, METHOD target, @Documented",
+      "description": "An annotation type UseCase is created at src/test/java/com/example/hotel/usecase/UseCase.java (never under src/main/java) with id(), scenario() default \"Main Success Scenario\", businessRules() default {}, and requirements() default {}, RUNTIME retention, METHOD target, @Documented",
       "max_score": 8
     },
     {

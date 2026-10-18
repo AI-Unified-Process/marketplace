@@ -167,6 +167,11 @@ value.
 Use Case column links. A use case in one and not the other is drift, in either direction; a journey
 test whose E2E row prescribes such a marker and lacks it is a traceability gap.
 
+**Requirement markers.** A test that names an `NFR-XXX` or `C-XXX` in its marker (`requirements = {"NFR-002"}`
+in `@UseCase`, `it('NFR-002: …')`) is the id evidence for that unit; like a business rule marker it counts only
+when the test asserts the limit. An id there that the use case's `**Requirements:**` line does not link is drift,
+and an `FR-*` id there is a traceability gap, because a use case realizes its FRs as a whole.
+
 **Domain vocabulary** — an implementation written before those conventions existed still counts.
 Derive the likely names from the specification (the view or page the actor works in, the entity and
 its repository or handler, the literal labels and messages the steps mention) and grep for those

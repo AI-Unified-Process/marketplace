@@ -10,5 +10,5 @@ The rows this skill keeps in the Markers table of the Development View (`docs/ar
 
 | Layer   | Skill               | Kind | Marker to grep for                                                                                   |
 |---------|---------------------|------|------------------------------------------------------------------------------------------------------|
-| Service | spring-service-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"})` on every service test method   |
+| Service | spring-service-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"}, requirements = {"NFR-XXX"})` on every service test method   |
 | Service | spring-service-test | Name | `UC<id><Name>ServiceTest`, e.g. `UC001RegisterGuestServiceTest`                                      |

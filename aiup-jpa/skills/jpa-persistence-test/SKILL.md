@@ -102,14 +102,17 @@ rule's cases belong to the integration layer's tests; a test here covers only th
 Name the class `UC<id><PascalCaseUseCaseName>RepositoryTest` — `UC001RegisterGuestRepositoryTest` for UC-001
 "Register Guest" — and annotate every test method with `@UseCase(id = "UC-XXX", scenario = "…", businessRules =
 {"BR-…"})`, mirroring the specification's headings (`scenario` defaults to `"Main Success Scenario"`; an
-alternative flow is `"A1: …"`; business rules by bare id).
+alternative flow is `"A1: …"`; business rules by bare id). `requirements = {"NFR-…", "C-…"}` names the ids of the
+use case's `**Requirements:**` line whose limit the test asserts (a maximum length, a unique column); never an `FR-*`
+id and never a system-wide NFR no test can observe.
 
 Search the test sources of the module under test for `@interface UseCase` first and reuse the annotation when it is
 there. When it is missing, create [references/UseCase.java.md](references/UseCase.java.md) with exactly that shape
 in `src/test/java/<root package>/usecase/UseCase.java` of that module. The annotation is test code and never goes
 into `src/main/java`. In a hexagonal multi-module project every module that holds use case tests gets its own copy
 in its own `src/test/java` (test sources are not visible across modules); the plugin resolves the annotation by
-short name, so the copies do not conflict. The service and API test skills follow the same rule.
+short name, so the copies do not conflict. The service and API test skills follow the same rule. An existing annotation
+without `requirements` predates that attribute: add it with its default `{}` and keep everything else.
 
 ### Database
 

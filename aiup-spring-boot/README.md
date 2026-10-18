@@ -77,7 +77,7 @@ when `docs/architecture/development.md` does not record the layout, are in
 |------|-------------------------------------------------------------------------------------------|
 | Code | `// UC-XXX BR-YYY: <rule>` above the service guard clause that enforces a business rule    |
 | Code | `UC-XXX` in the Javadoc of the service method and the controller method that realize a step |
-| Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {…})` on every test method         |
+| Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {…}, requirements = {…})` on every test method |
 | Name | `UC<id><Name>ServiceTest`, `UC<id><Name>ApiTest` / `ApiIT`                                 |
 
 Every skill writes its rows into the Markers table of `docs/architecture/development.md`, which `/use-case-coverage` reads.

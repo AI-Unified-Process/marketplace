@@ -61,7 +61,9 @@ expected and the actual value; update an existing spec file for this use case in
 - Top-level block `describe('UC-XXX: <Use Case Name>', …)`.
 - Each `it` title names the scenario it covers with the specification's heading: `'main scenario - …'`,
   `'A1: Filter by Category'`, `'BR-002: rejects a guest younger than eighteen'` — the bare rule id, since the
-  `describe` qualifies it.
+  `describe` qualifies it. A test that asserts the limit of an `NFR-XXX` or `C-XXX` on the use case's
+  `**Requirements:**` line names that id the same way (`'NFR-004: rejects a comment longer than 500 characters'`);
+  never an `FR-*` id.
 - A plain service test sits in the same file under its own nested `describe`, or in its own
   `UC-XXX-<slug>.service.spec.ts` when the project keeps them apart.
 

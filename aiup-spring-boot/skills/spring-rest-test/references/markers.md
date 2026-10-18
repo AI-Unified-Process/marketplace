@@ -10,5 +10,5 @@ The rows this skill keeps in the Markers table of the Development View (`docs/ar
 
 | Layer | Skill            | Kind | Marker to grep for                                                                                 |
 |-------|------------------|------|----------------------------------------------------------------------------------------------------|
-| API   | spring-rest-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"})` on every API test method     |
+| API   | spring-rest-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"}, requirements = {"NFR-XXX"})` on every API test method     |
 | API   | spring-rest-test | Name | `UC<id><Name>ApiTest`, or `UC<id><Name>ApiIT` for live-server tests run by Failsafe                |

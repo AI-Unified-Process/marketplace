@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "UseCase annotation bootstrapped",
-      "description": "Exactly one UseCase annotation type is created, in the test sources at src/test/java/com/example/shop/usecase/UseCase.java (never under src/main/java), with @Target(METHOD), @Retention(RUNTIME), @Documented, String id(), String scenario() default \"Main Success Scenario\", String[] businessRules() default {}",
+      "description": "Exactly one UseCase annotation type is created, in the test sources at src/test/java/com/example/shop/usecase/UseCase.java (never under src/main/java), with @Target(METHOD), @Retention(RUNTIME), @Documented, String id(), String scenario() default \"Main Success Scenario\", String[] businessRules() default {}, String[] requirements() default {}",
       "max_score": 9
     },
     {

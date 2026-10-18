@@ -103,7 +103,9 @@ Guest" — in the package of the service under test.
 Annotate every test method with `@UseCase`, its scenario, and the business rules it covers. The values match the
 headings of the specification: `id` the `**Use Case ID:**`, `scenario` `Main Success Scenario` (the default) or the
 alternative flow heading (`A1: Email Already Registered`), `businessRules` the bare rule ids (`BR-002`) of the same
-use case.
+use case, `requirements` the `NFR-XXX` and `C-XXX` ids of its `**Requirements:**` line whose limit the test asserts
+(a maximum length, a required role, a mandatory external system) — never an `FR-*` id and never a system-wide NFR no
+test can observe.
 
 **Bootstrap.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
 when it is there — the persistence and API test skills create the same one. Create it only when it is missing, in
@@ -120,8 +122,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 In a hexagonal project whose tests live in more than one module, a test-source annotation is not visible across
 modules: every module that holds use case tests gets its own copy in its own `src/test/java`. The plugin resolves

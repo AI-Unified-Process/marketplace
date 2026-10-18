@@ -125,8 +125,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 ### Usage on test methods
 
@@ -138,6 +143,11 @@ values must match headings in the corresponding `UC-XXX-*.md` spec:
 | `id`            | `**Use Case ID:** UC-XXX`                  | (required)                |
 | `scenario`      | `## Main Success Scenario` or `### A1: …`  | `"Main Success Scenario"` |
 | `businessRules` | `### BR-XXX` headings inside the same UC   | `{}`                      |
+| `requirements`  | `NFR-XXX` / `C-XXX` on `**Requirements:**` | `{}`                      |
+
+`requirements` names the `NFR-XXX` and `C-XXX` ids of the use case's `**Requirements:**` line whose limit the test
+asserts — a maximum length, a required role, a mandatory external system. Never an `FR-*` id (the use case realizes
+its FRs as a whole) and never a system-wide NFR no test can observe.
 
 ```java
 @Test
