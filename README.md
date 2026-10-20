@@ -55,8 +55,8 @@ exactly one **combined stack plugin**. Do not mix both in one project.
 
 ### Layer plugins
 
-Pick one plugin per layer the project has. `/architecture` records the combination in the Development View,
-`docs/architecture/development.md`; `/use-case-implement UC-001` runs the layer skills bottom-up, `/use-case-test UC-001` writes
+Pick one plugin per layer the project has. `/stack` records the combination in the stack file,
+`docs/architecture/stack.md`; `/use-case-implement UC-001` runs the layer skills bottom-up, `/use-case-test UC-001` writes
 the tests from the integration layer up — from the entry layer the use case is offered through, the first layer whose
 tests run in process against the real database, so the layers below need no tests of their own
 (that API still gets its own contract tests when the use case is offered through it) — and `/use-case-coverage UC-001`
@@ -103,7 +103,7 @@ off to it rather than running it themselves, so a construction round stays fast.
 access together in one slice, which horizontal layer plugins would split apart.
 
 `aiup-core` itself ships `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`,
-`/test-case`, `/spec-review`, `/reverse-engineer`, and, for layer plugins, `/architecture`, `/use-case-implement`,
+`/test-case`, `/spec-review`, `/reverse-engineer`, and, for layer plugins, `/stack`, `/use-case-implement`,
 `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, and `/test-case-coverage`.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,
@@ -175,9 +175,8 @@ docs/
 │   └── UC-001-*.md                   # /use-case-spec
 ├── test_cases/
 │   └── TC-001-*.md                   # /test-case
-└── architecture/                     # /architecture (layer plugins only)
-    ├── README.md                     # index of the 4+1 views
-    └── development.md                # Development View: layer → technology → skill → test skill
+└── architecture/
+    └── stack.md                      # /stack (layer plugins only): layer → technology → skill → test skill
 ```
 
 Stack plugins consume these files and place generated code and tests according to the conventions of the target

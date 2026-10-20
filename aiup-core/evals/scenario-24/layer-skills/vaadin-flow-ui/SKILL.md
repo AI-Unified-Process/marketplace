@@ -29,14 +29,14 @@ bound with `Binder`, and a grid with lazy data, calling the service methods of t
 - **Consumes** the Handover of the service layer. A Vaadin Flow view needs no API layer.
 - **Produces** the view, its labels, messages, and test ids, for the UI and E2E tests.
 - **Never touches** services, repositories, controllers, migrations, tests, or anything under `docs/` other than the
-  Markers table of `docs/architecture/development.md`. The view never uses a `DSLContext` or a repository.
+  Markers table of `docs/architecture/stack.md`. The view never uses a `DSLContext` or a repository.
 
 ## Run Directly or from /use-case-implement
 
 Run from `/use-case-implement`, this skill inherits the inputs that skill read, the gaps the user answered, and its
 rules for reconciling an existing implementation; it does not repeat the status check or ask the same questions
 again. Run directly, read the use case, the requirements it links, `docs/entity_model.md`, and
-`docs/architecture/development.md` yourself, and stop on a `Draft` or `Reviewed` use case.
+`docs/architecture/stack.md` yourself, and stop on a `Draft` or `Reviewed` use case.
 
 ## Business Rule Markers
 
@@ -46,7 +46,7 @@ specification states it.
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.
 

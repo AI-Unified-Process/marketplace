@@ -29,8 +29,7 @@ error() {
 }
 
 PROJECT_TEMPLATES='
-aiup-core/skills/architecture/references/architecture-readme.md
-aiup-core/skills/architecture/references/development.md
+aiup-core/skills/stack/references/stack.md
 aiup-core/skills/requirements/references/glossary.md
 aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md

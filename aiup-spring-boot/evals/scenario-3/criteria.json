@@ -34,7 +34,7 @@
     },
     {
       "name": "BR-003 boundary cases tested here",
-      "description": "Because docs/architecture/development.md names the API as the integration layer, the class tests BR-003 at its boundary through the endpoint: a guest exactly eighteen on the arrival date is created (201) and one day younger is rejected (409); it does not defer the boundary to a service test",
+      "description": "Because docs/architecture/stack.md names the API as the integration layer, the class tests BR-003 at its boundary through the endpoint: a guest exactly eighteen on the arrival date is created (201) and one day younger is rejected (409); it does not defer the boundary to a service test",
       "max_score": 7
     },
     {

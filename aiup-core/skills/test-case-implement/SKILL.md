@@ -2,7 +2,7 @@
 name: test-case-implement
 description: >
   Implements a test case (TC-XXX) as an automated end-to-end test: runs the E2E test skill recorded in
-  docs/architecture/development.md (vaadin-e2e-test, playwright-e2e-test) with the journey, so every Flow row of the
+  docs/architecture/stack.md (vaadin-e2e-test, playwright-e2e-test) with the journey, so every Flow row of the
   test case becomes a test step and every Validation item an assertion against the running application. Applies the
   rules of /use-case-test: the test case is the oracle, a test that disagrees with the code stays failing, an
   existing journey test is reconciled rather than duplicated. Use when the user asks to "implement TC-001",
@@ -23,7 +23,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Automate the test case $ARGUMENTS — one end-to-end journey that chains several use cases — by running the E2E test
-skill recorded in `docs/architecture/development.md`, the Development View. A test case has no production code of
+skill recorded in `docs/architecture/stack.md`, the stack file. A test case has no production code of
 its own: the use cases it chains are built by `/use-case-implement`, and this skill writes only the journey test.
 Do not change production code; a failing step is reported, not fixed by changing the code under test.
 
@@ -61,11 +61,11 @@ If `/use-case-test` is not installed, say so and stop; aiup-core ships both skil
 1. Read the test case from `docs/test_cases/TC-XXX-*.md` and every use case its Flow table links, from
    `docs/use_cases/` (also `docs/use-cases/`). Stop and list the near matches when the id resolves to no file.
 2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
-3. Read the Development View, `docs/architecture/development.md`, and the Test skill of its E2E row. When the
-   Development View does not exist, stop and hand off to `/architecture`. When the E2E row's Test skill is not
+3. Read the stack file, `docs/architecture/stack.md`, and the Test skill of its E2E row. When the
+   stack file does not exist, stop and hand off to `/stack`. When the E2E row's Test skill is not
    installed, name the plugin that ships it and stop. When the E2E row is missing or its Test skill is `–` (its
    Skill column is always `–`), stop and say what
-   to do: a project with a UI adds the E2E layer with `/architecture` and the plugin that ships one —
+   to do: a project with a UI adds the E2E layer with `/stack` and the plugin that ships one —
    `aiup-vaadin` (`vaadin-e2e-test`) for a Vaadin UI, `aiup-playwright` (`playwright-e2e-test`) for a TypeScript
    UI; a project without a UI (a REST service) has no browser journey to automate — the test case stays a manual
    script, and the use cases it chains are tested with `/use-case-test UC-YYY`.
@@ -77,9 +77,9 @@ If `/use-case-test` is not installed, say so and stop; aiup-core ships both skil
 6. Run the E2E test skill with the id as argument, for example `/playwright-e2e-test TC-001` — in Claude Code through
    the Skill tool, by the name it has in the session's skill list (`aiup-playwright:playwright-e2e-test`). On a
    host that cannot invoke a skill from another skill, locate `*<skill>/SKILL.md` in the skill folders
-   `/architecture` names in "The layer skills" — hidden, often symlinked and gitignored, so list them directly (the
+   `/stack` names in "The layer skills" — hidden, often symlinked and gitignored, so list them directly (the
    folder may carry a host prefix such as `tessl__`) — and follow it as an instruction document.
-7. Run the E2E test command from `docs/architecture/development.md`. On a failure, apply "When a Test Fails".
+7. Run the E2E test command from `docs/architecture/stack.md`. On a failure, apply "When a Test Fails".
 8. Report and hand off — see [After the Test](#after-the-test).
 
 ## After the Test
@@ -99,7 +99,7 @@ Finish by:
 
 - Change production code to make a step pass; report the disagreement instead.
 - Write tests for a single use case here; that is `/use-case-test UC-XXX`.
-- Edit anything under `docs/` other than the Markers table of `docs/architecture/development.md`, which the E2E test
+- Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the E2E test
   skill maintains.
 - Weaken, delete, or disable an assertion whose expected value the test case states.
 - Claim the test passes without having run it.

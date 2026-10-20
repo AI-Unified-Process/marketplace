@@ -5,7 +5,7 @@
 A hotel booking backend is a flat Spring Boot project with Spring Data JPA, Flyway, and PostgreSQL. UC-031 "Search
 Reservations" is implemented: `ReservationRepository.findArrivals(from, to)` returns `ReservationListItem` records.
 The project has a `UseCase` annotation and a `TestcontainersConfiguration` test class, but no repository test yet.
-The project records its layers in `docs/architecture/development.md`.
+The project records its layers in `docs/architecture/stack.md`.
 
 The use case is at `docs/use_cases/UC-031-search-reservations.md`, the entity model at `docs/entity_model.md`.
 

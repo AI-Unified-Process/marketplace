@@ -31,14 +31,14 @@ Build the persistence layer of the use case $ARGUMENTS with jOOQ: one `@Reposito
 - **Consumes** the Handover of the migration layer, or the existing migrations when run directly.
 - **Produces** the repository methods and records the service layer calls.
 - **Never touches** migrations, services, controllers, views, tests, or anything under `docs/` other than the
-  Markers table of `docs/architecture/development.md`.
+  Markers table of `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-implement
 
 Run from `/use-case-implement`, this skill inherits the inputs that skill read, the gaps the user answered, and its
 rules for reconciling an existing implementation; it does not repeat the status check or ask the same questions
 again. Run directly, read the use case, the requirements it links, `docs/entity_model.md`, and
-`docs/architecture/development.md` yourself, and stop on a `Draft` or `Reviewed` use case.
+`docs/architecture/stack.md` yourself, and stop on a `Draft` or `Reviewed` use case.
 
 ## Business Rule Markers
 
@@ -47,7 +47,7 @@ the rule (an `exists` or `count` check the service decides on).
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.
 

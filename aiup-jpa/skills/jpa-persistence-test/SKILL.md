@@ -42,7 +42,7 @@ test; name the file it lives in and leave the value out.
 - **Produces** one test class per use case, `UC<id><Name>RepositoryTest`, and the Flyway test migration with its
   data.
 - **Never touches** production code, main migrations, tests of other layers, or anything under `docs/` other than
-  this skill's rows of the Markers table in `docs/architecture/development.md`.
+  this skill's rows of the Markers table in `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -50,7 +50,7 @@ test; name the file it lives in and leave the value out.
 Already Exist", "When a Test Fails", and "Which Layer Tests What". Do not repeat them; write this layer's tests.
 
 **Run directly**, the same rules apply, in short: read the use case, the requirements its `**Requirements:**` line
-links, the entity model, and `docs/architecture/development.md`; take every expected value from the specification or the test
+links, the entity model, and `docs/architecture/stack.md`; take every expected value from the specification or the test
 data, never from what the code returns; never weaken, delete, or disable an assertion whose value the specification
 states — leave the test failing and report the expected and the actual value; update an existing test class instead
 of writing a second one. `/use-case-test UC-XXX` runs the tests of all layers.
@@ -58,7 +58,7 @@ of writing a second one. `/use-case-test UC-XXX` runs the tests of all layers.
 ## What Deserves a Persistence Test
 
 Test each unit of the specification where it is decided. The integration layer's tests named in
-`docs/architecture/development.md` (the API or service tests) already run the repositories against a real database, so
+`docs/architecture/stack.md` (the API or service tests) already run the repositories against a real database, so
 `/use-case-test` runs this skill only to reconcile existing tests, for the queries the integration layer's skill reported
 it cannot reach, or when the arguments name the persistence layer — and a persistence test is worth writing only for
 a query with logic of its own:
@@ -167,7 +167,7 @@ Test data comes from a Flyway test migration, not from `save` calls in the test 
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -194,7 +194,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 5. Find the project's Testcontainers setup and test data convention; reuse them.
 6. Write the Flyway test migration with the boundary rows.
 7. Write the test methods with their `@UseCase` annotations.
-8. Run the class with the Integration tests command of `docs/architecture/development.md` (or
+8. Run the class with the Integration tests command of `docs/architecture/stack.md` (or
    `./mvnw -pl <module> test -Dtest=UC001RegisterGuestRepositoryTest`). On a failure, apply "When a Test Fails" of
    `/use-case-test`.
 9. Update this skill's rows of the Markers table — see [Markers](#markers).
@@ -204,7 +204,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Hand-off
 
 Run from `/use-case-test`, return to it. Run directly, end with one `Next:` line naming the integration layer's test
-skill from the Integration layer table of `docs/architecture/development.md` (for example
+skill from the Integration layer table of `docs/architecture/stack.md` (for example
 `Next: /spring-rest-test UC-001`), or `Next: /use-case-coverage UC-001` when this was the last test layer. Never run
 the coverage audit.
 

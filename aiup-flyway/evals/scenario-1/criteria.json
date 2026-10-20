@@ -29,7 +29,7 @@
     },
     {
       "name": "Markers rows left as they are",
-      "description": "The flyway-schema rows of the Markers table already match; docs/architecture/development.md is not changed otherwise, and no other file under docs/ is edited",
+      "description": "The flyway-schema rows of the Markers table already match; docs/architecture/stack.md is not changed otherwise, and no other file under docs/ is edited",
       "max_score": 9
     },
     {

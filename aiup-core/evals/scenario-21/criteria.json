@@ -1,10 +1,10 @@
 {
-  "context": "Tests whether /test-case-implement stops in a REST service whose Development View marks the UI and E2E layers '–': there is no browser journey to automate, the test case stays a manual script, and the chained use cases are tested with /use-case-test. The agent must not write a substitute journey test, must not suggest adding a browser E2E layer to a service without a UI, and must not change any file.",
+  "context": "Tests whether /test-case-implement stops in a REST service whose stack file marks the UI and E2E layers '–': there is no browser journey to automate, the test case stays a manual script, and the chained use cases are tested with /use-case-test. The agent must not write a substitute journey test, must not suggest adding a browser E2E layer to a service without a UI, and must not change any file.",
   "type": "weighted_checklist",
   "checklist": [
     {
-      "name": "Development View read",
-      "description": "The agent reads docs/architecture/development.md and names the E2E row marked '–' (and the missing UI layer) as the reason the journey cannot be automated here",
+      "name": "stack file read",
+      "description": "The agent reads docs/architecture/stack.md and names the E2E row marked '–' (and the missing UI layer) as the reason the journey cannot be automated here",
       "max_score": 15
     },
     {

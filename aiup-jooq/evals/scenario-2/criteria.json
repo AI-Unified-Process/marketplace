@@ -29,7 +29,7 @@
     },
     {
       "name": "BR-001 left to the integration layer",
-      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the in-stock rule, because the integration layer is the API (docs/architecture/development.md); the report says that BR-001 is tested by spring-rest-test. Out-of-stock rows in the test data are allowed",
+      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the in-stock rule, because the integration layer is the API (docs/architecture/stack.md); the report says that BR-001 is tested by spring-rest-test. Out-of-stock rows in the test data are allowed",
       "max_score": 9
     },
     {

@@ -49,12 +49,12 @@
     },
     {
       "name": "Scope respected",
-      "description": "No controller, no test class, no change to GuestRepository or any file under docs/ other than the Markers table of docs/architecture/development.md",
+      "description": "No controller, no test class, no change to GuestRepository or any file under docs/ other than the Markers table of docs/architecture/stack.md",
       "max_score": 9
     },
     {
       "name": "Markers rows added",
-      "description": "The Markers table of docs/architecture/development.md gains the three spring-service rows of its markers reference (two Code rows — the BR marker and the UC-XXX Javadoc — and one Name row) and keeps the existing All, flyway-schema, and jooq-persistence rows unchanged",
+      "description": "The Markers table of docs/architecture/stack.md gains the three spring-service rows of its markers reference (two Code rows — the BR marker and the UC-XXX Javadoc — and one Name row) and keeps the existing All, flyway-schema, and jooq-persistence rows unchanged",
       "max_score": 6
     },
     {

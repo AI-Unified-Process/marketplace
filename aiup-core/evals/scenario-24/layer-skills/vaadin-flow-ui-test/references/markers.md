@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Markers of vaadin-flow-ui-test
 
-The rows this skill keeps in the Markers table of the Development View (`docs/architecture/development.md`). Copy them exactly.
+The rows this skill keeps in the Markers table of the stack file (`docs/architecture/stack.md`). Copy them exactly.
 
 | Layer | Skill               | Kind | Marker to grep for                                                                                          |
 |-------|---------------------|------|-------------------------------------------------------------------------------------------------------------|

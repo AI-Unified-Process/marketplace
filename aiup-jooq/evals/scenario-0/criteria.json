@@ -39,7 +39,7 @@
     },
     {
       "name": "Markers table updated",
-      "description": "docs/architecture/development.md gains the Persistence rows of jooq-persistence (Code and Name); the All row stays, and no other file under docs/ is edited",
+      "description": "docs/architecture/stack.md gains the Persistence rows of jooq-persistence (Code and Name); the All row stays, and no other file under docs/ is edited",
       "max_score": 9
     },
     {

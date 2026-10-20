@@ -39,7 +39,7 @@
     },
     {
       "name": "BR-001 left to the integration layer",
-      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the CANCELLED exclusion, because the integration layer is the API (docs/architecture/development.md); the report says that BR-001 is tested by spring-rest-test",
+      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the CANCELLED exclusion, because the integration layer is the API (docs/architecture/stack.md); the report says that BR-001 is tested by spring-rest-test",
       "max_score": 9
     },
     {
@@ -54,12 +54,12 @@
     },
     {
       "name": "Production code untouched",
-      "description": "No file under src/main is created or modified, and no file under docs/ other than the Markers table of docs/architecture/development.md",
+      "description": "No file under src/main is created or modified, and no file under docs/ other than the Markers table of docs/architecture/stack.md",
       "max_score": 9
     },
     {
       "name": "Markers rows and hand-off",
-      "description": "docs/architecture/development.md gains the jpa-persistence-test Markers rows (Test and Name), and the report names the test command and ends with 'Next: /spring-rest-test UC-031', the test skill of the first row of the Integration layer table",
+      "description": "docs/architecture/stack.md gains the jpa-persistence-test Markers rows (Test and Name), and the report names the test command and ends with 'Next: /spring-rest-test UC-031', the test skill of the first row of the Integration layer table",
       "max_score": 8
     }
   ]

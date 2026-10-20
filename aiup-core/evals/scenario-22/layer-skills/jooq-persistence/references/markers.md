@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Markers of jooq-persistence
 
-The rows this skill keeps in the Markers table of the Development View (`docs/architecture/development.md`), exactly as they appear there.
+The rows this skill keeps in the Markers table of the stack file (`docs/architecture/stack.md`), exactly as they appear there.
 
 | Layer       | Skill            | Kind | Marker to grep for                                                                                          |
 |-------------|------------------|------|-------------------------------------------------------------------------------------------------------------|

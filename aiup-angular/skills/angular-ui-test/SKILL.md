@@ -6,7 +6,7 @@ description: >
   non-HTTP services, and plain service tests — in UC-XXX-<slug>.spec.ts files with a describe('UC-XXX: …') block.
   Use when the user asks to "write frontend tests", "test the Angular component", "write a Vitest test", "unit test
   an Angular page", "test the UI of UC-001", or mentions TestBed, ComponentFixture, or HttpTestingController.
-  Normally run by /use-case-test as the UI test layer of a project whose docs/architecture/development.md names Angular; it can also
+  Normally run by /use-case-test as the UI test layer of a project whose docs/architecture/stack.md names Angular; it can also
   be run directly. Browser tests against the running application are /playwright-e2e-test.
 ---
 
@@ -42,7 +42,7 @@ file it lives in and leave the value out.
   API's DTOs, which the mocked responses must match.
 - **Produces** `UC-XXX-<slug>.spec.ts` files colocated with the page or service they test.
 - **Never touches** production code, tests of other layers, or anything under `docs/` except the Markers table of
-  `docs/architecture/development.md`. No real HTTP call leaves a test.
+  `docs/architecture/stack.md`. No real HTTP call leaves a test.
 
 ## Run Directly or from /use-case-test
 
@@ -141,7 +141,7 @@ assertion.
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -156,20 +156,20 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## Workflow
 
-1. Read the inputs — from `/use-case-test`, or the use case, its linked requirements, and `docs/architecture/development.md` when run
+1. Read the inputs — from `/use-case-test`, or the use case, its linked requirements, and `docs/architecture/stack.md` when run
    directly — and the Handover of `/angular-ui` or the page, service, and models it names.
 2. Look for an existing `UC-XXX-*.spec.ts` or `describe('UC-XXX: …')`; if there is one, reconcile it.
 3. Check `package.json` and `app.config.ts`: test runner, `@testing-library/angular`, zoneless or zone.js.
 4. Plan the tests: the main scenario, every alternative flow the UI shows, every rule the UI validates, every API
    rejection the actor must see.
 5. Write `UC-XXX-<slug>.spec.ts` from the templates, colocated with the page or service.
-6. Run `ng test --watch=false` (or the Unit tests command of `docs/architecture/development.md`).
+6. Run `ng test --watch=false` (or the Unit tests command of `docs/architecture/stack.md`).
 7. On a failure, apply "When a Test Fails" of `/use-case-test`: fix the test's mechanics (URL matcher, a missing
    `whenStable()`, an unexpected request `verify()` reports); leave a disagreement with the specification failing.
-8. Update the Markers table of `docs/architecture/development.md` — see [Markers](#markers).
+8. Update the Markers table of `docs/architecture/stack.md` — see [Markers](#markers).
 9. Report: the tests written, the command and its result, and every test left failing with expected and actual
    value. Run directly, end with `Next: /playwright-e2e-test UC-XXX` when the project has an E2E layer and
-   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
+   `docs/architecture/stack.md` does not record `**E2E scope:** Test cases only`, otherwise
    `Next: /use-case-coverage UC-XXX`. Do not run the coverage audit.
 
 ## Resources

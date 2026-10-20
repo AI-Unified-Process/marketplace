@@ -168,7 +168,7 @@ servers and `type: "local"` with a command array for local servers:
   point the assistant at that file directly — the checklist is host-independent. `/use-case-coverage` in `aiup-core` does
   the same with [`uc-coverage-layered`](../../aiup-core/agents/uc-coverage-layered.md).
 - `/use-case-implement` and `/use-case-test` run the layer skills by name. A host that cannot invoke one skill from another
-  loads the layer skill's `SKILL.md` by glob instead, so install every layer skill `docs/architecture/development.md` names.
+  loads the layer skill's `SKILL.md` by glob instead, so install every layer skill `docs/architecture/stack.md` names.
 - The files under `docs/` remain compatible even when different steps are run by different agents.
 
 Host capabilities and configuration paths evolve independently. Check the host's current documentation if its layout

@@ -49,10 +49,10 @@ entry — into generated code, test data, or your summary; name the file it live
 - **Produces** one Browserless test class per use case under `src/test/java`, and the `UseCase` annotation type
   in the same test sources when the module lacks it.
 - **Never touches** production code, the service or persistence tests, or anything under `docs/` other than this
-  skill's rows of the Markers table in `docs/architecture/development.md`.
+  skill's rows of the Markers table in `docs/architecture/stack.md`.
 
 What to test in this layer: in a Vaadin Flow stack this is the integration layer of
-`docs/architecture/development.md`, so these tests cover everything "Which Layer Tests What" of `/use-case-test`
+`docs/architecture/stack.md`, so these tests cover everything "Which Layer Tests What" of `/use-case-test`
 assigns to the integration layer, and `/use-case-test` writes no service or repository tests below them. That rule
 is not repeated here. What it means for a view:
 
@@ -70,7 +70,7 @@ runs) is listed in the report, so `/use-case-test` runs the test skill of the la
 
 Run from `/use-case-test`, this skill inherits the inputs and the search for existing tests and does not repeat them.
 Run directly, read the use case, the linked requirement rows, `docs/entity_model.md` for the test data,
-`docs/glossary.md` when present, and `docs/architecture/development.md`; then test this layer only and say that
+`docs/glossary.md` when present, and `docs/architecture/stack.md`; then test this layer only and say that
 `/use-case-test UC-XXX` runs all test layers.
 
 ## Test Class Naming and `@UseCase` Annotation
@@ -300,7 +300,7 @@ for a Binder validation (assert the full message the specification states), `$(D
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -329,7 +329,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 4. Create or open `UC<id><Name>Test`, extending `SpringBrowserlessTest` with `@SpringBootTest`.
 5. Per scenario: annotate with `@UseCase`, `navigate(...)`, find with `$()`, act through `test(...)`, assert on the
    component API with the expected values from the specification and test data, clean up created data.
-6. Run the class (`./mvnw test -Dtest='UC001*Test'`, or the Integration tests command in `docs/architecture/development.md` —
+6. Run the class (`./mvnw test -Dtest='UC001*Test'`, or the Integration tests command in `docs/architecture/stack.md` —
    the view runs against the real database). On a
    failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check `$()...exists()`,
    `getCurrentView()`, the test data, and use the dedicated tester for overlays.
@@ -337,7 +337,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 8. Report the tests written, the command, and the result, listing every test left failing with the expected and
    actual value, and every unit of the specification no view of this use case reaches. End with
    `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer and
-   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
+   `docs/architecture/stack.md` does not record `**E2E scope:** Test cases only`, otherwise
    `Next: /use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources

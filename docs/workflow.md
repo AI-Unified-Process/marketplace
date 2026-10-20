@@ -27,12 +27,12 @@ Inception          Elaboration                            Construction
 - **Combined stack plugin** (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`): one
   plugin owns migrations, implementation, and tests for a fixed combination of UI, backend, and data access.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`): one plugin per technology, combined per project. `/architecture` records the combination in
-  `docs/architecture/development.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
+  `aiup-playwright`): one plugin per technology, combined per project. `/stack` records the combination in
+  `docs/architecture/stack.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
   names (`/test-case-implement` and `/test-case-coverage` the E2E layer of a journey) — `/use-case-implement` bottom-up (migration, persistence, service, API, UI), `/use-case-test` from the integration
   layer up: from the entry layer the use case is offered through, the first layer whose tests run in process
   against the real database (the Browserless tests of a Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own.
-  `/architecture` derives it once per entry layer and records it in the Integration layer table; an API next to a
+  `/stack` derives it once per entry layer and records it in the Integration layer table; an API next to a
   Vaadin Flow or Hilla UI serves other clients, is the integration layer only of the use cases offered through it
   alone, and gets contract tests of its own for the use cases it offers next to the UI. A REST service without a UI uses the same skills
   without the UI layer. The `**E2E scope:**` line under the Integration layer table says whether `/use-case-test`
@@ -40,7 +40,7 @@ Inception          Elaboration                            Construction
   journeys (`Test cases only`).
 
 The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:
-the combined plugins do not read `docs/architecture/development.md`. The boundary between `aiup-core` and construction is the set
+the combined plugins do not read `docs/architecture/stack.md`. The boundary between `aiup-core` and construction is the set
 of files under `docs/`, not a specific coding agent.
 
 ## Artifact flow
@@ -55,16 +55,14 @@ of files under `docs/`, not a specific coding agent.
 | `docs/use_cases/UC-*.md`           | `/use-case-spec`                         | Implementations and use case tests                                                                           |
 | `docs/processes/BP-*.bpmn`         | `/business-process` or business analysts | `/test-case` (one test case per path)                                                                        |
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
-| `docs/architecture/development.md` | `/architecture`; layer skills (Markers)  | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
+| `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
 
-The architecture documentation lives in `docs/architecture/`, laid out as Kruchten's 4+1 views. For most projects
-`development.md`, the Development View, is the whole of it: the layers, the module layout, the API contract, the
-commands, and whatever else the team writes. A team that writes the other views adds `logical.md`, `process.md`,
-`physical.md`, and the `adr/` folder; the `README.md` indexes them, and the use cases are the +1. `/architecture`
-writes the Development View and the index; the other views are written by the team. An existing
-`docs/architecture.md` is not read by construction; `/architecture` offers to move it into the folder. For readers who know arc42: the
-Logical and Development Views are its building block view (domain and code level), the Process View its runtime view,
-the Physical View its deployment view, and `adr/` its architecture decisions.
+The stack file, `docs/architecture/stack.md`, is the AI Unified Process record of the technical layers: which layer
+skill builds and tests each layer, the integration layer, the module layout, the API contract, the commands, and
+the markers. It does not depend on how the team documents its architecture. arc42, C4, Kruchten's 4+1 views, a
+single `docs/architecture.md`, or no architecture documentation at all: the stack file sits next to it and looks
+the same. `/stack` reads the team's documents and ADRs as input and never writes them; the construction skills
+read only the stack file.
 
 Every artifact is a review point. Correcting an intermediate document is expected and is safer than compensating for
 an incorrect assumption in generated code.
@@ -150,7 +148,7 @@ a layered use case spreads over classes named after entities: `UC-XXX` in the Ja
 `/** UC-XXX: <Use Case Name> */` above an Angular page component.
 
 **Tests.** Each stack carries the ids in the form its test framework supports. The Layer plugins row summarizes the
-layer test skills; in a layered project the Markers table of `docs/architecture/development.md` is authoritative:
+layer test skills; in a layered project the Markers table of `docs/architecture/stack.md` is authoritative:
 
 | Stack                | Use case tests (`UC-*`)                                                                                                                                                                                                                                                                                                                                                                            | Journey tests (`TC-*`)                                                                                      |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -162,7 +160,7 @@ layer test skills; in a layered project the Markers table of `docs/architecture/
 
 **Layered stacks.** A project that combines layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
 `aiup-vaadin`, `aiup-angular`, `aiup-playwright`) instead of one combined stack plugin records its layers in
-`docs/architecture/development.md`, written by `/architecture`. Each layer skill keeps its own rows in the Markers table of that
+`docs/architecture/stack.md`, written by `/stack`. Each layer skill keeps its own rows in the Markers table of that
 file, so the markers of a project are always the markers of the layers it actually uses, and `/use-case-coverage` reads
 them from there. A use case offered through only some entry points names them in the optional `**Layers:**` line of its
 Overview (`UI`, `API`, or `Service` alone); `/use-case-implement` and `/use-case-test` then build and test only those layers, and
@@ -185,7 +183,7 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
 - **Code and tests:** `/coverage-check UC-XXX` (in `aiup-vaadin-jooq` and `aiup-angular-jpa`) maps every step, flow,
   rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
   above first. In a layered stack, `/use-case-coverage UC-XXX` in `aiup-core` does the same with the markers of
-  `docs/architecture/development.md`. In the other stacks, searching for the markers gives the same answer by hand.
+  `docs/architecture/stack.md`. In the other stacks, searching for the markers gives the same answer by hand.
 
 ### Requirement status
 
@@ -211,7 +209,7 @@ The use case is the traceability hub for construction. Every implementation skil
 | `docs/entity_model.md`                  | Required.                                                                         |
 | `docs/glossary.md`                      | When present: names in code follow its terms, never its Avoid synonyms.           |
 | Architecture decisions (`docs/**/adr/`) | When present: followed like existing conventions.                                 |
-| `docs/architecture/development.md`                  | Layered stacks only: the layer skills to run, the module layout, the API contract. |
+| `docs/architecture/stack.md`            | Layered stacks only: the layer skills to run, the module layout, the API contract. |
 
 An implementation agent therefore sees every NFR and constraint that applies to its use case without reading the rest
 of the catalog. That only works when the `**Requirements:**` line is complete: a missing or unresolved line is
@@ -273,7 +271,7 @@ That is what `/coverage-check UC-001` is for; the skill reports the justified st
 
 Each agent's marker table is specific to its stack's conventions. In a layered stack, `/use-case-coverage` and `/test-case-coverage` in
 `aiup-core` run the same audit with [its own agent](../aiup-core/agents/uc-coverage-layered.md), which reads the markers from
-`docs/architecture/development.md` instead of a fixed table. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not ship an
+`docs/architecture/stack.md` instead of a fixed table. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not ship an
 equivalent yet; the same check can be run by hand from [the agent definition](../aiup-vaadin-jooq/agents/uc-coverage.md)
 with the markers of the stack in question.
 
@@ -288,7 +286,7 @@ with the markers of the stack in question.
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md)       | AI Unified Process baseline recovered from an existing codebase         |
-| [`/architecture`](../aiup-core/skills/architecture/SKILL.md)               | `docs/architecture/development.md`: the layer skills of a layered stack |
+| [`/stack`](../aiup-core/skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skills of a layered stack       |
 | [`/use-case-implement`](../aiup-core/skills/use-case-implement/SKILL.md)   | A use case implemented across all layers of a layered stack             |
 | [`/use-case-test`](../aiup-core/skills/use-case-test/SKILL.md)             | The tests of a use case, from the integration layer up                  |
 | [`/use-case-coverage`](../aiup-core/skills/use-case-coverage/SKILL.md)     | Coverage matrix of a use case in a layered stack                        |

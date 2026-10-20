@@ -14,7 +14,7 @@ journeys in the browser with Playwright and Drama Finder.
 It is one plugin of a layered setup: a project combines `aiup-core` with one plugin per layer. The skills are
 driven by `aiup-core` and need **`aiup-core` 3.0.0 or later**:
 
-- `/architecture` records in `docs/architecture/development.md` which skill builds and tests each layer
+- `/stack` records in `docs/architecture/stack.md` which skill builds and tests each layer
 - `/use-case-implement UC-XXX` runs the implementation skills bottom-up and hands each layer the Handover of the one below
 - `/use-case-test UC-XXX` runs the test skills from the integration layer up — for a Flow UI the
   Browserless tests, which run against the real service and database, so no service or repository tests are

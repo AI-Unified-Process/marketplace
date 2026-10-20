@@ -25,7 +25,7 @@ reviewable files under `docs/`.
 | Construction | [`/test-case`](skills/test-case/SKILL.md)                     | Executable journeys across specified use cases or BPMN process paths         |
 | Any          | [`/spec-review`](skills/spec-review/SKILL.md)                 | Deterministic lint and advisory review of the specification quality          |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md)       | Entity and use case documentation recovered from existing code               |
-| Construction | [`/architecture`](skills/architecture/SKILL.md)               | `docs/architecture/development.md`: the layer skill for each technical layer |
+| Construction | [`/stack`](skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skill for each technical layer       |
 | Construction | [`/use-case-implement`](skills/use-case-implement/SKILL.md)   | A use case implemented by running the layer skills bottom-up                 |
 | Construction | [`/use-case-test`](skills/use-case-test/SKILL.md)             | The tests of a use case, from the integration layer up                       |
 | Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests               |
@@ -41,7 +41,7 @@ Inception          Elaboration                             Construction
 
 The last six skills drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
 `aiup-vaadin`, `aiup-angular`, `aiup-playwright`), which require `aiup-core` 3.0.0 or later: install one per layer of
-your project, run `/architecture` once,
+your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only
 [`uc-coverage-layered`](agents/uc-coverage-layered.md) sub-agent. With a combined stack plugin, use its own
@@ -98,8 +98,7 @@ your-project/
     ├── entity_model.md              # /entity-model
     ├── use_cases.puml               # /use-case-diagram
     ├── architecture/
-    │   ├── README.md                # /architecture (index of the 4+1 views)
-    │   └── development.md           # /architecture (layer plugins only)
+    │   └── stack.md                 # /stack (layer plugins only)
     ├── processes/
     │   └── BP-001-*.bpmn            # /business-process (optional), read by /test-case
     ├── use_cases/
@@ -119,10 +118,10 @@ specifications, and test journeys without depending on which coding agent produc
 ## Project structure
 
 `aiup-core` does not impose a source-code layout. Its specification skills write only to the documentation paths
-above and inspect an existing source tree when `/reverse-engineer` runs; `/architecture` writes the Development View
+above and inspect an existing source tree when `/reverse-engineer` runs; `/stack` writes the stack file
 under `docs/architecture/`. The construction orchestrators `/use-case-implement`, `/use-case-test`, and
 `/test-case-implement` produce code and tests, but only by running the layer skills that
-`docs/architecture/development.md` names — the layout is theirs, not core's. `/use-case-coverage` and
+`docs/architecture/stack.md` names — the layout is theirs, not core's. `/use-case-coverage` and
 `/test-case-coverage` only read. The installed layer plugins, or the selected combined stack plugin, detect or
 document the implementation layouts they support.
 

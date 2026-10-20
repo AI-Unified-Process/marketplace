@@ -1,10 +1,10 @@
 {
-  "context": "Tests whether /architecture records an Angular client with a Spring Boot REST API and JPA from the layer skills installed in .claude/skills (each with references/layer.md): the API is present because the Angular client reaches the service through it, the API is the integration layer (spring-rest-test runs in process against the real database, angular-ui-test mocks the backend), a use case offered through the UI is built and tested in the API layer too, and only the All row goes into the new Markers table.",
+  "context": "Tests whether /stack records an Angular client with a Spring Boot REST API and JPA from the layer skills installed in .claude/skills (each with references/layer.md): the API is present because the Angular client reaches the service through it, the API is the integration layer (spring-rest-test runs in process against the real database, angular-ui-test mocks the backend), a use case offered through the UI is built and tested in the API layer too, and only the All row goes into the new Markers table.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "Layers from the installed skills",
-      "description": "The Layers table of docs/architecture/development.md names flyway-schema for Migration, jpa-persistence and jpa-persistence-test for Persistence, spring-service and spring-service-test for Service, spring-rest and spring-rest-test for API, angular-ui and angular-ui-test for UI, and for E2E a Skill of '–' with playwright-e2e-test as Test skill",
+      "description": "The Layers table of docs/architecture/stack.md names flyway-schema for Migration, jpa-persistence and jpa-persistence-test for Persistence, spring-service and spring-service-test for Service, spring-rest and spring-rest-test for API, angular-ui and angular-ui-test for UI, and for E2E a Skill of '–' with playwright-e2e-test as Test skill",
       "max_score": 15
     },
     {
@@ -14,12 +14,12 @@
     },
     {
       "name": "E2E scope recorded",
-      "description": "Under the Integration layer table, docs/architecture/development.md has the line `**E2E scope:** Use cases and test cases`, taken from the team's decision in the task rather than asked again or guessed",
+      "description": "Under the Integration layer table, docs/architecture/stack.md has the line `**E2E scope:** Use cases and test cases`, taken from the team's decision in the task rather than asked again or guessed",
       "max_score": 10
     },
     {
       "name": "Angular reaches the service through the API",
-      "description": "The combination is not reported as invalid, and the report or the Development View says that the Angular UI reaches the service through the API, so a use case offered through the UI (UC-002, **Layers:** UI) is built and tested in the API layer too",
+      "description": "The combination is not reported as invalid, and the report or the stack file says that the Angular UI reaches the service through the API, so a use case offered through the UI (UC-002, **Layers:** UI) is built and tested in the API layer too",
       "max_score": 5
     },
     {
@@ -38,8 +38,8 @@
       "max_score": 10
     },
     {
-      "name": "Index written",
-      "description": "docs/architecture/README.md exists and lists development.md as the Development View; no logical.md, process.md, or physical.md is written",
+      "name": "Only the stack file written",
+      "description": "docs/architecture/stack.md is the only file written under docs/architecture/: no README.md index and no logical.md, process.md, or physical.md",
       "max_score": 10
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "name": "Nothing else changed",
-      "description": "No application code is written, pom.xml and frontend/package.json are unchanged, and no file under docs/ other than the two architecture files is changed",
+      "description": "No application code is written, pom.xml and frontend/package.json are unchanged, and no file under docs/ other than docs/architecture/stack.md is changed",
       "max_score": 5
     }
   ]

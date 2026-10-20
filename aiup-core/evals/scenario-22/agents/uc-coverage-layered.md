@@ -6,7 +6,7 @@ description: >
   implementation and during or after writing tests: it maps every main success scenario step,
   alternative flow, business rule, precondition, and postcondition onto the code and tests that
   realize it, reports the gaps and the drift, and suggests the specification's next status. For
-  projects that combine layer plugins: it takes the markers from docs/architecture/development.md. It reports
+  projects that combine layer plugins: it takes the markers from docs/architecture/stack.md. It reports
   only — it never edits, creates, or deletes a file.
 tools: Read, Grep, Glob
 model: inherit
@@ -105,7 +105,7 @@ the open question stated, never `Covered` on reading alone.
 
 Search, do not assume. Use the id markers first, then the domain vocabulary.
 
-**Id markers.** Read the Development View first, `docs/architecture/development.md`. Its Layers table names the
+**Id markers.** Read the stack file first, `docs/architecture/stack.md`. Its Layers table names the
 technology and the skills of every layer, its Integration layer table names, per entry layer, the layer whose tests
 run in process against the real database and so exercise every layer below it, and its Markers table lists, per
 layer, the markers the layer skills write into code and tests. Grep for every row of that table. In
@@ -126,12 +126,12 @@ layer. The use case's integration layer is the first row of the Integration laye
 `**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row.
 Judge the test evidence against that layer.
 
-When the Development View does not exist, say so at the top of the report, audit with the two generic
-markers and the domain vocabulary alone, and name `/architecture` as the step that makes the next
+When the stack file does not exist, say so at the top of the report, audit with the two generic
+markers and the domain vocabulary alone, and name `/stack` as the step that makes the next
 audit precise.
 
-When the Development View has no Integration layer table (or only the single `**Integration layer:**`
-line of an earlier version), say so at the top of the report and name `/architecture` as the step that
+When the stack file has no Integration layer table (or only the single `**Integration layer:**`
+line of an earlier version), say so at the top of the report and name `/stack` as the step that
 writes it. Do not derive the layer yourself: judge the test
 evidence of every layer, and state that the audit could not tell which layer integrates.
 

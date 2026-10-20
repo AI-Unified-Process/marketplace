@@ -1,10 +1,10 @@
 {
-  "context": "Tests whether /spring-rest builds only the API layer of UC-001: a @RestController under the base path recorded in docs/architecture/development.md (/api/v1), request/response DTO records named per the contract, @Valid validation, a @RestControllerAdvice mapping the domain exceptions and validation failures to RFC 9457 ProblemDetail, 201 Created with Location, and no business logic in the controller.",
+  "context": "Tests whether /spring-rest builds only the API layer of UC-001: a @RestController under the base path recorded in docs/architecture/stack.md (/api/v1), request/response DTO records named per the contract, @Valid validation, a @RestControllerAdvice mapping the domain exceptions and validation failures to RFC 9457 ProblemDetail, 201 Created with Location, and no business logic in the controller.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "Base path from the API contract",
-      "description": "The controller is mapped under /api/v1 (e.g. /api/v1/guests), not /api/guests, following the API contract section of docs/architecture/development.md",
+      "description": "The controller is mapped under /api/v1 (e.g. /api/v1/guests), not /api/guests, following the API contract section of docs/architecture/stack.md",
       "max_score": 10
     },
     {
@@ -54,7 +54,7 @@
     },
     {
       "name": "Markers rows added",
-      "description": "The Markers table of docs/architecture/development.md gains the three spring-rest rows of its markers reference (Code row for UC-XXX in the handler Javadoc, Code row for the BR marker above a request DTO constraint, Name row for <Entity>Controller and <Entity>Request/<Entity>Response) and keeps the existing All, flyway-schema, jooq-persistence, and spring-service rows unchanged",
+      "description": "The Markers table of docs/architecture/stack.md gains the three spring-rest rows of its markers reference (Code row for UC-XXX in the handler Javadoc, Code row for the BR marker above a request DTO constraint, Name row for <Entity>Controller and <Entity>Request/<Entity>Response) and keeps the existing All, flyway-schema, jooq-persistence, and spring-service rows unchanged",
       "max_score": 7
     },
     {

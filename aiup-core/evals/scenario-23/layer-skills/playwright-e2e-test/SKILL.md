@@ -7,7 +7,7 @@ description: >
   role, label, and text against the running application and cleans up only the data the test created. Use when the
   user asks to "write Playwright tests", "create e2e tests", "test in the browser", "automate a test case", "test a
   user journey", "automate TC-001", or mentions end-to-end, browser, or UI integration tests. Normally run by
-  /use-case-test (or /test-case-implement for a TC-*) as the E2E layer of a project whose docs/architecture/development.md names Playwright; it can also be run directly.
+  /use-case-test (or /test-case-implement for a TC-*) as the E2E layer of a project whose docs/architecture/stack.md names Playwright; it can also be run directly.
   For a Vaadin UI use /vaadin-e2e-test.
 ---
 
@@ -32,6 +32,6 @@ every expected value from it, never from what the code returns.
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.

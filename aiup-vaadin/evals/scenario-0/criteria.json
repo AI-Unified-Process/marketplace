@@ -44,7 +44,7 @@
     },
     {
       "name": "Markers rows added",
-      "description": "docs/architecture/development.md's Markers table gains the three UI rows of vaadin-flow-ui (UC-XXX in the view Javadoc, the BR marker above the Binder validator or UI guard, the <Name>View naming) while the All, Migration, Persistence, and Service rows stay unchanged; nothing else in docs/ changes",
+      "description": "docs/architecture/stack.md's Markers table gains the three UI rows of vaadin-flow-ui (UC-XXX in the view Javadoc, the BR marker above the Binder validator or UI guard, the <Name>View naming) while the All, Migration, Persistence, and Service rows stay unchanged; nothing else in docs/ changes",
       "max_score": 8
     },
     {

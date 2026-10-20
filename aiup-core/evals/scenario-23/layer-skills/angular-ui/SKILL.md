@@ -7,7 +7,7 @@ description: >
   DTOs) and checks the JSON contract against it. Use when the user asks to "build the Angular page", "implement the
   UI of UC-001", "create the Angular component", "wire the frontend to the REST API", or mentions Angular, standalone
   components, signals, or an Angular client calling a backend. Normally run by /use-case-implement as the UI layer of a
-  project whose docs/architecture/development.md names Angular; it can also be run directly. Does not write tests — that is
+  project whose docs/architecture/stack.md names Angular; it can also be run directly. Does not write tests — that is
   /angular-ui-test.
 ---
 
@@ -29,18 +29,18 @@ that match the API's DTOs field by field.
 - **Consumes** the Handover of the API layer.
 - **Produces** the page, the route, the HTTP service and its models.
 - **Never touches** the backend, tests, or anything under `docs/` other than the Markers table of
-  `docs/architecture/development.md`.
+  `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-implement
 
 Run from `/use-case-implement`, this skill inherits the inputs that skill read, the gaps the user answered, and its
 rules for reconciling an existing implementation; it does not repeat the status check or ask the same questions
 again. Run directly, read the use case, the requirements it links, `docs/entity_model.md`, and
-`docs/architecture/development.md` yourself, and stop on a `Draft` or `Reviewed` use case.
+`docs/architecture/stack.md` yourself, and stop on a `Draft` or `Reviewed` use case.
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.
 

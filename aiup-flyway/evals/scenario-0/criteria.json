@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether flyway-schema takes the migration location from docs/architecture/development.md in a hexagonal reactor, numbers the migration after the existing main migrations only (not the V1000 test data migration), creates only the guest table the use case needs, follows the schema conventions, marks the UNIQUE constraint that enforces BR-001, maintains its Markers rows, and hands over to the persistence skill.",
+  "context": "Tests whether flyway-schema takes the migration location from docs/architecture/stack.md in a hexagonal reactor, numbers the migration after the existing main migrations only (not the V1000 test data migration), creates only the guest table the use case needs, follows the schema conventions, marks the UNIQUE constraint that enforces BR-001, maintains its Markers rows, and hands over to the persistence skill.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -34,7 +34,7 @@
     },
     {
       "name": "Markers table updated",
-      "description": "docs/architecture/development.md gains the two Migration rows of flyway-schema: a Code row with the '-- UC-XXX BR-YYY:' SQL comment marker and a Name row whose location is hotel-persistence/src/main/resources/db/migration/V*__*.sql; the existing All row is unchanged and no other document under docs/ is edited",
+      "description": "docs/architecture/stack.md gains the two Migration rows of flyway-schema: a Code row with the '-- UC-XXX BR-YYY:' SQL comment marker and a Name row whose location is hotel-persistence/src/main/resources/db/migration/V*__*.sql; the existing All row is unchanged and no other document under docs/ is edited",
       "max_score": 10
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "name": "Hand-off to the persistence skill",
-      "description": "The response ends with 'Next: /jooq-persistence UC-003' (the persistence skill from docs/architecture/development.md), and does not run or suggest a coverage audit as the next step",
+      "description": "The response ends with 'Next: /jooq-persistence UC-003' (the persistence skill from docs/architecture/stack.md), and does not run or suggest a coverage audit as the next step",
       "max_score": 9
     },
     {

@@ -12,7 +12,7 @@ description: >
   "can I set the status to Tested". This is specification coverage, not line
   coverage from a coverage report. It reports only and writes no
   file. For projects that combine layer plugins and record
-  them in docs/architecture/development.md; a combined stack plugin brings its own
+  them in docs/architecture/stack.md; a combined stack plugin brings its own
   /coverage-check. When the user wants the gaps closed rather than listed,
   use /use-case-implement or /use-case-test instead. A TC-XXX journey is
   /test-case-coverage.
@@ -103,10 +103,10 @@ with a verdict, say so underneath it and leave the row alone.
 - Turn each gap into the command that closes it, narrowed to the layer the gap is in when the report
   names one: `/use-case-implement UC-XXX` (or `/use-case-implement UC-XXX service`) for implementation gaps,
   `/use-case-test UC-XXX` for test gaps — narrowed to a layer below the integration layer of
-  `docs/architecture/development.md` (`/use-case-test UC-XXX service`) only when the report says the unit is unreachable from
-  it — `/architecture` when the report says `docs/architecture/development.md` or its
+  `docs/architecture/stack.md` (`/use-case-test UC-XXX service`) only when the report says the unit is unreachable from
+  it — `/stack` when the report says `docs/architecture/stack.md` or its
   Integration layer table is missing, and a rerun of the layer skill named in the Layers table when the report says its Markers rows
-  are missing (the layer skills own those rows; `/architecture` adds only the `All` row; a test skill below
+  are missing (the layer skills own those rows; `/stack` adds only the `All` row; a test skill below
   the integration layer that never ran has none to add). Offer them; run one only if the user says yes.
 - Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the
   specification (`/use-case-spec UC-XXX` adds the behaviour) or the code (`/use-case-implement` removes it) —

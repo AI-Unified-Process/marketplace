@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /use-case-test, in a Vaadin Flow + REST + jOOQ project whose Development View names the UI as the integration layer, tests UC-002 (no **Layers:** line, so offered through both the UI and the API) once in the integration layer with vaadin-flow-ui-test, runs spring-rest-test as the second entry layer for the API's own contract only (main success scenario through the endpoint, every alternative flow's response, the input validation mapping — not every business rule's boundary), runs neither jooq-persistence-test nor spring-service-test, changes no production code, and hands off to /use-case-coverage. The test skills are installed in .claude/skills.",
+  "context": "Tests whether /use-case-test, in a Vaadin Flow + REST + jOOQ project whose stack file names the UI as the integration layer, tests UC-002 (no **Layers:** line, so offered through both the UI and the API) once in the integration layer with vaadin-flow-ui-test, runs spring-rest-test as the second entry layer for the API's own contract only (main success scenario through the endpoint, every alternative flow's response, the input validation mapping — not every business rule's boundary), runs neither jooq-persistence-test nor spring-service-test, changes no production code, and hands off to /use-case-coverage. The test skills are installed in .claude/skills.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -39,7 +39,7 @@
     },
     {
       "name": "Production code and documents untouched",
-      "description": "No file under src/main is changed, and no file under docs/ is changed except the Markers table of docs/architecture/development.md, which gains the spring-rest-test and vaadin-flow-ui-test rows with the other rows kept",
+      "description": "No file under src/main is changed, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md, which gains the spring-rest-test and vaadin-flow-ui-test rows with the other rows kept",
       "max_score": 10
     },
     {

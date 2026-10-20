@@ -44,7 +44,7 @@
     },
     {
       "name": "Markers rows and Handover",
-      "description": "docs/architecture/development.md's Markers table gains the three hilla-ui rows while the All, Migration, Persistence, and Service rows stay unchanged, and the answer ends with a 'Handover from hilla-ui (UC-020)' block naming the endpoint methods, the view and its route, the labels, and the messages",
+      "description": "docs/architecture/stack.md's Markers table gains the three hilla-ui rows while the All, Migration, Persistence, and Service rows stay unchanged, and the answer ends with a 'Handover from hilla-ui (UC-020)' block naming the endpoint methods, the view and its route, the labels, and the messages",
       "max_score": 10
     },
     {

@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # aiup-vaadin-jooq
 
 > **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-flyway`, `aiup-jooq`,
-> `aiup-spring-boot`, and `aiup-vaadin`, run by `/architecture`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
+> `aiup-spring-boot`, and `aiup-vaadin`, run by `/stack`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
 > `aiup-core` (3.0.0 or later). The layer plugins also cover a REST API without a Vaadin UI. This plugin keeps
 > working and will be removed with `aiup-core` 4.0.0; do not install it together with the layer plugins in one
 > project. See [Layered stacks](../docs/workflow.md#workflow) and the [migration guide](../docs/migration.md)

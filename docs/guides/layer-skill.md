@@ -6,9 +6,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Writing a layer skill
 
-The construction skills of `aiup-core` — `/architecture`, `/use-case-implement`, `/use-case-test`,
+The construction skills of `aiup-core` — `/stack`, `/use-case-implement`, `/use-case-test`,
 `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` — know no technology. They run whatever layer skill the project's
-Development View, `docs/architecture/development.md`, names for a layer. A team can therefore bring its own skill for
+stack file, `docs/architecture/stack.md`, names for a layer. A team can therefore bring its own skill for
 a layer — a `mybatis-persistence`, a `graphql-api`, a skill that holds the company's Spring conventions — next to the
 layer plugins of this marketplace or instead of one of them. This guide is the contract such a skill fulfils.
 
@@ -16,8 +16,8 @@ layer plugins of this marketplace or instead of one of them. This guide is the c
 
 | The skill has                  | What happens                                                                                                  |
 |--------------------------------|---------------------------------------------------------------------------------------------------------------|
-| a `references/layer.md`        | `/architecture` discovers it, detects its technology in an existing project, and decides the integration layer from it, like any layer plugin |
-| no `references/layer.md`       | It is a layer skill once the user names it for a layer in `/architecture`. Because there is nothing to read, `/architecture` asks what its tests run against, and it is never detected from the code |
+| a `references/layer.md`        | `/stack` discovers it, detects its technology in an existing project, and decides the integration layer from it, like any layer plugin |
+| no `references/layer.md`       | It is a layer skill once the user names it for a layer in `/stack`. Because there is nothing to read, `/stack` asks what its tests run against, and it is never detected from the code |
 
 Either way the skill must be installed where the host finds it: in the project's skill folder (`.claude/skills/`,
 `.github/skills/`, `.codex/skills/`, …), in `~/.claude/skills/`, or as a plugin from any marketplace. In Claude Code
@@ -41,9 +41,9 @@ One row of the layer catalog, in a table with exactly these columns:
   real database, so every layer below is exercised), `backend mocked` (the tests stub the layer below), or
   `running application` (black-box tests against the started application). A row whose **Test skill** is `–` has
   `–` here too, and only such a row: a layer without a test skill, such as the migration layer, runs no tests.
-- `/architecture` derives the integration layer of each entry layer, where `/use-case-test` tests every business
+- `/stack` derives the integration layer of each entry layer, where `/use-case-test` tests every business
   rule, from this column: the entry layer itself when its tests run `in process, real database`, otherwise the
-  layer it calls. The rule is in the layer catalog of `/architecture`, section "Tests run, and the integration
+  layer it calls. The rule is in the layer catalog of `/stack`, section "Tests run, and the integration
   layer"; a layer skill only states its Tests run correctly.
 - **Detect** names the evidence in an existing project. Put the source-tree evidence first (an annotation, a file
   pattern); a dependency that another technology also brings is not enough on its own.
@@ -65,7 +65,7 @@ skeleton every layer skill of this marketplace uses, so the orchestrators find w
    not repeat them. Run directly, it reads the same inputs and applies the same rules.
 4. **The technology sections** — how to build or test the layer, including where the `// UC-XXX BR-YYY:` marker of a
    business rule goes in this layer.
-5. **Markers** — the rows the skill keeps in the Markers table of the Development View.
+5. **Markers** — the rows the skill keeps in the Markers table of the stack file.
 6. **DO NOT**, **Workflow**, **Handover**, **Resources**.
 
 Do not copy the shared rules of the orchestrators into the skill — specification gaps, business rule markers,
@@ -75,7 +75,7 @@ command; a copy drifts.
 ### Markers
 
 Ship a `references/markers.md` with the rows the skill writes into the Markers table of
-`docs/architecture/development.md`, and make the skill add or correct exactly those rows on every run:
+`docs/architecture/stack.md`, and make the skill add or correct exactly those rows on every run:
 
 ```markdown
 | Layer       | Skill               | Kind | Marker to grep for                                              |
@@ -91,13 +91,13 @@ code to be found by domain vocabulary alone — and the audit says so.
 
 A build skill ends with a **Handover** block: the types, method signatures, endpoints, or tables it created or
 changed, which the layer above builds on unchanged. A layer with nothing to do says so (`Nothing to do: <reason>`).
-Run on its own, the skill ends with a `Next:` line naming the skill of the layer above from the Development View.
+Run on its own, the skill ends with a `Next:` line naming the skill of the layer above from the stack file.
 
 ## Checklist
 
 - [ ] `SKILL.md` with `name` equal to its folder name and a `description` of at most 1024 characters
-- [ ] `references/layer.md` with one row in the six columns above (or the user names the skill in `/architecture`)
-- [ ] `references/markers.md`, and a Markers section that keeps those rows in the Development View
+- [ ] `references/layer.md` with one row in the six columns above (or the user names the skill in `/stack`)
+- [ ] `references/markers.md`, and a Markers section that keeps those rows in the stack file
 - [ ] Scope, the run-directly section, DO NOT, Workflow, and Handover
 - [ ] No copy of the orchestrators' shared rules; links only inside the skill folder
 - [ ] Installed where the host finds it, and enabled

@@ -13,12 +13,12 @@ split hexagonal layers across separate Maven or Gradle modules, or is it one fla
 code into a hexagonal reactor (or the other way round) breaks the project's module dependency direction — for
 example a JPA `@Entity` or a jOOQ record placed in a `domain` module that has no framework dependencies.
 
-## Step 0 — Read docs/architecture/development.md
+## Step 0 — Read docs/architecture/stack.md
 
-The `## Module layout` section of `docs/architecture/development.md` records the layout, the root package, and where each
+The `## Module layout` section of `docs/architecture/stack.md` records the layout, the root package, and where each
 layer's code and tests live. When it does, follow it and skip to Step 4. Run Steps 1–3 only when the section is
-empty or contradicts the build files — and then say so in the report and hand off to `/architecture`, which records
-the layout; never edit `docs/architecture/development.md` beyond the Markers table yourself.
+empty or contradicts the build files — and then say so in the report and hand off to `/stack`, which records
+the layout; never edit `docs/architecture/stack.md` beyond the Markers table yourself.
 
 ## Step 1 — Find the real reactor
 

@@ -7,7 +7,7 @@ A hotel team builds a Spring Boot 4.0 REST service with jOOQ in one flat Maven m
 `ApiExceptionHandler` that renders RFC 9457 Problem Details. The project's existing API test for UC-002 shows its
 test convention.
 
-The specification is at `docs/use_cases/UC-001-register-guest.md`; the API contract is in `docs/architecture/development.md`.
+The specification is at `docs/use_cases/UC-001-register-guest.md`; the API contract is in `docs/architecture/stack.md`.
 
 ## Output Specification
 

@@ -4,7 +4,7 @@
 
 A hotel booking backend at `backend/` is a hexagonal Maven reactor: `hotel-domain`, `hotel-business`,
 `hotel-postgres`, `hotel-api`, `hotel-app`. One feature, `RoomType`, is implemented across all modules and shows the
-project's conventions. The project records its layers in `docs/architecture/development.md`.
+project's conventions. The project records its layers in `docs/architecture/stack.md`.
 
 The Migration layer of UC-020 "Register Guest" is already done: `V2__create_guest.sql` in `hotel-postgres` creates
 the `guest` table. The use case is at `docs/use_cases/UC-020-register-guest.md`, the entity model at

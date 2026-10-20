@@ -43,7 +43,7 @@ out.
 - **Tests** the endpoints of the use case: the status of every flow, the `Location` of a created resource, the JSON
   field names and formats of request and response, the Problem Details body of every rejection, and field errors
   for invalid input.
-- **Tests the business rules too** when the Integration layer table of `docs/architecture/development.md` names
+- **Tests the business rules too** when the Integration layer table of `docs/architecture/stack.md` names
   the API for this use case (behind an Angular client, in a REST service, or for an `API`-only use case): every rule gets its allowed and its rejected
   request at the boundary the rule names, with the full `detail` message, and the postconditions are read back
   through the API. Units no endpoint of the use case reaches are listed in the report. Next to a Vaadin Flow or Hilla
@@ -51,7 +51,7 @@ out.
   scenario, every alternative flow's status and `detail`, and the field errors. "Which Layer Tests What" of
   `/use-case-test` decides the rest.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/development.md`.
+  `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -61,7 +61,7 @@ and "Which Layer Tests What" and does not repeat them.
 Run directly, the same rules apply:
 
 - Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` for the test data,
-  and `docs/architecture/development.md` for the API contract, the module layout, and the test commands.
+  and `docs/architecture/stack.md` for the API contract, the module layout, and the test commands.
 - Take every expected value — a status the API contract fixes, a message, a field value — from the specification,
   the API contract, or the test data, never from what the code returns.
 - When a test fails on a value the specification states, do not change, weaken, delete, or disable the assertion:
@@ -100,7 +100,7 @@ Name the class `UC<id><PascalCaseUseCaseName>ApiTest` — `UC001RegisterGuestApi
 `UC<id><PascalCaseUseCaseName>ApiIT` instead when it starts a live server and the project runs such tests with the
 Maven Failsafe plugin or a Gradle `integrationTest` task (existing `*IT` classes tell you). Place it in the package of
 the controller; in a hexagonal project in the composition-root module, the only one with every layer on the
-classpath — take it from the `## Module layout` section of `docs/architecture/development.md`, or locate the shared reference
+classpath — take it from the `## Module layout` section of `docs/architecture/stack.md`, or locate the shared reference
 with a glob for `**/*spring-service/references/module-layout.md` (the folder may carry a host prefix such as
 `tessl__spring-service`). `@SpringBootTest` starts from the `@SpringBootConfiguration` it finds in the test's
 package or above it. When the module has none — a REST service whose application class is not written yet, or a
@@ -143,7 +143,7 @@ public @interface UseCase {
 | Entity not found                        | `404` with a Problem Details body, when the use case addresses an entity by id     |
 | JSON contract                           | field names and formats the client relies on: dates `YYYY-MM-DD`, amounts, nulls   |
 
-- The status per flow comes from the API contract of `docs/architecture/development.md`, or the status table of `/spring-rest`
+- The status per flow comes from the API contract of `docs/architecture/stack.md`, or the status table of `/spring-rest`
   when the contract names none; the message from the specification.
 - **Full stack, nothing mocked**: no `@MockitoBean` on a service, port, or repository of the use case's own call
   chain. A test that mocks the service proves only the controller's wiring, not that the rejection reaches the
@@ -217,7 +217,7 @@ existing base class and assert with `.then().statusCode(409).body("detail", equa
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -243,7 +243,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    found.
 5. Reuse or create the `UseCase` annotation.
 6. Write one test per row of [What to Test](#what-to-test) that applies, each with `@UseCase`.
-7. Run the class with the Integration tests (or Unit tests) command from `docs/architecture/development.md`, e.g. `./mvnw verify
+7. Run the class with the Integration tests (or Unit tests) command from `docs/architecture/stack.md`, e.g. `./mvnw verify
    -Dit.test='UC001*ApiIT'` or `./mvnw test -Dtest='UC001*ApiTest'`. On a failure, decide whether the test's
    mechanics or the code is wrong.
 8. Update the Markers rows — see [Markers](#markers).

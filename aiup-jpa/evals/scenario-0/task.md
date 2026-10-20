@@ -4,7 +4,7 @@
 
 A hotel booking backend is a flat Spring Boot project with Spring Data JPA and Flyway. `RoomType` and `Guest` are
 mapped already; the Flyway migration `V003__create_reservation.sql` has created the `reservation` table, which no
-Java code maps yet. The project records its layers in `docs/architecture/development.md`.
+Java code maps yet. The project records its layers in `docs/architecture/stack.md`.
 
 The use case is at `docs/use_cases/UC-031-search-reservations.md`, the entity model at `docs/entity_model.md`, the
 requirements at `docs/requirements.md`.

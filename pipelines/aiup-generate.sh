@@ -46,7 +46,7 @@ case "$PLUGIN/$SKILL" in
   aiup-core/use-case-spec) ;;
   aiup-core/test-case) ;;
   aiup-core/reverse-engineer) ;;
-  aiup-core/architecture) ;;
+  aiup-core/stack) ;;
   aiup-vaadin-jooq/flyway-migration) ;;
   aiup-vaadin-jooq/implement) ;;
   aiup-vaadin-jooq/implement-hilla) ;;
@@ -139,8 +139,8 @@ npm install --global --no-fund --no-audit @anthropic-ai/claude-code
 # such as /implement exist in several stack plugins, and a layer project whose session also
 # holds a combined plugin runs the wrong skill. So only aiup-core and the plugins the run
 # needs are installed. A combined stack plugin brings everything itself. A layer run takes
-# the layer plugins that the project's Development View names in its Layers table, plus the
-# chosen plugin; without a Development View (and always for /architecture, which discovers
+# the layer plugins that the project's stack file names in its Layers table, plus the
+# chosen plugin; without a stack file (and always for /stack, which discovers
 # the installed layer skills to choose from) it takes every layer plugin, still without the
 # combined ones. The document skills of aiup-core need nothing but core. The skills of each
 # layer plugin are listed here because the Layers table names skills, not plugins;
@@ -152,7 +152,7 @@ aiup-spring-boot:spring-service aiup-spring-boot:spring-service-test aiup-spring
 aiup-vaadin:vaadin-flow-ui aiup-vaadin:vaadin-flow-ui-test aiup-vaadin:hilla-ui aiup-vaadin:hilla-ui-test aiup-vaadin:vaadin-e2e-test
 aiup-angular:angular-ui aiup-angular:angular-ui-test
 aiup-playwright:playwright-e2e-test"
-view=docs/architecture/development.md
+view=docs/architecture/stack.md
 all_layers=""
 from_view=""
 for pair in $layer_skills; do
@@ -166,7 +166,7 @@ done
 case "$PLUGIN/$SKILL" in
   aiup-vaadin-jooq/* | aiup-angular-jpa/* | aiup-blazor-dotnet/* | aiup-nestjs-nextjs/*)
     plugins="aiup-core $PLUGIN" ;;
-  aiup-core/architecture)
+  aiup-core/stack)
     plugins="aiup-core$all_layers" ;;
   aiup-core/use-case-implement | aiup-core/use-case-test | aiup-core/test-case-implement)
     if [ -n "$from_view" ]; then plugins="aiup-core$from_view"; else plugins="aiup-core$all_layers"; fi ;;

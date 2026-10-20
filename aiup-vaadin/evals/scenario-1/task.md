@@ -3,7 +3,7 @@
 ## Problem Description
 
 A hotel application combines layer plugins: Flyway, jOOQ, Spring Boot services, and a Hilla (React) UI on Vaadin
-25.3. The layers are recorded in `docs/architecture/development.md`. The use case is specified at
+25.3. The layers are recorded in `docs/architecture/stack.md`. The use case is specified at
 `docs/use_cases/UC-020-register-guest.md`, and the service layer for it is already finished:
 
 ```text
@@ -23,6 +23,6 @@ The frontend has a layout at `src/main/frontend/views/@layout.tsx` that builds t
 
 Implement only the UI layer of UC-020 with Hilla, as `/use-case-implement` would delegate it to the UI layer skill:
 the browser-callable endpoint in `src/main/java/com/example/hotel/guest/` and the React view under
-`src/main/frontend/views/`. Update the Markers table in `docs/architecture/development.md` for this layer. Do not write
+`src/main/frontend/views/`. Update the Markers table in `docs/architecture/stack.md` for this layer. Do not write
 tests, do not change the service or repository, and do not build or run anything. Finish with the Handover block
 of the UI layer.

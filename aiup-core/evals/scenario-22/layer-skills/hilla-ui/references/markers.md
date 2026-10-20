@@ -6,8 +6,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Markers of hilla-ui
 
-The rows this skill keeps in the Markers table of the Development View (`docs/architecture/development.md`). Copy them exactly; the generic business
-rule row (`All`) belongs to `/architecture` and is not repeated here.
+The rows this skill keeps in the Markers table of the stack file (`docs/architecture/stack.md`). Copy them exactly; the generic business
+rule row (`All`) belongs to `/stack` and is not repeated here.
 
 | Layer | Skill    | Kind | Marker to grep for                                                                                        |
 |-------|----------|------|-----------------------------------------------------------------------------------------------------------|

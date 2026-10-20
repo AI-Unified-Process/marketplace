@@ -111,7 +111,7 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 3. Design the journey: the business-meaningful order of the use cases (in process mode, the path's sequence flow), the roles involved, the state carried between steps, and where verification steps belong.
 4. Write the document from the template: Overview (ID, Goal, Priority, Status, and in process mode Process), Roles, Preconditions, Flow table, Validation, Postconditions. Process mode writes one document per path.
 5. Run the Completeness Checklist below; fix anything that fails.
-6. Report the created (and in process mode updated or obsoleted) files and suggest the matching e2e test command: `/test-case-implement TC-XXX` when `docs/architecture/development.md` exists (layer plugins), otherwise the combined stack plugin's `/playwright-test TC-XXX`. Automating a journey needs an E2E layer: when the Development View's E2E row is missing or its Test skill is `–` (a REST service without a UI), say that the test case stays a manual script until `/architecture` adds an E2E layer, and suggest no command.
+6. Report the created (and in process mode updated or obsoleted) files and suggest the matching e2e test command: `/test-case-implement TC-XXX` when `docs/architecture/stack.md` exists (layer plugins), otherwise the combined stack plugin's `/playwright-test TC-XXX`. Automating a journey needs an E2E layer: when the stack file's E2E row is missing or its Test skill is `–` (a REST service without a UI), say that the test case stays a manual script until `/stack` adds an E2E layer, and suggest no command.
 
 ## Completeness Checklist
 

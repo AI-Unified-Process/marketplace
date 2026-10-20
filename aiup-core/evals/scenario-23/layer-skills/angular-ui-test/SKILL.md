@@ -6,7 +6,7 @@ description: >
   non-HTTP services, and plain service tests — in UC-XXX-<slug>.spec.ts files with a describe('UC-XXX: …') block.
   Use when the user asks to "write frontend tests", "test the Angular component", "write a Vitest test", "unit test
   an Angular page", "test the UI of UC-001", or mentions TestBed, ComponentFixture, or HttpTestingController.
-  Normally run by /use-case-test as the UI test layer of a project whose docs/architecture/development.md names Angular; it can also
+  Normally run by /use-case-test as the UI test layer of a project whose docs/architecture/stack.md names Angular; it can also
   be run directly. Browser tests against the running application are /playwright-e2e-test.
 ---
 
@@ -38,6 +38,6 @@ rules are tested by the API layer, the integration layer of an Angular project.
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.

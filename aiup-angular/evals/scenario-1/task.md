@@ -3,7 +3,7 @@
 ## Problem Description
 
 A hotel application combines layer plugins (Flyway, JPA, Spring Boot, Angular, Playwright), as recorded in
-`docs/architecture/development.md`. The UI layer of UC-020 is implemented: the routed page
+`docs/architecture/stack.md`. The UI layer of UC-020 is implemented: the routed page
 `frontend/src/app/pages/register-guest/register-guest.ts` with its template, and `GuestService` with its models in
 `frontend/src/app/services/`. The backend and its tests already exist and are not part of this task.
 
@@ -16,6 +16,6 @@ The use case is `docs/use_cases/UC-020-register-guest.md`.
 ## Output Specification
 
 Write the UI-layer tests of UC-020 with Vitest: the main scenario, A1, and A2 as the page shows them. Keep
-`docs/architecture/development.md` up to date as the UI test skill requires. Do not change production code. If you cannot run
+`docs/architecture/stack.md` up to date as the UI test skill requires. Do not change production code. If you cannot run
 the tests in this environment, say so instead of claiming they pass, and report any test you expect to fail because
 the code disagrees with the specification.

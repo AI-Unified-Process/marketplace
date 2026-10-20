@@ -3,7 +3,7 @@
 ## Problem Description
 
 A hotel application combines layer plugins: Flyway, jOOQ, Spring Boot services, and a Vaadin Flow 25.1 UI. The
-layers are recorded in `docs/architecture/development.md`. The use case is specified at
+layers are recorded in `docs/architecture/stack.md`. The use case is specified at
 `docs/use_cases/UC-020-register-guest.md`, and the service layer for it is already finished:
 
 ```text
@@ -23,5 +23,5 @@ No view exists for UC-020 yet.
 
 Implement only the UI layer of UC-020 with Vaadin Flow, as `/use-case-implement` would delegate it to the UI layer
 skill. Put the view in `src/main/java/com/example/hotel/guest/ui/`. Update the Markers table in
-`docs/architecture/development.md` for this layer. Do not write tests, do not change the service or repository, and do not
+`docs/architecture/stack.md` for this layer. Do not write tests, do not change the service or repository, and do not
 compile or run anything. Finish with the Handover block of the UI layer.

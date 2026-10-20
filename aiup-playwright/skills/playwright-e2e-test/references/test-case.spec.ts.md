@@ -11,7 +11,7 @@ Use the content of the code block below; a copy written to disk takes the name `
 
 ```typescript
 // Template: end-to-end journey of one test case — one test, one test.step per Flow row.
-// File name: TC-XXX-<slug>.spec.ts in the E2E test folder of docs/architecture/development.md.
+// File name: TC-XXX-<slug>.spec.ts in the E2E test folder of docs/architecture/stack.md.
 import { test, expect } from '@playwright/test';
 
 test.describe('TC-001: Clerk registers a guest and books a room for them', () => {

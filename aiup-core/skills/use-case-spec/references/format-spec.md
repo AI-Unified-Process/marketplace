@@ -215,7 +215,7 @@ The `/use-case-spec` skill additionally requires:
   alone — the same tokens in both languages, backticks and a trailing
   period tolerated. The validator warns (`LAYERS_INVALID`,
   `LAYERS_EMPTY`) on any other value, which is usually a technology
-  (`REST`, `Vaadin`) the Development View maps instead, and
+  (`REST`, `Vaadin`) the stack file maps instead, and
   (`LAYERS_DUPLICATE`) on a layer named twice.
 
 - All five template sections and both postcondition subsections exist.

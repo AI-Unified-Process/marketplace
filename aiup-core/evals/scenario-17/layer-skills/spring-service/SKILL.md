@@ -31,14 +31,14 @@ business rules and throw a domain exception per alternative flow the service dec
 - **Produces** the public service methods the layer above calls — a `@RestController`, a Vaadin Flow view, or a
   Hilla `@BrowserCallable` endpoint — with their input records, return types, and exceptions.
 - **Never touches** queries, migrations, controllers, views, endpoints, tests, or anything under `docs/` other than
-  the Markers table of `docs/architecture/development.md`.
+  the Markers table of `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-implement
 
 Run from `/use-case-implement`, this skill inherits the inputs that skill read, the gaps the user answered, and its
 rules for reconciling an existing implementation; it does not repeat the status check or ask the same questions
 again. Run directly, read the use case, the requirements it links, `docs/entity_model.md`, and
-`docs/architecture/development.md` yourself, and stop on a `Draft` or `Reviewed` use case.
+`docs/architecture/stack.md` yourself, and stop on a `Draft` or `Reviewed` use case.
 
 ## Business Rule Markers
 
@@ -48,7 +48,7 @@ method that realizes a step or an alternative flow. Read the time from an inject
 
 ## Markers
 
-Keep this skill's rows in the Markers table of `docs/architecture/development.md` exactly as
+Keep this skill's rows in the Markers table of `docs/architecture/stack.md` exactly as
 [references/markers.md](references/markers.md) lists them: add them when they are missing, correct them when they
 differ. Touch no other row.
 

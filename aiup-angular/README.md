@@ -24,10 +24,10 @@ field from that layer's DTOs, and the JSON contract between the two is checked a
 The skills are normally run by `aiup-core`, not one by one:
 
 ```text
-/architecture        # records Angular as the UI layer in docs/architecture/development.md
+/stack        # records Angular as the UI layer in docs/architecture/stack.md
 /use-case-implement UC-001 # … → spring-rest → angular-ui
 /use-case-test UC-001      # … → spring-rest-test → angular-ui-test → playwright-e2e-test
-/use-case-coverage UC-001  # the one audit, using the markers these skills keep in docs/architecture/development.md
+/use-case-coverage UC-001  # the one audit, using the markers these skills keep in docs/architecture/stack.md
 ```
 
 Each skill can also be run directly (`/angular-ui UC-001`); it then reads the same inputs and applies the same rules
@@ -65,7 +65,7 @@ agents.
 
 ## Prerequisites
 
-- `aiup-core` 3.0.0 or later, and `docs/architecture/development.md` written by `/architecture`.
+- `aiup-core` 3.0.0 or later, and `docs/architecture/stack.md` written by `/stack`.
 - An Angular project using standalone components; Vitest through `@angular/build:unit-test` (or a Vitest config).
 - An API layer plugin that hands over its endpoints and DTOs.
 

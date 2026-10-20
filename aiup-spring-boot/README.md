@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 business rules, and a REST API with RFC 9457 Problem Details — each with its test skill.
 
 It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.0.0 or later) and one plugin per other layer
-of your project. `/architecture` records which plugin builds which layer in `docs/architecture/development.md`; `/use-case-implement`,
+of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 
 ## Skills
@@ -41,8 +41,8 @@ Angular. The service never depends on a web or UI type.
 | Hilla, jOOQ                   | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
 
-A use case is tested once, in the integration layer of the entry layer it is offered through, which `/architecture`
-records in the Integration layer table of `docs/architecture/development.md`:
+A use case is tested once, in the integration layer of the entry layer it is offered through, which `/stack`
+records in the Integration layer table of `docs/architecture/stack.md`:
 
 | Project                            | Integration layer | What this plugin's test skills write                                                |
 |------------------------------------|-------------------|-------------------------------------------------------------------------------------|
@@ -54,21 +54,21 @@ records in the Integration layer table of `docs/architecture/development.md`:
 A REST API next to a Vaadin Flow or Hilla UI serves other clients; the UI does not call it, so it is the integration
 layer only of the use cases offered through the API alone. Below the integration layer, `/spring-service-test` only reconciles existing tests and covers
 units the integration layer's skill reports it cannot reach. In a Vaadin or Hilla application without a public API,
-the API layer is marked `–` in `docs/architecture/development.md` and `/spring-rest` does not run.
+the API layer is marked `–` in `docs/architecture/stack.md` and `/spring-rest` does not run.
 
 Do not install this plugin together with a combined stack plugin (`aiup-vaadin-jooq`, `aiup-angular-jpa`) in one
 project.
 
 ## Architecture support
 
-The skills follow the module layout recorded in `docs/architecture/development.md`:
+The skills follow the module layout recorded in `docs/architecture/stack.md`:
 
 - **Flat single module:** repositories, services, and controllers in one Spring Boot module.
 - **Hexagonal multi-module:** domain, business, persistence adapter, inbound adapter, and composition-root modules,
   with the outbound port in the business module.
 
 Existing conventions are preserved rather than rewritten into a textbook architecture. The detection rules, used
-when `docs/architecture/development.md` does not record the layout, are in
+when `docs/architecture/stack.md` does not record the layout, are in
 [`skills/spring-service/references/module-layout.md`](skills/spring-service/references/module-layout.md).
 
 ## Traceability
@@ -80,7 +80,7 @@ when `docs/architecture/development.md` does not record the layout, are in
 | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {…}, requirements = {…})` on every test method |
 | Name | `UC<id><Name>ServiceTest`, `UC<id><Name>ApiTest` / `ApiIT`                                 |
 
-Every skill writes its rows into the Markers table of `docs/architecture/development.md`, which `/use-case-coverage` reads.
+Every skill writes its rows into the Markers table of `docs/architecture/stack.md`, which `/use-case-coverage` reads.
 
 ## Installation
 

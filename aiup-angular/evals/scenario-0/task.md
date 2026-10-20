@@ -3,7 +3,7 @@
 ## Problem Description
 
 An online shop combines layer plugins: Flyway, JPA, Spring Boot, Angular, and Playwright, as recorded in
-`docs/architecture/development.md`. `/use-case-implement UC-010` has already run the migration, persistence, service, and API layers
+`docs/architecture/stack.md`. `/use-case-implement UC-010` has already run the migration, persistence, service, and API layers
 and now hands over to the UI layer. The API layer's Handover was:
 
 ```text
@@ -20,5 +20,5 @@ is `docs/use_cases/UC-010-browse-product-catalog.md`, the entity model `docs/ent
 ## Output Specification
 
 Implement the UI layer of UC-010 only: the HTTP service and its TypeScript model, and the `ProductCatalog` page with
-the category filter and the empty state of A2. Keep `docs/architecture/development.md` up to date as the UI layer skill
+the category filter and the empty state of A2. Keep `docs/architecture/stack.md` up to date as the UI layer skill
 requires. Do not write tests and do not touch the backend. End with the Handover block of the UI layer.

@@ -3,7 +3,7 @@
 ## Problem Description
 
 A hotel team builds a Spring Boot 4.0 REST service with jOOQ in one flat Maven module (package
-`com.example.hotel`). `docs/architecture/development.md` records the layers. The persistence layer of UC-001 is already
+`com.example.hotel`). `docs/architecture/stack.md` records the layers. The persistence layer of UC-001 is already
 implemented; its handover was:
 
 ```text

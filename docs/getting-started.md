@@ -143,14 +143,15 @@ Once a use case specification exists, continue with construction. With layer plu
 then work use case by use case:
 
 ```text
-/architecture
+/stack
 /use-case-implement UC-001
 /use-case-test UC-001
 /use-case-coverage UC-001
 ```
 
-`/architecture` writes the Development View, the table of which layer skill builds and tests each layer, as
-`docs/architecture/development.md` with the index `docs/architecture/README.md`. A use case offered through only some
+`/stack` writes the stack file, the table of which layer skill builds and tests each layer, as
+`docs/architecture/stack.md`. It sits next to whatever architecture documentation the team writes (arc42, C4, 4+1,
+or none), which `/stack` reads but never changes. A use case offered through only some
 entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
 test only those layers.
 `/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
@@ -196,7 +197,7 @@ they do not run themselves: `/coverage-check UC-001` delegates to the read-only 
 the plugin ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](../aiup-angular-jpa/agents/uc-coverage.md)), which reports which
 parts of the specification still have no code or no test behind them. Run it when you want the audit — typically
 before accepting a use case as done, when it judges implementation and tests together in one matrix. With layer
-plugins, `/use-case-coverage UC-001` in `aiup-core` runs the same audit with the markers of `docs/architecture/development.md`.
+plugins, `/use-case-coverage UC-001` in `aiup-core` runs the same audit with the markers of `docs/architecture/stack.md`.
 
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).

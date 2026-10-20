@@ -59,7 +59,7 @@
     },
     {
       "name": "Markers table maintained",
-      "description": "docs/architecture/development.md gains the two angular-ui-test rows (the describe('UC-XXX: <Use Case Name>' test marker with it('A<n>: …' / it('BR-YYY: …', and the UC-XXX-<slug>.spec.ts naming); the existing rows are unchanged and nothing else in docs/ is edited",
+      "description": "docs/architecture/stack.md gains the two angular-ui-test rows (the describe('UC-XXX: <Use Case Name>' test marker with it('A<n>: …' / it('BR-YYY: …', and the UC-XXX-<slug>.spec.ts naming); the existing rows are unchanged and nothing else in docs/ is edited",
       "max_score": 6
     }
   ]

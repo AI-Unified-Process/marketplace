@@ -25,19 +25,19 @@ those layers write the test data migrations.
 `aiup-core` (3.0.0 or later) orchestrates the layer plugins:
 
 ```text
-/architecture             → docs/architecture/development.md records flyway-schema for the Migration layer
+/stack             → docs/architecture/stack.md records flyway-schema for the Migration layer
 /use-case-implement UC-001      → flyway-schema → persistence → service → API → UI
 /use-case-test UC-001           → the test skills of the other layers
-/use-case-coverage UC-001       → the audit, using the Markers table of docs/architecture/development.md
+/use-case-coverage UC-001       → the audit, using the Markers table of docs/architecture/stack.md
 ```
 
 `/use-case-implement` runs `/flyway-schema` only when the use case needs a table, column, or constraint the schema does not
 have yet. Run directly, `/flyway-schema UC-001` builds the migration layer of one use case, and `/flyway-schema`
 without an argument creates the tables of every entity the schema does not have yet.
 
-Migrations go to the location the Migration row of `docs/architecture/development.md` records — in a hexagonal reactor the
+Migrations go to the location the Migration row of `docs/architecture/stack.md` records — in a hexagonal reactor the
 persistence adapter module. A business rule the database enforces gets a `-- UC-XXX BR-YYY:` comment above its
-constraint, and the skill keeps its rows in the Markers table of `docs/architecture/development.md` current.
+constraint, and the skill keeps its rows in the Markers table of `docs/architecture/stack.md` current.
 
 ## Combinations
 

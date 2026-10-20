@@ -52,12 +52,12 @@ entry — into generated code, test data, or your summary; name the file it live
 - **Produces** one Vitest suite per use case under `src/main/frontend/tests/`, the one-time Vitest setup when
   the project has none, and one endpoint contract test per use case (see *The Endpoint Contract*).
 - **Never touches** production code, the service and persistence tests, or anything under `docs/` other than this skill's rows of the
-  Markers table in `docs/architecture/development.md`.
+  Markers table in `docs/architecture/stack.md`.
 
 What to test in this layer, following "Which Layer Tests What" of `/use-case-test`: every step and alternative flow the
 actor sees, that the view sends the right data to the endpoint, that a rule's rejection reaches the actor (a
 field error, or the `EndpointError` message), and what the view shows afterwards. The rule itself is tested in the
-integration layer the Integration layer table of `docs/architecture/development.md` names for the UI — the service
+integration layer the Integration layer table of `docs/architecture/stack.md` names for the UI — the service
 layer of a Hilla stack, even next to a REST API that serves other clients: its tests run through the real
 persistence layer and database, which these mocked tests do not.
 
@@ -65,7 +65,7 @@ persistence layer and database, which these mocked tests do not.
 
 Run from `/use-case-test`, this skill inherits the inputs and the search for existing tests and does not repeat them.
 Run directly, read the use case, the linked requirement rows, `docs/glossary.md` when present, and
-`docs/architecture/development.md`; then test this layer only and say that `/use-case-test UC-XXX` runs all test layers.
+`docs/architecture/stack.md`; then test this layer only and say that `/use-case-test UC-XXX` runs all test layers.
 
 ## Use Case Traceability
 
@@ -189,7 +189,7 @@ endpoint, a `@SpringBootTest` with `@AutoConfigureMockMvc`:
 
 Nothing else: no business rule boundaries (the integration layer's tests own them) and no happy-path data checks
 beyond one call that proves the endpoint delegates. Annotate each method with `@UseCase` from the Java test skill
-of the integration layer (the Integration layer table of `docs/architecture/development.md`), which created
+of the integration layer (the Integration layer table of `docs/architecture/stack.md`), which created
 the annotation; when it is missing, run that skill first rather than defining the annotation here. A module whose
 test sources cannot see that annotation gets its own copy, identical to the one the integration layer's skill
 created. In Spring Boot 4 `@AutoConfigureMockMvc` lives in `org.springframework.boot.webmvc.test.autoconfigure` and
@@ -211,7 +211,7 @@ seam, and how alternative flows map onto spec headings.
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -233,17 +233,17 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 4. Look for an existing `UC-XXX-*.test.tsx` and `describe('UC-XXX: …')`; reconcile instead of duplicating.
 5. Write the suite: per scenario mock the endpoint, render the view, interact with `userEvent`, assert the rendered
    outcome and the endpoint calls.
-6. Run it (`npx vitest run -t "UC-XXX"`, or the Unit tests command in `docs/architecture/development.md`). On a failure apply
+6. Run it (`npx vitest run -t "UC-XXX"`, or the Unit tests command in `docs/architecture/stack.md`). On a failure apply
    "When a Test Fails" of `/use-case-test`; for a mechanical failure check that the spied method name matches the
    generated client, that every `userEvent` and `waitFor` is awaited, and that mocked fields match the generated
    types.
 7. Write the endpoint contract test (see *The Endpoint Contract*) and run it with the Integration tests command in
-   `docs/architecture/development.md` (or `./mvnw test -Dtest='UC001*EndpointTest'` for the one class) — it is a `@SpringBootTest`, not a
+   `docs/architecture/stack.md` (or `./mvnw test -Dtest='UC001*EndpointTest'` for the one class) — it is a `@SpringBootTest`, not a
    Vitest suite.
 8. Update this skill's rows of the Markers table.
 9. Report the tests written, the command, and the result, listing every test left failing with the expected and
    actual value. End with `Next: /vaadin-e2e-test UC-XXX` when the project has an E2E layer and
-   `docs/architecture/development.md` does not record `**E2E scope:** Test cases only`, otherwise
+   `docs/architecture/stack.md` does not record `**E2E scope:** Test cases only`, otherwise
    `Next: /use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources

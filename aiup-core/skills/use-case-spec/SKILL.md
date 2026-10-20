@@ -178,7 +178,7 @@ in the implementation, not the specification.
    system, both comma-separated, or `Service` alone when no actor reaches it through either
    (a scheduled job, a message the system consumes). An administration use case of an
    application that also exposes a public API is `**Layers:** UI`. Name entry points only,
-   never a technology (`Vaadin`, `REST`); the project's Development View maps them onto its
+   never a technology (`Vaadin`, `REST`); the project's stack file maps them onto its
    layer skills, and `/use-case-implement` builds only the layers the line names. Omit the line
    when the use case is offered through every entry point the system has.
 7. Define preconditions — verifiable facts that must be true before the use case starts. They are

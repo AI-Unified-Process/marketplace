@@ -32,13 +32,13 @@ database. It is one plugin of a layer combination; it builds neither the schema 
 `aiup-core` (3.0.0 or later) orchestrates the layer plugins:
 
 ```text
-/architecture             → docs/architecture/development.md records jooq-persistence and jooq-persistence-test
+/stack             → docs/architecture/stack.md records jooq-persistence and jooq-persistence-test
 /use-case-implement UC-001      → migration → jooq-persistence → service → API → UI
 /use-case-test UC-001           → the integration layer's test skill (UI, API, or service), then the layers above it
-/use-case-coverage UC-001       → the audit, using the Markers table of docs/architecture/development.md
+/use-case-coverage UC-001       → the audit, using the Markers table of docs/architecture/stack.md
 ```
 
-A use case is tested once, in the integration layer recorded in `docs/architecture/development.md` — the Vaadin Flow
+A use case is tested once, in the integration layer recorded in `docs/architecture/stack.md` — the Vaadin Flow
 view tests, the REST API tests, or the service tests behind Hilla. `/jooq-persistence-test` runs below it only to
 reconcile existing tests, for a query the integration layer's skill reports it cannot reach, or when the
 persistence layer is named; it tests business rules only when persistence is the integration layer, or when run
@@ -46,7 +46,7 @@ directly with no layer above it.
 
 Both skills can be run directly; they then read the same inputs and follow the same rules as `/use-case-implement` and
 `/use-case-test`, and end with a `Next:` line to the next layer. Each skill keeps its rows in the Markers table of
-`docs/architecture/development.md` current.
+`docs/architecture/stack.md` current.
 
 ## Combinations
 
@@ -84,7 +84,7 @@ See the marketplace [installation guides](../docs/installation/) for other agent
 
 ## Prerequisites
 
-- `aiup-core` 3.0.0 or later, `docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/architecture/development.md`.
+- `aiup-core` 3.0.0 or later, `docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/architecture/stack.md`.
 - A Maven or Gradle Spring Boot project with `spring-boot-starter-jooq` and Flyway migrations.
 - Docker for Testcontainers (code generation and repository tests) unless the project uses another database setup.
 

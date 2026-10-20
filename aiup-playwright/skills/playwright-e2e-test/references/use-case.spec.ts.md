@@ -11,7 +11,7 @@ Use the content of the code block below; a copy written to disk takes the name `
 
 ```typescript
 // Template: end-to-end test of one use case.
-// File name: UC-XXX-<slug>.spec.ts in the E2E test folder of docs/architecture/development.md.
+// File name: UC-XXX-<slug>.spec.ts in the E2E test folder of docs/architecture/stack.md.
 import { test, expect } from '@playwright/test';
 
 test.describe('UC-010: Browse Room Type Catalog', () => {

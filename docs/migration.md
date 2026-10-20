@@ -14,13 +14,13 @@ Vertical Slice Architecture keeps a use case's handler and data access in one sl
 apart. `aiup-nestjs-nextjs` stays combined until its layers are split out. Nothing here applies to either.
 
 Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ, and the
-[layer catalog](../aiup-core/skills/architecture/references/layer-catalog.md) for the layers and the plugins of each.
+[layer catalog](../aiup-core/skills/stack/references/layer-catalog.md) for the layers and the plugins of each.
 
 ## What changes, what stays
 
 | Stays                                                                  | Changes                                                                                                |
 |------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| Every file under `docs/`: requirements, entity model, use cases, tests | `docs/architecture/development.md` is added, written by `/architecture`                                |
+| Every file under `docs/`: requirements, entity model, use cases, tests | `docs/architecture/stack.md` is added, written by `/stack`                                             |
 | The code and the tests the combined plugin wrote                       | The plugins: one combined plugin becomes one plugin per layer                                          |
 | `// UC-XXX BR-YYY:` markers above the code that enforces a rule        | The commands: `/implement` becomes `/use-case-implement`, the test skills run through `/use-case-test` |
 | `@UseCase` on every test method, test class names, Playwright tests    | The `UseCase` annotation moves from `src/main/java` to `src/test/java`                                 |
@@ -29,7 +29,7 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 ## 1. Replace the plugins
 
 Remove the combined plugin and install `aiup-core` 3.0.0 or later with one plugin per layer of the project. Never
-keep both forms in one project: the combined plugin does not read `docs/architecture/development.md`, and its `/implement` and
+keep both forms in one project: the combined plugin does not read `docs/architecture/stack.md`, and its `/implement` and
 the layer skills would build the same use case twice.
 
 | Combined plugin    | Layer plugins                                                                    | Integration layer                     |
@@ -57,15 +57,14 @@ Tessl: remove the combined package from the project and install the layer packag
 ## 2. Record the architecture
 
 ```text
-/architecture
+/stack
 ```
 
 The skill detects Flyway, jOOQ or JPA, Spring Boot, and Vaadin or Angular from the build files and the source tree,
-asks only where two technologies fit, and writes the Development View: the Layers table with the skill and the test
+asks only where two technologies fit, and writes the stack file: the Layers table with the skill and the test
 skill of each layer, the Integration layer table, the module layout, the API contract when there is one, and
-the build and test commands, in `docs/architecture/development.md` with a `README.md` index of the 4+1 views. When the
-project already has a `docs/architecture.md`, the skill reads it and asks whether to move it into the folder as the
-Development View. Nothing in the code changes.
+the build and test commands, in `docs/architecture/stack.md`. Architecture documentation the project already
+has — a `docs/architecture.md`, arc42, C4 — is read as input and left where it is. Nothing in the code changes.
 
 The Markers table starts with the `All` row only. Each layer skill adds its own rows the first time it runs, so the
 first `/use-case-coverage` after the switch audits with the code marker and the domain vocabulary alone and says so; the
@@ -93,7 +92,7 @@ tests gets its own copy in its own `src/test/java`; the Navigator plugin resolve
 |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `/flyway-migration`     | `/flyway-schema`, run by `/use-case-implement` as the first layer                                                                                                                                                                                        |
 | `/implement`            | `/use-case-implement UC-XXX`: migration, persistence, service, API, UI, each layer by its own skill with a Handover to the next                                                                                                                          |
-| `/implement-hilla`      | `/use-case-implement UC-XXX` with `hilla-ui` in the UI row of `docs/architecture/development.md`                                                                                                                                                         |
+| `/implement-hilla`      | `/use-case-implement UC-XXX` with `hilla-ui` in the UI row of `docs/architecture/stack.md`                                                                                                                                                               |
 | `/browserless-test`     | `/vaadin-flow-ui-test`, the integration layer of a Vaadin Flow project, run by `/use-case-test UC-XXX`                                                                                                                                                   |
 | `/karibu-test`          | Not carried over. Browserless Testing supersedes Karibu; existing Karibu tests keep running and are left alone                                                                                                                                           |
 | `/hilla-test`           | `/hilla-ui-test` for the views, `/spring-service-test` for the service behind them, both run by `/use-case-test UC-XXX`                                                                                                                                  |
@@ -129,7 +128,7 @@ reconcile them when the specification changes; it writes no new tests there unle
 ## What the layer plugins add
 
 - A REST API without a UI, or any other combination from the catalog, which a combined plugin could not express.
-- One `docs/architecture/development.md` per project instead of a stack hard-wired into the plugin.
+- One `docs/architecture/stack.md` per project instead of a stack hard-wired into the plugin.
 - The shared rules once, in `/use-case-implement` and `/use-case-test`, instead of a copy in every plugin.
 - A use case tested once, in the integration layer, with every business rule's allowed and rejected case, instead of
   once per layer.

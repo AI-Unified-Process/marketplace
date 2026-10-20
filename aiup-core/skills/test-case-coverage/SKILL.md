@@ -7,7 +7,7 @@ description: >
   user asks to "check coverage of TC-001", "is TC-001 completely automated", "audit the journey", "show me the
   coverage matrix for the test case", "what is still missing for TC-001", or "can I set TC-001 to Tested". This is
   specification coverage, not line coverage. It reports only — it writes no code, no tests, and no files. For
-  projects that combine layer plugins and record them in docs/architecture/development.md; a combined stack plugin
+  projects that combine layer plugins and record them in docs/architecture/stack.md; a combined stack plugin
   brings its own /coverage-check TC-XXX. A use case (UC-XXX) is /use-case-coverage. When the user wants the gaps
   closed rather than listed, use /test-case-implement or /use-case-implement instead.
 ---
@@ -79,7 +79,7 @@ With no id: if the conversation has just been working on a specific `TC-*`, prop
 - An implementation gap sits in a use case the journey chains: name the use case of that Flow row and offer
   `/use-case-implement UC-YYY`, narrowed to a layer when the report names one.
 - Missing Markers rows of the E2E layer close with a rerun of the E2E test skill named in the Layers table;
-  `docs/architecture/development.md` itself missing closes with `/architecture`.
+  `docs/architecture/stack.md` itself missing closes with `/stack`.
 - Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the test case
   (`/test-case TC-XXX` updates the journey) or the application (`/use-case-implement UC-YYY`) — and offer only the
   command that matches the answer. Never pick a side yourself.

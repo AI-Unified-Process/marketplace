@@ -14,7 +14,7 @@
     },
     {
       "name": "No file changed",
-      "description": "No file is created, modified, or deleted — not the code, not the tests, not the specification and its **Status:** line, and not docs/architecture/development.md. The missing BR-002 test is not written and the waiting list is not removed",
+      "description": "No file is created, modified, or deleted — not the code, not the tests, not the specification and its **Status:** line, and not docs/architecture/stack.md. The missing BR-002 test is not written and the waiting list is not removed",
       "max_score": 15
     },
     {

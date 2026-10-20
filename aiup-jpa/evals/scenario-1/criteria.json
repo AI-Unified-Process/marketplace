@@ -49,7 +49,7 @@
     },
     {
       "name": "Markers table rows added",
-      "description": "docs/architecture/development.md gains Markers rows for Persistence / jpa-persistence (Name and Code), the existing All row is kept, and no other file under docs/ is modified",
+      "description": "docs/architecture/stack.md gains Markers rows for Persistence / jpa-persistence (Name and Code), the existing All row is kept, and no other file under docs/ is modified",
       "max_score": 8
     },
     {

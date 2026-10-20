@@ -24,7 +24,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Write the service layer tests of $ARGUMENTS for a Spring Boot application. This is the layer where the business rules
-are decided. When the Integration layer table of `docs/architecture/development.md` names the service for this use
+are decided. When the Integration layer table of `docs/architecture/stack.md` names the service for this use
 case (behind a Hilla UI, or for a `Service`-only use case), or a direct run finds no layer above the service, this skill tests the
 use case — each rule once, with its allowed and its rejected case. Otherwise it writes only the tests
 `/use-case-test` asks for; "Which Layer Tests What" of `/use-case-test` decides which. Do not change production code.
@@ -49,7 +49,7 @@ out.
   queries with logic of their own — filters, joins, projections, paging — because `/use-case-test` runs no persistence
   tests below it.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/development.md`.
+  `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -59,7 +59,7 @@ and "Which Layer Tests What" and does not repeat them.
 Run directly, the same rules apply:
 
 - Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` for the test data,
-  and `docs/architecture/development.md` for the module layout and the test commands.
+  and `docs/architecture/stack.md` for the module layout and the test commands.
 - Take every expected value — a message, a count, a status, a calculated value — from the specification or the test
   data, never from what the code returns.
 - When a test fails on a value the specification states, do not change, weaken, delete, or disable the assertion:
@@ -76,7 +76,7 @@ Detect what the project already does before choosing; never switch an establishe
 | Flat single module, or existing `@SpringBootTest` service tests | **Integration**: `@SpringBootTest`, real persistence layer, Testcontainers database |
 | Hexagonal multi-module, business module has no Spring context in its tests | **Unit**: plain JUnit in the business module, in-memory fake of the outbound port |
 
-- When this layer is the integration layer of `docs/architecture/development.md`, use the **Integration** style regardless of
+- When this layer is the integration layer of `docs/architecture/stack.md`, use the **Integration** style regardless of
   the layout — in a hexagonal project in the composition-root module — because the Unit style leaves the
   persistence layer untested. Write the fake-port unit test only when the run names `service`.
 - Reuse an existing Testcontainers base class, `@ServiceConnection` configuration, or `TestcontainersConfiguration`
@@ -86,7 +86,7 @@ Detect what the project already does before choosing; never switch an establishe
 - When the service is **not** the integration layer — a run that names `service`, or units the integration layer's
   skill reported it cannot reach — in a hexagonal project write integration tests in the composition-root module
   when it already has `@SpringBootTest` service tests, otherwise unit tests in the business module. Take the
-  location from the `## Module layout` section of `docs/architecture/development.md`, or locate the shared reference with a glob for
+  location from the `## Module layout` section of `docs/architecture/stack.md`, or locate the shared reference with a glob for
   `**/*spring-service/references/module-layout.md` (the folder may carry a host prefix such as
   `tessl__spring-service`).
 - `@SpringBootTest` starts from the `@SpringBootConfiguration` it finds in the test's package or above it. When the
@@ -207,7 +207,7 @@ class UC001RegisterGuestServiceTest {
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -232,7 +232,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 5. Reuse or create the `UseCase` annotation.
 6. List the units to test from [What to Test](#what-to-test) and write one test method per case, each with
    `@UseCase`.
-7. Run the class with the Unit tests or Integration tests command from `docs/architecture/development.md` (e.g. `./mvnw test
+7. Run the class with the Unit tests or Integration tests command from `docs/architecture/stack.md` (e.g. `./mvnw test
    -Dtest='UC001*ServiceTest'`). On a failure, decide whether the test's mechanics or the code is wrong.
 8. Update the Markers rows — see [Markers](#markers).
 9. Report and hand off — see [Hand-off](#hand-off).

@@ -2,10 +2,10 @@
 # Verify that the layer plugins describe themselves consistently.
 #
 # Every layer skill that builds a layer, and every end-to-end test skill (which has no build skill), ships a
-# references/layer.md with one row of the layer catalog. /architecture discovers the installed layer skills by
+# references/layer.md with one row of the layer catalog. /stack discovers the installed layer skills by
 # globbing for these files, so a row that names the wrong plugin, a missing folder, or an unknown "Tests run" value
 # breaks the Layers table it writes and the integration layer /use-case-test runs from. The Plugins table of
-# aiup-core/skills/architecture/references/layer-catalog.md is the list /architecture suggests plugins from; it must
+# aiup-core/skills/stack/references/layer-catalog.md is the list /stack suggests plugins from; it must
 # name exactly the skills the layer.md files describe, each once. When the Plugins table carries a "Tests run" column,
 # each row's value must equal the layer.md's, so a test skill that switches from the real database to a mocked
 # backend (which moves the integration layer) cannot change one side only. Every plugin directory except aiup-core and
@@ -17,7 +17,7 @@ cd "$(dirname "$0")/.."
 python3 - <<'PY'
 import collections, glob, os, re, sys
 
-CATALOG = "aiup-core/skills/architecture/references/layer-catalog.md"
+CATALOG = "aiup-core/skills/stack/references/layer-catalog.md"
 # Every skill of a layer plugin builds or tests a layer and must appear in a layer.md row. The layer plugins are derived,
 # so a new plugin without a layer.md fails here instead of being skipped.
 NOT_LAYER = {"aiup-core", "aiup-vaadin-jooq", "aiup-angular-jpa", "aiup-blazor-dotnet", "aiup-nestjs-nextjs"}

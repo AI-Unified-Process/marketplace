@@ -7,7 +7,7 @@ description: >
   role, label, and text against the running application and cleans up only the data the test created. Use when the
   user asks to "write Playwright tests", "create e2e tests", "test in the browser", "automate a test case", "test a
   user journey", "automate TC-001", or mentions end-to-end, browser, or UI integration tests. Normally run by
-  /use-case-test (or /test-case-implement for a TC-*) as the E2E layer of a project whose docs/architecture/development.md names Playwright; it can also be run directly.
+  /use-case-test (or /test-case-implement for a TC-*) as the E2E layer of a project whose docs/architecture/stack.md names Playwright; it can also be run directly.
   For a Vaadin UI use /vaadin-e2e-test.
 ---
 
@@ -44,7 +44,7 @@ test; take a login from an environment variable or the project's existing auth s
 - **Produces** `UC-XXX-<slug>.spec.ts` or `TC-XXX-<slug>.spec.ts` in the E2E test folder, the test data migration
   of the use case when its preconditions are not seeded yet, and the Playwright setup when the project has none yet.
 - **Never touches** production code, tests of other layers, or anything under `docs/` except the Markers table of
-  `docs/architecture/development.md`.
+  `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -70,7 +70,7 @@ If the argument is a name without a prefix, locate the document (`docs/use_cases
 heading `# Use Case:` vs `# Test Case:`); if it is still ambiguous, ask which artifact is meant.
 
 A use case test needs the use case in the E2E scope: when the `**E2E scope:**` line of
-`docs/architecture/development.md` reads `Test cases only`, run directly with a `UC-*`, say that the project keeps
+`docs/architecture/stack.md` reads `Test cases only`, run directly with a `UC-*`, say that the project keeps
 browser tests to its journeys and ask before writing one; `/use-case-test UC-XXX e2e` is the explicit request and
 needs no question. A test case is in scope under either value.
 
@@ -98,7 +98,7 @@ export default defineConfig({
 });
 ```
 
-Take the base URL and the E2E folder from `docs/architecture/development.md` (the E2E row's Location and the End-to-end tests
+Take the base URL and the E2E folder from `docs/architecture/stack.md` (the E2E row's Location and the End-to-end tests
 command) or the existing config; the default above is the Angular dev server. With a separate backend, the browser
 talks only to the frontend origin, which proxies `/api/*` to the backend.
 
@@ -108,12 +108,12 @@ The test skills own the test data; the migration layer writes none. An existing 
 project always comes first (for example versioned test migrations in `src/test/resources/db/migration` of the
 backend). Without one, the default is the repeatable Flyway migration per use case that the backend test skills
 write, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql` in the module that owns the database (the Location of
-the Migration layer in `docs/architecture/development.md`), with `classpath:db/testdata` in the `spring.flyway.locations` of
+the Migration layer in `docs/architecture/stack.md`), with `classpath:db/testdata` in the `spring.flyway.locations` of
 the test configuration; for a journey, the files of the use cases its Flow links.
 
 - Test case **Preconditions** and use case preconditions are satisfied by that data. When they are not, extend the
   use case's test data file rather than inserting through a back door, and say so in the report.
-- The application under test must run with that data: the End-to-end tests command of `docs/architecture/development.md` says
+- The application under test must run with that data: the End-to-end tests command of `docs/architecture/stack.md` says
   how it is started (a test profile, a `spring.flyway.locations` property). When it does not load the test data,
   report that instead of seeding through the API or the UI.
 - Data the test creates is removed in `test.afterEach`, through the API (the `request` fixture) or the UI — never a
@@ -126,7 +126,7 @@ the test configuration; for a journey, the files of the use cases its Flow links
 
 One use case, one file `UC-XXX-<slug>.spec.ts`; template [references/use-case.spec.ts.md](references/use-case.spec.ts.md).
 Cover the main success scenario and every alternative flow the actor sees. Business rules are tested in the
-integration layer of `docs/architecture/development.md` (the API tests behind an Angular client); here only their effect the
+integration layer of `docs/architecture/stack.md` (the API tests behind an Angular client); here only their effect the
 actor observes (the rejection message, a filtered list), not every rule again.
 
 - One `test.describe('UC-XXX: <Use Case Name>', …)`.
@@ -187,7 +187,7 @@ Use the auto-retrying `expect(locator)` assertions — never a plain boolean che
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -206,7 +206,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 1. Decide the test type from $ARGUMENTS: use case (UC-*) or test case journey (TC-*).
 2. Read the inputs — from `/use-case-test` or `/test-case-implement`, or when run directly the specification, for a test case also every use case
-   its Flow table links, and `docs/architecture/development.md` — and the UI layer's Handover when there is one.
+   its Flow table links, and `docs/architecture/stack.md` — and the UI layer's Handover when there is one.
 3. Check the E2E setup (see [Setup](#setup)) and find the test data (see [Test Data](#test-data)).
 4. Look for an existing file for this artifact by tag and file name; if there is one, reconcile it.
 5. Plan: for a use case one `test.describe` with a test per scenario; for a test case one `test` with a `test.step`
@@ -214,11 +214,11 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 6. Write `UC-XXX-<slug>.spec.ts` or `TC-XXX-<slug>.spec.ts` from the template, with the tag on every test and the
    cleanup in `test.afterEach`.
 7. Start the application if it is not running, and run `npx playwright test --grep "@UC-XXX"` (or the End-to-end
-   tests command of `docs/architecture/development.md`).
+   tests command of `docs/architecture/stack.md`).
 8. On a failure, apply "When a Test Fails" of `/use-case-test`. Mechanics first: is the frontend and the backend up, does
    the dev proxy forward `/api/*`, does the seed data exist, is the accessible name exact, did the step wait for the
    target view (assert its heading first)? Use `--headed --debug` or the Playwright MCP server to look.
-9. Update the Markers table of `docs/architecture/development.md` — see [Markers](#markers).
+9. Update the Markers table of `docs/architecture/stack.md` — see [Markers](#markers).
 10. Report: the tests written, the command and its result, and every test left failing with the step, the expected,
     and the actual value. Run directly, end with `Next: /use-case-coverage UC-XXX` (`/test-case-coverage TC-XXX` for a journey); while the file is
     unfinished, `/use-case-coverage UC-XXX tests wip`. Do not run the coverage audit.

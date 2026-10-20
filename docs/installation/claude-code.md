@@ -41,7 +41,7 @@ Then install the layer plugins of your stack — one per layer. A REST API with 
 ```
 
 Add `aiup-vaadin` for a Vaadin UI, or `aiup-angular` and `aiup-playwright` for an Angular UI; take `aiup-jpa` instead
-of `aiup-jooq` for JPA. Run `/architecture` once in the project to record the combination. Each layer plugin declares
+of `aiup-jooq` for JPA. Run `/stack` once in the project to record the combination. Each layer plugin declares
 `aiup-core` 3.0.0 or later as a plugin dependency, so Claude Code installs core with it when it is missing.
 
 Or install one combined stack plugin instead of layer plugins:
@@ -76,7 +76,7 @@ entity model, use case diagram, and use case specifications under `docs/`. Revie
 Keep the core plugin installed when changing the implementation stack. Remove the old stack plugin through Claude
 Code's plugin management and install the new one; do not keep multiple plugins that expose the same construction
 commands in one project. To move from a combined stack plugin to the layer plugins, follow the
-[migration guide](../migration.md): it also covers `/architecture` and the `UseCase` annotation.
+[migration guide](../migration.md): it also covers `/stack` and the `UseCase` annotation.
 
 Continue with [Getting started](../getting-started.md) or consult the selected plugin README for its prerequisites and
 construction workflow.

@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /use-case-implement runs the layer skills of the Development View bottom-up for one use case and keeps the layers consistent: a Flyway migration for the registration table, a jOOQ repository returning records, a service that enforces BR-001 to BR-003 with domain exceptions, and a REST controller that maps them to Problem Details. The UI and E2E layers are '–' and must not be built. Each layer builds on the contract of the layer below instead of reinventing it, every business rule carries a qualified UC-002 BR-xxx marker, no test is written, and no specification is changed.",
+  "context": "Tests whether /use-case-implement runs the layer skills of the stack file bottom-up for one use case and keeps the layers consistent: a Flyway migration for the registration table, a jOOQ repository returning records, a service that enforces BR-001 to BR-003 with domain exceptions, and a REST controller that maps them to Problem Details. The UI and E2E layers are '–' and must not be built. Each layer builds on the contract of the layer below instead of reinventing it, every business rule carries a qualified UC-002 BR-xxx marker, no test is written, and no specification is changed.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -39,7 +39,7 @@
     },
     {
       "name": "No tests, no docs changed",
-      "description": "No test class is created or changed, no file under docs/ is changed except the Markers table of docs/architecture/development.md, UC-002's **Status:** line still reads Approved, and the answer ends with a hand-off to /use-case-test UC-002",
+      "description": "No test class is created or changed, no file under docs/ is changed except the Markers table of docs/architecture/stack.md, UC-002's **Status:** line still reads Approved, and the answer ends with a hand-off to /use-case-test UC-002",
       "max_score": 10
     }
   ]

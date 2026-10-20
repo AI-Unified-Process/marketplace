@@ -7,7 +7,7 @@ data access of UC-010: a catalog query with an optional category filter, the in-
 and a count. The project has a `TestcontainersConfiguration` for PostgreSQL in its test sources but no tests, no test
 data, and no `UseCase` annotation yet.
 
-The use case is `docs/use_cases/UC-010-browse-product-catalog.md`; `docs/architecture/development.md` records the layers.
+The use case is `docs/use_cases/UC-010-browse-product-catalog.md`; `docs/architecture/stack.md` records the layers.
 
 ## Output Specification
 

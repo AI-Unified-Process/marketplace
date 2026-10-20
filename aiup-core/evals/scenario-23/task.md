@@ -13,5 +13,4 @@ well as for the end-to-end test cases.
 
 ## Output Specification
 
-Write the Development View to `docs/architecture/development.md`, with the index `docs/architecture/README.md` of the
-architecture views. Do not write any application code and do not change `pom.xml` or `frontend/package.json`.
+Write the stack file to `docs/architecture/stack.md`. Do not write any application code and do not change `pom.xml` or `frontend/package.json`.

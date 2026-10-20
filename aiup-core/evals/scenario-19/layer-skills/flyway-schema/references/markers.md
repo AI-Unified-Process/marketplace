@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Markers of flyway-schema
 
-The rows this skill keeps in the Markers table of the Development View (`docs/architecture/development.md`), exactly as they appear there. Replace
+The rows this skill keeps in the Markers table of the stack file (`docs/architecture/stack.md`), exactly as they appear there. Replace
 `<location>` with the migration directory from the Location column of the Migration row.
 
 | Layer     | Skill         | Kind | Marker to grep for                                                                                                    |

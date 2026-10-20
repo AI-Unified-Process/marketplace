@@ -3,7 +3,7 @@
 ## Problem Description
 
 A hotel team builds a Spring Boot 4.0 REST service with jOOQ in one flat Maven module (package
-`com.example.hotel`). `docs/architecture/development.md` records the layers and the API contract. The persistence and service
+`com.example.hotel`). `docs/architecture/stack.md` records the layers and the API contract. The persistence and service
 layers of UC-001 are implemented; the service handover was:
 
 ```text

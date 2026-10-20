@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # aiup-angular-jpa
 
 > **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-flyway`, `aiup-jpa`,
-> `aiup-spring-boot`, `aiup-angular`, and `aiup-playwright`, run by `/architecture`, `/use-case-implement`, `/use-case-test`, and
+> `aiup-spring-boot`, `aiup-angular`, and `aiup-playwright`, run by `/stack`, `/use-case-implement`, `/use-case-test`, and
 > `/use-case-coverage` in `aiup-core` (3.0.0 or later). This plugin keeps working and will be removed with `aiup-core`
 > 4.0.0; do not install it together with the layer plugins in one project. See [Layered stacks](../docs/workflow.md#workflow)
 > and the [migration guide](../docs/migration.md) for moving an existing project.

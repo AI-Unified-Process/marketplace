@@ -24,10 +24,10 @@ because it locates elements by role, label, and text. A Vaadin UI has its own E2
 The skill is normally run by `aiup-core`:
 
 ```text
-/architecture                # records Playwright as the E2E layer in docs/architecture/development.md
+/stack                # records Playwright as the E2E layer in docs/architecture/stack.md
 /use-case-test UC-001        # … → angular-ui-test → playwright-e2e-test
 /test-case-implement TC-001  # a journey runs the E2E layer only
-/test-case-coverage TC-001   # the one audit, using the markers the skill keeps in docs/architecture/development.md
+/test-case-coverage TC-001   # the one audit, using the markers the skill keeps in docs/architecture/stack.md
 ```
 
 It can also be run directly (`/playwright-e2e-test TC-001`); it then applies the same rules as `/use-case-test` and ends
@@ -61,7 +61,7 @@ Do not combine layer plugins with a combined stack plugin (`aiup-angular-jpa`) i
 
 ## Prerequisites
 
-- `aiup-core` 3.0.0 or later, and `docs/architecture/development.md` written by `/architecture`.
+- `aiup-core` 3.0.0 or later, and `docs/architecture/stack.md` written by `/stack`.
 - Node.js and `@playwright/test` (the skill sets it up when the project has no E2E tooling yet).
 - The application running locally, with seed data that satisfies the preconditions of the use cases and test cases.
 

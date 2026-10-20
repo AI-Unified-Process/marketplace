@@ -22,8 +22,8 @@ per Git provider one of each:
   or the plugin selection block differ, or when a skill on disk is in neither catalogue.
 - **The plugin selection** — a run installs only `aiup-core` and the plugins it needs, never the layer plugins next
   to a combined stack plugin: a combined stack plugin alone; for a layer run, the layer plugins whose skills the
-  project's `docs/architecture/development.md` names (every layer plugin when the project has no Development View,
-  and always for `/architecture`); for the document skills of `aiup-core`, core alone. The selection is derived from
+  project's `docs/architecture/stack.md` names (every layer plugin when the project has no stack file,
+  and always for `/stack`); for the document skills of `aiup-core`, core alone. The selection is derived from
   the inputs and the repository, so the stubs and their inputs stay as they are.
 
 Both stubs reference the shared implementation **by tag**:

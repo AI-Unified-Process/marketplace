@@ -2,7 +2,7 @@
 name: use-case-test
 description: >
   Writes the tests for a use case (UC-XXX) by running the test skills recorded in
-  docs/architecture/development.md from the integration layer up — looked up in its Integration layer table for the
+  docs/architecture/stack.md from the integration layer up — looked up in its Integration layer table for the
   entry layer the use case is offered through — plus E2E per the E2E scope; a lower layer gets tests only as a second entry layer or when named. Owns the rules every
   test layer shares: the specification is the oracle, a test that disagrees with the code stays failing, existing
   tests are reconciled rather than duplicated, and every test carries the use case id. Use when the user asks to
@@ -23,7 +23,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 ## Instructions
 
-Write the tests for $ARGUMENTS across the layers recorded in `docs/architecture/development.md`, the Development
+Write the tests for $ARGUMENTS across the layers recorded in `docs/architecture/stack.md`, the Development
 View, from the integration layer up — limited to the entry layers the use case's `**Layers:**` line names.
 This skill owns what every test layer shares and delegates each layer to the test skill named in the Test skill
 column. Do not change production code; a failing test is reported, not fixed by changing the code under test.
@@ -49,7 +49,7 @@ definitive list of what changed — work through it change by change. A removed 
 was dropped: delete the tests that exist only for it instead of keeping them as passing extras.
 
 Before any test skill writes a test, search for the existing tests of this use case by the test markers in the
-Markers table of `docs/architecture/development.md`. If tests exist, **update them to match the current specification instead
+Markers table of `docs/architecture/stack.md`. If tests exist, **update them to match the current specification instead
 of creating a second test class**, and tell every test skill so:
 
 - Add tests for scenarios and business rules the spec has gained since the tests were written
@@ -86,8 +86,8 @@ covers a scenario names it, so `/use-case-coverage` can map it — and reads the
 
 ## Which Layer Tests What
 
-The Integration layer table under the Layers table of `docs/architecture/development.md` names, per entry layer, the
-layer whose test skill runs in process against the real service and database. `/architecture` derives it; look the
+The Integration layer table under the Layers table of `docs/architecture/stack.md` names, per entry layer, the
+layer whose test skill runs in process against the real service and database. `/stack` derives it; look the
 layer up, never derive it again. Its tests exercise every layer below it for real, so a use case is tested once,
 there — not once per layer:
 
@@ -126,15 +126,15 @@ entry layers that offer it — `UI`, `API`, or `Service` alone; without the line
 does. The layers it leaves out get no tests, and E2E runs only when the use case is offered through the UI and the
 E2E scope covers use cases. A
 client-side UI that reaches the service through the API (Angular) implies its API layer: `UI` there runs the API
-test skill too, as the integration layer (the layer catalog of `/architecture`, "Entry layers of a use case"). An
+test skill too, as the integration layer (the layer catalog of `/stack`, "Entry layers of a use case"). An
 entry layer the line names that the Layers table marks `–` is a contradiction between the specification and the
-architecture: stop before the first layer and ask whether `/architecture` adds the layer or `/use-case-spec UC-XXX`
+architecture: stop before the first layer and ask whether `/stack` adds the layer or `/use-case-spec UC-XXX`
 corrects the line. The use case's integration layer is the first row of the Integration layer table that its
 `**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row. Name it in the
 opening line.
 
-When the Development View has no Integration layer table — or only the single `**Integration layer:**` line of an
-earlier version — do not derive the layer here: say so, stop, and hand off to `/architecture`, which writes the
+When the stack file has no Integration layer table — or only the single `**Integration layer:**` line of an
+earlier version — do not derive the layer here: say so, stop, and hand off to `/stack`, which writes the
 table without touching the rest of the file.
 
 ## Running a Test Skill
@@ -142,7 +142,7 @@ table without touching the rest of the file.
 Run each test skill by its name from the Test skill column with the id as argument, for example
 `/spring-service-test UC-001` — in Claude Code through the Skill tool, by the name it has in the session's skill list
 (a plugin skill carries its plugin as prefix, `aiup-spring-boot:spring-service-test`). On a host that cannot invoke a skill from
-another skill, locate `*<skill>/SKILL.md` in the skill folders `/architecture` names in "The layer skills" —
+another skill, locate `*<skill>/SKILL.md` in the skill folders `/stack` names in "The layer skills" —
 hidden, often symlinked and gitignored, so list them directly (the folder may carry a host prefix such as
 `tessl__`) — and follow it as an instruction document. Before the first layer, state in one line what will run,
 which layers are skipped because the integration layer covers them, which the `**Layers:**` line leaves out, and
@@ -155,10 +155,9 @@ whether the E2E scope leaves out the E2E layer.
    `**Requirements:**` line — exactly those rows — because a linked NFR or constraint with an observable limit needs
    a test too.
 2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
-3. Read the Development View, `docs/architecture/development.md`, its Integration layer table and the
-   `**E2E scope:**` line under it, and the use case's `**Layers:**` line. When the Development View does not exist, stop and hand off to `/architecture`, which
-   also offers to move a `docs/architecture.md` into the folder; when only the Integration layer table is
-   missing, stop and hand off to `/architecture` as well. Stop on a contradiction between the `**Layers:**` line
+3. Read the stack file, `docs/architecture/stack.md`, its Integration layer table and the
+   `**E2E scope:**` line under it, and the use case's `**Layers:**` line. When the stack file does not exist, stop and hand off to `/stack`; when only the Integration layer table is
+   missing, stop and hand off to `/stack` as well. Stop on a contradiction between the `**Layers:**` line
    and the Layers table (see "Which Layer Tests What").
 4. Search for existing tests of this use case — see "If Tests for This Use Case Already Exist". Note which layers
    below the integration layer already hold tests of it: they run, to reconcile them.
@@ -168,12 +167,12 @@ whether the E2E scope leaves out the E2E layer.
    every lower layer with existing tests — but not the E2E layer when the E2E scope reads `Test cases only`, also
    not to reconcile existing browser tests of the use case (leave them as they are). Either way skip every layer marked `–`, every row whose Test skill is `–` (the
    migration layer has none), and every entry layer the `**Layers:**` line leaves out. When a test skill of a layer
-   that runs is not installed (by the rules of `/architecture`, section "The layer skills"), name the plugin that
+   that runs is not installed (by the rules of `/stack`, section "The layer skills"), name the plugin that
    ships it — or, for a skill no catalog plugin ships, say the team's skill is missing — and stop; a skill missing for a layer that does not
    run is no reason to stop. Run the test skills bottom-up: persistence, service, API, UI, E2E. When the
    integration layer's test skill reports units it cannot reach, run the test skill of the layer that owns them for
    those units afterwards.
-6. Run the test commands from `docs/architecture/development.md` for the layers that ran. On a failure, apply "When a Test
+6. Run the test commands from `docs/architecture/stack.md` for the layers that ran. On a failure, apply "When a Test
    Fails".
 7. Report and hand off — see [After the Tests](#after-the-tests).
 
@@ -193,6 +192,6 @@ Finish by:
 ## DO NOT
 
 - Change production code to make a test pass; report the disagreement instead.
-- Edit anything under `docs/` other than the Markers table of `docs/architecture/development.md`, which the test skills maintain.
+- Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the test skills maintain.
 - Weaken, delete, or disable an assertion whose expected value the specification states.
 - Claim a suite passes without having run it.

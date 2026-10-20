@@ -12,5 +12,4 @@ construction skills know which layer skills to run.
 
 ## Output Specification
 
-Write the Development View to `docs/architecture/development.md`, with the index `docs/architecture/README.md` of the
-architecture views. Do not write any Java code and do not change `pom.xml`.
+Write the stack file to `docs/architecture/stack.md`. Do not write any Java code and do not change `pom.xml`.

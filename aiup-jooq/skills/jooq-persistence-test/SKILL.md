@@ -44,7 +44,7 @@ name the file it lives in and leave the value out.
 - **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (and the test
   `spring.flyway.locations` entry for it), and the `UseCase` annotation when the project has none.
 - **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than
-  the Markers table of `docs/architecture/development.md`.
+  the Markers table of `docs/architecture/stack.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -52,14 +52,14 @@ Run from `/use-case-test`, this skill inherits the inputs and the existing tests
 Tests for This Use Case Already Exist", "When a Test Fails", and "Which Layer Tests What" without repeating them.
 
 Run directly, read the same inputs `/use-case-test` lists (the use case, only the requirement rows it links, the entity
-model, the glossary, `docs/architecture/development.md`) and the rules still apply: take every expected value from the
+model, the glossary, `docs/architecture/stack.md`) and the rules still apply: take every expected value from the
 specification or the test data, never from a run of the code; never weaken, delete, or disable an assertion whose
 value the specification states — leave the test failing and report the expected and the actual value; update an
 existing test class instead of writing a second one. Say that `/use-case-test UC-XXX` runs all test layers.
 
 ## What to Test in This Layer
 
-Following "Which Layer Tests What" of `/use-case-test`: the integration layer's tests named in `docs/architecture/development.md` (the
+Following "Which Layer Tests What" of `/use-case-test`: the integration layer's tests named in `docs/architecture/stack.md` (the
 Browserless view, API, or service tests) already exercise the repositories against the real database, so `/use-case-test`
 runs this skill only to reconcile existing tests, for the queries the integration layer's skill reported it cannot
 reach, or when the arguments name the persistence layer. Run so, or directly, write a test only for a query with
@@ -183,7 +183,7 @@ created.
 
 ## Location
 
-Take the test module from the `## Module layout` section of `docs/architecture/development.md`, or locate the shared
+Take the test module from the `## Module layout` section of `docs/architecture/stack.md`, or locate the shared
 reference with a glob for `**/*spring-service/references/module-layout.md` (the folder may carry a host prefix such
 as `tessl__spring-service`).
 
@@ -233,7 +233,7 @@ the rule must exclude.
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -262,7 +262,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    test sources of the module "Location" names, with the setup of "Database and Test Setup", one test method per query behaviour, each with
    `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-…"})` mirroring the spec headings.
 7. Update the Markers table — see "Markers".
-8. Run the Integration tests command of `docs/architecture/development.md` (or the project's test command for the class). On a
+8. Run the Integration tests command of `docs/architecture/stack.md` (or the project's test command for the class). On a
    failure, follow "When a Test Fails" of `/use-case-test`: fix the test's mechanics (container, test data, setup); leave
    a failing assertion on a value the specification states as it is and report it.
 9. Report the tests written, the command you ran, and whether the suite passes; list every test left failing with
@@ -271,7 +271,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Hand-off
 
 Run from `/use-case-test`, return to it. Run directly, end with one `Next:` line naming the integration layer's test skill
-from the Integration layer table of `docs/architecture/development.md` (for example `Next: /vaadin-flow-ui-test UC-001`),
+from the Integration layer table of `docs/architecture/stack.md` (for example `Next: /vaadin-flow-ui-test UC-001`),
 or `Next: /use-case-coverage UC-001` when this was the last test layer. Never run the coverage audit.
 
 ## Resources

@@ -51,7 +51,7 @@ leave the value out.
 - **Produces** one `UC<id><Name>IT` or `TC<id><Name>IT` class under `src/test/java`, and the `@TestCase` annotation
   in the test sources when a journey needs it and the project has none.
 - **Never touches** production code, the tests of other layers, or anything under `docs/` other than this skill's
-  rows of the Markers table in `docs/architecture/development.md`.
+  rows of the Markers table in `docs/architecture/stack.md`.
 
 What to test in this layer, following "Which Layer Tests What" of `/use-case-test`: the main success scenario and the
 alternative flows the actor sees, end to end — not every business rule's boundary, which the integration layer's
@@ -62,7 +62,7 @@ tests cover (the Browserless tests of a Flow UI, the service tests behind a Hill
 Run from `/use-case-test` or `/test-case-implement`, this skill inherits the inputs and the search for existing tests and does not repeat them;
 for `/test-case-implement TC-XXX` it is the only test skill that runs. Run directly, read the use case or test case (and every
 use case its Flow links), the linked requirement rows, `docs/entity_model.md` for test data, `docs/glossary.md`
-when present, and `docs/architecture/development.md`; then write this layer only and say that `/use-case-test UC-XXX` runs all test
+when present, and `docs/architecture/stack.md`; then write this layer only and say that `/use-case-test UC-XXX` runs all test
 layers.
 
 ## Decide the Test Type First
@@ -76,7 +76,7 @@ If the argument is a name without a prefix, locate the document (`docs/use_cases
 heading `# Use Case:` vs `# Test Case:`). If it is still ambiguous, ask.
 
 A use case test needs the use case in the E2E scope: when the `**E2E scope:**` line of
-`docs/architecture/development.md` reads `Test cases only`, run directly with a `UC-*`, say that the project keeps
+`docs/architecture/stack.md` reads `Test cases only`, run directly with a `UC-*`, say that the project keeps
 browser tests to its journeys and ask before writing one; `/use-case-test UC-XXX e2e` is the explicit request and
 needs no question. A test case is in scope under either value.
 
@@ -229,7 +229,7 @@ AssertJ has no `hasText` and does not compile. A notification's message is the f
 
 ## Markers
 
-Make sure the Markers table of `docs/architecture/development.md` has the rows of [references/markers.md](references/markers.md)
+Make sure the Markers table of `docs/architecture/stack.md` has the rows of [references/markers.md](references/markers.md)
 for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
@@ -257,7 +257,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 6. Write the class: `AbstractBasePlaywrightIT`, `@SpringBootTest(webEnvironment = RANDOM_PORT)`, `@TestCase` for a
    journey, `getUrl()`,
    `getView()`, the tests with expected values from the specification and test data, and the `@AfterEach` cleanup.
-7. Run it (`./mvnw verify -Pit -Dit.test=UC001*IT`, or the End-to-end tests command in `docs/architecture/development.md`).
+7. Run it (`./mvnw verify -Pit -Dit.test=UC001*IT`, or the End-to-end tests command in `docs/architecture/stack.md`).
    On a failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check that the view loaded,
    assert something on a target view before acting on it, use `waitForGridToStopLoading()` for asynchronous grids,
    and debug with `-Dheadless=false`.

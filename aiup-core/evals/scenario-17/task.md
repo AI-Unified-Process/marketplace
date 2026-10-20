@@ -7,8 +7,7 @@ app and an insurance partner call the same system over a JSON REST API. Some use
 channels, others only in the front-desk screens. The project follows the AI Unified Process; the requirements
 catalog is in `docs/requirements.md`, and the Maven build in `pom.xml` already declares the libraries the team chose.
 
-An architect once wrote `docs/architecture.md` by hand. The team has agreed to move it into the architecture folder
-as the Development View, keeping what it says.
+An architect once wrote `docs/architecture.md` by hand. It stays the team's architecture document, where it is.
 
 Before the first use case is implemented, the team wants the technical layers recorded, so that the construction
 skills know which layer skills to run. Browser tests are slow on the clinic's build server, so the team wants them
@@ -16,5 +15,4 @@ only for the end-to-end test cases, not for every use case.
 
 ## Output Specification
 
-Write the Development View to `docs/architecture/development.md`, with the index `docs/architecture/README.md` of the
-architecture views. Do not write any Java code and do not change `pom.xml`.
+Write the stack file to `docs/architecture/stack.md`. Do not write any Java code and do not change `pom.xml`.

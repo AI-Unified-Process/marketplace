@@ -39,7 +39,7 @@
     },
     {
       "name": "Markers table maintained",
-      "description": "docs/architecture/development.md's Markers table has the angular-ui rows of the skill's markers reference (page class comment, form-validator BR marker, naming of page/service/model); the outdated angular-ui row is corrected; the All row is unchanged; nothing else in docs/ is edited",
+      "description": "docs/architecture/stack.md's Markers table has the angular-ui rows of the skill's markers reference (page class comment, form-validator BR marker, naming of page/service/model); the outdated angular-ui row is corrected; the All row is unchanged; nothing else in docs/ is edited",
       "max_score": 10
     },
     {
