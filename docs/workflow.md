@@ -195,7 +195,7 @@ cases do not count.
 
 `spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
 differ, and `/requirements` sets the stored value when it updates the catalog. A use case moves by
-`/coverage-check` (combined stack plugins) or `/use-case-coverage` (layer plugins); its requirements follow.
+`/coverage-check` (aiup-vaadin-jooq and aiup-angular-jpa) or `/use-case-coverage` (layer plugins); its requirements follow.
 
 ### Construction inputs
 

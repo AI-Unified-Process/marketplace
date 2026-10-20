@@ -7,9 +7,9 @@ description: >
   user asks to "check coverage of TC-001", "is TC-001 completely automated", "audit the journey", "show me the
   coverage matrix for the test case", "what is still missing for TC-001", or "can I set TC-001 to Tested". This is
   specification coverage, not line coverage. It reports only — it writes no code, no tests, and no files. For
-  projects that combine layer plugins and record them in docs/architecture/stack.md; a combined stack plugin
-  brings its own /coverage-check TC-XXX. A use case (UC-XXX) is /use-case-coverage. When the user wants the gaps
-  closed rather than listed, use /test-case-implement or /use-case-implement instead.
+  projects that combine layer plugins and record them in docs/architecture/stack.md; aiup-vaadin-jooq and
+  aiup-angular-jpa bring their own /coverage-check TC-XXX. A use case (UC-XXX) is /use-case-coverage. When the
+  user wants the gaps closed rather than listed, use /test-case-implement or /use-case-implement instead.
 ---
 
 <!--

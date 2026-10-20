@@ -179,12 +179,12 @@ differ) → use case (with its status) → business rules → test cases, and te
 (Deferred and Rejected are listed as out of scope) it counts how many are linked to a use case, have every linking use
 case in a test case, and are Verified by the status of their use cases, and lists each requirement that misses a stage
 at the first stage it misses. Hand-offs: not linked → `/use-case-spec` (or `/use-case-diagram` when no use case fits);
-not in a test case → `/test-case`; not Verified → `/use-case-coverage UC-XXX` for its use cases (with a combined
-stack plugin `/coverage-check UC-XXX`). An unlinked NFR or constraint may rightly apply to the whole system; say so
+not in a test case → `/test-case`; not Verified → `/use-case-coverage UC-XXX` for its use cases (with aiup-vaadin-jooq or
+aiup-angular-jpa `/coverage-check UC-XXX`). An unlinked NFR or constraint may rightly apply to the whole system; say so
 instead of pushing a link. `--format json` prints the same matrix as JSON. Show the output verbatim; it reads `docs/`
 only and reports no findings. If the user wants it as a file, they redirect it themselves (e.g.
 `> docs/traceability.md`); this skill writes no file. Whether code and tests realize the use cases is
-`/use-case-coverage` (or a combined stack's `/coverage-check`), not this matrix.
+`/use-case-coverage` (or `/coverage-check` in aiup-vaadin-jooq and aiup-angular-jpa), not this matrix.
 
 ## HTML Report
 

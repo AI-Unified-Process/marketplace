@@ -12,8 +12,8 @@ description: >
   "can I set the status to Tested". This is specification coverage, not line
   coverage from a coverage report. It reports only and writes no
   file. For projects that combine layer plugins and record
-  them in docs/architecture/stack.md; a combined stack plugin brings its own
-  /coverage-check. When the user wants the gaps closed rather than listed,
+  them in docs/architecture/stack.md; aiup-vaadin-jooq and aiup-angular-jpa
+  have /coverage-check. When the user wants the gaps closed rather than listed,
   use /use-case-implement or /use-case-test instead. A TC-XXX journey is
   /test-case-coverage.
 ---
