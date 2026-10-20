@@ -33,6 +33,10 @@ independent — read only the ones that match the project in front of you.
       rather than annotated classes; the generated classes mirror the DDL.
     - Validation: Bean Validation annotations (`@NotNull`, `@Size`, `@Email`,
       `@Min`, `@Max`, `@Pattern`).
+- **Modules**: `<module>` entries of a parent `pom.xml`, `include(...)` in `settings.gradle(.kts)`, Spring Modulith
+  (`@ApplicationModule` in `package-info.java`, or every direct subpackage of the main application package), JPMS
+  `module-info.java`, and otherwise feature packages (`com.acme.billing`) — not layer packages (`controller`,
+  `service`, `repository`).
 - **Tests**: `@SpringBootTest`, `@WebMvcTest`, Vaadin Browserless / Karibu view tests, Playwright tests under
   `src/test/`. Tests named after a use case (e.g. `UC001NameOfUcTest`) are gold — they encode the success scenario and
   alternative flows already.
@@ -53,6 +57,8 @@ independent — read only the ones that match the project in front of you.
   `OneToOneField`, `ManyToManyField`. Validation from `validators=[...]`,
   `null=`, `blank=`, `unique=`, `choices=`. Migrations under
   `<app>/migrations/`.
+- **Modules**: the apps in `INSTALLED_APPS` that belong to the project (not `django.contrib.*` or third-party apps);
+  their `models.py` and `urls.py` already split the data and the entry points.
 - **Tests**: `tests.py` or `tests/` directory; `TestCase` subclasses.
 
 ## Python / Flask or FastAPI
@@ -63,6 +69,7 @@ independent — read only the ones that match the project in front of you.
   custom decorators.
 - **Entities**: SQLAlchemy `Base` subclasses, Pydantic models if used as the persistence layer. Migrations in Alembic
   (`migrations/versions/`).
+- **Modules**: Blueprints and `APIRouter`s with their own package and URL prefix.
 
 ## Node.js / TypeScript / Express
 
@@ -100,6 +107,9 @@ independent — read only the ones that match the project in front of you.
   vocabulary. A
   `// "customer" or "admin"` comment on a
   `String` column maps to `Not Null, Values: customer, admin`.
+- **Modules**: workspace packages (`workspaces` in `package.json`, `pnpm-workspace.yaml`, Nx `project.json`,
+  Turborepo `apps/`/`packages/`), NestJS `@Module` classes that own controllers and entities, feature folders under
+  `src/` or Next.js `app/` segments and route groups (`app/(billing)/`).
 - **Validation**: class-validator decorators, Zod schemas, Joi schemas, Yup schemas — these are the richest source of
   business rules in the Node ecosystem.
 
@@ -121,6 +131,8 @@ cases from the frontend routes, and confirm entities against the backend's domai
   (e.g. `services/<entity>.ts` + `services/<entity>.model.ts`)
   rather than a separate `models/`/`dto/` folder. These mirror the backend's domain/DTO shape — prefer the backend's
   entity model when both are present; the frontend types are a fallback when only the frontend is available.
+- **Modules**: lazy-loaded feature routes (`loadChildren`) and feature folders under `src/app/`; with a separate
+  backend, prefer the backend's modules and map the frontend features onto them.
 - **Tests**: Vitest specs under `src/**/*.spec.ts` (Angular's newer
   `@angular/build:unit-test` builder, not the classic Jasmine/Karma default — check
   `angular.json`'s `test` architect target to confirm which one a given project uses), Playwright specs under
@@ -137,6 +149,8 @@ cases from the frontend routes, and confirm entities against the backend's domai
   `belongs_to`, `has_one`, `has_and_belongs_to_many`. Validation from
   `validates :field, ...`. Schema in `db/schema.rb` (canonical) and
   `db/migrate/`.
+- **Modules**: Rails engines (`engines/`, `components/` in a component-based Rails app, packwerk `package.yml`
+  packs) and controller and model namespaces (`Billing::InvoicesController`, `app/models/billing/`).
 
 ## Go
 
@@ -147,6 +161,7 @@ cases from the frontend routes, and confirm entities against the backend's domai
 - **Entities**: `sqlc`-generated structs (schema in `query.sql` /
   `schema.sql`), GORM structs with tags, Ent schemas under
   `ent/schema/`.
+- **Modules**: Go modules of a `go.work` workspace and the domain packages under `internal/` (`internal/billing`).
 
 ## C# / .NET
 
@@ -179,6 +194,8 @@ cases from the frontend routes, and confirm entities against the backend's domai
   | `DateOnly`                           | `Date`         | —                | `Not Null`                        |
   | Foreign Key `long CustomerId`        | `Long`         | 19               | `Not Null, Foreign Key (CUSTOMER.id)` |
 
+- **Modules**: the projects of the `*.sln` that hold domain code (not `*.Tests`, `*.Shared`, or host projects), and
+  feature folders of a Vertical Slice project (`Features/Billing/`); one `DbContext` per module is a strong signal.
 - **Tests**: `bUnit` tests (`TestContext`, `RenderComponent<T>`), `xUnit` / `NUnit` specs, and Playwright tests
   (`PageTest` subclasses) under `*.Tests/` or `*.Tests.E2E/`.
 
@@ -196,6 +213,11 @@ When the ORM doesn't capture everything, fall back to the schema:
 - **Lookup tables**: small tables with `(id, code, label)` shape often represent enumerated values; in the entity model
   these can become a
   `Values: A, B, C` validation on the parent rather than their own entity, unless they have lifecycle of their own.
+
+- **Modules**: database schemas (`CREATE SCHEMA billing`, `billing.invoice`), table name prefixes shared by a group
+  of tables (`bil_invoice`, `bil_payment`), and, when nothing else cuts the code, clusters of tables that foreign
+  keys hold tightly together with few keys between the clusters. A table every cluster points to (`users`,
+  `tenant`) belongs to the module that writes it, not to each cluster.
 
 ## What's an actor vs. what's just an authenticated user
 

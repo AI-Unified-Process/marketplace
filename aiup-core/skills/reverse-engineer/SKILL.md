@@ -36,6 +36,11 @@ for the rest of the AI Unified Process workflow:
 The forward-engineering skills derive these from a vision/requirements
 document; you derive them from code, configuration, schema, and tests.
 
+A large project gets the same three artifacts at the same paths, split into
+its modules (stage 2): the diagram file holds an overview of the modules and
+one diagram per module, and the entity model one section per module with its
+own ER diagram. The paths never change, because every later skill reads them.
+
 ## Format contract — read this before writing any artifact
 
 These are hard requirements, not style preferences. Reverse-engineered
@@ -137,10 +142,51 @@ Skim — don't deep-read yet.
   carry credential values, keys, or secrets out of it.
 - Note the test directory: tests often state the intended behavior more
   clearly than the implementation does.
+- Note how the code is cut into modules: build modules, feature packages or
+  directories, database schemas. Stage 2 decides whether to split.
 
 For concrete patterns by stack, see [references/stack-signals.md](references/stack-signals.md). The path is relative to the folder containing this SKILL.md, not to the project root.
 
-### 2. Identify actors
+### 2. Identify modules
+
+One diagram stops being readable at around a dozen use cases or fifteen
+entities. Split both diagrams by module when the project has **more than about
+12 use cases or 15 entities and the code shows at least two modules**. Below
+that, write the single diagrams of stages 5 and 7 and skip the module parts of
+every later stage.
+
+Take the modules from the code, in this order of authority (the stack
+sections of `references/stack-signals.md` list the signals per stack):
+
+1. **Declared modules** — Maven or Gradle subprojects, Spring Modulith
+   application modules, JPMS `module-info.java`, the projects of a `*.sln`,
+   Nx or pnpm workspace packages, Django apps, Rails engines.
+2. **Feature packages or directories** — `com.acme.booking`,
+   `src/app/billing/`, a lazy-loaded route; route prefixes such as
+   `/api/billing/**`.
+3. **The database** — schemas, table name prefixes (`bil_invoice`).
+4. **Clusters of the data** — when the code is cut by layer
+   (`controller/`, `service/`, `repository/`) and nothing above applies, group
+   the entities that the foreign keys hold tightly together, and cut where few
+   foreign keys cross.
+
+Then assign:
+
+- **Every entity to exactly one module** — the module whose code writes it.
+  An entity that several modules only read stays with its writer.
+- **Every use case to exactly one module** — the module of its goal, usually
+  the one that owns the entity the use case changes.
+- **Name each module in business language** ("Billing", not `billing-core`),
+  with one sentence on what it is responsible for.
+
+Do not make a module of shared technical code (`common`, `util`, `security`,
+`config`): its tables and entry points join the module they serve, and pure
+infrastructure is skipped as in stages 4 and 7. Aim for at most about 10 use
+cases and 12 entities per module; a module far above that is split along its
+feature packages, two tiny modules that share most of their foreign keys are
+merged. Note which signal the cut is based on; the summary names it.
+
+### 3. Identify actors
 
 Actors are roles, not individual users. Sources:
 
@@ -156,7 +202,7 @@ Actors are roles, not individual users. Sources:
 If the codebase has only one role, you still typically have at least two
 actors: an unauthenticated visitor and the authenticated user.
 
-### 3. Extract use cases
+### 4. Extract use cases
 
 A use case is a complete interaction in which an actor achieves a goal. Walk
 the entry points and group them by goal:
@@ -192,10 +238,11 @@ not five. If you are about to write more than 8 spec files for a small service,
 stop and merge: you are almost certainly enumerating endpoints, not goals.
 
 Assign each use case an ID `UC-001`, `UC-002`, … in a stable order (group
-by actor, then by importance to the system's purpose). Pick a short
-descriptive name in title case.
+by actor, then by importance to the system's purpose). With modules, number
+module by module in the order of the overview, so each module holds one
+contiguous range. Pick a short descriptive name in title case.
 
-### 4. Generate the use case diagram
+### 5. Generate the use case diagram
 
 Write `docs/use_cases.puml`. Follow the format from the `/use-case-diagram`
 skill exactly:
@@ -226,7 +273,76 @@ admin --> UC002
   sub-flow (e.g. a `loginRequired` filter that's reused across many use cases
   is rarely worth modeling — it's a precondition, not an include).
 
-### 5. Write use case specifications
+#### With modules
+
+Keep the one file `docs/use_cases.puml` and write several diagrams into it,
+one `@startuml … @enduml` block each; PlantUML renders every block as an image
+of its own. The first block is the overview — the actors and one `package`
+per module, no use cases, so it stays readable however large the system is.
+Then one block per module, in the same order, with the template above and the
+module name on the `rectangle`:
+
+```plantuml
+@startuml Modules
+left to right direction
+
+actor "Customer" as customer
+actor "Accountant" as accountant
+
+package "Ordering" as ordering
+package "Billing" as billing
+
+customer --> ordering
+customer --> billing
+accountant --> billing
+ordering ..> billing : "invoices orders"
+
+@enduml
+
+@startuml Ordering
+left to right direction
+
+actor "Customer" as customer
+
+rectangle "Ordering" {
+    usecase "UC-001\nPlace Order" as UC001
+    usecase "UC-002\nTrack Order" as UC002
+}
+
+customer --> UC001
+customer --> UC002
+
+@enduml
+
+@startuml Billing
+left to right direction
+
+actor "Customer" as customer
+actor "Accountant" as accountant
+
+rectangle "Billing" {
+    usecase "UC-003\nPay Invoice" as UC003
+    usecase "UC-004\nReconcile Payments" as UC004
+}
+
+customer --> UC003
+accountant --> UC004
+
+@enduml
+```
+
+- The `@startuml` title of a module block is the module name; the overview's
+  title is `Modules`. `/use-case-diagram` recognizes the split by it.
+- Every use case appears in exactly one module block. An actor appears in the
+  overview and in every module block it has a use case in, with the same name
+  and alias each time.
+- An actor links to a module in the overview when it has a use case there.
+- Draw a dependency `a ..> b : "<why>"` when a use case of module `a` uses
+  data or a use case of module `b`; a foreign key from an entity of `a` to one
+  of `b` is the usual evidence. `<<include>>` and `<<extend>>` stay inside one
+  module block; across modules the dependency arrow says it.
+
+### 6. Write use case specifications
 
 Create `docs/use_cases/` and write one file per use case named
 `UC-XXX-short-name.md` (kebab-case). Use the structure from
@@ -244,7 +360,7 @@ Create `docs/use_cases/` and write one file per use case named
   status (always `Draft`, even for working code: a recovered specification
   describes what the code does, not what it should do, and a test derived
   from it before a human has approved it only restates the code — see
-  step 8). Add
+  step 9). Add
   the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
   only when a `docs/requirements.md` already exists and its ids match the
   use case; otherwise omit the line — never invent requirement ids. Add
@@ -305,7 +421,7 @@ paths against the project root or relative to this skill's folder.
 
 If a step would only make sense to someone who has read the code, rewrite it.
 
-### 6. Extract the entity model
+### 7. Extract the entity model
 
 > **Treat this as a dedicated pass, not an afterthought.** The entity model is
 > the artifact most often degraded when it is rushed at the end of a long
@@ -433,7 +549,72 @@ session tables, audit/log tables that aren't part of the domain). If
 unsure whether a table is domain-relevant, include it — it's easier for
 the user to delete than to miss.
 
-### 7. Cross-validate
+#### With modules
+
+Keep the one file `docs/entity_model.md`. A `## Modules` table comes first,
+then one `## Module: <name>` section per module, in the order of the diagram
+overview. Each section has its own ER diagram under a bold label (not a
+heading: the `###` level belongs to the entities) and the tables of the
+entities the module owns:
+
+````markdown
+# Entity Model
+
+## Modules
+
+| Module   | Description                           | Entities             | Depends on |
+|----------|---------------------------------------|----------------------|------------|
+| Ordering | Orders customers place and track      | CUSTOMER, ORDER, ... | -          |
+| Billing  | Invoices for orders and their payment | INVOICE, PAYMENT     | Ordering   |
+
+## Module: Ordering
+
+Orders customers place and track.
+
+**Entity Relationship Diagram**
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ ORDER : "places"
+    ORDER ||--o{ ORDER_ITEM : "contains"
+```
+
+### CUSTOMER
+
+...
+
+## Module: Billing
+
+Invoices for orders and their payment.
+
+**Entity Relationship Diagram**
+
+```mermaid
+erDiagram
+    ORDER ||--o| INVOICE : "is billed by"
+    INVOICE ||--o{ PAYMENT : "is settled by"
+```
+
+From other modules: ORDER (Ordering).
+
+### INVOICE
+
+...
+````
+
+- Every entity has its `###` section exactly once, in the module that owns
+  it. Another module's diagram may name it in a relationship line, and the
+  line `From other modules:` under that diagram lists it with its module.
+- A module's diagram holds every relationship line of its own entities,
+  including the ones to entities of other modules, so a foreign key that
+  crosses modules appears in the diagram of the module whose table holds it.
+- `Depends on` lists the modules whose entities this module's foreign keys
+  point to, or `-`. Each module it lists has a `..>` arrow in the diagram
+  overview.
+- All rules of this stage — the 5-column tables, the type and validation
+  vocabulary, relationships only in Mermaid — hold in every section.
+
+### 8. Cross-validate
 
 First run the use case spec validator bundled with the `/use-case-spec` skill
 over every spec file you wrote and fix everything it reports (the script is
@@ -467,6 +648,14 @@ Then check the three documents agree:
   `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
   appear inside the Mermaid entity blocks; every Length/Precision matches the
   declared column (unbounded text is `-`); every key column says `Primary Key`.
+- **Module check** (only with modules): the overview's packages, the module
+  blocks, the rows of the `## Modules` table, and the `## Module:` sections
+  name the same modules in the same order; every use case sits in exactly one
+  module block and every entity section in exactly one module section; a
+  module's diagram names only its own entities and those listed in its
+  `From other modules:` line; every module in a `Depends on` cell has a `..>`
+  arrow in the overview. With modules, "the diagram" in the checks above means
+  the diagram of the module section the entity belongs to.
 
 The cross-file part of these checks (diagram against spec files, duplicated
 ids, rule citations that point to nothing, rules copied between use cases)
@@ -474,13 +663,18 @@ is automated by the `/spec-review` skill of this plugin. Point the user to
 `/spec-review` in the summary instead of running it here; a brownfield
 project usually starts it with a baseline.
 
-### 8. Summarize for the user
+### 9. Summarize for the user
 
 End with a short summary: how many use cases, how many entities, which
 endpoints/files you couldn't classify (be honest about gaps), and a
 recommendation for what the user should review first — typically the
 use cases where the main success scenario was hard to recover, since
 those are the ones most likely to need a human pass.
+
+With modules, list them with their use case and entity counts and name the
+signal the cut is based on (stage 2) — a module cut recovered from foreign
+key clusters is a proposal, and the user may want it moved. Without modules
+in a project close to the threshold, say that the diagrams were not split.
 
 Every specification you wrote is `Draft`. Say so, and say why: the code
 was the only source, so a bug in it is now written down as required
@@ -505,18 +699,24 @@ status moves on as for any other use case.
   whole point is to translate the schema into the AI Unified Process vocabulary.
 - Write multi-paragraph descriptions of "what the system does" outside the
   three artifact files. The artifacts *are* the documentation.
+- Split a module into a file of its own (`docs/use_cases/billing.puml`,
+  `docs/entity_model/billing.md`). Every later skill reads the two fixed
+  paths; modules are blocks and sections inside them.
 
 ## When the project is large
 
 If the codebase has many entry points (say, more than ~30), do not try to
 hold the whole project in your head. Instead:
 
-1. Make one pass over the directory tree to list every controller/route file.
-2. Cluster them by feature (often visible from package or directory names).
-3. Process one cluster at a time end-to-end (actors → use cases → specs),
-   appending to the diagram as you go.
-4. Process the data layer once at the end, since entities are typically
-   shared across features.
+1. Make one pass over the directory tree to list every controller/route file
+   and every migration or entity file.
+2. Decide the modules (stage 2) before reading any of them in depth, and
+   assign every entity to the module that writes it.
+3. Process one module at a time end-to-end (actors → use cases → specs →
+   its entities), writing its diagram block and its `## Module:` section as
+   you go.
+4. Finish with the overview: the `@startuml Modules` block, the `## Modules`
+   table, and the `..>` dependencies from the foreign keys that cross modules.
 
 This keeps each pass small enough to do well rather than producing 30
 shallow specs.

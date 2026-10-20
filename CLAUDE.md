@@ -305,6 +305,19 @@ Business rules stay numbered per use case, so "defined once" means no rule text 
 globally unique rule ids. There is deliberately no syntax for entity references in use cases; entity consistency
 is judged from context in Part B.
 
+#### Modules in the diagrams
+
+`/reverse-engineer` splits the use case diagram and the entity model by module when a project has more than about
+12 use cases or 15 entities and the code shows at least two modules (build modules, feature packages, database
+schemas, or foreign key clusters). The split stays **inside the two fixed files**: `docs/use_cases.puml` gets a
+`@startuml Modules` overview (actors and `package`s, no use cases) plus one `@startuml <Module>` block per module, and
+`docs/entity_model.md` a `## Modules` table plus one `## Module: <name>` section per module with its own Mermaid
+diagram under a bold label. Entity headings stay `###`, once per entity in its owning module, because
+`spec_lint.py` reads them for `DUPLICATE_ID`. One file per module was rejected: about 40 skills, the coverage agents,
+and `spec_lint.py` read the two paths. `/use-case-diagram` and `/entity-model` keep an existing split and place new
+use cases and entities in it, but never introduce one; the `MODULAR` fixture of `spec_lint.py --self-test` holds the
+format.
+
 #### Business process
 
 `/business-process` writes BPMN 2.0 models to `docs/processes/BP-XXX-<name>.bpmn` from the requirements and the use

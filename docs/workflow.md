@@ -57,6 +57,12 @@ of files under `docs/`, not a specific coding agent.
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
 
+For a large project, `/reverse-engineer` splits both diagrams by module without changing a path:
+`docs/use_cases.puml` then holds a `@startuml Modules` overview (actors and modules, no use cases) and one
+`@startuml` block per module, and `docs/entity_model.md` a `## Modules` table and one `## Module:` section per module
+with its own ER diagram and the entities it owns. `/use-case-diagram` and `/entity-model` keep that split on update;
+every other reader works with the files as before.
+
 The stack file, `docs/architecture/stack.md`, is the AI Unified Process record of the technical layers: which layer
 skill builds and tests each layer, the integration layer, the module layout, the API contract, the commands, and
 the markers. It does not depend on how the team documents its architecture. arc42, C4, Kruchten's 4+1 views, a
