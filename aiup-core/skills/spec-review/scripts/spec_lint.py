@@ -50,7 +50,8 @@ Markdown tables (or JSON with --format json), followed by the requirement
 coverage: how many active requirements are linked to a use case, have every
 such use case in a test case, and are Verified by their use cases' status,
 with the ids that stop at each stage. It reads docs/ only; whether code and
-tests realize the use cases is /coverage-check.
+tests realize the use cases is /use-case-coverage (layer plugins) or
+/coverage-check (aiup-vaadin-jooq and aiup-angular-jpa).
 
 --report prints one self-contained HTML page instead: summary counts, the
 requirement coverage, the trace matrix with requirement titles, test case →
@@ -1587,6 +1588,75 @@ ACTOR_LINKS = {
 }
 
 
+# CLEAN with both diagrams split by module, as /reverse-engineer writes them.
+MODULAR = dict(CLEAN)
+MODULAR.update({
+    "use_cases.puml": """\
+@startuml Modules
+left to right direction
+actor Clerk as clerk
+package "Guests" as guests
+package "Reservations" as reservations
+clerk --> guests
+clerk --> reservations
+reservations ..> guests : "reserves for guests"
+@enduml
+
+@startuml Guests
+left to right direction
+actor Clerk as clerk
+rectangle "Guests" {
+    usecase "UC-001\\nCreate Guest" as UC001
+}
+clerk --> UC001
+@enduml
+
+@startuml Reservations
+left to right direction
+actor Clerk as clerk
+rectangle "Reservations" {
+    usecase "UC-002\\nReserve Room" as UC002
+}
+clerk --> UC002
+@enduml
+""",
+    "entity_model.md": """\
+# Entity Model
+
+## Modules
+
+| Module       | Description             | Entities | Depends on |
+|--------------|-------------------------|----------|------------|
+| Guests       | The hotel's guests      | GUEST    | -          |
+| Reservations | Rooms and reservations  | ROOM     | Guests     |
+
+## Module: Guests
+
+**Entity Relationship Diagram**
+
+```mermaid
+erDiagram
+    GUEST
+```
+
+### GUEST
+
+## Module: Reservations
+
+**Entity Relationship Diagram**
+
+```mermaid
+erDiagram
+    GUEST ||--o{ ROOM : "reserves"
+```
+
+From other modules: GUEST (Guests).
+
+### ROOM
+""",
+})
+
+
 def write_fixture(root, files):
     for rel, content in files.items():
         path = os.path.join(root, rel)
@@ -1680,6 +1750,20 @@ def self_test():
             failures.append("actors: German fields or the generalization "
                             "not matched, got " + str(
                                 [f.message for f in project.findings]))
+
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, MODULAR)
+        found = [f for f in lint(root, validator, bpmn) if f.severity != INFO]
+        for f in found:
+            failures.append("modular: unexpected %s %s %s:%d %s" % (
+                f.severity, f.code, os.path.relpath(f.path, root), f.line,
+                f.message))
+        write_fixture(root, {"entity_model.md": MODULAR["entity_model.md"]
+                             + "\n### GUEST\n"})
+        if not any(f.code == "DUPLICATE_ID" and f.element == "GUEST"
+                   for f in lint(root, validator, bpmn)):
+            failures.append("modular: GUEST in two modules gave no "
+                            "DUPLICATE_ID")
 
     def uc(status):
         spec = Spec.__new__(Spec)

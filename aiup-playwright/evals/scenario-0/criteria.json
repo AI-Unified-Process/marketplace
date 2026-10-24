@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether the agent automates a test case journey (TC-001) as the playwright-e2e-test skill prescribes: one TC-001-<slug>.spec.ts in the E2E folder recorded in docs/architecture/stack.md (frontend/e2e, matching playwright.config.ts), one test tagged @TC-001 with one test.step per Flow row, role/label locators, the Validation items asserted, and the Postconditions as the afterEach cleanup in the stated order through the API — never a delete-all.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "File name and folder",
+      "description": "The test is frontend/e2e/TC-001-<slug>.spec.ts (the testDir of playwright.config.ts and the E2E Location of docs/architecture/stack.md), not tests/e2e or a second config",
+      "max_score": 10
+    },
+    {
+      "name": "describe and tag",
+      "description": "test.describe('TC-001: …', …) with { tag: '@TC-001' } on the test",
+      "max_score": 10
+    },
+    {
+      "name": "One test with one step per Flow row",
+      "description": "The whole flow is a single test containing four test.step('Step <n>: <name>', …) calls in Flow order (Register guest, Verify guest listed, Book room, Verify confirmation), each preceded by a // Step <n>: <name> comment",
+      "max_score": 13
+    },
+    {
+      "name": "Test data from the Flow table",
+      "description": "The steps enter exactly the Flow's test data: Mia, Keller, mia.keller@example.com; Deluxe Suite, 2026-12-01, 2026-12-04",
+      "max_score": 9
+    },
+    {
+      "name": "Accessible locators",
+      "description": "Elements are located with getByRole/getByLabel/getByText (getByTestId only as a fallback); no CSS class selectors, no XPath, no waitForTimeout",
+      "max_score": 11
+    },
+    {
+      "name": "Validation items asserted",
+      "description": "The test asserts the exact message 'Reservation confirmed.' and that the Reservations page lists the reservation for Mia Keller / Deluxe Suite (located by the row the test created, not by a table total)",
+      "max_score": 11
+    },
+    {
+      "name": "Cleanup follows the Postconditions",
+      "description": "A test.afterEach deletes the reservation first and then the guest Mia Keller through the API (request fixture), looking them up by email/guest id; it is idempotent and deletes nothing else — no delete-all, no direct database call",
+      "max_score": 13
+    },
+    {
+      "name": "Seed data not duplicated",
+      "description": "The Deluxe Suite precondition is taken from the seed data (V900__test_data.sql) — the test does not create the room type, and no new seed file is added by the test",
+      "max_score": 7
+    },
+    {
+      "name": "Markers table maintained",
+      "description": "docs/architecture/stack.md gains the three playwright-e2e-test rows of the skill's markers reference (describe with the @UC-XXX/@TC-XXX tag on every test, one test.step('Step <n>: …' with its // Step comment per Flow row, and the UC-/TC-XXX-<slug>.spec.ts naming in the E2E folder); the All row is unchanged; no other file under docs/ is edited",
+      "max_score": 9
+    },
+    {
+      "name": "Honest report",
+      "description": "The report says the test was not run because the application is not running, does not claim it passes, and ends with 'Next: /test-case-coverage TC-001' without running a coverage audit",
+      "max_score": 7
+    }
+  ]
+}

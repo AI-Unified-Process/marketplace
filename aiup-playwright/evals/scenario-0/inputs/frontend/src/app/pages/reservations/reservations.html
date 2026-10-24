@@ -1,0 +1,22 @@
+<h1>Reservations</h1>
+<a routerLink="/reservations/new">New Reservation</a>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Guest</th>
+            <th scope="col">Room Type</th>
+            <th scope="col">Arrival</th>
+            <th scope="col">Departure</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (reservation of reservations(); track reservation.id) {
+            <tr>
+                <td>{{ reservation.guestName }}</td>
+                <td>{{ reservation.roomTypeName }}</td>
+                <td>{{ reservation.arrival }}</td>
+                <td>{{ reservation.departure }}</td>
+            </tr>
+        }
+    </tbody>
+</table>

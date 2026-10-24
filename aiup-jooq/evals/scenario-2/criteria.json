@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether jooq-persistence-test, run directly in a project whose integration layer is the API, bootstraps the @UseCase annotation in the test sources, names the class UC010<Name>RepositoryTest, tests only the queries with logic of their own (category filter, empty category, order, paging, count) against the real database through the project's Testcontainers configuration, leaves the business rule BR-001 to the integration layer's tests, puts the test data into a repeatable Flyway test migration (src/test/resources/db/testdata/R__uc010_*.sql, location added for tests), scopes every assertion to the rows the test owns with exact expected values, reports honestly that the tests were not run, and hands off to the integration layer's test skill.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "UseCase annotation bootstrapped",
+      "description": "Exactly one UseCase annotation type is created, in the test sources at src/test/java/com/example/shop/usecase/UseCase.java (never under src/main/java), with @Target(METHOD), @Retention(RUNTIME), @Documented, String id(), String scenario() default \"Main Success Scenario\", String[] businessRules() default {}, String[] requirements() default {}",
+      "max_score": 9
+    },
+    {
+      "name": "Class naming",
+      "description": "The test class is named UC010BrowseProductCatalogRepositoryTest (UC<id><Name>RepositoryTest)",
+      "max_score": 9
+    },
+    {
+      "name": "@UseCase on every method",
+      "description": "Every test method carries @UseCase(id = \"UC-010\", ...); the filter test uses scenario = \"A1: Filter by Category\" and the empty-category test scenario = \"A2: No Products Match Filter\"",
+      "max_score": 11
+    },
+    {
+      "name": "Real database",
+      "description": "The test uses @SpringBootTest (or @JooqTest) with @Import(TestcontainersConfiguration.class); no H2, no Mockito, no mocked DSLContext",
+      "max_score": 11
+    },
+    {
+      "name": "Flyway test migration",
+      "description": "Test data is a repeatable Flyway migration src/test/resources/db/testdata/R__uc010_browse_product_catalog.sql with classpath:db/testdata added to spring.flyway.locations on the test class with @TestPropertySource(properties = \"spring.flyway.locations=classpath:db/migration,classpath:db/testdata\") — not in a src/test/resources/application.properties, which would shadow the main configuration; rows are inserted with nextval('product_seq') or ids in a range the tests own, and include a category with no in-stock product for A2; no test data is inserted through the repository or a DSLContext in the test",
+      "max_score": 11
+    },
+    {
+      "name": "BR-001 left to the integration layer",
+      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the in-stock rule, because the integration layer is the API (docs/architecture/stack.md); the report says that BR-001 is tested by spring-rest-test. Out-of-stock rows in the test data are allowed",
+      "max_score": 9
+    },
+    {
+      "name": "Category filter tested with exact rows",
+      "description": "A test filters by a category the test data owns and asserts exactly its expected product names in name order (containsExactly); a test of A2 asserts an empty list and a count of 0 for the category without in-stock products",
+      "max_score": 9
+    },
+    {
+      "name": "Assertions scoped to owned rows",
+      "description": "Assertions name exact values from the test data (containsExactly, isEqualTo) and are scoped to the rows the test data of UC-010 owns — a category or name prefix such as 'UC010', used as the filter value or with filteredOn; no table-wide count or exact list over all products, and no isNotEmpty or hasSizeGreaterThan in place of a stated value",
+      "max_score": 9
+    },
+    {
+      "name": "Paging and count",
+      "description": "A test checks a page boundary (offset and limit over the ordered rows of an owned category) and that countCatalog for that category agrees with the number of its in-stock rows in the test data",
+      "max_score": 7
+    },
+    {
+      "name": "No production changes",
+      "description": "ProductRepository and the main migrations are unchanged",
+      "max_score": 7
+    },
+    {
+      "name": "Honest report and hand-off",
+      "description": "The report says the tests were not run (no Docker/Maven), does not claim they pass, and ends with 'Next: /spring-rest-test UC-010', the test skill of the first row of the Integration layer table",
+      "max_score": 8
+    }
+  ]
+}

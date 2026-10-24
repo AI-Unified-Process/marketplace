@@ -1,0 +1,15 @@
+{
+  "description": "A use case is implemented end to end through every layer of a layered REST service, each layer building on the Handover of the one below",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

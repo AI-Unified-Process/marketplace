@@ -1,0 +1,20 @@
+<h1>New Guest</h1>
+<form [formGroup]="form" (ngSubmit)="submit()">
+    <label for="firstName">First Name</label>
+    <input id="firstName" formControlName="firstName" />
+
+    <label for="lastName">Last Name</label>
+    <input id="lastName" formControlName="lastName" />
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" />
+
+    <button type="submit" class="btn-primary">Register</button>
+</form>
+@if (confirmation(); as message) {
+    <p role="status">{{ message }}</p>
+}
+@if (errorMessage(); as message) {
+    <p role="alert">{{ message }}</p>
+}
+<a routerLink="/guests">Back to Guests</a>

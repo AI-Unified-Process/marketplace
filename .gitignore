@@ -23,3 +23,7 @@ build/
 node_modules/
 dist/
 .next/
+
+# Python
+__pycache__/
+*.pyc

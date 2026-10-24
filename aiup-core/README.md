@@ -15,16 +15,22 @@ reviewable files under `docs/`.
 
 ## Skills and workflow
 
-| Phase        | Skill                                                   | Result                                                               |
-|--------------|---------------------------------------------------------|----------------------------------------------------------------------|
-| Inception    | [`/requirements`](skills/requirements/SKILL.md)         | Requirements catalog derived from `docs/vision.md`                   |
-| Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)         | Mermaid entity model and attribute definitions                       |
-| Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md) | PlantUML diagram of actors and use cases                             |
-| Elaboration  | [`/business-process`](skills/business-process/SKILL.md) | BPMN business process models (`BP-XXX`) connecting the use cases     |
-| Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)       | One detailed specification per use case                              |
-| Construction | [`/test-case`](skills/test-case/SKILL.md)               | Executable journeys across specified use cases or BPMN process paths |
-| Any          | [`/spec-review`](skills/spec-review/SKILL.md)           | Deterministic lint and advisory review of the specification quality  |
-| Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md) | Entity and use case documentation recovered from existing code       |
+| Phase        | Skill                                                         | Result                                                                       |
+|--------------|---------------------------------------------------------------|------------------------------------------------------------------------------|
+| Inception    | [`/requirements`](skills/requirements/SKILL.md)               | Requirements catalog derived from `docs/vision.md`                           |
+| Elaboration  | [`/entity-model`](skills/entity-model/SKILL.md)               | Mermaid entity model and attribute definitions                               |
+| Elaboration  | [`/use-case-diagram`](skills/use-case-diagram/SKILL.md)       | PlantUML diagram of actors and use cases                                     |
+| Elaboration  | [`/business-process`](skills/business-process/SKILL.md)       | BPMN business process models (`BP-XXX`) connecting the use cases             |
+| Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                      |
+| Construction | [`/test-case`](skills/test-case/SKILL.md)                     | Executable journeys across specified use cases or BPMN process paths         |
+| Any          | [`/spec-review`](skills/spec-review/SKILL.md)                 | Deterministic lint and advisory review of the specification quality          |
+| Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md)       | Entity and use case documentation recovered from existing code               |
+| Construction | [`/stack`](skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skill for each technical layer       |
+| Construction | [`/use-case-implement`](skills/use-case-implement/SKILL.md)   | A use case implemented by running the layer skills bottom-up                 |
+| Construction | [`/use-case-test`](skills/use-case-test/SKILL.md)             | The tests of a use case, from the integration layer up                       |
+| Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests               |
+| Construction | [`/test-case-implement`](skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey                         |
+| Construction | [`/test-case-coverage`](skills/test-case-coverage/SKILL.md)   | Read-only coverage matrix of a test case journey                             |
 
 ```text
 Inception          Elaboration                             Construction
@@ -32,6 +38,14 @@ Inception          Elaboration                             Construction
 /requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case
                                                     └→  /business-process  ↗
 ```
+
+The last six skills drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
+`aiup-vaadin`, `aiup-angular`, `aiup-playwright`), which require `aiup-core` 3.0.0 or later: install one per layer of
+your project, run `/stack` once,
+then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
+through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only
+[`uc-coverage-layered`](agents/uc-coverage-layered.md) sub-agent. With a combined stack plugin, use its own
+`/implement` and test skills instead.
 
 Each skill reads the artifacts created by earlier steps. The linked `SKILL.md` files are the authoritative reference
 for detailed inputs, outputs, and behavior.
@@ -63,7 +77,7 @@ Depending on the configured agent, skills may be exposed as slash commands or in
 /plugin install aiup-core
 ```
 
-See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+See the marketplace [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## Prerequisites
 
@@ -83,6 +97,8 @@ your-project/
     ├── glossary.md                  # /requirements (domain terms and synonyms to avoid)
     ├── entity_model.md              # /entity-model
     ├── use_cases.puml               # /use-case-diagram
+    ├── architecture/
+    │   └── stack.md                 # /stack (layer plugins only)
     ├── processes/
     │   └── BP-001-*.bpmn            # /business-process (optional), read by /test-case
     ├── use_cases/
@@ -96,14 +112,18 @@ run as a blocking CI gate; accepted findings of an existing project go into `doc
 `/spec-review report` writes `docs/spec-report.html`: requirement coverage, the traceability matrix, and the findings
 on one page.
 
-Review and commit these files with the source code. Stack plugins consume the entity model, use case specifications,
-and test journeys without depending on which coding agent produced them.
+Review and commit these files with the source code. Layer and stack plugins consume the entity model, use case
+specifications, and test journeys without depending on which coding agent produced them.
 
 ## Project structure
 
-`aiup-core` does not impose a source-code layout. It writes only to the documentation paths above and inspects an
-existing source tree when `/reverse-engineer` runs. The selected stack plugin detects or documents the implementation
-layouts it supports.
+`aiup-core` does not impose a source-code layout. Its specification skills write only to the documentation paths
+above and inspect an existing source tree when `/reverse-engineer` runs; `/stack` writes the stack file
+under `docs/architecture/`. The construction orchestrators `/use-case-implement`, `/use-case-test`, and
+`/test-case-implement` produce code and tests, but only by running the layer skills that
+`docs/architecture/stack.md` names — the layout is theirs, not core's. `/use-case-coverage` and
+`/test-case-coverage` only read. The installed layer plugins, or the selected combined stack plugin, detect or
+document the implementation layouts they support.
 
 ## MCP servers
 
@@ -116,6 +136,7 @@ layouts it supports.
 - [Getting started](../docs/getting-started.md)
 - [Workflow and artifacts](../docs/workflow.md)
 - [Project setup](../docs/guides/project-setup.md)
+- [Writing a layer skill](../docs/guides/layer-skill.md)
 - [Choose a stack plugin](../README.md#choose-your-plugins)
 
 ## License

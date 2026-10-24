@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether /use-case-implement orchestrates the layer skills recorded in docs/architecture/stack.md for a use case whose **Layers:** line names only UI, in a Vaadin Flow + REST + jOOQ project: it announces the plan, runs flyway-schema, jooq-persistence, spring-service, and vaadin-flow-ui bottom-up through their skills, leaves the API layer out, passes each Handover on, marks every business rule with a qualified UC-002 BR-xxx comment, writes no tests and no documents, and hands off to /use-case-test. The layer skills are installed in .claude/skills. Grade the orchestration and the report, not the code style.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Plan stated before the first layer",
+      "description": "Before the first layer runs, the agent states in one line which layers run in which order (flyway-schema → jooq-persistence → spring-service → vaadin-flow-ui, or the same layers by name) and that the API layer is left out because UC-002's **Layers:** line names only UI",
+      "max_score": 10
+    },
+    {
+      "name": "Layer skills run bottom-up",
+      "description": "The agent runs the layer skills named in the Skill column of docs/architecture/stack.md — flyway-schema, jooq-persistence, spring-service, vaadin-flow-ui — with UC-002, through the Skill tool or by reading and following their SKILL.md files under .claude/skills, in the order migration, persistence, service, UI; it does not implement the layers from its own knowledge while ignoring the installed skills",
+      "max_score": 15
+    },
+    {
+      "name": "API layer left out",
+      "description": "spring-rest is not run for UC-002, and no @RestController, handler method, or request/response record for the registration is created; WorkshopController.java is unchanged. Nothing is built for the E2E row either",
+      "max_score": 15
+    },
+    {
+      "name": "Handovers passed on",
+      "description": "The layers end with Handover blocks (types, method signatures, tables) that appear in the output, and each layer builds on the one below: the service calls the repository methods the persistence Handover lists, and the view calls only service methods — no DSLContext or repository in the view",
+      "max_score": 10
+    },
+    {
+      "name": "Qualified business rule markers",
+      "description": "Each of BR-001 (capacity), BR-002 (registration deadline), and BR-003 (one registration per email) has at least one comment in the qualified form `UC-002 BR-00x:` (`// UC-002 BR-00x:` in Java, `-- UC-002 BR-00x:` in SQL) directly above the code or constraint that enforces it; no bare `BR-00x` marker without the use case id",
+      "max_score": 15
+    },
+    {
+      "name": "Migration added, not edited",
+      "description": "A new versioned migration (V2__…sql or higher) creates the registration table with the entity model's columns and a unique constraint on workshop id and participant email; V1__create_workshop.sql is unchanged",
+      "max_score": 10
+    },
+    {
+      "name": "No tests, no documents",
+      "description": "No test class or test resource is written, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md; the **Status:** line of UC-002 still reads Approved",
+      "max_score": 10
+    },
+    {
+      "name": "Report and hand-off",
+      "description": "The final report lists the files created or changed per layer, does not run or imitate a coverage audit, does not claim that the build passed, and ends with the hand-off `Next: /use-case-test UC-002`",
+      "max_score": 15
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Architecture of a Vaadin Flow application with a REST API next to it is recorded from the installed layer skills, and a hand-written docs/architecture.md is read as input and left in place",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

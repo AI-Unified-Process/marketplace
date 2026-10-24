@@ -1,0 +1,31 @@
+<h1>New Reservation</h1>
+<form [formGroup]="form" (ngSubmit)="submit()">
+    <label for="guest">Guest</label>
+    <select id="guest" formControlName="guestId">
+        @for (guest of guests(); track guest.id) {
+            <option [ngValue]="guest.id">{{ guest.firstName }} {{ guest.lastName }}</option>
+        }
+    </select>
+
+    <label for="roomType">Room Type</label>
+    <select id="roomType" formControlName="roomTypeId">
+        @for (roomType of roomTypes(); track roomType.id) {
+            <option [ngValue]="roomType.id">{{ roomType.name }}</option>
+        }
+    </select>
+
+    <label for="arrival">Arrival</label>
+    <input id="arrival" type="date" formControlName="arrival" />
+
+    <label for="departure">Departure</label>
+    <input id="departure" type="date" formControlName="departure" />
+
+    <button type="submit">Confirm</button>
+</form>
+@if (confirmation(); as message) {
+    <p role="status">{{ message }}</p>
+}
+@if (errorMessage(); as message) {
+    <p role="alert">{{ message }}</p>
+}
+<a routerLink="/reservations">Back to Reservations</a>

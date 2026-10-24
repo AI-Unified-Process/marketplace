@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether /use-case-coverage audits UC-002 read-only through the uc-coverage-layered agent (shipped in .claude/agents) in a Vaadin Flow + REST + jOOQ project where UC-002's **Layers:** line names only UI. The input is deliberately partial: BR-002 (registration deadline) is enforced in RegistrationService but no test triggers it, so A2 is untested too; A1 (fully booked) has drifted — the code puts the participant on a waiting list (WaitingListRepository, waiting_list_entry table, WAITLISTED result, message 'This workshop is fully booked. You are on the waiting list.') that no step, flow, or rule describes, and the A1 test asserts that drifted behaviour. There is no REST endpoint and no API test for UC-002, which is correct because the use case is offered only through the UI.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Resolved arguments stated",
+      "description": "Before the audit, the agent states the resolved arguments in one line, e.g. 'Auditing UC-002, mode both.'",
+      "max_score": 5
+    },
+    {
+      "name": "Delegated to the auditor",
+      "description": "The agent hands the audit to the uc-coverage-layered sub-agent with only the id and mode (e.g. 'UC-002 both'), without a list of files or the findings it expects — or, when it cannot run a sub-agent, reads agents/uc-coverage-layered.md and follows its checklist itself",
+      "max_score": 10
+    },
+    {
+      "name": "No file changed",
+      "description": "No file is created, modified, or deleted — not the code, not the tests, not the specification and its **Status:** line, and not docs/architecture/stack.md. The missing BR-002 test is not written and the waiting list is not removed",
+      "max_score": 15
+    },
+    {
+      "name": "Complete matrix with evidence",
+      "description": "The report has a matrix with one row per unit — Steps 1–5, A1–A3, BR-001–BR-003, the precondition, both success postconditions, the failure postcondition, and NFR-001 — with separate Implementation and Test evidence; rows marked Covered cite a file and line (e.g. RegistrationService.java, UC002RegisterForWorkshopTest.java)",
+      "max_score": 15
+    },
+    {
+      "name": "BR-002 test gap",
+      "description": "The report states that BR-002 is enforced in code (the deadline guard in RegistrationService) but no test exercises it — neither the allowed nor the rejected case — and that A2 has no test; it names /use-case-test UC-002 as the command that closes it",
+      "max_score": 10
+    },
+    {
+      "name": "A1 drift with both fixes",
+      "description": "The report identifies the waiting list as drift that no step, flow, or rule of UC-002 describes, notes that A1 is not realized as specified (the message differs from 'This workshop is fully booked.'), names both possible fixes — describe the waiting list in the specification (/use-case-spec UC-002) or remove it from the code (/use-case-implement UC-002) — and asks the user which side is right instead of choosing one",
+      "max_score": 15
+    },
+    {
+      "name": "No gap for the API layer",
+      "description": "The missing REST endpoint and the missing spring-rest-test tests for UC-002 are not reported as gaps, because UC-002's **Layers:** line names only UI; WorkshopController (UC-001) is not reported as drift of UC-002",
+      "max_score": 10
+    },
+    {
+      "name": "Status left to the user",
+      "description": "The report suggests the next **Status:** value as a suggestion only (Tested is not yet justified while the BR-002 test and the A1 decision are open), does not edit the status line, and does not claim that any test suite was run",
+      "max_score": 10
+    },
+    {
+      "name": "Commands offered, none run",
+      "description": "The agent offers the commands that close the gaps (/use-case-test UC-002 for the missing tests; the drift command only after the user decides) and stops without running any of them",
+      "max_score": 10
+    }
+  ]
+}

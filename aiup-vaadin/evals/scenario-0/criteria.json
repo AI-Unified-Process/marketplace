@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether vaadin-flow-ui builds the UI layer only: a @Route view that calls GuestService from the Handover (lazy grid, Binder form), shows the specification's messages verbatim, marks the BR-002 validator, keeps out of other layers, maintains its Markers rows, and ends with a Handover.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Route view in the ui package",
+      "description": "A class annotated @Route (e.g. \"guests\") is created under com.example.hotel.guest.ui, named after the use case (e.g. RegisterGuestView), with @Menu or another menu entry the layout picks up, and /** UC-020 Register Guest. */ (or UC-020 otherwise) in its class Javadoc",
+      "max_score": 10
+    },
+    {
+      "name": "Calls the service, never the repository",
+      "description": "The view injects GuestService through its constructor and does not use GuestRepository, DSLContext, or any jOOQ type",
+      "max_score": 12
+    },
+    {
+      "name": "Lazy grid against the service",
+      "description": "The grid binds lazily with a callback that passes query.getOffset() and query.getLimit() to GuestService.list and uses GuestService.count() (not setItems with a full list)",
+      "max_score": 10
+    },
+    {
+      "name": "Binder form on GuestRegistration",
+      "description": "A Binder (or BeanValidationBinder) for GuestRegistration binds first name, last name, email, and date of birth fields, and the form is written with writeRecord/writeBean before calling register",
+      "max_score": 10
+    },
+    {
+      "name": "BR-002 validator with marker",
+      "description": "A Binder validator on the date of birth rejects guests younger than eighteen with the message \"The guest must be at least 18 years old\", and the comment // UC-020 BR-002: sits directly above it",
+      "max_score": 11
+    },
+    {
+      "name": "Success message verbatim",
+      "description": "After a successful registration the view shows a notification with exactly \"Guest registered\" and refreshes the grid",
+      "max_score": 11
+    },
+    {
+      "name": "A1 handled with the specified message",
+      "description": "EmailAlreadyRegisteredException is caught specifically (not a bare Exception) and \"Email already registered\" is shown while the entered values stay in the form",
+      "max_score": 9
+    },
+    {
+      "name": "No other layer touched",
+      "description": "GuestService, GuestRepository, the records, and the migrations are unchanged; no REST controller, no new DTO, and no test file is created",
+      "max_score": 11
+    },
+    {
+      "name": "Markers rows added",
+      "description": "docs/architecture/stack.md's Markers table gains the three UI rows of vaadin-flow-ui (UC-XXX in the view Javadoc, the BR marker above the Binder validator or UI guard, the <Name>View naming) while the All, Migration, Persistence, and Service rows stay unchanged; nothing else in docs/ changes",
+      "max_score": 8
+    },
+    {
+      "name": "Handover block",
+      "description": "The answer ends with a 'Handover from vaadin-flow-ui (UC-020)' block naming the view, its route, the labels, the messages, and the service calls",
+      "max_score": 8
+    }
+  ]
+}

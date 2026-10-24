@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent writes Angular UI-layer tests with Vitest and Angular's own idioms for UC-020: the naming and describe marker, TestBed with the standalone component in imports, HttpTestingController with responses shaped like the DTO, the A1 rejection asserted with the specification's full message, A2 asserted by the absence of a request, and the specification as oracle — the page confirms with 'Guest saved.' while the specification states 'Guest registered.', so the main scenario must assert the specification's text and be reported as failing, not adapted to the code.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "File name and location",
+      "description": "The test file is named UC-020-register-guest.spec.ts (or UC-020-<slug>.spec.ts) and is colocated with the page in frontend/src/app/pages/register-guest/",
+      "max_score": 8
+    },
+    {
+      "name": "describe marker",
+      "description": "The top-level block is describe('UC-020: Register Guest', …) and the alternative flows are named in the it titles (A1, A2)",
+      "max_score": 9
+    },
+    {
+      "name": "Standalone TestBed setup",
+      "description": "RegisterGuest goes into TestBed imports (no declarations array, no NgModule), with provideHttpClient() and provideHttpClientTesting()",
+      "max_score": 9
+    },
+    {
+      "name": "HttpTestingController with verify",
+      "description": "HTTP is mocked with HttpTestingController (expectOne on /api/guests with method POST), httpMock.verify() runs in afterEach; no MSW, no mocked GuestService replacing the HTTP boundary",
+      "max_score": 10
+    },
+    {
+      "name": "Request body and response shape match the contract",
+      "description": "The main scenario asserts the request body { firstName, lastName, email } and flushes a response with exactly id, firstName, lastName, email",
+      "max_score": 7
+    },
+    {
+      "name": "A1 asserts the full message",
+      "description": "A1 flushes the API's 409 Problem Details body (the status the task's contract names for the BR-001 rejection) and asserts the rendered text equals or fully contains 'This email address is already registered.' — not a fragment or toBeTruthy",
+      "max_score": 10
+    },
+    {
+      "name": "A2 asserts no request is sent",
+      "description": "A2 (the UI-validated BR-002) submits with an empty required field and asserts that no request is made (expectNone or verify with no expectOne) and that the field is marked required",
+      "max_score": 9
+    },
+    {
+      "name": "Specification is the oracle",
+      "description": "The main scenario asserts the confirmation 'Guest registered.' from the specification, not 'Guest saved.' from the code",
+      "max_score": 11
+    },
+    {
+      "name": "Disagreement reported, code untouched",
+      "description": "The production files (register-guest.ts, register-guest.html, guest.ts, guest.model.ts) are unchanged, the test is not skipped or weakened, and the report names the expected 'Guest registered.' versus the actual 'Guest saved.'",
+      "max_score": 11
+    },
+    {
+      "name": "No zone.js helpers in a zoneless project",
+      "description": "The tests use fixture.detectChanges()/whenStable(), not fakeAsync/tick",
+      "max_score": 5
+    },
+    {
+      "name": "Hand-off to the E2E layer",
+      "description": "Run directly in a project with an E2E layer, the report ends with 'Next: /playwright-e2e-test UC-020' and does not run or claim a coverage audit",
+      "max_score": 5
+    },
+    {
+      "name": "Markers table maintained",
+      "description": "docs/architecture/stack.md gains the two angular-ui-test rows (the describe('UC-XXX: <Use Case Name>' test marker with it('A<n>: …' / it('BR-YYY: …', and the UC-XXX-<slug>.spec.ts naming); the existing rows are unchanged and nothing else in docs/ is edited",
+      "max_score": 6
+    }
+  ]
+}

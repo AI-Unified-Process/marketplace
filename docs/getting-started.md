@@ -7,21 +7,39 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # Getting started
 
 AI Unified Process turns a product vision into reviewed specifications, implementation, and traceable tests.
-Use `aiup-core` for the stack-independent analysis workflow and add exactly one stack plugin for implementation.
+Use `aiup-core` for the stack-independent analysis workflow and add the layer plugins of your stack, or one combined
+stack plugin, for implementation.
 
 ## 1. Choose your plugins
 
-Every project needs `aiup-core`. Add the plugin that matches the application's implementation stack.
+Every project needs [`aiup-core`](../aiup-core/): requirements, entity model, use cases, test journeys, reverse
+engineering, and the construction orchestrators for layer plugins. For construction, choose one of two forms.
+
+**Layer plugins** — one plugin per technical layer, combined to fit the project. A REST API with Spring Boot and jOOQ
+needs `aiup-flyway`, `aiup-jooq`, and `aiup-spring-boot`; add `aiup-vaadin` for a Vaadin UI, or `aiup-angular` and
+`aiup-playwright` for an Angular UI; take `aiup-jpa` instead of `aiup-jooq` for JPA.
+
+| Plugin                                     | Layer                                         |
+|--------------------------------------------|-----------------------------------------------|
+| [`aiup-flyway`](../aiup-flyway/)           | Migration: Flyway SQL migrations              |
+| [`aiup-jooq`](../aiup-jooq/)               | Persistence: jOOQ                             |
+| [`aiup-jpa`](../aiup-jpa/)                 | Persistence: JPA/Hibernate                    |
+| [`aiup-spring-boot`](../aiup-spring-boot/) | Service and REST API: Spring Boot             |
+| [`aiup-vaadin`](../aiup-vaadin/)           | UI: Vaadin Flow or Hilla, with Playwright E2E |
+| [`aiup-angular`](../aiup-angular/)         | UI: Angular                                   |
+| [`aiup-playwright`](../aiup-playwright/)   | E2E: Playwright for TypeScript                |
+
+**Combined stack plugins** — one plugin for a fixed combination. Install exactly one, and no layer plugins next to it.
 
 | Plugin                                         | Use it for                                                                    |
 |------------------------------------------------|-------------------------------------------------------------------------------|
-| [`aiup-core`](../aiup-core/)                   | Requirements, entity model, use cases, test journeys, and reverse engineering |
-| [`aiup-vaadin-jooq`](../aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ                                                |
-| [`aiup-angular-jpa`](../aiup-angular-jpa/)     | Angular with a Spring Boot/JPA backend                                        |
+| [`aiup-vaadin-jooq`](../aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ (deprecated: use the layer plugins)            |
+| [`aiup-angular-jpa`](../aiup-angular-jpa/)     | Angular with a Spring Boot/JPA backend (deprecated: use the layer plugins)    |
 | [`aiup-blazor-dotnet`](../aiup-blazor-dotnet/) | Blazor and EF Core on .NET 10                                                 |
 | [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/) | NestJS/Drizzle and Next.js App Router                                         |
 
-Install only `aiup-core` when you want to use the analysis workflow with an unsupported implementation stack.
+Install only `aiup-core` when you want to use the analysis workflow with an unsupported implementation stack. A project
+that already uses `aiup-vaadin-jooq` or `aiup-angular-jpa` follows the [migration guide](migration.md).
 
 ## 2. Prepare the product vision
 
@@ -38,10 +56,12 @@ non-goals over a long feature wish list.
 ```text
 /plugin marketplace add ai-unified-process/marketplace
 /plugin install aiup-core
-/plugin install aiup-vaadin-jooq
+/plugin install aiup-flyway
+/plugin install aiup-jooq
+/plugin install aiup-spring-boot
 ```
 
-Replace `aiup-vaadin-jooq` with the selected stack plugin. See the full
+Install the layer plugins of your stack, or one combined stack plugin instead. See the full
 [Claude Code installation guide](installation/claude-code.md).
 
 ### Tessl
@@ -49,7 +69,9 @@ Replace `aiup-vaadin-jooq` with the selected stack plugin. See the full
 ```sh
 tessl init --agent agents
 tessl install ai-unified-process/aiup-core
-tessl install ai-unified-process/aiup-vaadin-jooq
+tessl install ai-unified-process/aiup-flyway
+tessl install ai-unified-process/aiup-jooq
+tessl install ai-unified-process/aiup-spring-boot
 ```
 
 Tessl can configure several supported coding agents and pins installed versions in `tessl.json`. See the full
@@ -117,15 +139,39 @@ the specification files.
 
 ## 5. Implement and test
 
-Once a use case specification exists, continue with the commands from the selected stack plugin. For example, the
-construction workflow normally consists of a migration, `/implement UC-001`, stack-specific unit or integration tests,
-and `/playwright-test UC-001`.
+Once a use case specification exists, continue with construction. With layer plugins, record the stack once and
+then work use case by use case:
+
+```text
+/stack
+/use-case-implement UC-001
+/use-case-test UC-001
+/use-case-coverage UC-001
+```
+
+`/stack` writes the stack file, the table of which layer skill builds and tests each layer, as
+`docs/architecture/stack.md`. It sits next to whatever architecture documentation the team writes (arc42, C4, 4+1,
+or none), which `/stack` reads but never changes. A use case offered through only some
+entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
+test only those layers.
+`/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
+tests from the integration layer up: starting at the entry layer the use case is offered through, the first layer
+whose tests run in process against the real database (the Browserless tests of a Vaadin Flow UI, the service tests
+behind a Hilla UI, the API tests of a REST service), so the layers below it need no tests of their own. A REST API
+next to a UI that does not call it (Vaadin Flow, Hilla) is the integration layer only of the use cases offered
+through it alone; when a use case is offered through it as well, `/use-case-test` writes its contract tests too, even though it sits below the
+integration layer. Both take a layer to narrow the run, for example `/use-case-implement UC-001 api` or `/use-case-test UC-001
+persistence` for a lower layer.
+
+With a combined stack plugin, use its commands instead. For example, the construction workflow normally consists of a
+migration, `/implement UC-001`, stack-specific unit or integration tests, and `/playwright-test UC-001`.
 
 For a journey across several use cases, first create a test-case document:
 
 ```text
 /test-case UC-001 UC-004
-/playwright-test TC-001
+/test-case-implement TC-001      # layer plugins; /playwright-test TC-001 with a combined stack plugin
+/test-case-coverage TC-001       # layer plugins; /coverage-check TC-001 with aiup-vaadin-jooq or aiup-angular-jpa
 ```
 
 When several use cases form one business process — work handed over between roles, waiting for an event or a
@@ -150,7 +196,8 @@ The `aiup-vaadin-jooq` and `aiup-angular-jpa` implementation and testing skills 
 they do not run themselves: `/coverage-check UC-001` delegates to the read-only `uc-coverage` sub-agent that ships with
 the plugin ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](../aiup-angular-jpa/agents/uc-coverage.md)), which reports which
 parts of the specification still have no code or no test behind them. Run it when you want the audit — typically
-before accepting a use case as done, when it judges implementation and tests together in one matrix.
+before accepting a use case as done, when it judges implementation and tests together in one matrix. With layer
+plugins, `/use-case-coverage UC-001` in `aiup-core` runs the same audit with the markers of `docs/architecture/stack.md`.
 
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).

@@ -101,6 +101,11 @@ VARCHAR, TEXT, CHAR, bigint, numeric, serial, smallint, UUID, Timestamp, or Enum
 The Length/Precision column holds the bare value (e.g. `10,2`) — never a type
 expression like `DECIMAL(10,2)`.
 
+The seven types are the complete list. Binary content (a document, an image) has no type of its own: it is a
+`String` with `-` as Length/Precision and a Description that begins with `Binary content:` (`Binary content: the
+signed contract as PDF`); its Validation Rules are `Not Null` or `Optional` as for any field. The migration
+skill of every stack maps exactly that combination to a binary column, and the persistence code follows the column.
+
 ## Validation Rules (use only these values)
 
 Compose every Validation Rules cell from this vocabulary, using the exact wording —
@@ -147,6 +152,23 @@ attribute table and list each constraint as a bullet, one rule per bullet:
 Never write the constraints as a bold `**Constraints:**` line or as an extra table row, and
 omit the heading when the entity has no multi-column constraint.
 
+## Modules
+
+A large project may hold its entity model split by module, as `/reverse-engineer` writes it: a `## Modules` table
+(`Module | Description | Entities | Depends on`), then one `## Module: <name>` section per module with a sentence on
+the module, its own Mermaid diagram under the bold label `**Entity Relationship Diagram**`, an optional
+`From other modules: ENTITY (Module), ...` line, and the `###` sections of the entities it owns. Keep that structure
+when you update the document:
+
+- Put a new entity in the section of the module that writes it, and add it to the `Entities` cell of the
+  `## Modules` table. When no module fits or two fit equally, ask the user; a new module gets a row and a section.
+- Every entity has its `###` section exactly once. A module's diagram holds every relationship line of its own
+  entities, including those to entities of other modules; list each such entity in the `From other modules:` line,
+  and the module it lives in in the `Depends on` cell.
+- Never merge the sections back into one diagram, never move a module into a file of its own — every skill reads
+  `docs/entity_model.md` — and do not introduce modules in a model that has none. Splitting is `/reverse-engineer`'s
+  step; for a forward-engineered model that has outgrown one diagram, tell the user.
+
 ## Workflow
 
 1. Read the requirements document
@@ -159,7 +181,8 @@ omit the heading when the entity has no multi-column constraint.
    option for every question and report it as an assumption as well. Never ask about SQL types, indexes, or other
    implementation choices.
 3. Use TodoWrite to create a task for each entity
-4. Write the document header and ER diagram (relationships only)
+4. Write the document header and ER diagram (relationships only); in a model split by module, the diagram of each
+   module section (see "Modules")
 5. For each entity:
     - Write ### heading
     - Write one sentence description
@@ -176,4 +199,6 @@ omit the heading when the entity has no multi-column constraint.
     - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
     - All validation rules use values from the Validation Rules table above
+    - With modules: every entity has one section in one module, every entity a module's diagram names is its own or
+      listed in its `From other modules:` line, and the `## Modules` table names every module section
 7. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist

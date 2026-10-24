@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether /spring-service implements only the service layer of UC-001 on top of the persistence handover: a @Service with @Transactional writes, guard clauses with UC-001 BR-YYY markers for BR-002 and BR-003, domain exceptions carrying the specification's messages, Bean Validation on an input record, an injected Clock, no web/UI types, no own queries, and a Handover block at the end.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Service class with transaction boundary",
+      "description": "A GuestService (or equally named service for the Guest entity) annotated @Service is created in com.example.hotel.guest; the registering method is @Transactional (read methods may be readOnly)",
+      "max_score": 10
+    },
+    {
+      "name": "Uses only the handed-over repository",
+      "description": "The service injects GuestRepository via constructor and calls only existsByEmail and insert from the Handover; it does not inject DSLContext, JdbcTemplate, or EntityManager and writes no query of its own",
+      "max_score": 10
+    },
+    {
+      "name": "BR-002 enforced with qualified marker",
+      "description": "The service rejects a duplicate email with a guard clause preceded by a comment of the form // UC-001 BR-002: ...",
+      "max_score": 10
+    },
+    {
+      "name": "BR-003 enforced at the right boundary with marker",
+      "description": "The service rejects a guest younger than 18 on the arrival date, accepting a guest whose 18th birthday is the arrival date, preceded by // UC-001 BR-003: ...",
+      "max_score": 10
+    },
+    {
+      "name": "Domain exceptions with specification messages",
+      "description": "Dedicated exception classes (e.g. EmailAlreadyRegisteredException, GuestTooYoungException) extending RuntimeException or a project base; their messages are exactly 'The email address <email> is already registered.' and 'Guests must be at least 18 years old on the day of arrival.'",
+      "max_score": 10
+    },
+    {
+      "name": "Bean Validation on the input",
+      "description": "An input record (e.g. RegisterGuest) carries @NotBlank/@NotNull constraints for BR-001 with the marker // UC-001 BR-001: directly above the annotated record components, and sizes from the entity model (100, 100, 255, @Email); the service is @Validated and the parameter @Valid",
+      "max_score": 9
+    },
+    {
+      "name": "No web or UI types in the service",
+      "description": "The service and its exceptions import nothing from org.springframework.web, org.springframework.http, jakarta.servlet, or com.vaadin; no @ResponseStatus or ResponseStatusException",
+      "max_score": 9
+    },
+    {
+      "name": "Testable time",
+      "description": "registeredAt is set from an injected java.time.Clock rather than LocalDateTime.now() without a clock",
+      "max_score": 5
+    },
+    {
+      "name": "Duplicate key race translated",
+      "description": "A DuplicateKeyException/DataIntegrityViolationException from the unique constraint on insert is translated into the BR-002 domain exception (or the agent explicitly reports it as handled)",
+      "max_score": 4
+    },
+    {
+      "name": "Scope respected",
+      "description": "No controller, no test class, no change to GuestRepository or any file under docs/ other than the Markers table of docs/architecture/stack.md",
+      "max_score": 9
+    },
+    {
+      "name": "Markers rows added",
+      "description": "The Markers table of docs/architecture/stack.md gains the three spring-service rows of its markers reference (two Code rows — the BR marker and the UC-XXX Javadoc — and one Name row) and keeps the existing All, flyway-schema, and jooq-persistence rows unchanged",
+      "max_score": 6
+    },
+    {
+      "name": "Handover block",
+      "description": "The response ends with a 'Handover from spring-service (UC-001)' block listing the service methods with signatures, the input record, and which exception each alternative flow throws, followed by the line Next: /spring-rest UC-001 (the next layer of the Layers table)",
+      "max_score": 8
+    }
+  ]
+}

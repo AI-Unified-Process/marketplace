@@ -1,0 +1,6 @@
+{
+  "description": "playwright-e2e-test: automate a TC-* journey as one test with one test.step per Flow row",
+  "include": [
+    "./inputs"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "A use case offered only through the UI is implemented across the layer skills of a Vaadin Flow, REST, and jOOQ project, bottom-up and without the API layer",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

@@ -172,6 +172,15 @@ in the implementation, not the specification.
    never copy requirement text — `requirements.md` stays the source of truth.
    `/spec-review` uses the line to find requirements no use case covers and ids that
    do not exist. Omit the line only when there is no `docs/requirements.md`.
+   Add a `**Layers:**` line (German: `**Schichten:**`) directly after it only when the use
+   case is not offered through every entry point of the system: `UI` for an actor who works
+   in the application's screens, `API` for an external system or client that calls the
+   system, both comma-separated, or `Service` alone when no actor reaches it through either
+   (a scheduled job, a message the system consumes). An administration use case of an
+   application that also exposes a public API is `**Layers:** UI`. Name entry points only,
+   never a technology (`Vaadin`, `REST`); the project's stack file maps them onto its
+   layer skills, and `/use-case-implement` builds only the layers the line names. Omit the line
+   when the use case is offered through every entry point the system has.
 7. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
    actions, and the use case does not check them again. **A precondition must not describe a
@@ -247,6 +256,7 @@ verifying by eye. The list remains the definition of done:
 - [ ] Overview has a `Use Case ID` (`UC-XXX`), one or more primary actors (comma-separated), goal, and a valid `Status` value, plus a `**Secondary Actors:**` line when supporting roles or external systems take part.
 - [ ] Overview has a `**Trigger:**` line naming the event that starts the use case (an actor's request, a point in time, or an external system's message) — not a state, and not a copy of a precondition.
 - [ ] Preconditions are states that are already true, not events or actor actions, and none is established or evaluated during the use case (no step checks it, no alternative flow handles it).
+- [ ] A `**Layers:**` line, when present, lists only `UI`, `API`, or `Service` (alone), and is there only because the use case is not offered through every entry point.
 - [ ] When `docs/requirements.md` exists, Overview has a `**Requirements:**` line linking to it with at least one `FR-*` id, and every listed `FR-*`, `NFR-*`, `C-*` id exists in the catalog (`/spec-review` checks this one, not the validator).
 - [ ] The Main Success Scenario starts at step 1, has no gaps, and its final step states the goal being achieved.
 - [ ] Every Main Success Scenario step was analyzed for alternative and exception conditions, and every meaningful one is an alternative flow (usually two or more); when there is none, the section holds an italic `_None — …_` placeholder instead of an invented flow.

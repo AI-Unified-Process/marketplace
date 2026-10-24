@@ -73,6 +73,23 @@ result the primary actor walks away with. Test each use case with one question:
 A functional requirement that describes a step rather than a goal traces to the user goal use case that contains
 the step.
 
+## Modules
+
+A large project may hold its diagram split by module, as `/reverse-engineer` writes it: the file starts with a
+`@startuml Modules` block — the actors and one `package` per module, no use cases — followed by one
+`@startuml <Module>` block per module with that module's use cases. Keep that structure when you update the file:
+
+- Add a new use case to the block of the module it belongs to — the module that owns the data it changes. When no
+  module fits or two fit equally, ask the user instead of guessing; a new module gets its own block and a `package` in
+  the overview.
+- Keep every use case in exactly one module block, and declare an actor with the same name and alias in every block
+  it appears in. In the overview, link an actor to each module it has a use case in, and keep a `..>` arrow for every
+  module that uses data or a use case of another; `<<include>>` and `<<extend>>` stay inside one module block.
+- Continue the ids after the highest `UC-XXX` in the file; existing ids never change when a use case moves module.
+- Never merge the blocks back into one diagram, never move a module into a file of its own — every skill reads
+  `docs/use_cases.puml` — and do not introduce a module split in a diagram that has none. Splitting is
+  `/reverse-engineer`'s step; for a forward-engineered diagram that has outgrown one image, tell the user.
+
 ## Conventions
 
 - Each use case has a unique id and a description
@@ -86,7 +103,8 @@ the step.
 ## Workflow
 
 1. Read the requirements at `docs/requirements.md`
-2. Read existing diagram at `docs/use_cases.puml` (if exists)
+2. Read existing diagram at `docs/use_cases.puml` (if exists); when it starts with a `@startuml Modules` block,
+   follow "Modules"
 3. Identify actors and use cases from requirements
 4. Check every use case against the question in "Goal level": fold subfunctions into the user goal they serve,
    split summary goals, and tell the user which use cases you merged or split and why
@@ -98,3 +116,4 @@ the step.
     - All actors are connected to at least one use case
     - Use case IDs follow the UC-{3-digit} convention
     - PlantUML syntax is valid (no missing `@enduml`, proper arrow syntax)
+    - With modules: every use case is in exactly one module block, and the overview's packages match the blocks

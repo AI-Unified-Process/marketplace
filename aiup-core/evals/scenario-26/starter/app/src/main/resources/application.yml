@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: grand-hotel-pms
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pms
+    username: pms
+    password: ${PMS_DB_PASSWORD}
+  flyway:
+    locations: classpath:db/migration/common,classpath:db/migration/guests,classpath:db/migration/reservations,classpath:db/migration/housekeeping,classpath:db/migration/billing
+
+pms:
+  cancellation:
+    free-until-hours-before-arrival: 48
+  loyalty:
+    points-per-chf: 1
+    redeem-chf-per-100-points: 5
+  payments:
+    webhook-secret: ${PSP_WEBHOOK_SECRET}
+  night-audit:
+    cron: "0 0 3 * * *"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

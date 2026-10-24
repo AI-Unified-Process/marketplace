@@ -5,12 +5,12 @@
     {
       "name": "Output path and naming",
       "description": "Exactly one Markdown file is created under docs/test_cases/ named TC-001-<kebab-case-name>.md, where the name describes the journey's goal (e.g. student-onboarding), not a concatenation of the use case names",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Overview section",
       "description": "The document has an Overview with the ID TC-001, a one-sentence Goal naming the end-to-end outcome, and a Status value",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Roles section",
@@ -20,47 +20,47 @@
     {
       "name": "Preconditions name their data source",
       "description": "Preconditions include the seeded course 'Databases 101' and reference where it comes from (Flyway test migration V900__test_data_courses.sql)",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Flow table with five columns",
       "description": "The Flow is a Markdown table with exactly the columns Step | Name | Description | Test Data | Use Case, steps numbered from 1 without gaps",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Both use cases linked",
       "description": "UC-005 and UC-006 each appear in at least one Flow row as a relative Markdown link to their spec file (e.g. [UC-005](../use_cases/UC-005-register-student.md))",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Journey order carries state",
       "description": "The registration step (UC-005) comes before the enrollment step (UC-006), and the enrollment step uses the student created earlier in the flow",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Literal test data",
       "description": "Action steps carry concrete literal values in the Test Data column (a specific student name/email and the course 'Databases 101') — no placeholders like 'a valid email'; steps without data use '-'",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "Verification steps present",
       "description": "At least one Flow row is a verification step (observable result, '-' in the Use Case column) between or after the action steps",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "Validation section",
       "description": "A Validation section lists numbered checks with bold names covering the journey's end state, including the enrollment existing and the student's status being 'Active'",
-      "max_score": 10
+      "max_score": 9
     },
     {
       "name": "No per-use-case detail re-tested",
       "description": "The document does NOT enumerate field-level validation errors or alternative flows from the use case specs (e.g. 'must not be empty', duplicate email, course full) as flow steps or validations — the journey and its end state are the subject",
-      "max_score": 8
+      "max_score": 7
     },
     {
       "name": "No implementation detail",
       "description": "No step or validation contains implementation terms: HTTP verbs, SQL, class names, CSS selectors, or test framework APIs",
-      "max_score": 5
+      "max_score": 4
     },
     {
       "name": "Priority in Overview",
@@ -70,7 +70,7 @@
     {
       "name": "Postconditions cleanup inventory",
       "description": "A Postconditions section lists the data the journey leaves behind with literal values (the created student and their enrollment) so a test's cleanup can be derived from it; the seeded course 'Databases 101' is not listed as something to remove",
-      "max_score": 8
+      "max_score": 7
     }
   ]
 }

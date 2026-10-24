@@ -62,7 +62,7 @@ Depending on the configured agent, skills may be exposed as slash commands or in
 /plugin install aiup-blazor-dotnet
 ```
 
-See the marketplace [installation guides](../docs/getting-started.md) for other agents and manual adoption.
+See the marketplace [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## Prerequisites
 

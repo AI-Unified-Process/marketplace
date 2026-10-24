@@ -1,0 +1,17 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Organizer" as organizer
+actor "Participant" as participant
+
+rectangle "Workshop Registration" {
+    usecase "UC-001\nManage Workshops" as UC001
+    usecase "UC-002\nRegister for Workshop" as UC002
+    usecase "UC-003\nList Participants" as UC003
+}
+
+organizer --> UC001
+participant --> UC002
+organizer --> UC003
+
+@enduml

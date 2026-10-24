@@ -1,0 +1,1 @@
+{ "description": "Reverse-engineer a large multi-module Spring Boot system, splitting the use case diagram and the entity model by module", "include": ["./starter"] }

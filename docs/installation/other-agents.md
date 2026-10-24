@@ -27,7 +27,8 @@ packages directly or configuring skills and MCP servers by hand.
 
 ## Load an Agent Plugins package
 
-Clone the repository and point an Agent Plugins-conformant client at `aiup-core` plus one stack directory:
+Clone the repository and point an Agent Plugins-conformant client at `aiup-core` plus one combined stack plugin or
+the layer plugins of your project:
 
 ```sh
 git clone https://github.com/AI-Unified-Process/marketplace.git
@@ -41,8 +42,10 @@ the command or UI used to add a local package.
 Without an Agent Plugins loader:
 
 1. Clone this repository next to the target project or add it as a submodule.
-2. Copy or symlink the skill folders from `aiup-core/skills/` and one stack plugin's `skills/` into the location
-   scanned by the coding agent.
+2. Copy or symlink the skill folders from `aiup-core/skills/` and from the `skills/` of one combined stack plugin or
+   of the layer plugins of your project into the location scanned by the coding agent. With layer plugins, keep
+   `aiup-core/agents/uc-coverage-layered.md` at hand: `/use-case-coverage` and `/test-case-coverage` run it as a
+   sub-agent, and a host without sub-agents runs its checklist directly.
 3. Translate the MCP servers from the plugins' `mcp.json` into the host's MCP configuration.
 4. Start the agent in the target project and ask it to generate requirements from `docs/vision.md`.
 
@@ -118,7 +121,8 @@ Whether a fresh clone or a Codespace has the skills depends on the `mode` in `te
   before opening Copilot Chat, otherwise no skill is found.
 
 The plugin-level `rules/` and `agents/` directories are not skills: Tessl merges `rules/` into the agent's rules
-file, and the skills that need `agents/uc-coverage.md` locate it with a glob and say so if it is missing.
+file, and the skills that need `agents/uc-coverage.md` or `agents/uc-coverage-layered.md` locate it with a glob and
+say so if it is missing.
 
 ## Gemini CLI
 
@@ -161,7 +165,10 @@ servers and `type: "local"` with a command array for local servers:
   [`/coverage-check`](../../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill works either way: it delegates to
   the sub-agent where there is one, and otherwise falls back to following
   [`uc-coverage`](../../aiup-vaadin-jooq/agents/uc-coverage.md) as an instruction document. Where a host has neither,
-  point the assistant at that file directly — the checklist is host-independent.
+  point the assistant at that file directly — the checklist is host-independent. `/use-case-coverage` in `aiup-core` does
+  the same with [`uc-coverage-layered`](../../aiup-core/agents/uc-coverage-layered.md).
+- `/use-case-implement` and `/use-case-test` run the layer skills by name. A host that cannot invoke one skill from another
+  loads the layer skill's `SKILL.md` by glob instead, so install every layer skill `docs/architecture/stack.md` names.
 - The files under `docs/` remain compatible even when different steps are run by different agents.
 
 Host capabilities and configuration paths evolve independently. Check the host's current documentation if its layout

@@ -6,8 +6,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Install with Claude Code
 
-Claude Code can install AI Unified Process directly from the marketplace. Install `aiup-core` in every project and add exactly one
-stack plugin when the implementation stack is supported.
+Claude Code can install AI Unified Process directly from the marketplace. Install `aiup-core` in every project, then add either the
+layer plugins of the stack — one per technical layer — or exactly one combined stack plugin, never both.
 
 ## Prerequisites
 
@@ -32,7 +32,19 @@ Install the core plugin:
 /plugin install aiup-core
 ```
 
-Then install one matching stack plugin:
+Then install the layer plugins of your stack — one per layer. A REST API with Spring Boot and jOOQ:
+
+```text
+/plugin install aiup-flyway
+/plugin install aiup-jooq
+/plugin install aiup-spring-boot
+```
+
+Add `aiup-vaadin` for a Vaadin UI, or `aiup-angular` and `aiup-playwright` for an Angular UI; take `aiup-jpa` instead
+of `aiup-jooq` for JPA. Run `/stack` once in the project to record the combination. Each layer plugin declares
+`aiup-core` 3.0.0 or later as a plugin dependency, so Claude Code installs core with it when it is missing.
+
+Or install one combined stack plugin instead of layer plugins:
 
 ```text
 /plugin install aiup-vaadin-jooq
@@ -41,7 +53,10 @@ Then install one matching stack plugin:
 /plugin install aiup-nestjs-nextjs
 ```
 
-The four commands above are alternatives, not a bundle. Projects on another stack need only `aiup-core` and can use
+These four commands are alternatives, not a bundle, and none of them goes together with layer plugins.
+`aiup-vaadin-jooq` and `aiup-angular-jpa` are deprecated in favour of the layer plugins and will be removed with
+`aiup-core` 4.0.0; the
+[migration guide](../migration.md) moves an existing project. Projects on another stack need only `aiup-core` and can use
 their own implementation workflow after the specification boundary.
 
 ## Verify the installation
@@ -60,7 +75,8 @@ entity model, use case diagram, and use case specifications under `docs/`. Revie
 
 Keep the core plugin installed when changing the implementation stack. Remove the old stack plugin through Claude
 Code's plugin management and install the new one; do not keep multiple plugins that expose the same construction
-commands in one project.
+commands in one project. To move from a combined stack plugin to the layer plugins, follow the
+[migration guide](../migration.md): it also covers `/stack` and the `UseCase` annotation.
 
 Continue with [Getting started](../getting-started.md) or consult the selected plugin README for its prerequisites and
 construction workflow.

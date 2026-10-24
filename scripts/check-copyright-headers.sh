@@ -31,34 +31,42 @@ fix=0
 # Stamping these would put an AI Unified Process copyright on documents the user authors, and the
 # use-case-spec validator rejects any content before the title line.
 EXCLUDED='
-aiup-core/skills/business-process/references/example.bpmn
-aiup-core/skills/business-process/references/process.bpmn
+aiup-core/skills/stack/references/stack.md
 aiup-core/skills/requirements/references/glossary.md
 aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md
 aiup-core/skills/test-case/references/example.md
-aiup-core/skills/test-case/references/example-process.bpmn
 aiup-core/skills/test-case/references/test-case.md
 docs/templates/CLAUDE.md
 docs/templates/vision.md
 '
 
 # Files that must carry the header: skill definitions and their agent-facing reference
-# material, sub-agent definitions, the marketplace and plugin READMEs, and the published
-# documentation.
+# material, sub-agent definitions, plugin rules, the marketplace and plugin READMEs, and the
+# published documentation.
 targets() {
   {
     find aiup-*/skills -type f -name '*.md'
     find aiup-*/ -type f -name '*.md' -path '*/agents/*'
+    find aiup-*/ -maxdepth 2 -type f -name '*.md' -path '*/rules/*'
     find docs -type f -name '*.md'
-    ls aiup-*/README.md README.md
+    printf '%s\n' aiup-*/README.md README.md
   } | grep -vxF "$(echo "$EXCLUDED" | sed '/^$/d')"
 }
 
 missing=0
 added=0
 
+# A plugin without a README publishes a package page with nothing on it; a glob would skip it silently.
+for dir in aiup-*/; do
+  if [ ! -f "${dir}README.md" ]; then
+    echo "ERROR: ${dir}README.md is missing" >&2
+    missing=$((missing + 1))
+  fi
+done
+
 while IFS= read -r file; do
+  [ -f "$file" ] || continue
   if grep -qF "$COPYRIGHT_LINE" "$file"; then
     continue
   fi

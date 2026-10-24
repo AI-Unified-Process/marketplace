@@ -18,6 +18,13 @@ per Git provider one of each:
   [`.github/workflows/aiup-generate.yml`](../.github/workflows/aiup-generate.yml), for Bitbucket in the script
   [`pipelines/aiup-generate.sh`](../pipelines/aiup-generate.sh). The two mirror each other — the catalogue of allowed
   plugin/skill pairs is the same list in both, and a new skill changes both in the same pull request.
+  `scripts/check-generate-catalogue.sh` fails CI when the catalogues, the skill lists of the diff and status steps,
+  or the plugin selection block differ, or when a skill on disk is in neither catalogue.
+- **The plugin selection** — a run installs only `aiup-core` and the plugins it needs, never the layer plugins next
+  to a combined stack plugin: a combined stack plugin alone; for a layer run, the layer plugins whose skills the
+  project's `docs/architecture/stack.md` names (every layer plugin when the project has no stack file,
+  and always for `/stack`); for the document skills of `aiup-core`, core alone. The selection is derived from
+  the inputs and the repository, so the stubs and their inputs stay as they are.
 
 Both stubs reference the shared implementation **by tag**:
 

@@ -1,0 +1,15 @@
+{
+  "description": "Tests of a use case offered through a Vaadin Flow UI and a REST API: the UI is the integration layer, the API tests only its own contract",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

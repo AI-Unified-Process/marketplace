@@ -1,0 +1,6 @@
+{
+  "description": "jOOQ repository tests against PostgreSQL with Flyway test data, UC naming, and @UseCase on every method",
+  "include": [
+    "./inputs"
+  ]
+}

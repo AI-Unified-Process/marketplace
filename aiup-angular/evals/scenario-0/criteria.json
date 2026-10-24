@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether the agent builds only the Angular UI layer of UC-010 on top of the API Handover it is given: a TypeScript model that mirrors ProductDto field by field (including the nullable imageUrl and without the entity-only inStock field), a hand-written HttpClient service calling exactly the handed-over endpoints, a standalone page with signal state, no client-side duplicate of BR-001, the Markers table maintained, and a Handover block at the end.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Model mirrors the DTO field by field",
+      "description": "A TypeScript interface for the product has exactly the fields id, name, category, price, imageUrl with types number, string, string, number, string | null — imageUrl is typed nullable, no field is renamed",
+      "max_score": 13
+    },
+    {
+      "name": "No entity-only field in the model",
+      "description": "The model does not contain inStock (it is an entity attribute the DTO does not expose)",
+      "max_score": 9
+    },
+    {
+      "name": "Service calls the handed-over endpoints",
+      "description": "A hand-written injectable service uses HttpClient to call GET /api/products with an optional category query parameter and GET /api/products/categories — no invented endpoint, no generated client",
+      "max_score": 12
+    },
+    {
+      "name": "Standalone page with signals",
+      "description": "ProductCatalog stays a standalone component (no NgModule, no declarations) and holds its state (products, categories, selected category or loading) in signal()/computed()",
+      "max_score": 10
+    },
+    {
+      "name": "Category filter and empty state",
+      "description": "The template renders a labelled category select that reloads or narrows the products (A1) and an empty-state message when no product matches (A2)",
+      "max_score": 10
+    },
+    {
+      "name": "BR-001 not re-implemented in the client",
+      "description": "The UI does not filter on inStock itself and puts no UC-010 BR-001 marker in the frontend — the service layer enforces the rule",
+      "max_score": 10
+    },
+    {
+      "name": "Use case id on the page",
+      "description": "The ProductCatalog component class carries a UC-010 class comment (e.g. /** UC-010: Browse Product Catalog */)",
+      "max_score": 7
+    },
+    {
+      "name": "Markers table maintained",
+      "description": "docs/architecture/stack.md's Markers table has the angular-ui rows of the skill's markers reference (page class comment, form-validator BR marker, naming of page/service/model); the outdated angular-ui row is corrected; the All row is unchanged; nothing else in docs/ is edited",
+      "max_score": 10
+    },
+    {
+      "name": "Layer boundaries respected",
+      "description": "No file under backend/ is created or changed, and no *.spec.ts test file is created",
+      "max_score": 10
+    },
+    {
+      "name": "Handover block",
+      "description": "The final report ends with a 'Handover from angular-ui (UC-010)' block naming the route, the service methods with their endpoints, the model, and the labels/messages",
+      "max_score": 9
+    }
+  ]
+}
