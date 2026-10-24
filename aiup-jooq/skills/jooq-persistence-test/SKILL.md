@@ -85,7 +85,7 @@ to the integration layer's tests; do not write them again here.
 ## Test Class Naming and `@UseCase` Annotation
 
 Repository tests are **use case tests**. Each test class verifies the data access of exactly one use case from the
-use case specification (`docs/use_cases/UC-XXX-*.md`).
+use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 ### Class naming
 

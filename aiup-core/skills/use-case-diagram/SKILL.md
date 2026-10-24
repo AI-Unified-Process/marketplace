@@ -75,20 +75,24 @@ the step.
 
 ## Modules
 
-A large project may hold its diagram split by module, as `/reverse-engineer` writes it: the file starts with a
-`@startuml Modules` block — the actors and one `package` per module, no use cases — followed by one
-`@startuml <Module>` block per module with that module's use cases. Keep that structure when you update the file:
+A large project may hold its diagram split by module, as `/reverse-engineer` writes it: `docs/use_cases.puml` holds
+only a `@startuml Modules` diagram — the actors and one `package` per module, no use cases — and each module has a
+folder `docs/use_cases/<slug>/` with its own `use_cases.puml` (`@startuml <Module>`, the module's use cases) next to
+the specifications of those use cases. The slug is the module name in lowercase kebab-case and the `package` alias in
+the overview. Keep that structure when you update the diagrams:
 
-- Add a new use case to the block of the module it belongs to — the module that owns the data it changes. When no
-  module fits or two fit equally, ask the user instead of guessing; a new module gets its own block and a `package` in
-  the overview.
-- Keep every use case in exactly one module block, and declare an actor with the same name and alias in every block
-  it appears in. In the overview, link an actor to each module it has a use case in, and keep a `..>` arrow for every
-  module that uses data or a use case of another; `<<include>>` and `<<extend>>` stay inside one module block.
-- Continue the ids after the highest `UC-XXX` in the file; existing ids never change when a use case moves module.
-- Never merge the blocks back into one diagram, never move a module into a file of its own — every skill reads
-  `docs/use_cases.puml` — and do not introduce a module split in a diagram that has none. Splitting is
-  `/reverse-engineer`'s step; for a forward-engineered diagram that has outgrown one image, tell the user.
+- Add a new use case to the diagram of the module it belongs to — the module that owns the data it changes. When no
+  module fits or two fit equally, ask the user instead of guessing; a new module gets its own folder with a
+  `use_cases.puml` and a `package` in the overview.
+- Keep every use case in exactly one module diagram, and declare an actor with the same name and alias in every
+  diagram it appears in. In the overview, link an actor to each module it has a use case in, and keep a `..>` arrow
+  for every module that uses data or a use case of another; `<<include>>` and `<<extend>>` stay inside one module
+  diagram.
+- Continue the ids after the highest `UC-XXX` across all module diagrams; existing ids never change when a use case
+  moves module. When one moves, move its specification into the new module's folder too.
+- Never merge the module diagrams back into one, never put use cases into the overview, and do not introduce a
+  module split in a diagram that has none. Splitting is `/reverse-engineer`'s step; for a forward-engineered diagram
+  that has outgrown one image, tell the user.
 
 ## Conventions
 
@@ -103,8 +107,8 @@ A large project may hold its diagram split by module, as `/reverse-engineer` wri
 ## Workflow
 
 1. Read the requirements at `docs/requirements.md`
-2. Read existing diagram at `docs/use_cases.puml` (if exists); when it starts with a `@startuml Modules` block,
-   follow "Modules"
+2. Read existing diagram at `docs/use_cases.puml` (if exists); when it is a `@startuml Modules` overview, read the
+   module diagrams `docs/use_cases/*/use_cases.puml` too and follow "Modules"
 3. Identify actors and use cases from requirements
 4. Check every use case against the question in "Goal level": fold subfunctions into the user goal they serve,
    split summary goals, and tell the user which use cases you merged or split and why
@@ -116,4 +120,5 @@ A large project may hold its diagram split by module, as `/reverse-engineer` wri
     - All actors are connected to at least one use case
     - Use case IDs follow the UC-{3-digit} convention
     - PlantUML syntax is valid (no missing `@enduml`, proper arrow syntax)
-    - With modules: every use case is in exactly one module block, and the overview's packages match the blocks
+    - With modules: every use case is in exactly one module diagram, and the overview's packages match the module
+      folders

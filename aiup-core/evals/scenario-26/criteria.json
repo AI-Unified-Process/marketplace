@@ -1,60 +1,60 @@
 {
-  "context": "Tests whether the agent detects the modules of a large Maven multi-module Spring Boot system (four domain modules guests, reservations, housekeeping, billing; a technical platform-common module; an app assembly module; 17 domain tables; 38 route handlers) and splits both diagrams by module inside the two fixed files: docs/use_cases.puml with a @startuml Modules overview plus one @startuml block per module, and docs/entity_model.md with a ## Modules table plus one ## Module: section per module, each with its own Mermaid diagram and the entities it owns. Cross-module foreign keys (reservation to guest, invoice to reservation and guest, cleaning_task and maintenance_request to room) must show up as module dependencies.",
+  "context": "Tests whether the agent detects the modules of a large Maven multi-module Spring Boot system (four domain modules guests, reservations, housekeeping, billing; a technical platform-common module; an app assembly module; 17 domain tables; 38 route handlers) and splits both diagrams by module: docs/use_cases.puml holds only a @startuml Modules overview, each module gets a folder docs/use_cases/<module>/ with its own use_cases.puml and its specifications, and docs/entity_model.md holds a ## Modules table while each module gets docs/entity_model/<module>.md with its own Mermaid diagram and the entities it owns. Cross-module foreign keys (reservation to guest, invoice to reservation and guest, cleaning_task and maintenance_request to room) must show up as module dependencies.",
   "type": "weighted_checklist",
   "checklist": [
     {
-      "name": "Fixed artifact paths only",
-      "description": "docs/use_cases.puml, docs/entity_model.md, and at least one docs/use_cases/UC-XXX-*.md exist, and there is NO per-module diagram or entity model file (no other *.puml file under docs/, no docs/entity_model/ folder, no docs/*entity*.md besides docs/entity_model.md)",
+      "name": "Module folders and files",
+      "description": "docs/use_cases.puml and docs/entity_model.md exist; each domain module has a folder docs/use_cases/<module>/ (lowercase kebab-case) containing a use_cases.puml and the UC-XXX-*.md specifications of that module, and a file docs/entity_model/<module>.md with the same slug; no UC-XXX-*.md lies directly in docs/use_cases/ and no other documentation file exists",
       "max_score": 8
     },
     {
       "name": "Module overview diagram",
-      "description": "docs/use_cases.puml starts with a @startuml block that shows the modules (as package or similar elements) and the actors linked to them, and contains NO usecase element and no UC-XXX id",
+      "description": "docs/use_cases.puml holds only the module overview: a @startuml Modules block that shows the modules as packages whose aliases match the folder names under docs/use_cases/, and the actors linked to them; it contains NO usecase element and no UC-XXX id",
       "max_score": 10
     },
     {
-      "name": "One diagram block per domain module",
-      "description": "docs/use_cases.puml has, after the overview, one separate @startuml ... @enduml block for each of the four domain modules (guests / guest management, reservations, housekeeping, billing — names may vary in wording), each with its own rectangle and use cases",
+      "name": "One diagram file per domain module",
+      "description": "Each of the four domain modules (guests / guest management, reservations, housekeeping, billing — names may vary in wording) has its own docs/use_cases/<module>/use_cases.puml with a @startuml titled with the module name, its own rectangle, and its use cases",
       "max_score": 10
     },
     {
       "name": "No technical module",
-      "description": "Neither diagram file has a module for platform-common, common, app, audit, or security; the audit_log and flyway_schema_history tables are not documented as entities",
+      "description": "No module folder, package, or entity model file exists for platform-common, common, app, audit, or security; the audit_log and flyway_schema_history tables are not documented as entities",
       "max_score": 6
     },
     {
       "name": "Use case in exactly one module",
-      "description": "Every UC-XXX id appears as a usecase in exactly one module block of docs/use_cases.puml, and check-in, check-out, booking, and cancellation use cases sit in the reservations module, cleaning and inspection in housekeeping, refund and payment in billing, registration and loyalty redemption in guests",
+      "description": "Every UC-XXX id appears as a usecase in exactly one module diagram, and its specification lies in the same module folder; check-in, check-out, booking, and cancellation use cases sit in the reservations module, cleaning and inspection in housekeeping, refund and payment in billing, registration and loyalty redemption in guests",
       "max_score": 8
     },
     {
       "name": "Contiguous ids per module",
-      "description": "The UC-XXX ids of each module block form one contiguous range (e.g. UC-001 to UC-004 in the first module, UC-005 onwards in the next), following the order of the modules in the overview",
+      "description": "The UC-XXX ids of each module diagram form one contiguous range (e.g. UC-001 to UC-004 in the first module, UC-005 onwards in the next), following the order of the modules in the overview",
       "max_score": 4
     },
     {
       "name": "Module dependencies in overview",
-      "description": "The overview block draws dependency arrows (..> or similar) between modules that reflect the cross-module foreign keys: at least reservations to guests and billing to reservations; housekeeping to reservations (room) is also expected",
+      "description": "The overview docs/use_cases.puml draws dependency arrows (..> or similar) between modules that reflect the cross-module foreign keys: at least reservations to guests and billing to reservations; housekeeping to reservations (room) is also expected",
       "max_score": 6
     },
     {
       "name": "Specs match diagram",
-      "description": "Every UC-XXX id in docs/use_cases.puml has a matching docs/use_cases/UC-XXX-*.md file and every spec file's id is in the diagram",
+      "description": "Every UC-XXX id in a module diagram has a matching UC-XXX-*.md file in that module folder, and every spec file's id is in a module diagram",
       "max_score": 6
     },
     {
       "name": "Modules table in entity model",
-      "description": "docs/entity_model.md has a ## Modules section with a table naming each module, its entities, and the modules it depends on; the modules match the module blocks of the use case diagram",
+      "description": "docs/entity_model.md holds a ## Modules table naming each module (linked to its docs/entity_model/<module>.md file), its entities, and the modules it depends on, and no ### entity section; the modules match the module folders under docs/use_cases/",
       "max_score": 8
     },
     {
-      "name": "Module sections with own ER diagram",
-      "description": "docs/entity_model.md has one ## Module: <name> section per domain module, and each section contains its own Mermaid erDiagram block (relationships only, no attributes inside entity blocks) followed by the ### attribute table sections of its entities",
+      "name": "Module files with own ER diagram",
+      "description": "Each docs/entity_model/<module>.md has its own Mermaid erDiagram block (relationships only, no attributes inside entity blocks) followed by the ### attribute table sections of its entities",
       "max_score": 10
     },
     {
       "name": "Entity owned by one module",
-      "description": "Every ### ENTITY section appears exactly once in docs/entity_model.md, in the module that writes it: GUEST, GUEST_ADDRESS, LOYALTY_ACCOUNT, LOYALTY_TRANSACTION in guests; ROOM_TYPE, ROOM, RATE_PLAN, RESERVATION (and RESERVATION_ROOM if modeled) in reservations; HOUSEKEEPER, CLEANING_TASK, INSPECTION, MAINTENANCE_REQUEST in housekeeping; INVOICE, INVOICE_LINE, PAYMENT, REFUND in billing",
+      "description": "Every ### ENTITY section appears exactly once across the files under docs/entity_model/, in the module that writes it: GUEST, GUEST_ADDRESS, LOYALTY_ACCOUNT, LOYALTY_TRANSACTION in guests; ROOM_TYPE, ROOM, RATE_PLAN, RESERVATION (and RESERVATION_ROOM if modeled) in reservations; HOUSEKEEPER, CLEANING_TASK, INSPECTION, MAINTENANCE_REQUEST in housekeeping; INVOICE, INVOICE_LINE, PAYMENT, REFUND in billing",
       "max_score": 8
     },
     {
@@ -74,7 +74,7 @@
     },
     {
       "name": "Actors from roles",
-      "description": "The diagrams declare actors derived from SecurityConfig and @PreAuthorize roles (guest, receptionist, housekeeper, supervisor, accountant, manager) plus an unauthenticated visitor and the payment provider and/or a scheduler for the night audit; the same actor has the same name in every block",
+      "description": "The diagrams declare actors derived from SecurityConfig and @PreAuthorize roles (guest, receptionist, housekeeper, supervisor, accountant, manager) plus an unauthenticated visitor and the payment provider and/or a scheduler for the night audit; the same actor has the same name in every diagram file",
       "max_score": 6
     },
     {

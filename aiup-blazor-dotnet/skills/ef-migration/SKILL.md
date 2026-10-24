@@ -24,7 +24,7 @@ Create a native EF Core C# Migration (`dotnet ef migrations add <MigrationName>`
 
 ## Instructions
 
-1. **Read `docs/entity_model.md`** to inspect the required entities, attributes, relationships, and validation constraints.
+1. **Read `docs/entity_model.md`** (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) to inspect the required entities, attributes, relationships, and validation constraints.
 2. **Inspect existing `DbContext` and Entity Classes** under the project solution (`.csproj`).
 3. **Generate/Update Entity Classes & Configurations**:
    - Represent entities as C# classes with file-scoped namespaces and modern properties (`public required string Name { get; set; }`).

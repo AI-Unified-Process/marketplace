@@ -93,7 +93,7 @@ An expected value changes only when the specification has changed — see the se
 ## Use Case Traceability
 
 Both suites are **use case tests**: each verifies exactly one use case from
-`docs/use_cases/UC-XXX-*.md`.
+`docs/use_cases/**/UC-XXX-*.md`.
 
 ### Backend — `@UseCase` annotation
 
@@ -317,7 +317,7 @@ the project root). They demonstrate the naming conventions, the endpoint-mocking
 
 ## Workflow
 
-1. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify the main success
+1. Read the use case specification (`docs/use_cases/**/UC-XXX-*.md`) to identify the main success
    scenario, alternative flows (A1, A2, …), and referenced business rules (BR-XXX)
 2. Read the view (`src/main/frontend/views/*.tsx`), the `@BrowserCallable` service, and the
    generated client (`Frontend/generated/endpoints`) to learn the real method and DTO shapes —

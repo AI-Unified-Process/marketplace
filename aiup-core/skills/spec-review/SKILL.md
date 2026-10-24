@@ -62,7 +62,7 @@ location and nature, never by quoting the text itself.
 ## Workflow
 
 1. **Resolve the scope** from `$ARGUMENTS` (`report …` is not a review; go to [HTML Report](#html-report)): `UC-001`, `UC001`, or a path to a specification → `UC-001`; `TC-001`
-   likewise; nothing → the whole project. If an id resolves to no file under `docs/use_cases/` or
+   likewise; nothing → the whole project. If an id resolves to no file under `docs/use_cases/` (module folders included) or
    `docs/test_cases/`, list the near matches and ask. State the scope in one line (`Reviewing UC-004.`).
 2. **Run the lint** (the script path is relative to this skill's directory; it finds `validate_use_case.py` and
    `bpmn_paths.py` in the sibling `use-case-spec` and `test-case` skill folders on its own):
@@ -77,7 +77,7 @@ location and nature, never by quoting the text itself.
    [references/lint-codes.md](references/lint-codes.md).
 3. **Do the semantic review** with [references/review-checklist.md](references/review-checklist.md). Read the
    documents in scope, plus what they depend on: the use cases a rule or a test case refers to, `requirements.md`,
-   `entity_model.md`, and `glossary.md` when present. For a single use case, also read the business rules of the
+   `entity_model.md` (with the module files under `entity_model/` it links), and `glossary.md` when present. For a single use case, also read the business rules of the
    other use cases, because contradictions and duplicates live across files.
    Skip a checklist item whose finding the lint already reported for the same element.
 4. **Write the report** in the format below. When this conversation already holds a spec review of the same scope,

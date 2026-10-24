@@ -57,11 +57,30 @@ of files under `docs/`, not a specific coding agent.
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
 
-For a large project, `/reverse-engineer` splits both diagrams by module without changing a path:
-`docs/use_cases.puml` then holds a `@startuml Modules` overview (actors and modules, no use cases) and one
-`@startuml` block per module, and `docs/entity_model.md` a `## Modules` table and one `## Module:` section per module
-with its own ER diagram and the entities it owns. `/use-case-diagram` and `/entity-model` keep that split on update;
-every other reader works with the files as before.
+For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
+
+```text
+docs/
+├── use_cases.puml             # @startuml Modules: actors and one package per module, no use cases
+├── use_cases/
+│   ├── billing/
+│   │   ├── use_cases.puml     # @startuml Billing: the module's use cases
+│   │   └── UC-005-pay-invoice.md
+│   └── ordering/
+│       ├── use_cases.puml
+│       └── UC-001-place-order.md
+├── entity_model.md            # ## Modules table, each module linked to its file
+└── entity_model/
+    ├── billing.md             # the module's ER diagram and entities
+    └── ordering.md
+```
+
+The module slug — the name in lowercase kebab-case — is the `package` alias in the overview, the folder under
+`docs/use_cases/`, and the file under `docs/entity_model/`. Every reader finds a specification with the recursive glob
+`docs/use_cases/**/UC-XXX-*.md`, reads the module diagrams `docs/use_cases/*/use_cases.puml` next to the overview, and
+the module files `docs/entity_model/*.md` the `## Modules` table links. `/use-case-diagram`, `/use-case-spec`, and
+`/entity-model` keep the split on update and place new use cases and entities in their module; only
+`/reverse-engineer` introduces it.
 
 The stack file, `docs/architecture/stack.md`, is the AI Unified Process record of the technical layers: which layer
 skill builds and tests each layer, the integration layer, the module layout, the API contract, the commands, and
@@ -105,7 +124,7 @@ processes: one test case per path through a BPMN process model.
 | `FR-XXX`  | Functional requirement, `docs/requirements.md`                                          | Catalog       | `FR-XXX`           |
 | `NFR-XXX` | Non-functional requirement, `docs/requirements.md`                                      | Catalog       | `NFR-XXX`          |
 | `C-XXX`   | Constraint, `docs/requirements.md`                                                      | Catalog       | `C-XXX`            |
-| `UC-XXX`  | Use case, `docs/use_cases/UC-XXX-*.md` and the diagram                                  | Project       | `UC-XXX`           |
+| `UC-XXX`  | Use case, `docs/use_cases/**/UC-XXX-*.md` and the diagram                                  | Project       | `UC-XXX`           |
 | `BR-YYY`  | Business rule, `### BR-YYY:` inside one use case                                        | Its use case  | `UC-XXX BR-YYY`    |
 | `A<n>`    | Alternative flow, `### A<n>:` inside one use case                                       | Its use case  | `UC-XXX A<n>`      |
 | `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`                                                | Project       | `TC-XXX`           |

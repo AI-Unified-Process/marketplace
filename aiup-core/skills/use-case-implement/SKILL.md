@@ -159,14 +159,14 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (also check `docs/use-cases/`) and check its `**Status:**`
+1. Read the use case specification from `docs/use_cases/` (module subfolders included; also check `docs/use-cases/`) and check its `**Status:**`
    line — see "Gaps in the Specification" above.
 2. Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`, `NFR-*`, and
    `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional requirements explain the intent where
    a step is terse; every linked NFR and constraint is a limit the implementation must honour (a maximum, a response
    time, a mandatory external system, an accessibility level). When the line is missing or an id does not resolve,
    say so in your report and suggest `/spec-review UC-XXX` — do not guess which requirements apply.
-3. Read the entity model from `docs/entity_model.md`.
+3. Read the entity model from `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links).
 4. Read `docs/glossary.md` when it exists and name classes, fields, endpoints, and labels with its terms, never with
    a synonym from its Avoid column; read the architecture decision records when the project has them (glob
    `docs/**/adr/*.md`) and follow the ones that apply as you follow existing conventions.

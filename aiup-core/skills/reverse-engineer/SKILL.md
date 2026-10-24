@@ -36,10 +36,14 @@ for the rest of the AI Unified Process workflow:
 The forward-engineering skills derive these from a vision/requirements
 document; you derive them from code, configuration, schema, and tests.
 
-A large project gets the same three artifacts at the same paths, split into
-its modules (stage 2): the diagram file holds an overview of the modules and
-one diagram per module, and the entity model one section per module with its
-own ER diagram. The paths never change, because every later skill reads them.
+A large project gets the same three artifacts split into its modules
+(stage 2): `docs/use_cases.puml` holds the overview of the modules, and each
+module gets a folder `docs/use_cases/<module>/` with its own
+`use_cases.puml` and the specifications of its use cases;
+`docs/entity_model.md` holds the module table, and each module gets
+`docs/entity_model/<module>.md` with its own ER diagram and entities. The two
+entry files stay at their paths, and every later skill finds a specification
+with the recursive glob `docs/use_cases/**/UC-XXX-*.md`.
 
 ## Format contract — read this before writing any artifact
 
@@ -178,6 +182,10 @@ Then assign:
   the one that owns the entity the use case changes.
 - **Name each module in business language** ("Billing", not `billing-core`),
   with one sentence on what it is responsible for.
+- **Give each module a slug**: its name in lowercase kebab-case ("Billing" →
+  `billing`, "Guest Management" → `guest-management`). The slug is the
+  `package` alias in the overview, the folder `docs/use_cases/<slug>/`, and
+  the file `docs/entity_model/<slug>.md`, so each name leads to the others.
 
 Do not make a module of shared technical code (`common`, `util`, `security`,
 `config`): its tables and entry points join the module they serve, and pure
@@ -275,14 +283,13 @@ admin --> UC002
 
 #### With modules
 
-Keep the one file `docs/use_cases.puml` and write several diagrams into it,
-one `@startuml … @enduml` block each; PlantUML renders every block as an image
-of its own. The first block is the overview — the actors and one `package`
+`docs/use_cases.puml` holds only the overview — the actors and one `package`
 per module, no use cases, so it stays readable however large the system is.
-Then one block per module, in the same order, with the template above and the
-module name on the `rectangle`:
+Each module gets its own diagram in `docs/use_cases/<slug>/use_cases.puml`,
+with the template above and the module name on the `rectangle`:
 
 ```plantuml
+' docs/use_cases.puml
 @startuml Modules
 left to right direction
 
@@ -298,7 +305,10 @@ accountant --> billing
 ordering ..> billing : "invoices orders"
 
 @enduml
+```
 
+```plantuml
+' docs/use_cases/ordering/use_cases.puml
 @startuml Ordering
 left to right direction
 
@@ -313,7 +323,10 @@ customer --> UC001
 customer --> UC002
 
 @enduml
+```
 
+```plantuml
+' docs/use_cases/billing/use_cases.puml
 @startuml Billing
 left to right direction
 
@@ -331,21 +344,25 @@ accountant --> UC004
 @enduml
 ```
 
-- The `@startuml` title of a module block is the module name; the overview's
-  title is `Modules`. `/use-case-diagram` recognizes the split by it.
-- Every use case appears in exactly one module block. An actor appears in the
-  overview and in every module block it has a use case in, with the same name
-  and alias each time.
+- The `@startuml` title of a module diagram is the module name; the
+  overview's title is `Modules`. `/use-case-diagram` recognizes the split by
+  it. Every `package` alias of the overview has its folder, and every folder
+  its `package`.
+- Every use case appears in exactly one module diagram. An actor appears in
+  the overview and in every module diagram it has a use case in, with the same
+  name and alias each time.
 - An actor links to a module in the overview when it has a use case there.
 - Draw a dependency `a ..> b : "<why>"` when a use case of module `a` uses
   data or a use case of module `b`; a foreign key from an entity of `a` to one
   of `b` is the usual evidence. `<<include>>` and `<<extend>>` stay inside one
-  module block; across modules the dependency arrow says it.
+  module diagram; across modules the dependency arrow says it.
 
 ### 6. Write use case specifications
 
 Create `docs/use_cases/` and write one file per use case named
-`UC-XXX-short-name.md` (kebab-case). Use the structure from
+`UC-XXX-short-name.md` (kebab-case); with modules, write it into the folder of
+its module, next to the module's diagram
+(`docs/use_cases/billing/UC-003-pay-invoice.md`). Use the structure from
 `/use-case-spec`:
 
 - **Overview**: ID, name, primary actor (several comma-separated when
@@ -361,7 +378,8 @@ Create `docs/use_cases/` and write one file per use case named
   describes what the code does, not what it should do, and a test derived
   from it before a human has approved it only restates the code — see
   step 9). Add
-  the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
+  the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`, from
+  a module folder `../../requirements.md`)
   only when a `docs/requirements.md` already exists and its ids match the
   use case; otherwise omit the line — never invent requirement ids. Add
   a `**Layers:**` line only when the code offers the use case through
@@ -551,43 +569,31 @@ the user to delete than to miss.
 
 #### With modules
 
-Keep the one file `docs/entity_model.md`. A `## Modules` table comes first,
-then one `## Module: <name>` section per module, in the order of the diagram
-overview. Each section has its own ER diagram under a bold label (not a
-heading: the `###` level belongs to the entities) and the tables of the
-entities the module owns:
+`docs/entity_model.md` holds only the `## Modules` table, in the order of the
+diagram overview, with each module linked to its file. Each module gets its
+own document `docs/entity_model/<slug>.md` in the format above — title with the
+module name, one sentence on the module, its own ER diagram, and the tables of
+the entities the module owns:
 
 ````markdown
+<!-- docs/entity_model.md -->
 # Entity Model
 
 ## Modules
 
-| Module   | Description                           | Entities             | Depends on |
-|----------|---------------------------------------|----------------------|------------|
-| Ordering | Orders customers place and track      | CUSTOMER, ORDER, ... | -          |
-| Billing  | Invoices for orders and their payment | INVOICE, PAYMENT     | Ordering   |
+| Module                                | Description                           | Entities             | Depends on |
+|---------------------------------------|---------------------------------------|----------------------|------------|
+| [Ordering](entity_model/ordering.md)  | Orders customers place and track      | CUSTOMER, ORDER, ... | -          |
+| [Billing](entity_model/billing.md)    | Invoices for orders and their payment | INVOICE, PAYMENT     | Ordering   |
+````
 
-## Module: Ordering
-
-Orders customers place and track.
-
-**Entity Relationship Diagram**
-
-```mermaid
-erDiagram
-    CUSTOMER ||--o{ ORDER : "places"
-    ORDER ||--o{ ORDER_ITEM : "contains"
-```
-
-### CUSTOMER
-
-...
-
-## Module: Billing
+````markdown
+<!-- docs/entity_model/billing.md -->
+# Entity Model: Billing
 
 Invoices for orders and their payment.
 
-**Entity Relationship Diagram**
+## Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -602,9 +608,10 @@ From other modules: ORDER (Ordering).
 ...
 ````
 
-- Every entity has its `###` section exactly once, in the module that owns
-  it. Another module's diagram may name it in a relationship line, and the
-  line `From other modules:` under that diagram lists it with its module.
+- Every entity has its `###` section exactly once, in the file of the module
+  that owns it. Another module's diagram may name it in a relationship line,
+  and the line `From other modules:` under that diagram lists it with its
+  module.
 - A module's diagram holds every relationship line of its own entities,
   including the ones to entities of other modules, so a foreign key that
   crosses modules appears in the diagram of the module whose table holds it.
@@ -612,7 +619,7 @@ From other modules: ORDER (Ordering).
   point to, or `-`. Each module it lists has a `..>` arrow in the diagram
   overview.
 - All rules of this stage — the 5-column tables, the type and validation
-  vocabulary, relationships only in Mermaid — hold in every section.
+  vocabulary, relationships only in Mermaid — hold in every module file.
 
 ### 8. Cross-validate
 
@@ -623,7 +630,7 @@ bundled with that skill — locate it with a glob for
 as `tessl__use-case-spec`, and the path never resolves relative to this skill's folder):
 
 ```bash
-python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases/UC-*.md
+python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases/UC-*.md docs/use_cases/*/UC-*.md
 ```
 
 Then check the three documents agree:
@@ -648,14 +655,15 @@ Then check the three documents agree:
   `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
   appear inside the Mermaid entity blocks; every Length/Precision matches the
   declared column (unbounded text is `-`); every key column says `Primary Key`.
-- **Module check** (only with modules): the overview's packages, the module
-  blocks, the rows of the `## Modules` table, and the `## Module:` sections
-  name the same modules in the same order; every use case sits in exactly one
-  module block and every entity section in exactly one module section; a
-  module's diagram names only its own entities and those listed in its
+- **Module check** (only with modules): the overview's packages, the folders
+  under `docs/use_cases/`, the rows of the `## Modules` table, and the files
+  under `docs/entity_model/` name the same modules (by slug) in the same order;
+  every use case sits in exactly one module diagram and its specification in
+  the same module's folder; every entity section is in exactly one module
+  file; a module's diagram names only its own entities and those listed in its
   `From other modules:` line; every module in a `Depends on` cell has a `..>`
   arrow in the overview. With modules, "the diagram" in the checks above means
-  the diagram of the module section the entity belongs to.
+  the diagram of the module the use case or entity belongs to.
 
 The cross-file part of these checks (diagram against spec files, duplicated
 ids, rule citations that point to nothing, rules copied between use cases)
@@ -699,9 +707,9 @@ status moves on as for any other use case.
   whole point is to translate the schema into the AI Unified Process vocabulary.
 - Write multi-paragraph descriptions of "what the system does" outside the
   three artifact files. The artifacts *are* the documentation.
-- Split a module into a file of its own (`docs/use_cases/billing.puml`,
-  `docs/entity_model/billing.md`). Every later skill reads the two fixed
-  paths; modules are blocks and sections inside them.
+- Put use cases or entities into `docs/use_cases.puml` or
+  `docs/entity_model.md` when the project is split by module: those two files
+  hold only the overview, and the modules live in their folders and files.
 
 ## When the project is large
 
@@ -713,10 +721,11 @@ hold the whole project in your head. Instead:
 2. Decide the modules (stage 2) before reading any of them in depth, and
    assign every entity to the module that writes it.
 3. Process one module at a time end-to-end (actors → use cases → specs →
-   its entities), writing its diagram block and its `## Module:` section as
-   you go.
-4. Finish with the overview: the `@startuml Modules` block, the `## Modules`
-   table, and the `..>` dependencies from the foreign keys that cross modules.
+   its entities), writing its folder `docs/use_cases/<slug>/` and its file
+   `docs/entity_model/<slug>.md` as you go.
+4. Finish with the overview: `docs/use_cases.puml` with the `@startuml
+   Modules` diagram, the `## Modules` table in `docs/entity_model.md`, and the
+   `..>` dependencies from the foreign keys that cross modules.
 
 This keeps each pass small enough to do well rather than producing 30
 shallow specs.

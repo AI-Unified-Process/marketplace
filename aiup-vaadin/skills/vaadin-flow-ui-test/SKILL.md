@@ -69,14 +69,14 @@ runs) is listed in the report, so `/use-case-test` runs the test skill of the la
 ## Run Directly or from /use-case-test
 
 Run from `/use-case-test`, this skill inherits the inputs and the search for existing tests and does not repeat them.
-Run directly, read the use case, the linked requirement rows, `docs/entity_model.md` for the test data,
+Run directly, read the use case, the linked requirement rows, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data,
 `docs/glossary.md` when present, and `docs/architecture/stack.md`; then test this layer only and say that
 `/use-case-test UC-XXX` runs all test layers.
 
 ## Test Class Naming and `@UseCase` Annotation
 
 Browserless tests are **use case tests**: each test class verifies exactly one use case
-(`docs/use_cases/UC-XXX-*.md`) and is named `UC<id><PascalCaseUseCaseName>Test` — `UC001RegisterPersonTest` for
+(`docs/use_cases/**/UC-XXX-*.md`) and is named `UC<id><PascalCaseUseCaseName>Test` — `UC001RegisterPersonTest` for
 UC-001 "Register Person". This is the convention the
 [AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) relies on.
 

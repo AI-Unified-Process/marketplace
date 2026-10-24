@@ -52,8 +52,9 @@ Read, in this order:
 - `docs/requirements.md` — the functional requirements say which business flows exist, what triggers and ends them,
   and which decisions lead from one use case to the next; their ids go into the process documentation.
 - `docs/use_cases.puml` — the activities. Every use case of the diagram is a candidate activity; the actor
-  associated with it is its lane. This is the only use case input the skill needs.
-- `docs/use_cases/UC-*.md` **only when they exist** — never required. A specification's trigger, preconditions,
+  associated with it is its lane. This is the only use case input the skill needs. When it is a `@startuml Modules`
+  overview, the use cases are in the module diagrams `docs/use_cases/*/use_cases.puml`.
+- `docs/use_cases/**/UC-*.md` **only when they exist** — never required. A specification's trigger, preconditions,
   postconditions, and alternative flows can sharpen the order and the decisions; where it contradicts the diagram or
   the requirements, report it and follow the diagram.
 - `docs/glossary.md` when it exists — name events, gateways, and lanes with its terms, never with a synonym from its

@@ -61,7 +61,7 @@ CREATE TABLE room_type
 
 ## Workflow
 
-1. Read `docs/entity_model.md`
+1. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links)
 2. Read existing migrations to determine the next version number
 3. Create sequence definitions for each entity
 4. Create table definitions with columns, constraints, and foreign keys

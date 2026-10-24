@@ -62,14 +62,14 @@ Three parsing rules carry weight:
   `implementation` recreates the very gap this skill exists to close.
 - **State the resolved arguments in one line before delegating** (`Auditing UC-001, mode both.`),
   so a wrong parse costs one rerun instead of producing a wrong verdict.
-- If the id resolves to no file under `docs/use_cases/` or `docs/use-cases/` (both spellings are in
+- If the id resolves to no file under `docs/use_cases/` (module subfolders included) or `docs/use-cases/` (both spellings are in
   use), list the near matches and ask. Never audit against a specification you inferred from code.
 
 ## Workflow
 
 1. Parse `$ARGUMENTS` into the id or ids, the mode, and the work-in-progress flag. With no id, go
    to [Sweeps](#sweeps).
-2. Confirm the specification exists — `docs/use_cases/UC-XXX-*.md` (also check `docs/use-cases/`).
+2. Confirm the specification exists — `docs/use_cases/**/UC-XXX-*.md` (also check `docs/use-cases/`).
    Stop and ask if it does not.
 3. State the resolved arguments in one line.
 4. Delegate the audit — see [Delegation](#delegation).

@@ -42,7 +42,7 @@ that mode you report the same matrix, but you phrase the open units as remaining
 specification order rather than as defects, and you skip the drift section — scaffolding that is
 still being built is not drift.
 
-If no id is given, list the specifications under `docs/use_cases/` and ask which one to audit.
+If no id is given, list the specifications under `docs/use_cases/` (module subfolders included) and ask which one to audit.
 Never audit "everything" unless the caller explicitly asks for a sweep. The `/coverage-check` skill
 of this plugin is the usual entry point and handles that triage before it delegates to you.
 
@@ -50,9 +50,9 @@ of this plugin is the usual entry point and handles that triage before it delega
 
 Read the specification first and completely, before you look at any code:
 
-- Use cases: `docs/use_cases/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
+- Use cases: `docs/use_cases/**/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
 - Test cases: `docs/test_cases/TC-XXX-*.md`.
-- Read `docs/entity_model.md` when the specification's data requirements matter for the audit.
+- Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) when the specification's data requirements matter for the audit.
 - Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
   `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The `FR-*` rows help
   where a step is ambiguous; the linked `NFR-*` and `C-*` rows become coverage units (Step 2).

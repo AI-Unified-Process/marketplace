@@ -60,7 +60,7 @@ and "Which Layer Tests What" and does not repeat them.
 
 Run directly, the same rules apply:
 
-- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` for the test data,
+- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data,
   and `docs/architecture/stack.md` for the API contract, the module layout, and the test commands.
 - Take every expected value — a status the API contract fixes, a message, a field value — from the specification,
   the API contract, or the test data, never from what the code returns.

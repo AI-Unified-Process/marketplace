@@ -150,11 +150,11 @@ whether the E2E scope leaves out the E2E layer.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (also `docs/use-cases/`). A `TC-*` id is a journey: hand
+1. Read the use case specification from `docs/use_cases/` (module subfolders included; also `docs/use-cases/`). A `TC-*` id is a journey: hand
    off to `/test-case-implement TC-XXX` and stop. Read the requirements the use case links on its
    `**Requirements:**` line — exactly those rows — because a linked NFR or constraint with an observable limit needs
    a test too.
-2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
+2. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data, and `docs/glossary.md` when it exists.
 3. Read the stack file, `docs/architecture/stack.md`, its Integration layer table and the
    `**E2E scope:**` line under it, and the use case's `**Layers:**` line. When the stack file does not exist, stop and hand off to `/stack`; when only the Integration layer table is
    missing, stop and hand off to `/stack` as well. Stop on a contradiction between the `**Layers:**` line

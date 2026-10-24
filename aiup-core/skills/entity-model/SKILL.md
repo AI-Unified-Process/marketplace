@@ -154,20 +154,21 @@ omit the heading when the entity has no multi-column constraint.
 
 ## Modules
 
-A large project may hold its entity model split by module, as `/reverse-engineer` writes it: a `## Modules` table
-(`Module | Description | Entities | Depends on`), then one `## Module: <name>` section per module with a sentence on
-the module, its own Mermaid diagram under the bold label `**Entity Relationship Diagram**`, an optional
-`From other modules: ENTITY (Module), ...` line, and the `###` sections of the entities it owns. Keep that structure
-when you update the document:
+A large project may hold its entity model split by module, as `/reverse-engineer` writes it: `docs/entity_model.md`
+holds only a `## Modules` table (`Module | Description | Entities | Depends on`, each module linked to its file), and
+each module has its own document `docs/entity_model/<slug>.md` in the structure above — `# Entity Model: <Module>`,
+a sentence on the module, its own Mermaid diagram, an optional `From other modules: ENTITY (Module), ...` line, and
+the `###` sections of the entities it owns. The slug is the module name in lowercase kebab-case, the same as the
+module's folder under `docs/use_cases/`. Keep that structure when you update the model:
 
-- Put a new entity in the section of the module that writes it, and add it to the `Entities` cell of the
-  `## Modules` table. When no module fits or two fit equally, ask the user; a new module gets a row and a section.
-- Every entity has its `###` section exactly once. A module's diagram holds every relationship line of its own
-  entities, including those to entities of other modules; list each such entity in the `From other modules:` line,
-  and the module it lives in in the `Depends on` cell.
-- Never merge the sections back into one diagram, never move a module into a file of its own — every skill reads
-  `docs/entity_model.md` — and do not introduce modules in a model that has none. Splitting is `/reverse-engineer`'s
-  step; for a forward-engineered model that has outgrown one diagram, tell the user.
+- Put a new entity in the file of the module that writes it, and add it to the `Entities` cell of the `## Modules`
+  table. When no module fits or two fit equally, ask the user; a new module gets a row and a file.
+- Every entity has its `###` section exactly once, in one module file. A module's diagram holds every relationship
+  line of its own entities, including those to entities of other modules; list each such entity in the
+  `From other modules:` line, and the module it lives in in the `Depends on` cell.
+- Never merge the module files back into one diagram, never put entities into `docs/entity_model.md` itself, and do
+  not introduce modules in a model that has none. Splitting is `/reverse-engineer`'s step; for a forward-engineered
+  model that has outgrown one diagram, tell the user.
 
 ## Workflow
 
@@ -182,7 +183,7 @@ when you update the document:
    implementation choices.
 3. Use TodoWrite to create a task for each entity
 4. Write the document header and ER diagram (relationships only); in a model split by module, the diagram of each
-   module section (see "Modules")
+   module file (see "Modules")
 5. For each entity:
     - Write ### heading
     - Write one sentence description
@@ -199,6 +200,6 @@ when you update the document:
     - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
     - All validation rules use values from the Validation Rules table above
-    - With modules: every entity has one section in one module, every entity a module's diagram names is its own or
-      listed in its `From other modules:` line, and the `## Modules` table names every module section
+    - With modules: every entity has one section in one module file, every entity a module's diagram names is its own
+      or listed in its `From other modules:` line, and the `## Modules` table links every module file
 7. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist

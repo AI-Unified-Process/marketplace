@@ -71,7 +71,7 @@ An expected value changes only when the specification has changed — see the se
 ## Test Class Naming and `@UseCase` Annotation
 
 Karibu tests are **use case tests**. Each test class verifies the behavior of exactly one use case
-from the use case specification (`docs/use_cases/UC-XXX-*.md`).
+from the use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 ### Class naming
 
@@ -263,7 +263,7 @@ Use AssertJ or Karibu Testing assertions:
 
 ## Workflow
 
-1. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify the main success
+1. Read the use case specification (`docs/use_cases/**/UC-XXX-*.md`) to identify the main success
    scenario, alternative flows (A1, A2, …), and referenced business rules (BR-XXX)
 2. Check whether a `UseCase` annotation type already exists in the project. If not, create
    `UseCase.java` with the canonical shape shown above

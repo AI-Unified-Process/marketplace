@@ -81,7 +81,7 @@ public sealed class UseCaseAttribute(string id) : Attribute
 ```
 
 **Usage.** Put `[UseCase]` on every test method, next to `[Fact]` or `[Theory]`. The values must match
-the headings of the `docs/use_cases/UC-XXX-*.md` specification exactly:
+the headings of the `docs/use_cases/**/UC-XXX-*.md` specification exactly:
 
 | Argument        | Maps to spec heading                       | Default                   |
 |-----------------|--------------------------------------------|---------------------------|

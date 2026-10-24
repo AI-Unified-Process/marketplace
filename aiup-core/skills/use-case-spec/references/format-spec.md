@@ -248,7 +248,7 @@ referenced from another document is qualified with the use case id
 ## Validation
 
 ```bash
-python3 scripts/validate_use_case.py [--strict] docs/use_cases/UC-*.md
+python3 scripts/validate_use_case.py [--strict] docs/use_cases/UC-*.md docs/use_cases/*/UC-*.md
 ```
 
 Exit 0 when clean; 1 on any ERROR (with `--strict` also on any WARN);

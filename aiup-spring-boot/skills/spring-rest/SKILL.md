@@ -54,7 +54,7 @@ for reconciling an existing implementation; it does not repeat the status check 
 Run directly, apply the same rules yourself — `/use-case-implement` describes them:
 
 - Read the use case and check its `**Status:**` line; read only the `FR-*`, `NFR-*`, and `C-*` rows its
-  `**Requirements:**` line links, `docs/entity_model.md`, `docs/glossary.md` and the ADRs when present, and
+  `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
   questions**. Never edit a test or a file under `docs/` other than the Markers table.

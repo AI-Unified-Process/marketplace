@@ -33,6 +33,9 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - `<kebab-case-name>` is the use case **name taken verbatim from the use case
   diagram** (`docs/use_cases.puml`), lowercased with spaces replaced by hyphens.
   Do not paraphrase, expand, or reorder the words.
+- In a project split by module (`docs/use_cases.puml` is a `@startuml Modules` overview), the file goes into the
+  folder of the module whose diagram holds the use case: a use case of `docs/use_cases/billing/use_cases.puml` is
+  written to `docs/use_cases/billing/UC-XXX-<kebab-case-name>.md`.
 
 | Use case name in diagram | Correct filename                     |
 |--------------------------|--------------------------------------|
@@ -118,7 +121,8 @@ in the implementation, not the specification.
 
 ## Workflow
 
-1. Read the `docs/requirements.md` and `docs/use_cases.puml`, and `docs/glossary.md` when it exists. Use the
+1. Read the `docs/requirements.md` and `docs/use_cases.puml` — with modules, also the module diagrams
+   `docs/use_cases/*/use_cases.puml` — and `docs/glossary.md` when it exists. Use the
    glossary's terms for actors, business objects, and states, and never a synonym listed in its Avoid column; a new
    domain term the use case needs goes into the glossary (see `/requirements`).
 2. Determine the set of use cases to document (one, several, or all in the
@@ -168,7 +172,8 @@ in the implementation, not the specification.
    whose link text lists the requirement ids — at least the functional requirements
    (`FR-*`) this use case realizes, plus the non-functional requirements (`NFR-*`) and
    constraints (`C-*`) it must respect, e.g.
-   `**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)`. List ids only,
+   `**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)` (`../../requirements.md` from a module folder).
+   List ids only,
    never copy requirement text — `requirements.md` stays the source of truth.
    `/spec-review` uses the line to find requirements no use case covers and ids that
    do not exist. Omit the line only when there is no `docs/requirements.md`.
@@ -221,14 +226,14 @@ in the implementation, not the specification.
     never merge two use cases into one file, and never leave a planned file unwritten.
 13. Run the Completeness Checklist below; fix anything that fails.
 14. **Final verification (do this before declaring done):** list the contents of
-    `docs/use_cases/` and confirm every `UC-XXX` from your scope has exactly one
+    `docs/use_cases/` (with modules, the module folders) and confirm every `UC-XXX` from your scope has exactly one
     file present, named `UC-XXX-<kebab-case-name>.md` (kebab-case of the diagram
     name — e.g. `Check In Guest` → `UC-002-check-in-guest.md`, never `UC-002-checkin-guest.md`). Rename any
     mismatch. Then run the bundled validator over every file you wrote (the script
     path is relative to this skill's directory):
 
     ```bash
-    python3 scripts/validate_use_case.py --strict docs/use_cases/UC-*.md
+    python3 scripts/validate_use_case.py --strict <the files you wrote>
     ```
 
     Fix every reported problem and re-run until it exits cleanly. Errors mean the

@@ -18,16 +18,22 @@ errors.
 
 ## Cross-file codes
 
+In a project split by module, "`use_cases.puml`" below stands for the overview and every module diagram
+`use_cases/<module>/use_cases.puml` together, and "`use_cases/UC-XXX-*.md`" for a specification in any module
+folder; entity headings are read from `entity_model.md` and every `entity_model/<module>.md`.
+
 | Severity | Code                    | Meaning                                                                                        | Fix with            |
 |----------|-------------------------|------------------------------------------------------------------------------------------------|---------------------|
 | ERROR    | `SPEC_MISSING`          | A use case in `use_cases.puml` has no `use_cases/UC-XXX-*.md`                                  | `/use-case-spec`    |
 | ERROR    | `NOT_IN_DIAGRAM`        | A specification (not `Obsolete`) whose use case is not in `use_cases.puml`                    | `/use-case-diagram` |
-| ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, or C id, or an entity heading, is used twice                            | the owning skill    |
+| ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, or C id, or an entity heading, is used twice — also a use case in two module diagrams or an entity in two module files | the owning skill |
 | ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, or a `**Process:**` link or `BP-XXX` id points to nothing | the owning skill |
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
+| ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias | `/use-case-diagram` |
 | ERROR    | `BP_ID_MISMATCH`        | A process model whose `BP-XXX` process id and file name prefix (`BP-XXX-<name>.bpmn`) differ  | `/business-process` |
 | WARN     | `ACTOR_MISMATCH`        | A primary or secondary actor of a specification that `use_cases.puml` does not connect to the use case (or does not declare), or an actor the diagram connects that the specification does not list. Actors are compared by name, primary and secondary together; an actor inherits its parent's links (`Manager --|> Clerk`); a use case the diagram connects to no actor is skipped | `/use-case-spec` or `/use-case-diagram` |
+| WARN     | `MODULE_MISMATCH`       | A specification that does not lie in the folder of the module whose diagram holds its use case | move the file       |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no active use case lists in `**Requirements:**`      | `/use-case-spec`    |
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |

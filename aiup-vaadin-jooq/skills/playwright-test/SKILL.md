@@ -33,7 +33,7 @@ $ARGUMENTS names either a use case or a test case — they produce different kin
 | `UC-*` (e.g. `UC-001`, `docs/use_cases/UC-001-name.md`) | Use case specification | **Use case test** — integration tests for one view, grouped in `@Nested` classes |
 | `TC-*` (e.g. `TC-001`, `docs/test_cases/TC-001-name.md`) | Test case document | **Test case journey** — one end-to-end test walking the whole Flow across views |
 
-If the argument is a name without a prefix, locate the document: `docs/use_cases/` vs `docs/test_cases/`, or the heading (`# Use Case:` vs `# Test Case:`). If it is still ambiguous, ask the user which artifact they mean.
+If the argument is a name without a prefix, locate the document: `docs/use_cases/**` vs `docs/test_cases/`, or the heading (`# Use Case:` vs `# Test Case:`). If it is still ambiguous, ask the user which artifact they mean.
 
 ## Setup
 

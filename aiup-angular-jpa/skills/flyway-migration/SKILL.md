@@ -106,7 +106,7 @@ CREATE TABLE room_type
 
 ## Workflow
 
-1. Read `docs/entity_model.md`
+1. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links)
 2. Detect the module layout and locate the correct migration directory (see above)
 3. Read existing migrations in that directory to determine the next version number
 4. Create sequence definitions for each entity

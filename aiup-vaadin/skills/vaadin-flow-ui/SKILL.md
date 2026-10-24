@@ -58,7 +58,7 @@ Run from `/use-case-implement`, this skill inherits the inputs, the status check
 rules ("If an Implementation Already Exists") and does not repeat them or ask the same questions again.
 
 Run directly, read the same inputs `/use-case-implement` reads — the use case and its `**Status:**` line, exactly the
-`FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, `docs/entity_model.md`, `docs/glossary.md` and the
+`FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the
 ADRs when present, and `docs/architecture/stack.md` — and apply the same rules: never close a specification gap with an
 assumption (ask, or leave that part out and list it under **Open questions**), never edit a test or a file under
 `docs/` other than the Markers table, reconcile an existing view instead of building a second one. Implement this

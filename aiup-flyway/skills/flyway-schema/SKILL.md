@@ -22,7 +22,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Build the migration layer of use case $ARGUMENTS with Flyway: the versioned migration scripts that give the schema
-the tables, columns, and constraints the use case needs, derived from `docs/entity_model.md`. Use sequences for
+the tables, columns, and constraints the use case needs, derived from `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links). Use sequences for
 primary keys. Without a use case id, create the migrations for every entity of the entity model that has no table
 yet.
 

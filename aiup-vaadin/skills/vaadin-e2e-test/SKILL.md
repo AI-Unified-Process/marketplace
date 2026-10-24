@@ -61,7 +61,7 @@ tests cover (the Browserless tests of a Flow UI, the service tests behind a Hill
 
 Run from `/use-case-test` or `/test-case-implement`, this skill inherits the inputs and the search for existing tests and does not repeat them;
 for `/test-case-implement TC-XXX` it is the only test skill that runs. Run directly, read the use case or test case (and every
-use case its Flow links), the linked requirement rows, `docs/entity_model.md` for test data, `docs/glossary.md`
+use case its Flow links), the linked requirement rows, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for test data, `docs/glossary.md`
 when present, and `docs/architecture/stack.md`; then write this layer only and say that `/use-case-test UC-XXX` runs all test
 layers.
 
@@ -72,7 +72,7 @@ layers.
 | `UC-*` (e.g. `UC-001`, `docs/use_cases/UC-001-name.md`)  | Use case specification | **Use case test** — tests for one view, grouped in `@Nested` classes   |
 | `TC-*` (e.g. `TC-001`, `docs/test_cases/TC-001-name.md`) | Test case document     | **Test case journey** — one test walking the whole Flow across views   |
 
-If the argument is a name without a prefix, locate the document (`docs/use_cases/` vs `docs/test_cases/`, or the
+If the argument is a name without a prefix, locate the document (`docs/use_cases/**` vs `docs/test_cases/`, or the
 heading `# Use Case:` vs `# Test Case:`). If it is still ambiguous, ask.
 
 A use case test needs the use case in the E2E scope: when the `**E2E scope:**` line of

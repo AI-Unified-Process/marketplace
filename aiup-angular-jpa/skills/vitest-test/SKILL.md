@@ -272,7 +272,7 @@ await fixture.whenStable();
 
 ## Workflow
 
-1. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify
+1. Read the use case specification (`docs/use_cases/**/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
 2. Look for an existing spec file for this use case. If there is one, follow

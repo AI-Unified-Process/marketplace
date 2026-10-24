@@ -59,8 +59,8 @@ If `/use-case-test` is not installed, say so and stop; aiup-core ships both skil
 ## Workflow
 
 1. Read the test case from `docs/test_cases/TC-XXX-*.md` and every use case its Flow table links, from
-   `docs/use_cases/` (also `docs/use-cases/`). Stop and list the near matches when the id resolves to no file.
-2. Read `docs/entity_model.md` for the test data, and `docs/glossary.md` when it exists.
+   `docs/use_cases/` (module subfolders included; also `docs/use-cases/`). Stop and list the near matches when the id resolves to no file.
+2. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data, and `docs/glossary.md` when it exists.
 3. Read the stack file, `docs/architecture/stack.md`, and the Test skill of its E2E row. When the
    stack file does not exist, stop and hand off to `/stack`. When the E2E row's Test skill is not
    installed, name the plugin that ships it and stop. When the E2E row is missing or its Test skill is `–` (its

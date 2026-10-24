@@ -86,7 +86,7 @@ public sealed class UseCaseAttribute(string id) : Attribute
 }
 ```
 
-The values must match the headings of the `docs/use_cases/UC-XXX-*.md` specification exactly:
+The values must match the headings of the `docs/use_cases/**/UC-XXX-*.md` specification exactly:
 `id` is the `**Use Case ID:**`, `Scenario` is `Main Success Scenario` (the default) or an alternative
 flow heading such as `A2: Invalid Postal Code`, and `BusinessRules` lists `BR-XXX` headings of the same
 use case: `[UseCase("UC-001", Scenario = "A2: Invalid Postal Code", BusinessRules = ["BR-003"])]`.
@@ -109,7 +109,7 @@ state are the subject — do not re-test every validation message of each use ca
 ## Workflow
 
 1. **Read Use Case / Test Case Specs**:
-   - Read `docs/use_cases/UC-XXX-*.md` or `docs/test_cases/TC-XXX-*.md`.
+   - Read `docs/use_cases/**/UC-XXX-*.md` or `docs/test_cases/TC-XXX-*.md`.
    - Check whether E2E tests for this artifact already exist. If they do, follow "If Tests for This Use Case / Test Case Already Exist" above and update them instead of adding a parallel class.
 2. **Setup Playwright Test Class & Host Server**:
    - Create the `UseCaseAttribute` if the E2E project lacks it (see "Traceability").

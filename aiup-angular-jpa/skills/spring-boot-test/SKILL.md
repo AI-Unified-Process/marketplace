@@ -160,7 +160,7 @@ An expected value changes only when the specification has changed — see the se
 ## Test Class Naming and `@UseCase` Annotation
 
 These are **use case tests**. Each test class verifies the behavior of exactly
-one use case from the use case specification (`docs/use_cases/UC-XXX-*.md`).
+one use case from the use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 ### Class naming
 
@@ -453,7 +453,7 @@ and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
 1. Detect the existing test convention, or — if this is the first backend
    test in the project — ask the user which convention to use before
    writing anything (Step 0)
-2. Read the use case specification (`docs/use_cases/UC-XXX-*.md`) to identify
+2. Read the use case specification (`docs/use_cases/**/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
 3. Check whether a `UseCase` annotation type already exists in the project. If

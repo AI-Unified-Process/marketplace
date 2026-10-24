@@ -66,7 +66,7 @@ A test case is the user's call to fix on either side too: the code (`/use-case-i
 | `UC-*` (e.g. `UC-010`, `docs/use_cases/UC-010-name.md`)  | Use case specification | **Use case test** — one `test.describe` per use case, one test per scenario |
 | `TC-*` (e.g. `TC-001`, `docs/test_cases/TC-001-name.md`) | Test case document     | **Test case journey** — one test walking the whole Flow across views        |
 
-If the argument is a name without a prefix, locate the document (`docs/use_cases/` vs `docs/test_cases/`, or the
+If the argument is a name without a prefix, locate the document (`docs/use_cases/**` vs `docs/test_cases/`, or the
 heading `# Use Case:` vs `# Test Case:`); if it is still ambiguous, ask which artifact is meant.
 
 A use case test needs the use case in the E2E scope: when the `**E2E scope:**` line of

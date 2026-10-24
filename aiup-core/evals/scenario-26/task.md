@@ -25,13 +25,13 @@ headings, or data-type and validation vocabulary will be rejected when the docum
 
 Produce exactly the following files in your working directory, and no other documentation files:
 
-1. **`docs/use_cases.puml`** — The PlantUML use case diagram of the system with all actors and the use cases they
-   participate in.
+1. **The use case diagram** — starting at `docs/use_cases.puml`, the PlantUML use case diagram(s) of the system with
+   all actors and the use cases they participate in.
 
-2. **`docs/use_cases/`** — A folder of use case specification documents, one per use case, named
+2. **The use case specifications** — under `docs/use_cases/`, one document per use case, named
    `UC-XXX-short-name.md` (kebab-case, three-digit ID).
 
-3. **`docs/entity_model.md`** — The entity model with Mermaid ER diagrams and a detailed attribute table for each
-   entity. Use business-level data types, not database-specific types.
+3. **The entity model** — starting at `docs/entity_model.md`, the Mermaid ER diagram(s) and a detailed attribute table
+   for each entity. Use business-level data types, not database-specific types.
 
 Focus on what users are trying to accomplish — not on the individual API endpoints the system exposes.

@@ -30,6 +30,13 @@ Artifacts (each check runs only when its artifacts exist):
     requirements.md  use_cases.puml  use_cases/UC-*.md  test_cases/TC-*.md
     processes/*.bpmn  entity_model.md  glossary.md
 
+A project split by module (as /reverse-engineer writes it) keeps the module
+overview in use_cases.puml and the module table in entity_model.md; each
+module has use_cases/<module>/use_cases.puml next to its use_cases/<module>/
+UC-*.md, and entity_model/<module>.md. The linter reads them all, and checks
+that the overview's packages, the module folders, and the place of every
+specification agree.
+
 The per-file structure checks and the BPMN activity parsing are not copied
 here: the linter imports validate_use_case.py and bpmn_paths.py from the
 sibling use-case-spec and test-case skill folders (a host may prefix the
@@ -106,6 +113,8 @@ PUML_LABEL = re.compile(r'usecase\s+"([^"]+)"|\(([^)]+)\)')
 PUML_NODE = r'"[^"]+"|:[^:]+:|\([^)]+\)|[\w.]+'
 PUML_ACTOR = re.compile(r"^\s*actor\s+(" + PUML_NODE + r")(?:\s+as\s+("
                         + PUML_NODE + r"))?", re.IGNORECASE)
+PUML_PACKAGE = re.compile(r'^\s*package\s+"?([^"{]+?)"?(?:\s+as\s+([\w.-]+))?'
+                          r'\s*(?:\{.*)?$', re.IGNORECASE)
 PUML_ACTOR_INLINE = re.compile(r"^\s*(:[^:]+:)\s+as\s+([\w.]+)")
 PUML_USECASE = re.compile(r"^\s*(?:usecase\s+)?(" + PUML_NODE
                           + r")\s+as\s+(" + PUML_NODE + r")", re.IGNORECASE)
@@ -330,12 +339,17 @@ class Project:
         self.requirements_path = path if os.path.isfile(path) else None
         path = os.path.join(docs, "use_cases.puml")
         self.diagram_path = path if os.path.isfile(path) else None
+        self.module_diagrams = sorted(glob.glob(os.path.join(
+            docs, "use_cases", "*", "use_cases.puml")))
+        self.diagram_paths = [self.diagram_path] * bool(self.diagram_path) \
+            + self.module_diagrams
         path = os.path.join(docs, "entity_model.md")
-        self.entity_path = path if os.path.isfile(path) else None
+        self.entity_paths = [path] * os.path.isfile(path) + sorted(
+            glob.glob(os.path.join(docs, "entity_model", "*.md")))
         path = os.path.join(docs, "glossary.md")
         self.glossary_path = path if os.path.isfile(path) else None
-        self.spec_paths = sorted(glob.glob(os.path.join(docs, "use_cases",
-                                                        "*UC-*.md")))
+        self.spec_paths = sorted(glob.glob(os.path.join(
+            docs, "use_cases", "**", "*UC-*.md"), recursive=True))
         self.tc_paths = sorted(glob.glob(os.path.join(docs, "test_cases",
                                                       "TC-*.md")))
         self.bpmn_paths = sorted(glob.glob(os.path.join(docs, "processes",
@@ -373,35 +387,92 @@ def check_requirements(project):
     return requirements
 
 
+def diagram_name(project):
+    """How the findings name the use case diagram."""
+    if project.module_diagrams:
+        return "use_cases.puml or a module's use_cases/*/use_cases.puml"
+    return "use_cases.puml"
+
+
+def module_of(project, path):
+    """The module folder of a path under use_cases/, or None."""
+    rel = os.path.relpath(path, os.path.join(project.docs, "use_cases"))
+    parts = rel.replace(os.sep, "/").split("/")
+    return parts[0] if len(parts) > 1 and parts[0] != ".." else None
+
+
 def check_diagram(project, specs):
     """Every use case of the diagram has a spec and vice versa.
 
     Returns the diagram's use cases as {id: normalized name}."""
-    if not project.diagram_path:
+    if not project.diagram_paths:
         return {}
-    diagram, names = {}, {}
-    for number, line in enumerate(read_lines(project.diagram_path), 1):
-        if line.lstrip().startswith("'"):
-            continue
-        for uid in PUML_UC.findall(line):
-            diagram.setdefault(uid, number)
-        for match in PUML_LABEL.finditer(line):
-            label = (match.group(1) or match.group(2)).replace("\\n", " ")
-            ids = PUML_UC.findall(label)
-            if len(ids) == 1:
-                names.setdefault(ids[0], normalize(
-                    PUML_UC.sub(" ", label, count=1)))
-    for uid, number in diagram.items():
+    diagram, names, twice = {}, {}, set()
+    for path in project.diagram_paths:
+        for number, line in enumerate(read_lines(path), 1):
+            if line.lstrip().startswith("'"):
+                continue
+            for uid in PUML_UC.findall(line):
+                first = diagram.setdefault(uid, (path, number))
+                if first[0] != path and (uid, path) not in twice:
+                    twice.add((uid, path))
+                    project.add(ERROR, "DUPLICATE_ID", path, number, uid,
+                                "use case " + uid + " is also in "
+                                + doc_path(project, first[0]))
+            for match in PUML_LABEL.finditer(line):
+                label = (match.group(1) or match.group(2)).replace("\\n", " ")
+                ids = PUML_UC.findall(label)
+                if len(ids) == 1:
+                    names.setdefault(ids[0], normalize(
+                        PUML_UC.sub(" ", label, count=1)))
+    for uid, (path, number) in diagram.items():
         if uid not in specs:
-            project.add(ERROR, "SPEC_MISSING", project.diagram_path, number,
+            folder = "use_cases/" + (module_of(project, path) + "/"
+                                     if module_of(project, path) else "")
+            project.add(ERROR, "SPEC_MISSING", path, number,
                         uid, "use case " + uid + " is in the diagram but has "
-                        "no specification docs/use_cases/" + uid + "-*.md")
+                        "no specification docs/" + folder + uid + "-*.md")
     for uid, spec in specs.items():
         if uid not in diagram and not spec.obsolete:
             project.add(ERROR, "NOT_IN_DIAGRAM", spec.path, spec.id_line, uid,
                         "use case " + uid + " is not in "
-                        + os.path.basename(project.diagram_path))
+                        + diagram_name(project))
+    check_modules(project, specs, diagram)
     return {uid: names.get(uid, "") for uid in diagram}
+
+
+def check_modules(project, specs, diagram):
+    """The overview's packages, the module folders, and the specs agree."""
+    if not project.module_diagrams:
+        return
+    folders = {module_of(project, p): p for p in project.module_diagrams}
+    packages = {}
+    if project.diagram_path:
+        for number, line in enumerate(read_lines(project.diagram_path), 1):
+            match = PUML_PACKAGE.match(line)
+            if match:
+                packages.setdefault(match.group(2) or match.group(1), number)
+    for alias, number in packages.items():
+        if alias not in folders:
+            project.add(ERROR, "MODULE_UNKNOWN", project.diagram_path, number,
+                        alias, "package '" + alias + "' has no module "
+                        "diagram use_cases/" + alias + "/use_cases.puml")
+    for folder, path in sorted(folders.items()):
+        if folder not in packages:
+            project.add(ERROR, "MODULE_UNKNOWN", path, 1, folder,
+                        "module folder use_cases/" + folder + "/ has no "
+                        "package with the alias '" + folder + "' in the "
+                        "overview use_cases.puml")
+    for uid, spec in specs.items():
+        if uid not in diagram:
+            continue
+        expected = module_of(project, diagram[uid][0])
+        actual = module_of(project, spec.path)
+        if expected and actual != expected:
+            project.add(WARN, "MODULE_MISMATCH", spec.path, spec.id_line, uid,
+                        "use case " + uid + " is in the diagram of module '"
+                        + expected + "' but its specification is not in "
+                        "use_cases/" + expected + "/")
 
 
 def puml_name(token):
@@ -500,14 +571,21 @@ def check_actors(project, specs):
     case. A use case without any linked actor (an include target) is skipped,
     and an actor inherits the use cases of its parent (Manager --|> Clerk).
     """
-    if not project.diagram_path:
-        return
-    actors, links, parents = read_diagram_actors(project.diagram_path)
-    diagram = os.path.basename(project.diagram_path)
+    actors, links, parents, where = {}, {}, {}, {}
+    for path in project.diagram_paths:
+        file_actors, file_links, file_parents = read_diagram_actors(path)
+        for key, value in file_actors.items():
+            actors.setdefault(key, value)
+        for uid, keys in file_links.items():
+            links.setdefault(uid, set()).update(keys)
+            where.setdefault(uid, doc_path(project, path))
+        for key, keys in file_parents.items():
+            parents.setdefault(key, set()).update(keys)
     for uid, spec in specs.items():
         linked = links.get(uid)
         if not linked or spec.obsolete:
             continue
+        diagram = where[uid]
         listed = set()
         for number, name, kind in spec.actors:
             key = normalize(name)
@@ -821,20 +899,20 @@ def check_process_ids(project, path, model, text, owners):
 
 
 def check_entities(project):
-    if not project.entity_path:
-        return
     seen = {}
-    for number, line in prose_lines(read_lines(project.entity_path)):
-        match = ENTITY_HEADING.match(line)
-        if not match:
-            continue
-        name = match.group(1)
-        if name in seen:
-            project.add(ERROR, "DUPLICATE_ID", project.entity_path, number,
-                        name, "entity " + name + " is already defined on "
-                        "line " + str(seen[name]))
-        else:
-            seen[name] = number
+    for path in project.entity_paths:
+        for number, line in prose_lines(read_lines(path)):
+            match = ENTITY_HEADING.match(line)
+            if not match:
+                continue
+            name = match.group(1)
+            if name in seen:
+                project.add(ERROR, "DUPLICATE_ID", path, number, name,
+                            "entity " + name + " is already defined in "
+                            + doc_path(project, seen[name][0]) + " on line "
+                            + str(seen[name][1]))
+            else:
+                seen[name] = (path, number)
 
 
 def load_glossary(project):
@@ -1588,8 +1666,11 @@ ACTOR_LINKS = {
 }
 
 
-# CLEAN with both diagrams split by module, as /reverse-engineer writes them.
-MODULAR = dict(CLEAN)
+# CLEAN with both diagrams split by module, as /reverse-engineer writes them:
+# the overviews in use_cases.puml and entity_model.md, each module in a folder
+# use_cases/<module>/ with its diagram and specifications, and a file
+# entity_model/<module>.md.
+MODULAR = {k: v for k, v in CLEAN.items() if not k.startswith("use_cases/")}
 MODULAR.update({
     "use_cases.puml": """\
 @startuml Modules
@@ -1601,7 +1682,8 @@ clerk --> guests
 clerk --> reservations
 reservations ..> guests : "reserves for guests"
 @enduml
-
+""",
+    "use_cases/guests/use_cases.puml": """\
 @startuml Guests
 left to right direction
 actor Clerk as clerk
@@ -1610,7 +1692,8 @@ rectangle "Guests" {
 }
 clerk --> UC001
 @enduml
-
+""",
+    "use_cases/reservations/use_cases.puml": """\
 @startuml Reservations
 left to right direction
 actor Clerk as clerk
@@ -1620,19 +1703,28 @@ rectangle "Reservations" {
 clerk --> UC002
 @enduml
 """,
+    "use_cases/guests/UC-001-create-guest.md":
+        CLEAN["use_cases/UC-001-create-guest.md"],
+    "use_cases/reservations/UC-002-reserve-room.md":
+        CLEAN["use_cases/UC-002-reserve-room.md"],
+    "test_cases/TC-001-reserve-room.md": CLEAN[
+        "test_cases/TC-001-reserve-room.md"].replace(
+        "../use_cases/UC-001", "../use_cases/guests/UC-001").replace(
+        "../use_cases/UC-002", "../use_cases/reservations/UC-002"),
     "entity_model.md": """\
 # Entity Model
 
 ## Modules
 
-| Module       | Description             | Entities | Depends on |
-|--------------|-------------------------|----------|------------|
-| Guests       | The hotel's guests      | GUEST    | -          |
-| Reservations | Rooms and reservations  | ROOM     | Guests     |
+| Module                                        | Description            | Entities | Depends on |
+|-----------------------------------------------|------------------------|----------|------------|
+| [Guests](entity_model/guests.md)              | The hotel's guests     | GUEST    | -          |
+| [Reservations](entity_model/reservations.md)  | Rooms and reservations | ROOM     | Guests     |
+""",
+    "entity_model/guests.md": """\
+# Entity Model: Guests
 
-## Module: Guests
-
-**Entity Relationship Diagram**
+## Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -1640,10 +1732,11 @@ erDiagram
 ```
 
 ### GUEST
+""",
+    "entity_model/reservations.md": """\
+# Entity Model: Reservations
 
-## Module: Reservations
-
-**Entity Relationship Diagram**
+## Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -1758,12 +1851,24 @@ def self_test():
             failures.append("modular: unexpected %s %s %s:%d %s" % (
                 f.severity, f.code, os.path.relpath(f.path, root), f.line,
                 f.message))
-        write_fixture(root, {"entity_model.md": MODULAR["entity_model.md"]
-                             + "\n### GUEST\n"})
-        if not any(f.code == "DUPLICATE_ID" and f.element == "GUEST"
-                   for f in lint(root, validator, bpmn)):
-            failures.append("modular: GUEST in two modules gave no "
-                            "DUPLICATE_ID")
+        write_fixture(root, {
+            "entity_model/reservations.md":
+                MODULAR["entity_model/reservations.md"] + "\n### GUEST\n",
+            "use_cases/reservations/use_cases.puml": MODULAR[
+                "use_cases/reservations/use_cases.puml"].replace(
+                "clerk --> UC002",
+                "clerk --> UC002\nusecase \"UC-001\\nCreate Guest\" as UC001"),
+            "use_cases/billing/use_cases.puml": "@startuml Billing\n@enduml\n"})
+        os.rename(os.path.join(root, "use_cases/reservations/"
+                               "UC-002-reserve-room.md"),
+                  os.path.join(root, "use_cases/UC-002-reserve-room.md"))
+        found = {(f.code, f.element) for f in lint(root, validator, bpmn)}
+        for expected in (("DUPLICATE_ID", "GUEST"), ("DUPLICATE_ID", "UC-001"),
+                         ("MODULE_UNKNOWN", "billing"),
+                         ("MODULE_MISMATCH", "UC-002")):
+            if expected not in found:
+                failures.append("modular: expected %s %s, got %s"
+                                % (expected + (sorted(found),)))
 
     def uc(status):
         spec = Spec.__new__(Spec)

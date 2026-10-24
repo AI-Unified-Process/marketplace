@@ -77,7 +77,7 @@ in place rather than adding a second definition**:
 
 ## Workflow
 
-1. Read `docs/entity_model.md`
+1. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links)
 2. Run the layout detection to locate `drizzle.config.ts`; read its `schema` and `out` paths
 3. Read the existing schema to learn the project's conventions — primary key style, date
    representation, and especially its money-column choice (below)

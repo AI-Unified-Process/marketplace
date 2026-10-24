@@ -99,9 +99,9 @@ a validation rule, a term that neither the entity model nor the glossary defines
 ## Workflow & Conventions
 
 1. **Read Specifications & Design Requirements**:
-   - Read the use case specification `docs/use_cases/UC-XXX-*.md` and check its `**Status:**` line — see "Gaps in the Specification" above.
+   - Read the use case specification `docs/use_cases/**/UC-XXX-*.md` and check its `**Status:**` line — see "Gaps in the Specification" above.
    - Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`, `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional requirements explain the intent where a step is terse; every linked NFR and constraint is a limit the implementation must honour (a maximum, a response time, a mandatory external system, UI/UX and styling directives, accessibility). When the line is missing or an id does not resolve, say so in your report and suggest `/spec-review UC-XXX` — do not guess which requirements apply.
-   - Read the entity model `docs/entity_model.md`.
+   - Read the entity model `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links).
    - Read `docs/glossary.md` when it exists and name classes, fields, and labels with its terms, never with a synonym from its Avoid column.
    - Read the architecture decision records when the project has them (glob `docs/**/adr/*.md`) and follow the ones that apply as you follow existing conventions.
    - Read `docs/vision.md` if additional visual identity or brand guidelines are needed.

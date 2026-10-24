@@ -46,7 +46,7 @@ fine when the specification says so. `validate_use_case.py` already flags a fixe
 (`TECHNICAL_TERM`); report what that list misses. Severity: `info`, `warning` when the detail constrains the
 implementation in a way nobody decided.
 
-**Where, too:** the use case as a whole — its name in `docs/use_cases.puml`, its goal, and its Main Success
+**Where, too:** the use case as a whole — its name in `docs/use_cases.puml` (or its module diagram), its goal, and its Main Success
 Scenario.
 
 Every use case should be a user goal: ask *is this use case a complete goal that the primary actor would recognize as
@@ -112,7 +112,7 @@ Weak words from the fixed list are the lint's job (`WEAK_WORD`); report what the
 
 ## 7. Entity model consistency
 
-**Where:** steps, rules, and postconditions against `docs/entity_model.md`.
+**Where:** steps, rules, and postconditions against `docs/entity_model.md` and its module files.
 
 Specifications name data in business words, so judge from context, not from spelling: "the guest's email" matches
 `GUEST.email`; "the booking" matches `RESERVATION` when the model has no other candidate. Report:
@@ -150,7 +150,7 @@ precondition the use case evaluates itself, `info` otherwise.
 ## 9. Actors
 
 **Where:** the Overview's `**Primary Actor:**` and `**Secondary Actors:**` lines against the steps, the alternative
-flows, `docs/use_cases.puml`, and the roles in `requirements.md` and `glossary.md`.
+flows, `docs/use_cases.puml` (or the module diagram), and the roles in `requirements.md` and `glossary.md`.
 
 A use case may have several primary actors, listed comma-separated: roles that can each start the use case on their
 own and pursue the same goal through the same main success scenario. Report:
