@@ -23,8 +23,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 ## Instructions
 
-Write the tests for $ARGUMENTS across the layers recorded in `docs/architecture/stack.md`, the Development
-View, from the integration layer up — limited to the entry layers the use case's `**Layers:**` line names.
+Write the tests for $ARGUMENTS across the layers recorded in `docs/architecture/stack.md`, from the
+integration layer up — limited to the entry layers the use case's `**Layers:**` line names.
 This skill owns what every test layer shares and delegates each layer to the test skill named in the Test skill
 column. Do not change production code; a failing test is reported, not fixed by changing the code under test.
 
@@ -86,56 +86,22 @@ covers a scenario names it, so `/use-case-coverage` can map it — and reads the
 
 ## Which Layer Tests What
 
-The Integration layer table under the Layers table of `docs/architecture/stack.md` names, per entry layer, the
-layer whose test skill runs in process against the real service and database. `/stack` derives it; look the
-layer up, never derive it again. Its tests exercise every layer below it for real, so a use case is tested once,
-there — not once per layer:
+A use case is tested once, in its integration layer — not once per layer. The full rules, with every exception, are
+in [references/which-layer-tests-what.md](references/which-layer-tests-what.md); read it before deciding which
+layers run. In short:
 
-- **The integration layer tests the use case**: the main success scenario, every alternative flow, every business
-  rule with its allowed and its rejected case at the boundary the rule names, the preconditions, the postconditions
-  read back from the persisted state (not only as the view or the response shows them), and the limit of every
-  linked NFR or constraint a test can observe — through its own entry point: the view, the endpoint, or the service
-  method. A rule that needs a competing change (a stale version, a row inserted after the actor loaded the form)
-  arranges that row through the repository after the load; this is the one exception to seeding data only through
-  the test migrations.
-- **The layers below it are not run**, with three exceptions. A second entry layer that runs in process tests its
-  own contract (see below), also when it sits below the integration layer — the API next to a Vaadin Flow UI. A
-  layer that already holds tests of this use case runs to reconcile them (see above) rather than leave them to go
-  stale. And when the integration layer's test skill
-  reports units it cannot reach through its entry point (a service method only a job calls, a query only another
-  use case's view runs), the test skill of the layer that owns each unit runs for exactly those units. Otherwise a
-  lower layer is written only when the arguments name it.
-- **A UI layer above the integration layer** whose tests mock the backend (Hilla, Angular) tests what the UI
-  decides and that a rejection reaches the actor with the specified message, not the rule again.
-- **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule — and
-  only when the `**E2E scope:**` line under the Integration layer table reads `Use cases and test cases` or is
-  missing. `Test cases only` leaves browser tests to `/test-case-implement`: the use case gets none.
-- **A second entry layer that also runs in process** — an API next to a Vaadin Flow or Hilla UI, both of which the
-  use case offers — tests its own contract, not the use case again: the main success scenario through its entry point, every
-  alternative flow's response or message as the caller sees it, and the input validation mapping. A business
-  rule's allowed and rejected cases at the boundary stay in the integration layer.
-- **When the service layer is the integration layer**, its tests use the integration style — the real persistence
-  layer and database — even in a hexagonal project; the plain unit test with a fake port is written only when
-  `service` is named. `/spring-service-test` states this.
-
-When a layer has nothing of its own to test for this use case, its test skill says so instead of writing a test that
-repeats another layer.
-
-**The use case's own integration layer.** The `**Layers:**` line of the use case (German `**Schichten:**`) names the
-entry layers that offer it — `UI`, `API`, or `Service` alone; without the line, every entry layer of the project
-does. The layers it leaves out get no tests, and E2E runs only when the use case is offered through the UI and the
-E2E scope covers use cases. A
-client-side UI that reaches the service through the API (Angular) implies its API layer: `UI` there runs the API
-test skill too, as the integration layer (the layer catalog of `/stack`, "Entry layers of a use case"). An
-entry layer the line names that the Layers table marks `–` is a contradiction between the specification and the
-architecture: stop before the first layer and ask whether `/stack` adds the layer or `/use-case-spec UC-XXX`
-corrects the line. The use case's integration layer is the first row of the Integration layer table that its
-`**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row. Name it in the
-opening line.
-
-When the stack file has no Integration layer table — or only the one-line `**Integration layer:** <layer>` of an
-earlier version, with no table under the label — do not derive the layer here: say so, stop, and hand off to `/stack`, which writes the
-table without touching the rest of the file.
+- **The use case's integration layer** is the first row of the Integration layer table under the Layers table of
+  `docs/architecture/stack.md` that its `**Layers:**` line names (order UI, API, Service; without the line, the
+  first row). Look it up, never derive it; a missing table is a hand-off to `/stack`. Name it in the opening line.
+- **It tests the whole use case** through its entry point: main success scenario, every alternative flow, every
+  business rule with its allowed and rejected case, preconditions, postconditions read back from the persisted
+  state, and every observable NFR or constraint limit.
+- **Layers below it do not run**, except a second in-process entry layer (its contract only), a layer that already
+  holds tests of this use case (to reconcile them), and units the integration layer reports it cannot reach.
+- **A UI above it that mocks the backend** tests what the UI decides and that rejections reach the actor; **E2E**
+  tests what an actor sees, and only under the E2E scope `Use cases and test cases` (or no line).
+- An entry layer the `**Layers:**` line names that the Layers table marks `–` is a contradiction: stop and ask
+  whether `/stack` adds the layer or `/use-case-spec UC-XXX` corrects the line.
 
 ## Running a Test Skill
 

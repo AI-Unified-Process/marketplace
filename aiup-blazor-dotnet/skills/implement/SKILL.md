@@ -3,10 +3,12 @@ name: implement
 description: >
   Implements use cases for C# and Blazor (.NET 10) applications using a Vertical
   Slice Architecture. Takes a UC-XXX.md specification and generates feature-folder
-  components, C# Commands/Queries, EF Core entities/configurations, and Blazor
-  pages/components. Use when the user asks to "implement a use case in C#",
-  "build a Blazor page", "create a Vertical Slice", or mentions Blazor, .NET 10,
-  or C# implementation.
+  components, C# Commands/Queries with their handlers and validators, EF Core
+  entities/configurations, and Blazor (Razor) pages/components, with UC-XXX BR-YYY
+  markers on every business rule. Use when the user asks to "implement a use case
+  in C#", "implement UC-001 in .NET", "build a Blazor page", "create a Razor
+  component for this use case", "create a Vertical Slice", or mentions Blazor,
+  Razor, .NET 10, or a feature slice for a use case specification.
 ---
 
 <!--
@@ -108,7 +110,7 @@ a validation rule, a term that neither the entity model nor the glossary defines
    - Check whether the use case is already implemented. If it is, follow "If an Implementation Already Exists" above and update the existing slice instead of creating new files.
 
 2. **Vertical Slice Folder Structure**:
-   - Organize code into feature folders: `Features/UCXXX_<FeatureName>/`.
+   - Organize code into feature folders: `Features/UCXXX_<FeatureName>/`. [references/example-slice.md](references/example-slice.md) shows a complete command, validator, and handler with their markers.
    - Example contents:
      - `UCXXX_Page.razor` (Blazor UI component template)
      - `UCXXX_Page.razor.cs` (Code-behind logic)
@@ -127,11 +129,10 @@ a validation rule, a term that neither the entity model nor the glossary defines
    - Map domain entities to ViewModels/DTOs before presenting to UI.
 
 4. **UI Design & Styling Standards**:
-   - **Rich Modern Aesthetics**: Implement polished, modern web design matching the styling NFRs and constraints the use case links. Avoid raw unstyled HTML elements.
-   - **Scoped & Global CSS**: Put component-specific styles in `UCXXX_Page.razor.css` or integrate with global CSS design tokens (`wwwroot/app.css`).
-   - **Typography & Color Palettes**: Use curated harmonious color palettes, modern typography, card/container elevation, subtle shadows, and clear visual hierarchy.
-   - **Interactive States & Feedback**: Include hover effects, active states, loading spinners, empty states, and validation error highlights.
-   - **Responsive & Accessible**: Build flex/grid responsive layouts with ARIA accessibility tags.
+   - Follow the styling NFRs and constraints the use case links, then the existing design tokens in `wwwroot/app.css`; no raw unstyled HTML elements.
+   - Put component-specific styles in `UCXXX_Page.razor.css`.
+   - Every page has a loading, an empty, and an error state, and highlights validation errors next to the field.
+   - Use responsive flex/grid layouts and label every input and icon button for assistive technology.
 
 5. **DO NOT**:
    - Place business logic directly inside `.razor` markup files — delegate to handlers or code-behind `.razor.cs`.
@@ -144,9 +145,9 @@ a validation rule, a term that neither the entity model nor the glossary defines
    - **Update Layout Navigation**: Register the new use case page route in `Components/Layout/NavMenu.razor` (or project navigation layout) using styled `NavLink` elements matching the app theme.
 
 7. **Verification**:
-   - Run `dotnet build` to verify clean compilation.
+   - Run `dotnet build`. When it fails, fix the reported error in the slice and build again until it compiles without errors or new warnings.
    - Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
-     [Business Rule Markers](#business-rule-markers).
+     [Business Rule Markers](#business-rule-markers). Add a missing one together with the code that enforces the rule, then build again.
 
 8. **Next Step Guidance**:
    - Conclude your response by summarizing the implemented feature files and guiding the user to the testing phase:

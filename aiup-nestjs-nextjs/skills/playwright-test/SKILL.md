@@ -2,8 +2,12 @@
 name: playwright-test
 description: >
   Creates Playwright browser-based end-to-end tests for a Next.js frontend
-  running against a live NestJS API, using accessibility-first locators. Use
-  when the user asks to "write Playwright tests", "create e2e tests", "test in
+  running against a live NestJS API: a test.describe per use case (UC-XXX) with
+  a test per scenario, or a journey per test case (TC-XXX) with one test.step
+  per Flow row, tagged @UC-XXX / @TC-XXX, with accessibility-first locators and
+  the application's seed data, wired into the project's playwright.config
+  webServer setup. Use when the user asks to "write Playwright tests", "create
+  e2e tests", "write end-to-end tests for UC-001", "automate TC-001", "test in
   the browser", or mentions end-to-end testing, browser tests, or a test case
   (TC-*) to automate.
 ---

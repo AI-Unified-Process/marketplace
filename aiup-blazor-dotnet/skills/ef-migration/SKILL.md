@@ -1,11 +1,15 @@
 ---
 name: ef-migration
 description: >
-  Generates Entity Framework Core (EF Core) database migrations for C# / .NET
-  projects based on the entity model specification in docs/entity_model.md.
-  Use when the user asks to "create database migration", "add ef migration",
-  "update schema with ef core", "generate db migration for .net", or mentions
-  EF Core, DbContext, or database migrations in C#.
+  Builds the data layer of a C# / .NET project from docs/entity_model.md with
+  Entity Framework Core: generates the entity classes, writes
+  IEntityTypeConfiguration Fluent API mappings (table names, decimal precision,
+  enum conversions, foreign keys, unique indexes, binary columns), registers
+  them in the DbContext, and adds a native C# migration with dotnet ef
+  migrations add. Use when the user asks to "create an EF Core migration",
+  "add ef migration", "update the schema with ef core", "map the entities in
+  the DbContext", "generate a db migration for .net", or mentions EF Core,
+  DbContext, Fluent API, or dotnet ef in a Blazor .NET project.
 ---
 
 <!--
@@ -34,7 +38,8 @@ Create a native EF Core C# Migration (`dotnet ef migrations add <MigrationName>`
    - Register configurations in `OnModelCreating(ModelBuilder modelBuilder)` (or use `modelBuilder.ApplyConfigurationsFromAssembly(...)`).
 4. **Generate EF Core Migration**:
    - Run `dotnet ef migrations add UCXXX_Description` using CLI. For multi-project solutions, specify project flags (e.g. `dotnet ef migrations add UCXXX_Description --project src/MyApp.Data --startup-project src/MyApp.Web`).
-   - Verify the generated migration class under `Migrations/`.
+   - Verify the generated migration: open its `Up` and `Down` methods under `Migrations/` and check that they create or alter exactly the tables, columns, keys, and indexes from step 3 — no unexpected `DropTable` or `DropColumn` — then run `dotnet build`.
+   - When the migration is wrong or the build fails, remove it with `dotnet ef migrations remove` (same project flags), fix the entity classes or configurations, and add it again; repeat until both checks pass. Never remove a migration that has already been applied to a shared database — add a new one instead.
 5. **DO NOT**:
    - Execute destructive schema drops on production environments.
    - Hardcode connection strings in source code; use `appsettings.json` or environment variables.

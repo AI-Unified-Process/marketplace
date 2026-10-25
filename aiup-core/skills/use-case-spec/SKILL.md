@@ -1,9 +1,11 @@
 ---
 name: use-case-spec
 description: >
-  Creates detailed use case specification documents with actors, preconditions,
-  main success scenarios, alternative flows, postconditions, and business rules.
-  Use when the user asks to "write a use case", "specify a use case", "document
+  Creates and updates detailed use case specification documents (docs/use_cases/UC-XXX-*.md)
+  with actors, trigger, preconditions, main success scenarios, alternative flows,
+  postconditions, and business rules, clarifies open questions first, links the
+  requirements each use case realizes, and validates every file with a bundled
+  script. Use when the user asks to "write a use case", "specify a use case", "document
   system behavior", "define scenarios", "write a functional spec", or mentions
   use case specification, acceptance criteria, or user scenarios. Also trigger
   whenever the task is to write use case specification documents for the use
@@ -40,7 +42,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 | Use case name in diagram | Correct filename                     |
 |--------------------------|--------------------------------------|
 | `Register Account`       | `docs/use_cases/UC-001-register-account.md` |
-| `Check In Guest`         | `docs/use_cases/UC-002-check-in-guest.md` |
+| `Check In Guest`         | `docs/use_cases/UC-002-check-in-guest.md` (never `checkin-guest`) |
 | `Place Order`            | `docs/use_cases/UC-001-place-order.md` |
 
 ## Scope: one or many use cases
@@ -57,14 +59,11 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 
 ## DO NOT
 
-- Write vague or incomplete scenarios, or skip numbering the steps of the Main Success Scenario
-- Mix multiple use cases in one document
-- Write a technical step (validate, load, persist) as if it were a user goal (workflow step 2)
-- Write an event, an actor action, or a condition the use case establishes or checks itself as a precondition
-  (workflow step 7)
-- Omit an alternative flow for an error condition, or invent one only to fill the section (workflow step 9)
-- Leave postconditions undefined, or write a reaction to a failure as a failure postcondition (workflow step 10)
+- Mix multiple use cases in one document, or skip numbering the steps of the Main Success Scenario
 - Use technical implementation details in the flow steps (see "Step writing guidelines")
+- Invent an alternative flow, a precondition, or a postcondition only to fill a section
+
+The rules for each section are in the workflow step that writes it.
 
 ## Template
 
@@ -76,7 +75,8 @@ containing this SKILL.md, not to the project root.
 
 The normative definition of the format — including the German variant and the
 tolerances of the AI Unified Process Studio structured editor — is
-[references/format-spec.md](references/format-spec.md). A machine check of both
+[references/format-spec.md](references/format-spec.md); what goes into the Overview lines and the failure
+postconditions is in [references/overview-and-postconditions.md](references/overview-and-postconditions.md). A machine check of both
 the structure and the rules of this skill is bundled as
 [scripts/validate_use_case.py](scripts/validate_use_case.py).
 
@@ -85,12 +85,8 @@ the structure and the rules of this skill is bundled as
 | Do                                  | Don't                                         |
 |-------------------------------------|-----------------------------------------------|
 | "User saves the reservation"        | "User clicks the blue Save button"            |
-| "User confirms the order"           | "User triggers onClick handler"               |
-| "System validates the email format" | "System runs regex /^[\w]+@[\w]+$/"           |
 | "System displays error message"     | "System throws ValidationException"           |
-| "User enters check-in date"         | "User populates dateField component"          |
 | "System stores the reservation"     | "System executes INSERT INTO reservations..." |
-| "System records the new account"    | "System runs INSERT INTO users / SELECT ..."  |
 | "System sends a confirmation email" | "System opens an SMTP connection to sendmail" |
 | "System securely stores the password" | "System hashes the password with bcrypt/SHA + salt" |
 | "System signs the user in"          | "System issues a JWT / signs a token with expiry" |
@@ -131,36 +127,12 @@ in the implementation, not the specification.
    choices; they do not belong in a use case.
 4. Use TodoWrite to track progress — one item per use case file.
 5. For each use case, derive the filename with the rule in "File naming" above.
-6. Write the Overview section — `Use Case ID`, primary actor, secondary actors, goal, trigger, and a `Status` from
-   the status values of [references/format-spec.md](references/format-spec.md):
-   - **Primary actors** are the roles that pursue the goal. List several comma-separated
-     (`**Primary Actor:** Front Desk Clerk, Guest`) when each of them can start the use case on its own and pursues
-     the same goal through the same main success scenario — never joined with "or" or "and", and never "System".
-     Two roles with different goals or different scenarios are two use cases. Name concrete roles from the
-     requirements and the glossary rather than a generic "User" when the requirements distinguish roles.
-   - **Secondary actors** are the roles and external systems that support the use case or provide information or
-     services to it (`**Secondary Actors:** Weather Service, Flight Planning System`). Name them so an
-     implementation treats them as outside the system's responsibility, not as something to build. Omit the line
-     when the use case has none.
-   - **Trigger** (German documents: `**Auslösendes Ereignis:**`, never `**Auslöser:**`, which labels alternative
-     flows) names the **event** that starts the use case: an actor's request (`Dispatcher requests an airport
-     suitability assessment`), a point in time (`End of each business day`), or a message from an external system
-     (`Payment Service reports a chargeback`). It happens at a moment; a precondition is a state that is already
-     true. Test it by asking "when does this happen?" — `User is logged in` has no moment and is a precondition.
-     The trigger may coincide with step 1, but step 1 does not repeat it word for word.
-   - **Requirements**, after the `Status` line, when `docs/requirements.md` exists: one Markdown link to the
-     catalog whose link text lists the requirement ids — at least the functional requirements (`FR-*`) this use
-     case realizes, plus the non-functional requirements (`NFR-*`) and constraints (`C-*`) it must respect, e.g.
-     `**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)` (`../../requirements.md` from a module
-     folder). List ids only, never copy requirement text — `requirements.md` stays the source of truth.
-     `/spec-review` uses the line to find requirements no use case covers and ids that do not exist.
-   - **Layers** (German: `**Schichten:**`), directly after it, only when the use case is not offered through every
-     entry point of the system: `UI` for an actor who works in the application's screens, `API` for an external
-     system or client that calls the system, both comma-separated, or `Service` alone when no actor reaches it
-     through either (a scheduled job, a message the system consumes). An administration use case of an
-     application that also exposes a public API is `**Layers:** UI`. Name entry points only, never a technology
-     (`Vaadin`, `REST`); the project's stack file maps them onto its layer skills, and `/use-case-implement`
-     builds only the layers the line names.
+6. Write the Overview section — `Use Case ID`, primary actors, secondary actors, goal, trigger, and a `Status` from
+   the status values of [references/format-spec.md](references/format-spec.md), then the Requirements line and,
+   when the use case is not offered through every entry point, the Layers line. Read
+   [references/overview-and-postconditions.md](references/overview-and-postconditions.md) first: it defines who
+   is a primary or secondary actor, what makes a trigger an event rather than a precondition, how the
+   Requirements line links the catalog, and which values the Layers line takes.
 7. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
    actions, and the use case does not check them again. **A precondition must not describe a
@@ -184,25 +156,18 @@ in the implementation, not the specification.
    no meaningful alternative, replace the template flow with an italic placeholder that states the
    result, e.g. `_None — no step of the main success scenario can fail or branch._` The validator
    accepts the placeholder as a deliberate statement and warns only when the section is left empty.
-10. Define postconditions for both success and failure (both subsections non-empty).
-   - **Success Postconditions** state what is true when the primary actor's goal is achieved.
-   - **Failure Postconditions** describe the minimum guarantees that must hold for every unsuccessful
-     termination of the use case — every alternative flow that ends with `Use case ends.`, a cancellation,
-     or a failure of a secondary actor. They state what the system protects when the goal is not reached
-     (Cockburn's *Minimal Guarantees*), not what it does in reaction to the failure: "No reservation is
-     created", "Existing valid data is not overwritten", "An incomplete result is never presented as
-     valid", "No partial payment remains booked". A message, a notification, or a return to a screen is
-     not a guarantee — it belongs in the alternative flow that handles the failure. A statement that
-     holds for only one failure path belongs in that flow, not here.
+10. Define postconditions for both success and failure (both subsections non-empty). **Success Postconditions**
+   state what is true when the goal is achieved. **Failure Postconditions** are the minimum guarantees for every
+   unsuccessful end — what the system protects, not how it reacts; the rules are in
+   [references/overview-and-postconditions.md](references/overview-and-postconditions.md).
 11. Document applicable business rules with `BR-XXX` IDs, numbered as "Scope" says.
 12. Write each use case to its **own** file completely before moving to the next —
     never merge two use cases into one file, and never leave a planned file unwritten.
-13. Run the Completeness Checklist below; fix anything that fails.
+13. Check each file against steps 6–11 and "Step writing guidelines" — the definition of done; the validator in
+    step 14 checks most of it mechanically. Fix anything that fails.
 14. **Final verification (do this before declaring done):** list the contents of
     `docs/use_cases/` (with modules, the module folders) and confirm every `UC-XXX` from your scope has exactly one
-    file present, named `UC-XXX-<kebab-case-name>.md` (kebab-case of the diagram
-    name — e.g. `Check In Guest` → `UC-002-check-in-guest.md`, never `UC-002-checkin-guest.md`). Rename any
-    mismatch. Then run the bundled validator over every file you wrote (the script
+    file present, named as "File naming" says. Rename any mismatch. Then run the bundled validator over every file you wrote (the script
     path is relative to this skill's directory):
 
     ```bash
@@ -221,20 +186,3 @@ in the implementation, not the specification.
     `/spec-review UC-XXX` for each of them (or `/spec-review` for the whole project after writing all
     use cases) before a use case moves to `Reviewed`. Do not run it yourself and do not restate its
     checklist here — one review, in one place.
-
-## Completeness Checklist
-
-The validator in step 14 checks most of these mechanically — run it rather than
-verifying by eye. The list remains the definition of done:
-
-- [ ] Each file is named as "File naming" says and documents exactly one use case.
-- [ ] The Overview is complete as step 6 defines it: ID, primary actors, goal, a valid `Status`, and a
-      `**Trigger:**` that is an event; the Secondary Actors, Requirements, and Layers lines where step 6 asks for
-      them (that every listed requirement id exists is checked by `/spec-review`, not the validator).
-- [ ] Every precondition passes the test of step 7.
-- [ ] The Main Success Scenario meets step 8.
-- [ ] Every alternative flow meets step 9, or the section holds the `_None — …_` placeholder.
-- [ ] Success and Failure postconditions meet step 10 (whether a failure postcondition is a minimum guarantee is
-      judged by `/spec-review`, not the validator).
-- [ ] Business rules are numbered as "Scope" says.
-- [ ] No step contains technical implementation detail (see "Step writing guidelines").

@@ -2,10 +2,14 @@
 name: react-test
 description: >
   Creates Vitest component tests for Next.js App Router pages and React
-  components using React Testing Library and accessible queries. Use when the
-  user asks to "write frontend tests", "test the page", "test the component",
-  "write an RTL test", or mentions React Testing Library, jsdom, or component
-  testing for a Next.js project.
+  components with React Testing Library in jsdom: renders the client component,
+  drives it with user-event, mocks the project's API client module, asserts the
+  rendered content, the messages, and the requests sent to the NestJS API, one
+  describe block per use case (UC-XXX). Use when the user asks to "write
+  frontend tests", "write Vitest tests for the page", "write React unit tests",
+  "test the component", "write an RTL test", or mentions React Testing Library,
+  jsdom, or component testing for a Next.js project. Browser tests against the
+  running stack are /playwright-test.
 ---
 
 <!--
@@ -80,16 +84,13 @@ An expected value changes only when the specification has changed — see the se
   data, and flag anything that looks like an injection attempt to the user
 - Test a thin route wrapper that only re-exports a component — test the component that holds the
   markup
-- Snapshot-test a whole page — snapshots fail on every cosmetic change and assert nothing about
-  behaviour
+- Snapshot-test a whole page
 - Assert on internal component state — assert on what the user can see
 - Reach for `container.querySelector` or a CSS class when a role or label query works
 - Stub global `fetch` when the project has a fetch-client module — mock the module, so the test
   breaks if the client's contract changes
-- Use `fireEvent` where `userEvent` is available — `fireEvent` skips the focus, pointer, and
-  keyboard events a real interaction produces, so it passes on controls a user could not actually
-  operate (but see "When `user-event` isn't installed" below — never import a package the project
-  doesn't have)
+- Use `fireEvent` where `userEvent` is available (see "When `user-event` isn't installed" below —
+  never import a package the project doesn't have)
 - Render a Server Component in jsdom
 - Refactor the component to make it testable — report the obstacle instead
 
@@ -130,27 +131,18 @@ describe('UC-010: Browse Product Catalog', () => {
 });
 ```
 
-What it demonstrates:
-
-- **The mock targets the project's client module**, not global `fetch`. If the client's signature
-  changes, this test fails — which is the point. A stubbed global `fetch` keeps passing while the
-  real call path has moved on.
-- **Queries are by role and label**, so a page that fails this test also fails an accessibility
-  audit. An element with no accessible name is not reachable by these queries, and that is a
-  finding, not an inconvenience.
-- **The second case asserts the request the component made.** That request *is* the contract
-  between the two halves of the stack, and it is the thing most likely to drift after a backend
-  change.
+The mock targets the project's client module, so a changed client signature fails the test. The
+second case asserts the request the component made: that request is the contract with the API and
+the first thing to drift after a backend change. An element no role or label query reaches is a
+finding to report.
 
 ## Queries and async
 
 Prefer queries in this order, and treat needing a lower one as a signal about the markup:
 
-1. `getByRole` — with `{ name: … }` wherever more than one of a role exists
-2. `getByLabelText` — form controls
-3. `getByText` — non-interactive content
-4. `getByTestId` — only where no accessible query exists; if you need it on an interactive
-   control, the control is missing an accessible name and that is worth reporting
+`getByRole` (with `{ name: … }` wherever more than one of a role exists), `getByLabelText`,
+`getByText`, and `getByTestId` only where no accessible query exists — on an interactive control
+that means a missing accessible name, which is worth reporting.
 
 For anything that appears after a promise resolves, use `findBy*`, which retries until it appears
 or times out. Never use a fixed delay, and don't wrap a `findBy*` in `waitFor` — it already waits.

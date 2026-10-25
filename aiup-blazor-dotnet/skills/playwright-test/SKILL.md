@@ -1,10 +1,14 @@
 ---
 name: playwright-test
 description: >
-  Generates native C# Playwright end-to-end (E2E) browser tests for user journeys
-  (UC-* / TC-*) using Microsoft.Playwright.Xunit.
-  Use when the user asks to "write e2e test", "create playwright test for dotnet",
-  "write browser test in C#", or mentions Playwright with .NET.
+  Generates native C# Playwright end-to-end (E2E) browser tests with
+  Microsoft.Playwright.Xunit against the running Blazor application: one test
+  class per use case (UC-*) with a test per scenario, or one journey test per
+  test case (TC-*) walking its Flow table across pages, with web-first
+  locators (GetByRole, GetByLabel) and [UseCase] traceability. Use when the user asks to "write e2e
+  tests", "write end-to-end tests for UC-001", "automate TC-001", "create a
+  playwright test for dotnet", "write browser tests in C#", or mentions
+  Playwright with .NET.
 ---
 
 <!--
@@ -124,7 +128,14 @@ state are the subject — do not re-test every validation message of each use ca
    ```csharp
    namespace MyApp.Tests.E2E;
 
-   public class UC001PlaceOrderIT : PageTest
+   // The app runs separately (dotnet run, a container, or the CI deployment); the fixture only knows where.
+   public sealed class TestServerFixture
+   {
+       public string BaseUrl { get; } =
+           Environment.GetEnvironmentVariable("E2E_BASE_URL") ?? "https://localhost:5001";
+   }
+
+   public class UC001PlaceOrderIT : PageTest, IClassFixture<TestServerFixture>
    {
        private readonly string _baseUrl;
 

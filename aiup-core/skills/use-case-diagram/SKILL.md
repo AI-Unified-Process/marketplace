@@ -1,11 +1,15 @@
 ---
 name: use-case-diagram
 description: >
-  Creates or updates PlantUML use case diagrams defining actors, use cases,
-  and their relationships from requirements. Use when the user asks to
-  "create a use case diagram", "draw a UML diagram", "map actors to use cases",
-  "generate a .puml file", or mentions PlantUML, use case overview, actor
-  diagram, or system use cases.
+  Creates or updates PlantUML use case diagrams (docs/use_cases.puml) from the
+  requirements catalog: identifies primary and secondary actors, derives one
+  use case per user goal with a UC-XXX id traced to its functional
+  requirements, draws include and extend relationships, and keeps a split by
+  module. Use when the user asks to "create a use case diagram", "draw a UML
+  use case diagram", "map actors to use cases", "add a use case to the
+  diagram", "generate a .puml file", or mentions PlantUML, use case overview,
+  actor diagram, or system use cases. Class, sequence, and ER diagrams are not
+  use case diagrams; the entity model is /entity-model.
 ---
 
 <!--
@@ -75,24 +79,10 @@ the step.
 
 ## Modules
 
-A large project may hold its diagram split by module, as `/reverse-engineer` writes it: `docs/use_cases.puml` holds
-only a `@startuml Modules` diagram — the actors and one `package` per module, no use cases — and each module has a
-folder `docs/use_cases/<slug>/` with its own `use_cases.puml` (`@startuml <Module>`, the module's use cases) next to
-the specifications of those use cases. The slug is the module name in lowercase kebab-case and the `package` alias in
-the overview. Keep that structure when you update the diagrams:
-
-- Add a new use case to the diagram of the module it belongs to — the module that owns the data it changes. When no
-  module fits or two fit equally, ask the user instead of guessing; a new module gets its own folder with a
-  `use_cases.puml` and a `package` in the overview.
-- Keep every use case in exactly one module diagram, and declare an actor with the same name and alias in every
-  diagram it appears in. In the overview, link an actor to each module it has a use case in, and keep a `..>` arrow
-  for every module that uses data or a use case of another; `<<include>>` and `<<extend>>` stay inside one module
-  diagram.
-- Continue the ids after the highest `UC-XXX` across all module diagrams; existing ids never change when a use case
-  moves module. When one moves, move its specification into the new module's folder too.
-- Never merge the module diagrams back into one, never put use cases into the overview, and do not introduce a
-  module split in a diagram that has none. Splitting is `/reverse-engineer`'s step; for a forward-engineered diagram
-  that has outgrown one image, tell the user.
+When `docs/use_cases.puml` is a `@startuml Modules` overview, the diagram is split by module, one
+`docs/use_cases/<slug>/use_cases.puml` per module. Keep that split: read
+[references/modules.md](references/modules.md) before you add, move, or number a use case. Never introduce a split
+in a diagram that has none.
 
 ## Conventions
 
@@ -122,3 +112,5 @@ the overview. Keep that structure when you update the diagrams:
     - PlantUML syntax is valid (no missing `@enduml`, proper arrow syntax)
     - With modules: every use case is in exactly one module diagram, and the overview's packages match the module
       folders
+
+   When a check fails, fix the diagram and run every check again; report the diagram only when all of them pass.

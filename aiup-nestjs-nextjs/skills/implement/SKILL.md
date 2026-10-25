@@ -148,10 +148,11 @@ a validation rule, a term that neither the entity model nor the glossary defines
 5. Run the layout detection in [`references/project-layout.md`](references/project-layout.md),
    and determine whether the use case is already implemented — if so, follow "If an
    Implementation Already Exists" above and update those files rather than creating new ones
-6. Implement the backend (below), verifying it compiles
+6. Implement the backend (below) and run its build; fix each reported error and build again until
+   it passes
 7. Implement the frontend (below), checking existing conventions — folder structure, routing,
    data fetching, form handling — before creating any file
-8. Verify the frontend builds
+8. Run the frontend build; fix and rebuild until it passes
 9. Confirm the backend and frontend agree on the JSON shape — field names, types, nullability —
    before considering the use case done
 10. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker — see
@@ -179,123 +180,26 @@ data. Two repositories over one table drift, and the second one silently misses 
 scoping the first applies. Create a feature-owned repository when the feature genuinely owns
 tables nothing else touches.
 
-Worked end to end with a `Product` example. Every relative import ends in `.js` because the
-detection found NodeNext:
-
-```ts
-// src/products/products.repository.ts
-import { Inject, Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
-import { DRIZZLE, type DrizzleDb } from '../database/drizzle.provider.js';
-import { products } from '../database/schema.js';
-
-@Injectable()
-export class ProductsRepository {
-  constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
-
-  // UC-010 BR-010: Out-of-stock products are excluded regardless of any category filter.
-  async findAvailable(category?: string) {
-    const filters = [eq(products.inStock, true)];
-    if (category) filters.push(eq(products.category, category));
-    return this.db.select().from(products).where(and(...filters));
-  }
-}
-```
-
-```ts
-// src/products/dto/product.response.ts
-export type ProductResponse = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-};
-```
-
-```ts
-// src/products/products.service.ts
-import { Injectable } from '@nestjs/common';
-import { ProductsRepository } from './products.repository.js';
-import type { ProductResponse } from './dto/product.response.js';
-
-@Injectable()
-export class ProductsService {
-  constructor(private readonly repository: ProductsRepository) {}
-
-  async listAvailable(category?: string): Promise<ProductResponse[]> {
-    const rows = await this.repository.findAvailable(category);
-    return rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      category: row.category,
-      price: row.price,
-    }));
-  }
-}
-```
-
-```ts
-// src/products/dto/list-products.query.ts
-import { IsOptional, IsString } from 'class-validator';
-
-export class ListProductsQuery {
-  @IsOptional()
-  @IsString()
-  category?: string;
-}
-```
-
-```ts
-// src/products/products.controller.ts
-import { Controller, Get, Query } from '@nestjs/common';
-import { ListProductsQuery } from './dto/list-products.query.js';
-import { ProductsService } from './products.service.js';
-import type { ProductResponse } from './dto/product.response.js';
-
-@Controller('products')
-export class ProductsController {
-  constructor(private readonly service: ProductsService) {}
-
-  @Get()
-  async list(@Query() query: ListProductsQuery): Promise<ProductResponse[]> {
-    return this.service.listAvailable(query.category);
-  }
-}
-```
-
-```ts
-// src/products/products.module.ts
-import { Module } from '@nestjs/common';
-import { ProductsController } from './products.controller.js';
-import { ProductsRepository } from './products.repository.js';
-import { ProductsService } from './products.service.js';
-
-@Module({
-  controllers: [ProductsController],
-  providers: [ProductsService, ProductsRepository],
-})
-export class ProductsModule {}
-```
+[`references/worked-example.md`](references/worked-example.md) walks a `Product` feature end to end —
+repository, response type, service, query and body DTOs, controller, and module, for a read and a
+write use case. Follow its shape.
 
 Register the module in the application's root module — a feature that compiles but is never
 imported produces a 404 that looks like a routing bug.
 
 ### The rules this code demonstrates
 
-- **The repository is the only place a query appears.** This is what makes the service unit
-  testable with a stub and the endpoint e2e testable against a real schema. A `db.select` in a
-  service collapses both tiers into one.
-- **The controller returns a mapped response type**, never the Drizzle row. Row types leak column
-  names, nullability, and columns the API should not expose; they also change silently when the
-  schema does.
+- **The repository is the only place a query appears**, so the service is unit testable with a
+  stub and the endpoint e2e testable against a real schema.
+- **The controller returns a mapped response type**, never the Drizzle row, which leaks columns
+  and changes silently with the schema.
 - **Validation is a global pipe.** Projects on this stack typically configure `ValidationPipe`
   with `whitelist`, `forbidNonWhitelisted`, and `transform`. That means a query DTO is not
   decoration — it is the only reason an unknown query parameter is rejected rather than ignored.
 - **Errors are domain errors.** Throw the project's error classes from the service and let its
   exception filter map them to status codes and bodies. Never hand-build an error response in a
   controller; the shape drifts from every other endpoint the moment you do.
-- **Everything is awaited.** The PostgreSQL driver has no synchronous mode, so repositories return
-  promises and callers await them. Multi-statement writes go through a transaction:
+- **Multi-statement writes go through a transaction:**
 
   ```ts
   await this.db.transaction(async (tx) => {
@@ -311,64 +215,14 @@ imported produces a 404 that looks like a routing bug.
 
 ## Frontend — Next.js App Router
 
-Where the detection found **no route indirection**, the route file holds the page:
-
-```tsx
-// src/app/products/page.tsx
-'use client';
-
-import { useEffect, useState } from 'react';
-
-type Product = { id: number; name: string; category: string; price: number };
-
-export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [category, setCategory] = useState('');
-
-  useEffect(() => {
-    const query = category ? `?category=${encodeURIComponent(category)}` : '';
-    fetch(`/api/products${query}`)
-      .then((res) => res.json())
-      .then(setProducts);
-  }, [category]);
-
-  return (
-    <main>
-      <h1>Products</h1>
-      <label htmlFor="category">Category</label>
-      <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">All</option>
-        <option value="tools">Tools</option>
-      </select>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            {product.name} — {product.price}
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
-}
-```
-
-Where the detection found **route indirection**, the route file is a thin wrapper and the body
-above lives in the view component instead:
-
-```tsx
-// src/app/products/page.tsx
-'use client';
-import { ProductsPage } from '../../views/ProductsPage';
-
-export default function Page() {
-  return <ProductsPage />;
-}
-```
+Where the detection found **no route indirection**, the route file holds the page; where it found
+route indirection, the route file is a thin wrapper that renders the view component holding the page.
+[`references/worked-example.md`](references/worked-example.md) shows both.
 
 ### The rules this code demonstrates
 
-- **The `'use client'` boundary is explicit.** Anything using `useState`, `useEffect`, or an event
-  handler is a client component. The root layout is typically the only server component.
+- **The `'use client'` boundary is explicit.** The root layout is typically the only server
+  component.
 - **`useSearchParams` must be wrapped in `<Suspense>`** in the route file, or static generation
   fails at build time with an error that names the hook but not the fix.
 - **The fetch path is relative.** `/api/products`, never `http://localhost:3001/api/products`. The
@@ -393,6 +247,8 @@ export default function Page() {
 - Next.js App Router documentation: https://nextjs.org/docs/app
 - If `aiup-core` is installed, its context7 MCP server covers NestJS, Drizzle, Next.js and React
   documentation lookups
+- [`references/worked-example.md`](references/worked-example.md) — read and write use case, backend
+  and frontend
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for
   `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
   are all you need) to configure the optional servers

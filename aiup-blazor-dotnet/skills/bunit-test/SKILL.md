@@ -1,9 +1,14 @@
 ---
 name: bunit-test
 description: >
-  Generates bUnit component unit and integration tests for Blazor components (.razor).
-  Use when the user asks to "write bUnit tests", "test Blazor component", "create UI test for Blazor",
-  or mentions bUnit, Blazor component testing, or xUnit rendering tests.
+  Generates bUnit component tests for Blazor components (.razor): renders the
+  page, fills and submits its forms, asserts the rendered markup and the
+  validation and error messages the use case states, and replaces the handlers
+  and services it injects with test doubles, one test per scenario and business
+  rule tagged with [UseCase]. Use when the user asks to "write bUnit tests",
+  "test a Blazor component", "test the Razor page of UC-001", "create UI tests
+  for Blazor", or mentions bUnit or xUnit rendering tests. Backend tests are
+  /dotnet-test, browser tests /playwright-test.
 ---
 
 <!--

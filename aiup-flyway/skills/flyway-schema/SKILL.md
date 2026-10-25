@@ -185,6 +185,10 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
     - Every foreign key references a table created in the same or an earlier migration
     - Sequence names follow `{table_name}_seq`; all identifiers are `snake_case`
     - The SQL is valid for the target database (the dialect of the existing migrations and the JDBC driver)
+
+   Then run the Build command from the Commands section of `docs/architecture/stack.md`; where the build applies
+   the migrations (jOOQ code generation, a Testcontainers test), Flyway reports a broken script there. When a check
+   or the build fails, fix the new migration — it has not run anywhere yet — and repeat this step until both pass.
 8. Update the Markers table — see "Markers".
 9. Report the files and end with the Handover.
 

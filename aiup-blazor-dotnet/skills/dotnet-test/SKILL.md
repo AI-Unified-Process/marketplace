@@ -2,9 +2,12 @@
 name: dotnet-test
 description: >
   Generates C# backend unit and integration tests for EF Core DbContext repositories,
-  domain services, and vertical slice handlers using xUnit / NUnit.
-  Use when the user asks to "write unit tests for C#", "test ef core context",
-  "write integration tests for dotnet", or mentions xUnit backend tests.
+  domain services, and vertical slice handlers using xUnit or NUnit against SQLite
+  in-memory or Testcontainers databases, one test per scenario and business rule,
+  each tagged with [UseCase]. Use when the user asks to "write backend tests for
+  C#", "write .NET tests for this handler", "test ef core context", "write
+  integration tests for dotnet", or mentions xUnit or NUnit handler tests. Blazor
+  component tests are /bunit-test, browser tests /playwright-test.
 ---
 
 <!--
@@ -96,7 +99,32 @@ public async Task PlacesOrder() { … }
 
 [Fact]
 [UseCase("UC-001", Scenario = "A2: Invalid Postal Code", BusinessRules = ["BR-003"])]
-public async Task RejectsInvalidPostalCode() { … }
+public async Task RejectsInvalidPostalCode()
+{
+    // Arrange: one open SQLite connection shared by fresh contexts
+    await using var connection = new SqliteConnection("DataSource=:memory:");
+    await connection.OpenAsync();
+    var options = new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options;
+    await using (var setup = new AppDbContext(options))
+    {
+        await setup.Database.EnsureCreatedAsync();
+        setup.Customers.Add(new Customer { Id = 1, Name = "Ada Lovelace" });
+        await setup.SaveChangesAsync();
+    }
+
+    // Act
+    UC001_Result result;
+    await using (var act = new AppDbContext(options))
+    {
+        var handler = new UC001_Handler(act);
+        result = await handler.HandleAsync(new UC001_Command(1, PostalCode: "12"), CancellationToken.None);
+    }
+
+    // Assert: the message of A2, and nothing stored
+    Assert.Equal("Please enter a valid postal code.", result.Error);
+    await using var verify = new AppDbContext(options);
+    Assert.Empty(await verify.Orders.ToListAsync());
+}
 ```
 
 One test method per main success scenario, one per alternative flow (`A1`, `A2`, …), and one per

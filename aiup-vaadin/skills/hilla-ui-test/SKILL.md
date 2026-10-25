@@ -112,9 +112,7 @@ export default overrideVaadinConfig(customConfig);
 ```
 
 Adjust the `include` glob to where the frontend lives (`src/main/frontend/` in current projects, `frontend/` in
-older ones). The setup is for Vitest 4 and later, where each browser provider is its own package; a project that
-stays on Vitest 3 or older keeps `@vitest/browser` with `webdriverio` and the string `provider: 'webdriverio'` its
-version documents. Add `"test": "vitest"` to the `scripts` of `package.json`. The generated
+older ones). The setup is for Vitest 4 and later (older versions: see "Versions"). Add `"test": "vitest"` to the `scripts` of `package.json`. The generated
 clients must exist before the tests import them — build once (`./mvnw compile`) if `Frontend/generated/endpoints`
 is missing or stale.
 
@@ -181,8 +179,7 @@ endpoint, a `@SpringBootTest` with `@AutoConfigureMockMvc`:
   `@PermitAll`, and `@AnonymousAllowed` per request in its endpoint controller, not on the bean, so a direct bean
   call proves nothing: call the endpoint over HTTP, `POST /connect/<Endpoint>/<method>` with a JSON body of the
   parameters by name and `.with(csrf())`. The role the actor maps to gets `200`; an authenticated user without it
-  (`@WithMockUser(roles = …)`) gets `403`, a request without authentication `401` (Hilla 25; Hilla 24 answers `401`
-  for both — check the installed version). With `@AnonymousAllowed`, a call without authentication gets `200`.
+  (`@WithMockUser(roles = …)`) gets `403`, a request without authentication `401` (Hilla 24 differs: see "Versions"). With `@AnonymousAllowed`, a call without authentication gets `200`.
 - **Rejections** — per alternative flow the service rejects, arrange its trigger through the test data and assert
   the `EndpointException` the endpoint throws carries the full message the specification states. A direct call of
   the endpoint bean is enough here; over HTTP the same rejection is a `400` with the message in the JSON body.
@@ -192,16 +189,25 @@ beyond one call that proves the endpoint delegates. Annotate each method with `@
 of the integration layer (the Integration layer table of `docs/architecture/stack.md`), which created
 the annotation; when it is missing, run that skill first rather than defining the annotation here. A module whose
 test sources cannot see that annotation gets its own copy, identical to the one the integration layer's skill
-created. In Spring Boot 4 `@AutoConfigureMockMvc` lives in `org.springframework.boot.webmvc.test.autoconfigure` and
-needs the `org.springframework.boot:spring-boot-webmvc-test` test dependency (Spring Boot 3:
-`org.springframework.boot.test.autoconfigure.web.servlet`, in `spring-boot-test-autoconfigure`); MockMvc's
-`with(csrf())` and `@WithMockUser` need `org.springframework.security:spring-security-test` in test scope. Add a
+created. `@AutoConfigureMockMvc` needs the test dependency "Versions" names for the
+installed Spring Boot; MockMvc's `with(csrf())` and `@WithMockUser` need `org.springframework.security:spring-security-test` in test scope. Add a
 missing one. `@SpringBootTest` starts from the application class; a module without a `@SpringBootApplication`
 (the endpoint's module in a hexagonal project) gets the test in the composition-root module when it exists, and
 otherwise a minimal `@SpringBootConfiguration @EnableAutoConfiguration class EndpointTestConfiguration {}` in the
 root package of its test sources that `@Import`s the endpoint and the service behind it. When the
 endpoint has no access annotation beyond the project default and the use case has no rejection, write no endpoint
 test and say so.
+
+## Versions
+
+The rest of this skill assumes Vitest 4, Hilla 25, and Spring Boot 4. Check the installed versions and adapt:
+
+| Version          | Difference                                                                                               |
+|------------------|----------------------------------------------------------------------------------------------------------|
+| Vitest 3 or older | Keeps `@vitest/browser` with `webdriverio` and the string `provider: 'webdriverio'` its version documents; Vitest 4 has one package per browser provider |
+| Hilla 24         | Answers `401` both without authentication and for an authenticated user without the role (Hilla 25: `403` for the latter) |
+| Spring Boot 4    | `@AutoConfigureMockMvc` is in `org.springframework.boot.webmvc.test.autoconfigure`, test dependency `org.springframework.boot:spring-boot-webmvc-test` |
+| Spring Boot 3    | `@AutoConfigureMockMvc` is in `org.springframework.boot.test.autoconfigure.web.servlet`, in `spring-boot-test-autoconfigure` |
 
 ## Template
 
