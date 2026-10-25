@@ -150,6 +150,9 @@ Test data comes from a Flyway test migration, not from `save` calls in the test 
 - Insert with the table's sequence (`nextval('guest_seq')`) or with explicit ids in a range the tests own; reference
   other rows by a natural key subquery rather than by an id you hope for.
 - The data names the boundary rows the tests need, and nothing else.
+- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets
+  a `@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`,
+  so its tests run in a context of their own against the empty schema.
 - `@DataJpaTest` rolls every test back, so a test may insert or change rows freely; never delete all rows of a
   table.
 

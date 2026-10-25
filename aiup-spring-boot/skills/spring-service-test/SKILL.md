@@ -161,7 +161,10 @@ the annotation by short name, so the copies do not conflict.
   configuration's `spring.flyway.locations` — the same file the persistence test skill writes; extend it when it
   exists. The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test
   module has its own `db/testdata`. A test creates through the service only the row whose creation it tests, never the fixture. Take the
-  values from the specification's examples and the entity model.
+  values from the specification's examples and the entity model. A flow whose trigger the shared test data rules out (an
+  empty list; "Which Layer Tests What" of `/use-case-test`) gets a `@Nested` class with a `@TestPropertySource` of its
+  own that leaves `db/testdata` out of `spring.flyway.locations`, so its tests run in a context of their own against the
+  empty schema.
 
 ## Integration Style
 

@@ -218,6 +218,9 @@ first; otherwise use one repeatable migration per use case:
   out-of-stock product for `BR-001`), so a missing condition makes a test fail.
 - Write the expected values into the test from the test data and the specification. Reuse test data another use case
   already inserts when it fits; change it only together with the tests that depend on it.
+- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets
+  a `@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`,
+  so its tests run in a context of their own against the empty schema.
 - Scope every assertion to the rows the test owns: give them an id range or a name prefix (`UC010 …`) the tests
   own, filter on that value where the query takes a filter, and narrow other results with `filteredOn` before
   `containsExactly`. Never assert a count or an exact list over a whole table — another use case's rows are in it.

@@ -22,7 +22,9 @@ there — not once per layer:
   linked NFR or constraint a test can observe — through its own entry point: the view, the endpoint, or the service
   method. A rule that needs a competing change (a stale version, a row inserted after the actor loaded the form)
   arranges that row through the repository after the load; this is the one exception to seeding data only through
-  the test migrations.
+  the test migrations. A flow whose trigger the shared test data rules out (an empty list, no row for a step to
+  find) runs in a test context of its own without the test data — never by deleting shared rows, and never as a
+  check of its message while the trigger does not hold.
 - **The layers below it are not run**, with three exceptions. A second entry layer that runs in process tests its
   own contract (see below), also when it sits below the integration layer — the API next to a Vaadin Flow UI. A
   layer that already holds tests of this use case runs to reconcile them ("If Tests for This Use Case Already Exist" in `/use-case-test`) rather than leave them to go

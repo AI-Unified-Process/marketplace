@@ -131,6 +131,12 @@ rather than inserting through back doors. A test that creates data cleans it up 
 or targeted deletes — idempotently, because the test may have failed midway. For a journey, the document's
 **Postconditions** section is the cleanup contract: remove exactly the records it lists, in the stated order.
 
+A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets a
+`@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`, so
+its tests run in a context of their own against the empty schema. For a use case test that is the `@Nested` class of the
+alternative flow itself (`@DisplayName("A1: Catalog Is Empty")`); the application then starts a second time on a port of
+its own.
+
 ## Use Case Tests (UC-*)
 
 One use case → one class `UC<id><PascalCaseName>IT` (`UC-001-create-reservation.md` →

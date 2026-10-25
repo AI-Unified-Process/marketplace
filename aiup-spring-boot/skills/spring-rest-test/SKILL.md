@@ -163,7 +163,9 @@ everything else; never remove or rename an attribute, other tests use it.
   tests. Never autowire a repository to arrange data; a read-only check of a side effect the response does not
   expose is fine. A rule that needs a competing change (a stale version, a row inserted after the client read the
   resource) follows "Which Layer Tests What" of `/use-case-test`: the test arranges that row through the repository
-  after the read and before the write.
+  after the read and before the write. A flow whose trigger the shared test data rules out (an empty list; "Which Layer
+  Tests What" of `/use-case-test`) gets a `@Nested` class with a `@TestPropertySource` of its own that leaves
+  `db/testdata` out of `spring.flyway.locations`, so its tests run in a context of their own against the empty schema.
 - **Cleanup**: remove only the rows the test created; never delete all data.
 - Assert on the response body, the DTO actually sent over the wire — not on an entity.
 

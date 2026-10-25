@@ -193,6 +193,21 @@ A rule that needs a competing change — a stale version on save, an email regis
 form — arranges that row through the repository or service after the view has loaded the original. This is the one
 exception to seeding through the test data; the test removes the row afterwards.
 
+A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets a
+`@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`, so
+its tests run in a context of their own against the empty schema.
+
+```java
+@Nested
+@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration")
+class CatalogIsEmpty {
+
+    @Test
+    @UseCase(id = "UC-001", scenario = "A1: Catalog Is Empty")
+    void empty_catalog_shows_message() { ... }
+}
+```
+
 ## Base Test Class
 
 Extend `com.vaadin.browserless.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`; the base

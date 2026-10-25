@@ -116,6 +116,9 @@ the test configuration; for a journey, the files of the use cases its Flow links
 - The application under test must run with that data: the End-to-end tests command of `docs/architecture/stack.md` says
   how it is started (a test profile, a `spring.flyway.locations` property). When it does not load the test data,
   report that instead of seeding through the API or the UI.
+- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
+  cannot be reached here, because the application under test runs with one data set: leave it to the integration
+  layer's tests and say so in the report.
 - Data the test creates is removed in `test.afterEach`, through the API (the `request` fixture) or the UI — never a
   raw database call and never a delete-all. Make the cleanup idempotent: the test may have failed midway.
 - For a journey, the test case's **Postconditions** section is the cleanup contract: remove exactly the records it
