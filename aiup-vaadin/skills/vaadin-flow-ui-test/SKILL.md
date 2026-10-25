@@ -222,6 +222,13 @@ test data.
 Extend `com.vaadin.browserless.SpringBrowserlessTest` and annotate the class with `@SpringBootTest`; the base
 class creates the Vaadin session, UI, and component tree inside the JUnit JVM.
 
+**The project's own base class comes first.** Before writing the class, search the test sources for a subclass of
+`SpringBrowserlessTest` (often `AbstractBrowserlessTest`). It usually carries `@SpringBootTest`, the
+Testcontainers import (`@Import(TestcontainersConfiguration.class)`), and a fixed locale, so extend it instead and
+do not repeat its annotations. Without it, give the test the database the project's other Spring tests use: import
+the same Testcontainers configuration they import. A test without it connects to the datasource of
+`application.properties`, which is usually not running.
+
 `@SpringBootTest` needs a `@SpringBootConfiguration` to start from. In a flat module it is the application class. A
 module without a `@SpringBootApplication` (the UI module of a hexagonal project) does not have one: put the test in
 the composition-root module, the only one with every layer on the classpath, when it exists; otherwise add a minimal
@@ -358,7 +365,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    with the shape above if not.
 3. Look for an existing `UC<id>*Test` class and `@UseCase(id = "UC-XXX")` methods; reconcile instead of
    duplicating.
-4. Create or open `UC<id><Name>Test`, extending `SpringBrowserlessTest` with `@SpringBootTest`.
+4. Create or open `UC<id><Name>Test`, extending the project's Browserless base class, or `SpringBrowserlessTest`
+   with `@SpringBootTest` and the Testcontainers import when there is none (see Base Test Class).
 5. Per scenario: annotate with `@UseCase`, `navigate(...)`, find with `find()`, act through `test(...)`, assert on the
    component API with the expected values from the specification and test data, clean up created data.
 6. Run the class (`./mvnw test -Dtest='UC001*Test'`, or the Integration tests command in `docs/architecture/stack.md` —

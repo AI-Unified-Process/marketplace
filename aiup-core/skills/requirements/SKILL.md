@@ -87,6 +87,8 @@ containing this SKILL.md): one table with the columns `Term | Definition | Avoid
   the person who made the Reservation).
 - **Avoid** — comma-separated synonyms that must not be used for this concept, or empty. Only list a word here when
   it would be ambiguous or misleading; a word listed here is flagged wherever it appears in the specifications.
+  Never list a word the specifications need in another sense — an attribute or a column label (`Title` for Book
+  when a book has a title), or another term of the glossary; `/spec-review` cannot tell the senses apart.
 
 Take the terms from the vision and from the nouns of the user stories: roles, business objects, states, and business
 events. Leave out generic words (system, data, user interface). When the glossary already exists, add new terms and
