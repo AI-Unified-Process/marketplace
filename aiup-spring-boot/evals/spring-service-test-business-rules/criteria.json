@@ -19,7 +19,7 @@
     },
     {
       "name": "Test data from the use case's test migration",
-      "description": "The already-registered guest needed by the BR-002 rejection comes from a repeatable Flyway test migration src/test/resources/db/testdata/R__uc001_register_guest.sql (inserting a guest with nextval('guest_seq')), with spring.flyway.locations including classpath:db/testdata in the test configuration (e.g. @TestPropertySource); the test does not create that fixture by calling GuestService.register or GuestRepository.insert first",
+      "description": "The already-registered guest needed by the BR-002 rejection comes from a repeatable Flyway test migration src/test/resources/db/migration/R__uc001_register_guest.sql (inserting a guest with nextval('guest_seq')), loaded by Flyway's default location without a @TestPropertySource or profile; the test does not create that fixture by calling GuestService.register or GuestRepository.insert first",
       "max_score": 7
     },
     {

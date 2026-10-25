@@ -29,7 +29,7 @@
     },
     {
       "name": "Test data from a Flyway test migration",
-      "description": "Guests, room types, and reservations are inserted by src/test/resources/db/testdata/R__uc031_search_reservations.sql with spring.flyway.locations extended by classpath:db/testdata for tests (or the project's convention), using the tables' sequences or ids in a range the tests own and natural-key subqueries for references, not by repository save calls in the test methods and not by data.sql",
+      "description": "Guests, room types, and reservations are inserted by src/test/resources/db/migration/R__uc031_search_reservations.sql, loaded by Flyway's default location without spring.flyway.locations (or the project's convention), using the tables' sequences or ids in a range the tests own and natural-key subqueries for references, not by repository save calls in the test methods and not by data.sql",
       "max_score": 9
     },
     {

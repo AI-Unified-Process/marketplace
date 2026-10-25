@@ -124,9 +124,9 @@ without `requirements` predates that attribute: add it with its default `{}` and
 - **No H2**, unless the project's existing persistence tests already run on it. The migrations are written for the
   production engine; an H2 run tests a different SQL dialect.
 - Flyway migrates the container at startup; `spring.jpa.hibernate.ddl-auto=validate` then checks the mapping, so a
-  broken mapping fails every test of the class. Set it on the test class's `@TestPropertySource` with the Flyway
-  locations: without an embedded database Hibernate defaults to `none`, and a hexagonal adapter module has no
-  `application.properties` to inherit it from.
+  broken mapping fails every test of the class. Set it on the test class's `@TestPropertySource`: without an
+  embedded database Hibernate defaults to `none`, and a hexagonal adapter module has no `application.properties` to
+  inherit it from.
 
 Spring Boot 4 moved the test slice annotations into new modules (`spring-boot-data-jpa-test`, package
 `org.springframework.boot.data.jpa.test.autoconfigure`); Spring Boot 3 has them in
@@ -142,19 +142,19 @@ its comments name the Spring Boot 3 and Testcontainers 1 imports.
 Test data comes from a Flyway test migration, not from `save` calls in the test and not from `data.sql`:
 
 - Match the project's existing convention. With none, put one repeatable migration per use case in
-  `src/test/resources/db/testdata/R__uc001_register_guest.sql` and add the location on the test class
-  (`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`), not in
-  a `src/test/resources/application.properties`, which would shadow the main configuration. Repeatable migrations
-  run after all versioned ones, so the schema is complete. Every file under `db/testdata` loads for every test
-  context, so the data of the other use cases is in the tables too.
+  `src/test/resources/db/migration/R__uc001_register_guest.sql`. Flyway's default location `classpath:db/migration`
+  covers the test resources too, so the tests load it without any Flyway configuration: no `spring.flyway.locations`,
+  no profile, no `src/test/resources/application.properties`. Use repeatable `R__` migrations only: they run after
+  all versioned ones, so the schema is complete, while a versioned test migration would collide with the next
+  production version. Every test migration loads for every test context, so the data of the other use cases is in
+  the tables too.
 - Insert with the table's sequence (`nextval('guest_seq')`) or with explicit ids in a range the tests own; reference
   other rows by a natural key subquery rather than by an id you hope for.
 - The data names the boundary rows the tests need, and nothing else.
-- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets
-  a `@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`,
-  so its tests run in a context of their own against the empty schema.
-- `@DataJpaTest` rolls every test back, so a test may insert or change rows freely; never delete all rows of a
-  table.
+- `@DataJpaTest` rolls every test back, so a test may insert or change rows freely. A flow whose trigger the shared
+  test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) deletes the rows it needs gone
+  in the test itself and then calls the repository; the rollback restores the shared test data. Delete nothing
+  else, and never in cleanup.
 
 ## Assertions
 

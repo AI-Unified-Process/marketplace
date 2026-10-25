@@ -38,7 +38,7 @@ of their own for the layers below unless a run names them (`/use-case-test UC-00
 Flat single module, root package `com.example.workshops`, one feature package per aggregate (`workshop`,
 `registration`). A feature package holds its repository, service, records, domain exceptions, and the entry points
 of its use cases. Tests mirror the packages under `src/test/java`; test data lives in
-`src/test/resources/db/testdata`.
+`src/test/resources/db/migration` as repeatable `R__` migrations.
 
 ## Commands
 

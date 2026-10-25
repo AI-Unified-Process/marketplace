@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 // Testcontainers 1 (Spring Boot 3): org.testcontainers.containers.PostgreSQLContainer, used as PostgreSQLContainer<?>
@@ -42,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * - Asserts what the client relies on: status, Location, JSON field names and formats, the Problem Details body
  *   of each rejection — and, as the integration layer, every business rule with its allowed and its rejected
  *   request at the boundary the rule names
- * - Fixtures come from the Flyway test migration src/test/resources/db/testdata/R__uc001_register_guest.sql:
+ * - Fixtures come from the Flyway test migration src/test/resources/db/migration/R__uc001_register_guest.sql:
  *     insert into guest (id, version, first_name, last_name, email, birth_date, registered_at)
  *     values (nextval('guest_seq'), 0, 'Alice', 'Example', 'alice@example.com', date '1985-01-01',
  *             timestamp '2026-01-15 09:00:00');
@@ -51,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(UC001RegisterGuestApiTest.Config.class)
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class UC001RegisterGuestApiTest {
 
     @TestConfiguration(proxyBeanMethods = false)

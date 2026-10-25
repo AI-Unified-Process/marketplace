@@ -150,10 +150,10 @@ the annotation by short name, so the copies do not conflict.
   `@AfterEach`; never delete all data.
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected cases need (the guest whose email is already registered) come from the repeatable Flyway test migration of
-  the use case, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`, with `classpath:db/testdata` in the test
-  configuration's `spring.flyway.locations` — the same file the persistence test skill writes; extend it when it
-  exists. The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test
-  module has its own `db/testdata`. A test creates through the service only the row whose creation it tests, never the fixture. Take the
+  the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence test skill
+  writes; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test
+  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed. The file lives in the test resources of the module that holds the
+  test: in a hexagonal reactor each test module has its own `db/migration` test folder. A test creates through the service only the row whose creation it tests, never the fixture. Take the
   values from the specification's examples and the entity model.
 
 ## Integration Style

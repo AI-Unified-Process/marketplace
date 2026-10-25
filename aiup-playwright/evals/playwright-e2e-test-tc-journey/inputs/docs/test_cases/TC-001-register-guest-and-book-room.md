@@ -13,7 +13,7 @@
 
 ## Preconditions
 
-- Room type "Deluxe Suite" exists (Flyway test data `V900__test_data.sql`)
+- Room type "Deluxe Suite" exists (Flyway test data `R__test_data.sql`)
 - No guest with email "mia.keller@example.com" exists
 
 ## Flow

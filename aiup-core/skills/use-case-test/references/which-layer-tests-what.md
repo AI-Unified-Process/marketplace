@@ -23,8 +23,10 @@ there — not once per layer:
   method. A rule that needs a competing change (a stale version, a row inserted after the actor loaded the form)
   arranges that row through the repository after the load; this is the one exception to seeding data only through
   the test migrations. A flow whose trigger the shared test data rules out (an empty list, no row for a step to
-  find) runs in a test context of its own without the test data — never by deleting shared rows, and never as a
-  check of its message while the trigger does not hold.
+  find) deletes those rows inside a test transaction that rolls back, when the entry point runs in the test's thread
+  (Browserless, MockMvc, a direct service or repository call), and only when the flow reads. Never delete shared rows
+  for good, and never check the flow's message while its trigger does not hold. Where the entry point runs in a
+  server of its own (a live HTTP server, a browser), the flow is a unit that layer cannot reach.
 - **The layers below it are not run**, with three exceptions. A second entry layer that runs in process tests its
   own contract (see below), also when it sits below the integration layer — the API next to a Vaadin Flow UI. A
   layer that already holds tests of this use case runs to reconcile them ("If Tests for This Use Case Already Exist" in `/use-case-test`) rather than leave them to go
@@ -34,7 +36,8 @@ there — not once per layer:
   lower layer is written only when the arguments name it.
 - **A UI layer above the integration layer** whose tests mock the backend (Hilla, Angular) tests what the UI
   decides and that a rejection reaches the actor with the specified message, not the rule again.
-- **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule — and
+- **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule, and
+  leaves out a flow the shared test data rules out, which the integration layer covers — and
   only when the `**E2E scope:**` line under the Integration layer table reads `Use cases and test cases` or is
   missing. `Test cases only` leaves browser tests to `/test-case-implement`: the use case gets none.
 - **A second entry layer that also runs in process** — an API next to a Vaadin Flow or Hilla UI, both of which the

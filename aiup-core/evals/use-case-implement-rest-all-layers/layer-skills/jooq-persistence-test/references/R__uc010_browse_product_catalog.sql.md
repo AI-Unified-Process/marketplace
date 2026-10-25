@@ -11,7 +11,7 @@ Use the content of the code block below; a copy written to disk takes the name `
 
 ```sql
 -- Test data for UC-010 Browse Product Catalog.
--- Every file under db/testdata loads for every test, so the tables hold other use cases' rows too. These rows own
+-- Every test migration loads for every test, so the tables hold other use cases' rows too. These rows own
 -- the ids 1001-1099 and the category prefix "UC010", so the tests can scope their assertions to them.
 
 INSERT INTO product (id, name, category, price, in_stock)

@@ -156,16 +156,21 @@ everything else; never remove or rename an attribute, other tests use it.
   caller.
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected flows need (the guest whose email is already registered) come from the repeatable Flyway test migration
-  of the use case, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`, with `classpath:db/testdata` in the test
-  configuration's `spring.flyway.locations` — the same file the persistence and service test skills write; extend
-  it when it exists. The file lives in the test resources of the module that holds the test: in a hexagonal reactor
-  each test module has its own `db/testdata`. This holds for both conventions. A test creates through the API only the row whose creation it
+  of the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence and service
+  test skills write; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test
+  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed; use
+  repeatable `R__` migrations only, since a versioned test migration would collide with the next production version.
+  The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test module
+  has its own `db/migration` test folder. This holds for both conventions. A test creates through the API only the row whose creation it
   tests. Never autowire a repository to arrange data; a read-only check of a side effect the response does not
   expose is fine. A rule that needs a competing change (a stale version, a row inserted after the client read the
   resource) follows "Which Layer Tests What" of `/use-case-test`: the test arranges that row through the repository
   after the read and before the write. A flow whose trigger the shared test data rules out (an empty list; "Which Layer
-  Tests What" of `/use-case-test`) gets a `@Nested` class with a `@TestPropertySource` of its own that leaves
-  `db/testdata` out of `spring.flyway.locations`, so its tests run in a context of their own against the empty schema.
+  Tests What" of `/use-case-test`) depends on the convention. With MockMvc or MockMvcTester the request runs in the
+  test's thread: the test method is annotated `@Transactional`, deletes the rows, and sends the request; the service
+  joins the test transaction and the rollback restores the shared test data. With a live server the application
+  runs in threads and connections of its own, so the delete never reaches it: report the flow as a unit this layer
+  cannot reach, so `/use-case-test` runs `/spring-service-test` for it.
 - **Cleanup**: remove only the rows the test created; never delete all data.
 - Assert on the response body, the DTO actually sent over the wire — not on an entity.
 
@@ -187,7 +192,6 @@ Classic `MockMvc` (legacy): `mockMvc.perform(post("/api/guests")...).andExpect(s
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestcontainersConfiguration.class)
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class UC001RegisterGuestApiIT {
 
     @Autowired

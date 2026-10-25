@@ -157,7 +157,8 @@ integration layer's tests cover the units.
 
 **E2E scope.** The `**E2E scope:**` line under the Integration layer table decides whether a use case
 needs a browser test. `Use cases and test cases`, or no line: a use case offered through the UI
-without an E2E test of its main success scenario is a gap of the E2E layer. `Test cases only`: a
+without an E2E test of its main success scenario is a gap of the E2E layer; an alternative flow the shared test
+data rules out (an empty list) has no browser test by design and is covered by the integration layer. `Test cases only`: a
 missing use case browser test is no gap and the E2E rows of the Markers table need no `UC-*` match;
 an existing one still counts as evidence. A test case (TC-*) needs its journey test under either
 value.

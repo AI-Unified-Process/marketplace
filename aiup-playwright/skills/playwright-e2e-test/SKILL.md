@@ -105,17 +105,18 @@ talks only to the frontend origin, which proxies `/api/*` to the backend.
 ## Test Data
 
 The test skills own the test data; the migration layer writes none. An existing test data convention of the
-project always comes first (for example versioned test migrations in `src/test/resources/db/migration` of the
-backend). Without one, the default is the repeatable Flyway migration per use case that the backend test skills
-write, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql` in the module that owns the database (the Location of
-the Migration layer in `docs/architecture/stack.md`), with `classpath:db/testdata` in the `spring.flyway.locations` of
-the test configuration; for a journey, the files of the use cases its Flow links.
+project always comes first. Without one, the default is the repeatable Flyway migration per use case that the
+backend test skills write, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` in the module that owns the
+database (the Location of the Migration layer in `docs/architecture/stack.md`); for a journey, the files of the use
+cases its Flow links. Flyway's default location `classpath:db/migration` picks it up whenever the backend runs from
+its test classpath.
 
 - Test case **Preconditions** and use case preconditions are satisfied by that data. When they are not, extend the
   use case's test data file rather than inserting through a back door, and say so in the report.
 - The application under test must run with that data: the End-to-end tests command of `docs/architecture/stack.md` says
-  how it is started (a test profile, a `spring.flyway.locations` property). When it does not load the test data,
-  report that instead of seeding through the API or the UI.
+  how it is started (a backend started from its test classpath, such as a `TestApplication`, loads the test
+  migrations without further configuration). When it does not load the test data, report that instead of seeding
+  through the API or the UI.
 - A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
   cannot be reached here, because the application under test runs with one data set: leave it to the integration
   layer's tests and say so in the report.

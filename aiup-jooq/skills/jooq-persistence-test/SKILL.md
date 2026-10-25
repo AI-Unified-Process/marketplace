@@ -41,8 +41,8 @@ name the file it lives in and leave the value out.
 
 - **Consumes:** the repositories and record types of `jooq-persistence` (its Handover, or the existing code), the
   migrations, and the existing tests of this use case.
-- **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (and the test
-  `spring.flyway.locations` entry for it), and the `UseCase` annotation when the project has none.
+- **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (a repeatable
+  migration in `src/test/resources/db/migration`), and the `UseCase` annotation when the project has none.
 - **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than
   the Markers table of `docs/architecture/stack.md`.
 
@@ -179,7 +179,7 @@ passes on H2 proves nothing about PostgreSQL.
   own no transaction boundary.
 
 With `@SpringBootTest`, do not add `@Transactional` to the test; remove in `@AfterEach` only the rows the test
-created.
+created. The one exception is the test method of a flow the shared test data rules out (see Test Data Strategy).
 
 ## Location
 
@@ -204,23 +204,25 @@ first; otherwise use one repeatable migration per use case:
 
 | Approach                    | Location                                              | Purpose                  |
 |-----------------------------|-------------------------------------------------------|--------------------------|
-| Repeatable Flyway migration | src/test/resources/db/testdata/R__uc<id>_<slug>.sql   | Populate test data       |
+| Repeatable Flyway migration | src/test/resources/db/migration/R__uc<id>_<slug>.sql  | Populate test data       |
 | Manual cleanup              | @AfterEach method                                     | Remove test-created data |
 
-- Name the file after the use case, e.g. `R__uc010_browse_product_catalog.sql`, and add the location on the test
-  class (`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`),
-  not in a `src/test/resources/application.properties`, which would shadow the main configuration. Repeatable
-  migrations run after all versioned ones, so the schema is complete. Every file under `db/testdata` loads for every test context, so the tables also hold the data of the
-  other use cases.
+- Name the file after the use case, e.g. `R__uc010_browse_product_catalog.sql`. Flyway's default location
+  `classpath:db/migration` covers the test resources too, so the tests load the file without any configuration: no
+  `@TestPropertySource`, no profile, no `src/test/resources/application.properties`. Use repeatable `R__` migrations
+  only: they run after all versioned ones, so the schema is complete, while a versioned test migration would collide
+  with the next production version. Every test migration loads for every test context, so the tables also hold the
+  data of the other use cases.
 - Insert rows with `nextval` of the table's sequence, or with explicit ids in a range the tests own when a test needs
   to know the id; reference other rows by a natural key subquery rather than by an id you hope for.
 - The test data satisfies the preconditions of the use case and contains the rows each test excludes (an
   out-of-stock product for `BR-001`), so a missing condition makes a test fail.
 - Write the expected values into the test from the test data and the specification. Reuse test data another use case
   already inserts when it fits; change it only together with the tests that depend on it.
-- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets
-  a `@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`,
-  so its tests run in a context of their own against the empty schema.
+- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
+  deletes the rows in a test method annotated `@Transactional` (with `@JooqTest`, every test already is) and then
+  calls the repository; the repository joins the test transaction, sees the empty table, and the rollback restores
+  the shared test data. Only a read may be tested this way.
 - Scope every assertion to the rows the test owns: give them an id range or a name prefix (`UC010 …`) the tests
   own, filter on that value where the query takes a filter, and narrow other results with `filteredOn` before
   `containsExactly`. Never assert a count or an exact list over a whole table — another use case's rows are in it.

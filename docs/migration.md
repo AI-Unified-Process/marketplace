@@ -24,7 +24,7 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 | The code and the tests the combined plugin wrote                       | The plugins: one combined plugin becomes one plugin per layer                                          |
 | `// UC-XXX BR-YYY:` markers above the code that enforces a rule        | The commands: `/implement` becomes `/use-case-implement`, the test skills run through `/use-case-test` |
 | `@UseCase` on every test method, test class names, Playwright tests    | The `UseCase` annotation moves from `src/main/java` to `src/test/java`                                 |
-| Test data in `db/testdata/R__uc<id>_<slug>.sql`                        | Tests are written once, in the integration layer, not once per layer                                   |
+| Existing test data in `db/testdata/` (kept as the project's convention) | Tests are written once, in the integration layer, not once per layer                                   |
 
 ## 1. Replace the plugins
 

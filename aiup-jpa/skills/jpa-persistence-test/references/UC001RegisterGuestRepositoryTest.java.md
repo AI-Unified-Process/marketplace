@@ -45,10 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @Import(GuestRepositoryImpl.class)
-@TestPropertySource(properties = {
-        "spring.flyway.locations=classpath:db/migration,classpath:db/testdata",
-        // checks the mapping against the migrated schema; Hibernate's default for a non-embedded database is none
-        "spring.jpa.hibernate.ddl-auto=validate"})
+// checks the mapping against the migrated schema; Hibernate's default for a non-embedded database is none
+@TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=validate")
 class UC001RegisterGuestRepositoryTest {
 
     // Reuse the project's TestcontainersConfiguration (@Import it) or base class instead when one exists.
@@ -62,7 +60,7 @@ class UC001RegisterGuestRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    // Test data: src/test/resources/db/testdata/R__uc001_register_guest.sql
+    // Test data: src/test/resources/db/migration/R__uc001_register_guest.sql
     //   insert into guest (id, version, first_name, last_name, email, birth_date, registered_at)
     //   values (nextval('guest_seq'), 0, 'Alice', 'Example', 'alice@example.com', date '1985-01-01',
     //           timestamp '2026-01-15 09:00:00');

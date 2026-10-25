@@ -154,17 +154,20 @@ the annotation by short name, so the copies do not conflict.
   report, not a reason to compute the expectation at runtime.
 - **Transactions**: do not annotate the test class `@Transactional`. A rolled-back test transaction hides the
   service's own boundary, lazy-loading errors, and after-commit events. Remove the rows the test created in
-  `@AfterEach`; never delete all data.
+  `@AfterEach`; never delete all data. The one exception is the test method of a flow the shared test data rules
+  out (see Test data).
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected cases need (the guest whose email is already registered) come from the repeatable Flyway test migration of
-  the use case, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`, with `classpath:db/testdata` in the test
-  configuration's `spring.flyway.locations` — the same file the persistence test skill writes; extend it when it
-  exists. The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test
-  module has its own `db/testdata`. A test creates through the service only the row whose creation it tests, never the fixture. Take the
-  values from the specification's examples and the entity model. A flow whose trigger the shared test data rules out (an
-  empty list; "Which Layer Tests What" of `/use-case-test`) gets a `@Nested` class with a `@TestPropertySource` of its
-  own that leaves `db/testdata` out of `spring.flyway.locations`, so its tests run in a context of their own against the
-  empty schema.
+  the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence test skill
+  writes; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test resources
+  too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed; use
+  repeatable `R__` migrations only, since a versioned test migration would collide with the next production version.
+  The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test module
+  has its own `db/migration` test folder. A test creates through the service only the row whose creation it tests,
+  never the fixture. Take the values from the specification's examples and the entity model. A flow whose trigger
+  the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) deletes the rows in a
+  test method annotated `@Transactional` and then calls the service, which joins the test transaction and sees the
+  empty table; the rollback restores the shared test data. Only a reading method may be tested this way.
 
 ## Integration Style
 
@@ -219,7 +222,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Weaken, delete, or disable an assertion whose expected value the specification states.
 - Take an expected value from running the code.
 - Mock the repository, port, or service under test with `@MockitoBean` in an integration test.
-- Annotate the test class `@Transactional`, or delete all rows in cleanup.
+- Annotate the test class `@Transactional`, or delete all rows in cleanup. Only the test method of a flow the
+  shared test data rules out carries `@Transactional`.
 - Test HTTP status codes or JSON here — that is `/spring-rest-test`.
 - Test the same rule again in a second class; one class per use case.
 - Write a test that asserts only that no exception is thrown, or that a result `isNotNull()`, where the

@@ -175,38 +175,47 @@ The version comes from the Vaadin BOM.
 The view calls the real service (or, without a service layer, the real repository) and the real database;
 nothing is mocked.
 
-An existing test data convention of the project always comes first (for example versioned test migrations in
-`src/test/resources/db/migration`). Without one, the default is:
+An existing test data convention of the project always comes first. Without one, the default is:
 
 | Approach                       | Location                                                  | Purpose                  |
 |--------------------------------|-----------------------------------------------------------|--------------------------|
-| Repeatable Flyway migration    | `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`     | Test data of one use case |
+| Repeatable Flyway migration    | `src/test/resources/db/migration/R__uc<id>_<slug>.sql`    | Test data of one use case |
 | Manual cleanup                 | `@AfterEach` method                                       | Remove test-created data |
 
-Add the location on the test class
-(`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`), not in
-a `src/test/resources/application.properties`, which would shadow the main configuration. The use case's
-preconditions are satisfied by the test data; extend the use case's test data file when they are not. Remove only
-the data a test created, through the UI or a targeted delete, and make the cleanup idempotent.
+Flyway's default location `classpath:db/migration` covers the test resources too, so the tests — and an application
+started from the test sources, such as a `TestApplication` — load the test data without any configuration: no
+`@TestPropertySource`, no profile, no `src/test/resources/application.properties`. Use repeatable `R__` migrations
+only: they run after every versioned migration, while a versioned test migration would collide with the next
+production version. The use case's preconditions are satisfied by the test data; extend the use case's test data
+file when they are not. Remove only the data a test created, through the UI or a targeted delete, and make the
+cleanup idempotent.
 
 A rule that needs a competing change — a stale version on save, an email registered after the actor opened the
-form — arranges that row through the repository or service after the view has loaded the original. This is the one
-exception to seeding through the test data; the test removes the row afterwards.
+form — arranges that row through the repository or service after the view has loaded the original. The test removes
+the row afterwards.
 
-A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets a
-`@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`, so
-its tests run in a context of their own against the empty schema.
+A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
+deletes the rows in a test method annotated `@Transactional`, then drives the view. Browserless runs the view and
+the service in the test's thread, so the service joins the test transaction and sees the empty table, and the
+rollback restores the shared test data. Only a flow that reads may do this; a flow that writes is tested against
+the test data.
 
 ```java
-@Nested
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration")
-class CatalogIsEmpty {
+@Test
+@Transactional
+@UseCase(id = "UC-001", scenario = "A1: Catalog Is Empty")
+void empty_catalog_shows_message() {
+    // Empty the catalog inside the test transaction; the rollback restores the shared test data
+    jdbcClient.sql("delete from loan").update();
+    jdbcClient.sql("delete from book").update();
 
-    @Test
-    @UseCase(id = "UC-001", scenario = "A1: Catalog Is Empty")
-    void empty_catalog_shows_message() { ... }
+    navigate(SearchCatalogView.class);
+    ...
 }
 ```
+
+These two cases — the competing change and the emptied table — are the only exceptions to seeding through the
+test data.
 
 ## Base Test Class
 
@@ -325,12 +334,16 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## DO NOT
 
 - Mock the service or repository with Mockito — the view runs against the real layers below and the database
-- Use `@Transactional` on tests (transaction boundaries must stay intact)
-- Create test data through services, repositories, or `DSLContext` — seed through the Flyway test data; the one
+- Use `@Transactional` on tests (transaction boundaries must stay intact) — except on the test method of a flow
+  the shared test data rules out, which empties the table and rolls back (see Test Data Strategy)
+- Create test data through services, repositories, or `DSLContext` — seed through the Flyway test data; the
   exception is the competing change a rule needs (see Test Data Strategy)
+- Add a `@TestPropertySource`, a profile, or a `src/test/resources/application.properties` for the test data —
+  `classpath:db/migration` already covers `src/test/resources/db/migration`
 - Delete all data in cleanup — only what the test created
-- Edit or delete a row of the shared test data, or assert a table's total — another test or use case changes it;
-  act on rows the test created and assert the rows the specification names
+- Edit or delete a row of the shared test data outside a rolled-back `@Transactional` test, or assert a table's
+  total — another test or use case changes it; act on rows the test created and assert the rows the specification
+  names
 - Use Karibu's `LocatorJ`, `_get`, `_find`, `_click`, `GridKt`, `NotificationsKt` — use `find()` and `test()`
 - Read a plain field value through `test(...)` — use the component's Java API (grid cells and notification text
   are the exception: read them through their tester)

@@ -37,9 +37,9 @@ of their own for the layers below unless a run names them (`/use-case-test UC-00
 ## Module layout
 
 Flat Spring Boot backend in `backend/`, Angular standalone frontend in `frontend/`. Schema migrations live in
-`backend/src/main/resources/db/migration`; test seed data is a separate Flyway location,
-`backend/src/test/resources/db/testdata`, active in the `e2e` profile the application is started with for
-end-to-end tests. The Angular dev server (`http://localhost:4200`) proxies `/api/*` to the backend.
+`backend/src/main/resources/db/migration`; test seed data is a repeatable migration in
+`backend/src/test/resources/db/migration`, which Flyway loads whenever the backend runs from its test classpath, as
+it does for end-to-end tests. The Angular dev server (`http://localhost:4200`) proxies `/api/*` to the backend.
 
 ## API contract
 

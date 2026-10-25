@@ -41,8 +41,8 @@ name the file it lives in and leave the value out.
 
 - **Consumes:** the repositories and record types of `jooq-persistence` (its Handover, or the existing code), the
   migrations, and the existing tests of this use case.
-- **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (and the test
-  `spring.flyway.locations` entry for it), and the `UseCase` annotation when the project has none.
+- **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (a repeatable
+  migration in `src/test/resources/db/migration`), and the `UseCase` annotation when the project has none.
 - **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than
   the Markers table of `docs/architecture/stack.md`.
 
@@ -194,14 +194,15 @@ first; otherwise use one repeatable migration per use case:
 
 | Approach                    | Location                                              | Purpose                  |
 |-----------------------------|-------------------------------------------------------|--------------------------|
-| Repeatable Flyway migration | src/test/resources/db/testdata/R__uc<id>_<slug>.sql   | Populate test data       |
+| Repeatable Flyway migration | src/test/resources/db/migration/R__uc<id>_<slug>.sql  | Populate test data       |
 | Manual cleanup              | @AfterEach method                                     | Remove test-created data |
 
-- Name the file after the use case, e.g. `R__uc010_browse_product_catalog.sql`, and add the location on the test
-  class (`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`),
-  not in a `src/test/resources/application.properties`, which would shadow the main configuration. Repeatable
-  migrations run after all versioned ones, so the schema is complete. Every file under `db/testdata` loads for every test context, so the tables also hold the data of the
-  other use cases.
+- Name the file after the use case, e.g. `R__uc010_browse_product_catalog.sql`. Flyway's default location
+  `classpath:db/migration` covers the test resources too, so the tests load the file without any configuration: no
+  `@TestPropertySource`, no profile, no `src/test/resources/application.properties`. Use repeatable `R__` migrations
+  only: they run after all versioned ones, so the schema is complete, while a versioned test migration would collide
+  with the next production version. Every test migration loads for every test context, so the tables also hold the
+  data of the other use cases.
 - Insert rows with `nextval` of the table's sequence, or with explicit ids in a range the tests own when a test needs
   to know the id; reference other rows by a natural key subquery rather than by an id you hope for.
 - The test data satisfies the preconditions of the use case and contains the rows each test excludes (an

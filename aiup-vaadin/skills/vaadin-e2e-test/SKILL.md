@@ -120,22 +120,22 @@ changes them through `LoginI18n`.
 
 ## Test Data
 
-An existing test data convention of the project always comes first (for example versioned test migrations in
-`src/test/resources/db/migration`). Without one, the default is a repeatable Flyway migration per use case,
-`src/test/resources/db/testdata/R__uc<id>_<slug>.sql` (for a journey, the files of the use cases its Flow links),
-with the location added on the test class
-(`@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")`), not in a
-`src/test/resources/application.properties`, which would shadow the main configuration. A use case's
+An existing test data convention of the project always comes first. Without one, the default is a repeatable
+Flyway migration per use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` (for a journey, the files of
+the use cases its Flow links). Flyway's default location `classpath:db/migration` covers the test resources too, so
+the application under test loads the test data without any configuration: no `@TestPropertySource`, no profile, no
+`src/test/resources/application.properties`. Use repeatable `R__` migrations only; a versioned test migration would
+collide with the next production version. A use case's
 **Preconditions** and a test case's **Preconditions** are satisfied by that data; extend it when they are not,
 rather than inserting through back doors. A test that creates data cleans it up in `@AfterEach` — through the UI
 or targeted deletes — idempotently, because the test may have failed midway. For a journey, the document's
 **Postconditions** section is the cleanup contract: remove exactly the records it lists, in the stated order.
 
-A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) gets a
-`@Nested` class with a `@TestPropertySource` of its own that leaves `db/testdata` out of `spring.flyway.locations`, so
-its tests run in a context of their own against the empty schema. For a use case test that is the `@Nested` class of the
-alternative flow itself (`@DisplayName("A1: Catalog Is Empty")`); the application then starts a second time on a port of
-its own.
+A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
+gets no browser test. The application runs in threads and connections of its own, so a delete in a rolled-back test
+transaction never reaches it, and a committed delete would break the shared test data. The integration layer tests
+that flow; leave it out — no `@Nested` class, no `@Disabled` test — and name it in the class Javadoc and the report
+(`A1 Catalog Is Empty is tested in the integration layer; the running application has one data set`).
 
 ## Use Case Tests (UC-*)
 

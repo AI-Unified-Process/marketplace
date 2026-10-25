@@ -29,7 +29,7 @@
     },
     {
       "name": "A1 test with the seeded email",
-      "description": "A test named after 'A1: Email Already Registered' (the observable effect of BR-001) submits anna.meier@example.com from the seed data (V900__test_data.sql) instead of creating the duplicate itself, and asserts the full message 'This email address is already registered.'",
+      "description": "A test named after 'A1: Email Already Registered' (the observable effect of BR-001) submits anna.meier@example.com from the seed data (R__test_data.sql) instead of creating the duplicate itself, and asserts the full message 'This email address is already registered.'",
       "max_score": 14
     },
     {

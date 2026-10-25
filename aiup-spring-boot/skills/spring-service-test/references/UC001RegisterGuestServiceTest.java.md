@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 // Testcontainers 1 (Spring Boot 3): org.testcontainers.containers.PostgreSQLContainer, used as PostgreSQLContainer<?>
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
@@ -45,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * - Class name UC<id><PascalCaseUseCaseName>ServiceTest, every test method annotated @UseCase
  * - The service is called directly as a Spring bean — no HTTP, no UI
  * - Real database from Testcontainers 2 (Spring Boot 4), schema from the project's Flyway migrations
- * - Fixtures come from the Flyway test migration src/test/resources/db/testdata/R__uc001_register_guest.sql:
+ * - Fixtures come from the Flyway test migration src/test/resources/db/migration/R__uc001_register_guest.sql:
  *     insert into guest (id, version, first_name, last_name, email, birth_date, registered_at)
  *     values (nextval('guest_seq'), 0, 'Alice', 'Example', 'alice@example.com', date '1985-01-01',
  *             timestamp '2026-01-15 09:00:00');
@@ -58,7 +57,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 @SpringBootTest
 @Import(UC001RegisterGuestServiceTest.Config.class)
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class UC001RegisterGuestServiceTest {
 
     @TestConfiguration(proxyBeanMethods = false)

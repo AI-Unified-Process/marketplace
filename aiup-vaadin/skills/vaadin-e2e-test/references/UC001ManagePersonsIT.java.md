@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
 import org.vaadin.addons.dramafinder.element.GridElement;
@@ -44,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Import(TestcontainersConfiguration.class) // the database the project's other Spring tests use
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 @DisplayName("UC-001: Manage Persons")
 class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
 

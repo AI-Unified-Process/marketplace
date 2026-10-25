@@ -39,7 +39,7 @@
     },
     {
       "name": "Seed data not duplicated",
-      "description": "The Deluxe Suite precondition is taken from the seed data (V900__test_data.sql) — the test does not create the room type, and no new seed file is added by the test",
+      "description": "The Deluxe Suite precondition is taken from the seed data (R__test_data.sql) — the test does not create the room type, and no new seed file is added by the test",
       "max_score": 7
     },
     {

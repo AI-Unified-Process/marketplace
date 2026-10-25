@@ -150,10 +150,10 @@ public @interface UseCase {
   caller.
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected flows need (the guest whose email is already registered) come from the repeatable Flyway test migration
-  of the use case, `src/test/resources/db/testdata/R__uc<id>_<slug>.sql`, with `classpath:db/testdata` in the test
-  configuration's `spring.flyway.locations` — the same file the persistence and service test skills write; extend
-  it when it exists. The file lives in the test resources of the module that holds the test: in a hexagonal reactor
-  each test module has its own `db/testdata`. This holds for both conventions. A test creates through the API only the row whose creation it
+  of the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence and service
+  test skills write; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test
+  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed. The file lives in the test resources of the module
+  that holds the test: in a hexagonal reactor each test module has its own `db/migration` test folder. This holds for both conventions. A test creates through the API only the row whose creation it
   tests. Never autowire a repository to arrange data; a read-only check of a side effect the response does not
   expose is fine. A rule that needs a competing change (a stale version, a row inserted after the client read the
   resource) follows "Which Layer Tests What" of `/use-case-test`: the test arranges that row through the repository
@@ -179,7 +179,6 @@ Classic `MockMvc` (legacy): `mockMvc.perform(post("/api/guests")...).andExpect(s
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestcontainersConfiguration.class)
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class UC001RegisterGuestApiIT {
 
     @Autowired
