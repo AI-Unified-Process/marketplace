@@ -361,6 +361,8 @@ skill), or `/use-case-test UC-XXX` when the service is the top layer. Never run 
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Spring Framework transaction management: https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative.html
 - Spring method validation: https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html#validation-beanvalidation-spring-method
 - Jakarta Validation constraints: https://jakarta.ee/specifications/bean-validation/

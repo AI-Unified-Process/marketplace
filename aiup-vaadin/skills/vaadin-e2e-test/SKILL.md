@@ -267,6 +267,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Drama Finder (`org.vaadin.addons:dramafinder`) Javadoc: https://javadoc.io/doc/org.vaadin.addons/dramafinder
 - Playwright for Java: https://playwright.dev/java/
 - Playwright MCP server (`npx @playwright/mcp@latest`) to explore the running application while writing tests;

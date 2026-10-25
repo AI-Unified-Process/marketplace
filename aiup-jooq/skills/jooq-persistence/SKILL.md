@@ -412,6 +412,8 @@ audit.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - If configured, use the jOOQ MCP server for the query DSL and code generation (`https://jooq-mcp.martinelli.ch/mcp`)
 - If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host

@@ -66,7 +66,8 @@ skeleton every layer skill of this marketplace uses, so the orchestrators find w
 4. **The technology sections** — how to build or test the layer, including where the `// UC-XXX BR-YYY:` marker of a
    business rule goes in this layer.
 5. **Markers** — the rows the skill keeps in the Markers table of the stack file.
-6. **DO NOT**, **Workflow**, **Handover**, **Resources**.
+6. **DO NOT**, **Workflow**, **Handover**, **Resources** — the Resources list links `references/layer.md`, so the
+   catalog row is reachable from the skill itself.
 
 Do not copy the shared rules of the orchestrators into the skill — specification gaps, business rule markers,
 reconciling an existing implementation, "When a Test Fails", "Which Layer Tests What". Refer to them by slash

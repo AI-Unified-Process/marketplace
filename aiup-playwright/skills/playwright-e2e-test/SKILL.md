@@ -225,6 +225,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Playwright documentation: https://playwright.dev/docs/intro
 - Locators: https://playwright.dev/docs/locators
 - Test steps and tags: https://playwright.dev/docs/api/class-test

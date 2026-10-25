@@ -211,5 +211,7 @@ persistence skill of `docs/architecture/stack.md` (for example `Next: /jooq-pers
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Flyway documentation: https://documentation.red-gate.com/flyway
 - Spring Boot database initialization with Flyway: https://docs.spring.io/spring-boot/how-to/data-initialization.html

@@ -364,6 +364,8 @@ Service is `–`), or
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Optional MCP server: JavaDocs (`https://www.javadocs.dev/mcp`) — see the plugin's `rules/mcp-servers.md` (locate
   it with a glob for `**/rules/mcp-servers.md`; not every host installs it).
 - Spring Data JPA reference: https://docs.spring.io/spring-data/jpa/reference/

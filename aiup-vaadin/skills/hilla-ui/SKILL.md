@@ -179,6 +179,8 @@ Never run the coverage audit.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Vaadin MCP server (`https://mcp.vaadin.com/docs`): `get_vaadin_primer`, `get_new_apis`, `search_vaadin_docs`,
   `get_component_react_api`
 - Hilla endpoints: https://vaadin.com/docs/latest/hilla/guides/endpoints

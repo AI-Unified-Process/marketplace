@@ -313,6 +313,8 @@ coverage audit.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Angular documentation: https://angular.dev/overview
 - Signals: https://angular.dev/guide/signals
 - Reactive forms: https://angular.dev/guide/forms/reactive-forms
