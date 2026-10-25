@@ -27,8 +27,9 @@ column from the integration layer up, and `/use-case-coverage` searches for the 
 | Service                  |           |            |
 
 A layer the project does not have is marked `–` in every column (a UI layer in a REST service). The Integration
-layer table has a row per entry layer of the project: a use case is tested in the first row its `**Layers:**` line
-names, or in the first row when it has no such line. That layer's tests run in process against the real database
+layer table keeps only the rows of the entry layers the project has — a REST service drops the UI row — and its
+Test skill column names what the Layers table names for that layer (`–` while the skill is not installed). A use
+case is tested in the first row its `**Layers:**` line names, or in the first row when it has no such line. That layer's tests run in process against the real database
 and exercise every layer below it, so `/use-case-test` runs its test skill and the ones above it and writes no tests
 of their own for the layers below unless a run names them (`/use-case-test UC-001 persistence`).
 

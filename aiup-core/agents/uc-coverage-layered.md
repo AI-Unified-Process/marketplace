@@ -130,8 +130,8 @@ When the stack file does not exist, say so at the top of the report, audit with 
 markers and the domain vocabulary alone, and name `/stack` as the step that makes the next
 audit precise.
 
-When the stack file has no Integration layer table (or only the single `**Integration layer:**`
-line of an earlier version), say so at the top of the report and name `/stack` as the step that
+When the stack file has no Integration layer table (or only the one-line
+`**Integration layer:** <layer>` of an earlier version, with no table under the label), say so at the top of the report and name `/stack` as the step that
 writes it. Do not derive the layer yourself: judge the test
 evidence of every layer, and state that the audit could not tell which layer integrates.
 

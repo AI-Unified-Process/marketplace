@@ -133,8 +133,8 @@ corrects the line. The use case's integration layer is the first row of the Inte
 `**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row. Name it in the
 opening line.
 
-When the stack file has no Integration layer table — or only the single `**Integration layer:**` line of an
-earlier version — do not derive the layer here: say so, stop, and hand off to `/stack`, which writes the
+When the stack file has no Integration layer table — or only the one-line `**Integration layer:** <layer>` of an
+earlier version, with no table under the label — do not derive the layer here: say so, stop, and hand off to `/stack`, which writes the
 table without touching the rest of the file.
 
 ## Running a Test Skill

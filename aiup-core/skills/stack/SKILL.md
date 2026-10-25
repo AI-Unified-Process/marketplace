@@ -118,8 +118,8 @@ a missing `## Markers` goes at the end of the file.
 ## Workflow
 
 1. **Read what is there.** Read `docs/architecture/stack.md` when it exists — this run updates it, never
-   replaces it. A file without the Integration layer table — or with the single `**Integration layer:**` line of
-   an earlier version — gets the table in this run. Read `docs/requirements.md` for constraints (`C-*`) that fix a
+   replaces it. A file without the Integration layer table — or with the one-line `**Integration layer:** <layer>`
+   of an earlier version, a value and no table under the label — gets the table in this run. Read `docs/requirements.md` for constraints (`C-*`) that fix a
    technology, the architecture decision records when the project has them (glob `docs/**/adr/*.md`), and the
    team's architecture documentation when there is some — `docs/architecture.md`, the other files under
    `docs/architecture/` (arc42 chapters, C4 or Structurizr models, 4+1 views) — as input for the stack, the module
@@ -147,8 +147,9 @@ a missing `## Markers` goes at the end of the file.
 5. **Write the stack file** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
-   - the Integration layer table under the Layers table — one row per entry layer, in the order UI, API, Service —
-     by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
+   - the Integration layer table under the Layers table — one row per entry layer the project has, in the order UI,
+     API, Service, with no row for an absent one; its Test skill cell is the one the Layers table has for that layer,
+     `–` while the skill is not installed — by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
      start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read
      Tests run from each `layer.md`; for a team's own skill without one, use the answer to step 3. You are the only
      skill that derives this table; the others look it up;
