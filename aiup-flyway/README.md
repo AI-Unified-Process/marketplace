@@ -31,9 +31,11 @@ those layers write the test data migrations.
 /use-case-coverage UC-001       → the audit, using the Markers table of docs/architecture/stack.md
 ```
 
-`/use-case-implement` runs `/flyway-schema` only when the use case needs a table, column, or constraint the schema does not
-have yet. Run directly, `/flyway-schema UC-001` builds the migration layer of one use case, and `/flyway-schema`
-without an argument creates the tables of every entity the schema does not have yet.
+`/use-case-implement` runs `/flyway-schema` only when the use case needs an entity without a table, or one whose table
+lags behind the entity model. The unit is the entity: a new table gets every attribute and constraint the entity model
+gives it, not only the columns of the use case at hand. Run directly, `/flyway-schema UC-001` builds the migration
+layer of one use case, and `/flyway-schema` without an argument creates the tables of every entity the schema does not
+have yet.
 
 Migrations go to the location the Migration row of `docs/architecture/stack.md` records — in a hexagonal reactor the
 persistence adapter module. A business rule the database enforces gets a `-- UC-XXX BR-YYY:` comment above its

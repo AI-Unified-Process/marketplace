@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-flyway",
   "description": "AI Unified Process migration layer - Flyway schema migrations from the entity model",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

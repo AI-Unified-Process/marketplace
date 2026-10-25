@@ -184,7 +184,8 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 7. Collect the gaps of the specification and ask the user about them in one round.
 8. Run the layer skills bottom-up, skipping every layer marked `–`, every entry layer the `**Layers:**` line leaves
    out, and every layer the arguments exclude:
-   1. **Migration** — only when the use case needs a table, column, or constraint the schema does not have yet.
+   1. **Migration** — only when the use case needs an entity without a table, or one whose table lags behind the
+      entity model.
    2. **Persistence**
    3. **Service**
    4. **API**
