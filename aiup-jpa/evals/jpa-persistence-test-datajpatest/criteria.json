@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether jpa-persistence-test, run directly in a project whose integration layer is the API, writes a focused @DataJpaTest for the one query with logic of its own, against PostgreSQL via the project's existing Testcontainers setup, with test data from a repeatable Flyway test migration, the UC naming and the existing @UseCase annotation in the test sources, date-range boundary cases and the order from the specification scoped to rows the test owns, BR-001 left to the integration layer, and no production code changes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "One use case test class with the UC name",
+      "description": "Exactly one new test class named UC031SearchReservationsRepositoryTest is created under src/test/java",
+      "max_score": 8
+    },
+    {
+      "name": "DataJpaTest on the real database engine",
+      "description": "The class is a @DataJpaTest with @AutoConfigureTestDatabase(replace = NONE) and uses PostgreSQL through Testcontainers; no H2 dependency or H2 configuration is added",
+      "max_score": 10
+    },
+    {
+      "name": "Reuses the existing Testcontainers setup",
+      "description": "The test @Imports the existing TestcontainersConfiguration instead of declaring a second container setup",
+      "max_score": 8
+    },
+    {
+      "name": "Reuses the existing UseCase annotation",
+      "description": "Test methods carry @UseCase(id = \"UC-031\", ...) from com.example.hotel.usecase.UseCase in src/test/java; no second UseCase annotation is created",
+      "max_score": 8
+    },
+    {
+      "name": "Alternative flow named",
+      "description": "An empty-period test is annotated with scenario = \"A1: No Reservations in the Period\" and asserts an empty result for a period without arrivals in the test data",
+      "max_score": 7
+    },
+    {
+      "name": "Test data from a Flyway test migration",
+      "description": "Guests, room types, and reservations are inserted by src/test/resources/db/testdata/R__uc031_search_reservations.sql with spring.flyway.locations extended by classpath:db/testdata for tests (or the project's convention), using the tables' sequences or ids in a range the tests own and natural-key subqueries for references, not by repository save calls in the test methods and not by data.sql",
+      "max_score": 9
+    },
+    {
+      "name": "Boundary rows of the date range",
+      "description": "The test data and assertions cover arrivals exactly on the from date and on the to date (included) and just outside the range (excluded)",
+      "max_score": 9
+    },
+    {
+      "name": "BR-001 left to the integration layer",
+      "description": "No test method carries businessRules = {\"BR-001\"} and no test is dedicated to the CANCELLED exclusion, because the integration layer is the API (docs/architecture/stack.md); the report says that BR-001 is tested by spring-rest-test",
+      "max_score": 9
+    },
+    {
+      "name": "Exact order and projected fields",
+      "description": "Assertions check the exact result order (arrival date, then guest last name, with two arrivals on the same day) and the projected fields such as guest names and room type name, using exact values (containsExactly, isEqualTo) scoped to rows the test data owns — a date range only this use case's data uses, or filteredOn — rather than a table-wide count, isNotEmpty, or size greater than zero",
+      "max_score": 9
+    },
+    {
+      "name": "No tests of inherited Spring Data methods",
+      "description": "No test exists only for save, findById, findAll, or other JpaRepository methods",
+      "max_score": 6
+    },
+    {
+      "name": "Production code untouched",
+      "description": "No file under src/main is created or modified, and no file under docs/ other than the Markers table of docs/architecture/stack.md",
+      "max_score": 9
+    },
+    {
+      "name": "Markers rows and hand-off",
+      "description": "docs/architecture/stack.md gains the jpa-persistence-test Markers rows (Test and Name), and the report names the test command and ends with 'Next: /spring-rest-test UC-031', the test skill of the first row of the Integration layer table",
+      "max_score": 8
+    }
+  ]
+}

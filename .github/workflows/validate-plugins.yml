@@ -117,9 +117,9 @@ jobs:
       - name: Check spec linter and eval fixtures
         run: |
           python3 aiup-core/skills/spec-review/scripts/spec_lint.py --self-test
-          # scenario-13 seeds defects on purpose: the lint must fail on it
+          # spec-review-lint-and-semantic seeds defects on purpose: the lint must fail on it
           if python3 aiup-core/skills/spec-review/scripts/spec_lint.py \
-              --docs aiup-core/evals/scenario-13/docs > /dev/null; then
-            echo "ERROR: spec_lint.py found no errors in the seeded scenario-13 fixture" >&2
+              --docs aiup-core/evals/spec-review-lint-and-semantic/docs > /dev/null; then
+            echo "ERROR: spec_lint.py found no errors in the seeded spec-review-lint-and-semantic fixture" >&2
             exit 1
           fi

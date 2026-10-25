@@ -1,0 +1,71 @@
+{
+  "context": "Tests whether /spring-service-test writes UC001RegisterGuestServiceTest as the integration layer of a Hilla project (docs/architecture/stack.md names Service as the integration layer): it calls GuestService directly, reuses the existing UseCase annotation and TestcontainersConfiguration, arranges the already-registered guest through the use case's repeatable Flyway test migration, tests BR-001, BR-002 and BR-003 with an allowed and a rejected case at the rule's boundary, asserts the specification's messages exactly, fixes the clock, does not mock the call chain, is not @Transactional, and reports honestly that the tests were not run. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Class name and location",
+      "description": "The test class is named UC001RegisterGuestServiceTest in src/test/java/com/example/hotel/guest",
+      "max_score": 7
+    },
+    {
+      "name": "@UseCase on every test method",
+      "description": "Every test method carries @UseCase(id = \"UC-001\", ...) with scenario values matching 'A1: Email Already Registered' / 'A2: Guest Too Young' where applicable and businessRules naming BR-002 / BR-003",
+      "max_score": 10
+    },
+    {
+      "name": "Reuses existing annotation and container setup",
+      "description": "Imports com.example.hotel.usecase.UseCase and uses the existing TestcontainersConfiguration (e.g. @Import); does not create a second UseCase annotation or a second container definition",
+      "max_score": 9
+    },
+    {
+      "name": "Test data from the use case's test migration",
+      "description": "The already-registered guest needed by the BR-002 rejection comes from a repeatable Flyway test migration src/test/resources/db/testdata/R__uc001_register_guest.sql (inserting a guest with nextval('guest_seq')), with spring.flyway.locations including classpath:db/testdata in the test configuration (e.g. @TestPropertySource); the test does not create that fixture by calling GuestService.register or GuestRepository.insert first",
+      "max_score": 7
+    },
+    {
+      "name": "BR-002 allowed and rejected",
+      "description": "One test registers a guest with a new email successfully (asserting the returned guest's data and its registeredAt from the fixed clock) and one shows a registration with an email that is already registered throwing EmailAlreadyRegisteredException",
+      "max_score": 10
+    },
+    {
+      "name": "BR-003 boundary cases",
+      "description": "One test accepts a guest whose 18th birthday is exactly the arrival date and one rejects a guest one day younger with GuestTooYoungException — not arbitrary ages far from the boundary",
+      "max_score": 11
+    },
+    {
+      "name": "Exact messages",
+      "description": "Rejections assert the full message with hasMessage(\"The email address ... is already registered.\") and hasMessage(\"Guests must be at least 18 years old on the day of arrival.\"), not hasMessageContaining",
+      "max_score": 9
+    },
+    {
+      "name": "Validation covered",
+      "description": "At least one test shows a missing required field (BR-001) rejected with ConstraintViolationException",
+      "max_score": 5
+    },
+    {
+      "name": "Real call chain, no mocks",
+      "description": "GuestService and GuestRepository are real beans; no @MockitoBean (or other mock) on them",
+      "max_score": 8
+    },
+    {
+      "name": "No @Transactional test, targeted cleanup",
+      "description": "The test class is not annotated @Transactional; cleanup removes only the guests the tests created (e.g. by id or test email), not all rows",
+      "max_score": 7
+    },
+    {
+      "name": "Fixed clock",
+      "description": "A fixed Clock replaces the system clock in the test context (e.g. @TestConfiguration with a @Primary Clock), or the agent explains why it is unnecessary for the asserted values",
+      "max_score": 4
+    },
+    {
+      "name": "No production or docs changes",
+      "description": "No file under src/main changes; nothing under docs/ changes except the spring-service-test rows of the Markers table (Test row for @UseCase, Name row for UC<id><Name>ServiceTest), the existing rows kept",
+      "max_score": 7
+    },
+    {
+      "name": "Honest report and hand-off",
+      "description": "The report states that the tests could not be run here (no Docker) rather than claiming they pass, and ends with the line Next: /hilla-ui-test UC-001 (the UI test skill above; the project has no API layer) — not /spring-rest-test",
+      "max_score": 6
+    }
+  ]
+}
