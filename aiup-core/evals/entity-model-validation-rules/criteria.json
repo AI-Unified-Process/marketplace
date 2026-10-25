@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "Email validation rule",
-      "description": "The student's email attribute uses the validation rule 'Not Null, Format: Email' (exactly this value, not 'Not Null' alone or a custom format string)",
+      "description": "The student's email attribute uses the validation rule 'Not Null, Format: Email', or 'Not Null, Unique, Format: Email' when the email identifies the student (not 'Not Null' alone or a custom format string)",
       "max_score": 12
     },
     {

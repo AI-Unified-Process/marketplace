@@ -39,7 +39,7 @@ one-line change. Ask at most five per run; decide the rest with the best default
 Do not ask about:
 
 - implementation choices (SQL types, indexes, surrogate key strategy, table names, ORM mapping) — the Data Types and
-  Validation Rules tables are a closed set, and the rest belongs to the migration;
+  the Validation Rules vocabulary are closed, and the rest belongs to the migration;
 - what the user already answered in this conversation or what the existing model already states;
 - behavior — who may change a record and what happens when a rule is violated belongs in a use case
   (`/use-case-spec`), not in the entity model;

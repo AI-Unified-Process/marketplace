@@ -111,29 +111,48 @@ skill of every stack maps exactly that combination to a binary column, and the p
 Compose every Validation Rules cell from this vocabulary, using the exact wording —
 never a prose description, and never an empty cell, dash, or "N/A":
 
+**Keys** — a key column takes exactly one of these values:
+
 | Attribute Type                | Validation Rules Value              |
 |-------------------------------|-------------------------------------|
 | Primary key                   | Primary Key, Sequence               |
 | Natural or composite key      | Primary Key                         |
 | Composite key and foreign key | Primary Key, Foreign Key (TABLE.id) |
-| Required field                | Not Null                            |
-| Unique field                  | Not Null, Unique                    |
-| Foreign key                   | Not Null, Foreign Key (TABLE.id)    |
-| Optional field                | Optional                            |
-| With range                    | Not Null, Min: X, Max: Y            |
-| With values                   | Not Null, Values: A, B, C           |
-| Email                         | Not Null, Format: Email             |
+
+**Every other attribute** — one nullability rule first, then any of the following rules that apply, in this order:
+
+| Position | Rule                     | Meaning                                                                    |
+|----------|--------------------------|----------------------------------------------------------------------------|
+| 1        | `Not Null` or `Optional` | Required or optional; always present, always first                         |
+| 2        | `Unique`                 | No two rows share the value (an optional value: no two non-empty ones)     |
+| 3        | `Foreign Key (TABLE.id)` | References another entity, or an external entity named under the title     |
+| 4        | `Min: X, Max: Y`         | Range of a number, or of a date as ISO dates; always both bounds           |
+| 4        | `Values: A, B, C`        | A fixed set of values; instead of a range, never together with one         |
+| 5        | `Format: <format>`       | The value follows a format: `Email`, `Phone` (international, E.164), `URL` |
+
+| Attribute Type                | Validation Rules Value                      |
+|-------------------------------|---------------------------------------------|
+| Required field                | Not Null                                    |
+| Optional field                | Optional                                    |
+| Unique field                  | Not Null, Unique                            |
+| Foreign key                   | Not Null, Foreign Key (TABLE.id)            |
+| One-to-one link               | Not Null, Unique, Foreign Key (TABLE.id)    |
+| With range                    | Not Null, Min: X, Max: Y                    |
+| With values                   | Not Null, Values: A, B, C                   |
+| Email                         | Not Null, Format: Email                     |
+| Unique email                  | Not Null, Unique, Format: Email             |
+| Optional phone number         | Optional, Format: Phone                     |
 
 Examples: an email attribute is `Not Null, Format: Email` — never "must be a valid
-email address". A status attribute with a fixed set of states is
+email address"; an email address no two members share is `Not Null, Unique, Format: Email`. A status attribute with a fixed set of states is
 `Not Null, Values: Pending, Active, Completed, Cancelled` — never "must be one of
 Pending, Active, Completed, Cancelled".
 
-This table is a **closed set**: every Validation Rules cell is exactly one row
-from it. Do not combine rows into new patterns (`Not Null, Unique, Format: Email`
-is invalid — pick the one rule that matters most, here `Not Null, Format: Email`),
-and never write `Min:` without its matching `Max:` (`Not Null, Min: 0` alone is
-invalid — use `Not Null, Min: 0, Max: <upper bound>` or just `Not Null`).
+The vocabulary is **closed**: a cell holds only the rules above, in the order of the Position column, each
+at most once, and nothing else — no prose, no rule of your own (`Format: Swiss postal code` is invalid; a format
+the list lacks is a `#### Constraints` bullet). Never write `Min:` without its matching `Max:` (`Not Null, Min: 0`
+alone is invalid — use `Not Null, Min: 0, Max: <upper bound>` or just `Not Null`), and never combine `Values:` with
+a range.
 
 The same tables are available in [references/REFERENCE.md](references/REFERENCE.md). The path is relative to the folder containing this SKILL.md, not to the project root.
 
@@ -152,9 +171,9 @@ attribute table and list each constraint as a bullet, one rule per bullet:
 Never write the constraints as a bold `**Constraints:**` line or as an extra table row, and
 omit the heading when the entity has no multi-column constraint.
 
-A rule that combines two rows of the closed set goes there too: a foreign key that is also unique (a one-to-one
-link) keeps `Not Null, Foreign Key (TABLE.id)` in its cell and states the uniqueness as a bullet
-(`- A user account belongs to at most one member (user_id is unique).`).
+Uniqueness of a single attribute belongs in its cell (`Not Null, Unique, Foreign Key (APP_USER.id)` for a
+one-to-one link); uniqueness of a combination of attributes is a bullet
+(`- A member borrows a book at most once per day (member_id, book_id, borrowed_on are unique together).`).
 
 ## External Entities
 
@@ -210,7 +229,7 @@ module's folder under `docs/use_cases/`. Keep that structure when you update the
     - Every entity heading is `###` with the name in UPPERCASE
     - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)
-    - All validation rules use values from the Validation Rules table above
+    - Every Validation Rules cell is a key value, or a nullability rule followed by rules of the vocabulary in the order of its Position column
     - With modules: every entity has one section in one module file, every entity a module's diagram names is its own
       or listed in its `From other modules:` line, and the `## Modules` table links every module file
 7. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist

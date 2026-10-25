@@ -63,9 +63,10 @@ Map each type onto the seven types of rule 7 of the format contract — `Long`, 
 `Boolean`, `Date`, `DateTime`, nothing else: semantics belong in the Description and
 Validation Rules columns, not the Data Type column. Map validation to the AI
 Unified Process vocabulary
-(`Primary Key, Sequence`, `Primary Key`, `Primary Key, Foreign Key (TABLE.id)`,
-`Not Null`, `Not Null, Unique`, `Not Null, Foreign Key (TABLE.id)`, `Optional`,
-`Not Null, Min: X, Max: Y`, `Not Null, Values: A, B, C`, `Not Null, Format: Email`).
+of `/entity-model`: a key column takes `Primary Key, Sequence`, `Primary Key`, or
+`Primary Key, Foreign Key (TABLE.id)`; every other column `Not Null` or `Optional`, followed in this order by
+`Unique`, `Foreign Key (TABLE.id)`, `Min: X, Max: Y` or `Values: A, B, C`, and `Format: Email`, `Phone`, or `URL`
+where they apply (`Not Null, Unique, Format: Email`).
 A key the database generates is `Primary Key, Sequence`. Use `Primary Key` for
 a natural key and for each column of a composite key, and
 `Primary Key, Foreign Key (TABLE.id)` for a composite key column that also

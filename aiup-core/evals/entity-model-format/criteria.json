@@ -44,7 +44,7 @@
     },
     {
       "name": "Valid validation rules",
-      "description": "Every cell in the Validation Rules column uses only the allowed vocabulary: Primary Key, Sequence; Primary Key; Primary Key, Foreign Key (TABLE.id); Not Null; Not Null, Unique; Not Null, Foreign Key (TABLE.id); Optional; Not Null, Min: X, Max: Y; Not Null, Values: A, B, C; Not Null, Format: Email",
+      "description": "Every cell in the Validation Rules column is a key value (Primary Key, Sequence; Primary Key; Primary Key, Foreign Key (TABLE.id)) or Not Null / Optional followed, in this order, only by Unique, Foreign Key (TABLE.id), Min: X, Max: Y or Values: A, B, C, and Format: Email / Phone / URL",
       "max_score": 10
     },
     {
