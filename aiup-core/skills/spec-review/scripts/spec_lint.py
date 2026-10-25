@@ -957,6 +957,39 @@ def element_for(line, default):
     return match.group(1) if match else default
 
 
+# Columns of the requirements tables that hold a fixed value, not prose: an
+# Avoid synonym equal to a priority ("Medium") must not match them.
+REQ_VALUE_COLUMNS = {"id", "priority", "status", "category", "source",
+                     "priorität", "kategorie", "quelle"}
+
+
+def requirement_prose(lines):
+    """Lines of requirements.md with the value columns of its tables blanked."""
+    header = None
+    result = []
+    for index, line in enumerate(lines):
+        if not line.lstrip().startswith("|"):
+            header = None
+            result.append(line)
+            continue
+        cells = table_cells(line)
+        following = lines[index + 1] if index + 1 < len(lines) else ""
+        if header is None and re.match(r"^\s*\|[\s:|-]+\|\s*$", following):
+            header = [cell.casefold() for cell in cells]
+            result.append(line)
+            continue
+        if header is None or re.match(r"^\s*\|[\s:|-]+\|\s*$", line):
+            result.append(line)
+            continue
+        kept = [cell if index_ >= len(header)
+                or header[index_] not in REQ_VALUE_COLUMNS else ""
+                for index_, cell in enumerate(cells)]
+        # Keep the ID cell so element_for still names the requirement
+        kept[0] = cells[0]
+        result.append("| " + " | ".join(kept) + " |")
+    return result
+
+
 def check_wording(project, specs, glossary):
     """Weak words and avoided glossary synonyms in the prose artifacts."""
     avoided = [(term, synonym, word_pattern(synonym, plural=True))
@@ -968,7 +1001,8 @@ def check_wording(project, specs, glossary):
                           match.group(1) if match else ""))
     if project.requirements_path:
         documents.append((project.requirements_path,
-                          read_lines(project.requirements_path), ""))
+                          requirement_prose(
+                              read_lines(project.requirements_path)), ""))
     for path, lines, default in documents:
         for number, line in prose_lines(lines):
             if line.startswith("#") or line.startswith("<!--"):
@@ -1885,6 +1919,18 @@ def self_test():
         if got != expected:
             failures.append("derived_status(%s): expected %s, got %s"
                             % (statuses, expected, got))
+
+    with tempfile.TemporaryDirectory() as root:
+        # An Avoid synonym equal to a priority or status value matches only prose
+        values = dict(CLEAN)
+        values["glossary.md"] = CLEAN["glossary.md"].replace(
+            "| Customer, Client |", "| Customer, High, Rejected |")
+        write_fixture(root, values)
+        avoided = [f for f in lint(root, validator, bpmn)
+                   if f.code == "GLOSSARY_AVOIDED_TERM"]
+        if avoided:
+            failures.append("values: GLOSSARY_AVOIDED_TERM on a priority or "
+                            "status cell: " + avoided[0].message)
 
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, BROKEN)

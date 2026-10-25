@@ -199,6 +199,12 @@ Every business rule the use case lists is enforced in the service, whatever the 
 database constraint, a form validator, or an API check is a second line, never the only one, because every other
 client of the service bypasses it.
 
+A rule that decides only which rows a read returns or in which order — a search match, a filter, a sort, a value
+the query computes — is enforced by the query condition of the persistence layer, which carries its marker. The
+service passes the read through and repeats no marker above a method that only delegates; a marker there points
+`/use-case-coverage` at code that enforces nothing. A rule that rejects a command or guards a write is enforced
+here, always.
+
 ### Business Rule Markers
 
 Put the marker `// UC-XXX BR-YYY: <rule in one line>` directly above the guard clause or the service method that
@@ -333,7 +339,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    transaction boundary, a guard clause with its marker per business rule, a domain exception per rejection, and
    `list`/`count` for a list that grows without bound.
 6. Compile the module (in a hexagonal project, `domain` then `business`) and fix the errors in the code you wrote.
-7. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker in the service.
+7. Check that every business rule the service enforces has its `UC-XXX BR-YYY` marker in the service; a rule that
+   only shapes a read has it in the persistence layer (see [Business Rules](#business-rules)).
 8. Update the Markers rows — see [Markers](#markers).
 9. Report the files created or changed, the **Open questions**, and end with the Handover.
 

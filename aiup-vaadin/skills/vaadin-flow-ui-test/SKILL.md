@@ -62,6 +62,7 @@ is not repeated here. What it means for a view:
 | Business rule                                     | its allowed and rejected case as the view shows them: the field error or notification with the specified message |
 | Input validation from the entity model            | one rejected input per constraint, as the Binder reports it                            |
 | Postcondition                                     | read back from the persisted state (`JdbcClient` or the repository's read), not only from the grid or the reopened detail |
+| Linked NFR or constraint with an observable limit | the limit as the view enforces it — for a required role or sign-in: navigate without it (`@WithAnonymousUser`, or `@WithMockUser` with another role) and assert the view is not shown; `requirements = {"NFR-XXX"}` on the method |
 
 A unit no view of this use case can reach (a service method only a job calls, a query only another use case's view
 runs) is listed in the report, so `/use-case-test` runs the test skill of the layer that owns it.
@@ -189,6 +190,12 @@ only: they run after every versioned migration, while a versioned test migration
 production version. The use case's preconditions are satisfied by the test data; extend the use case's test data
 file when they are not. Remove only the data a test created, through the UI or a targeted delete, and make the
 cleanup idempotent.
+
+The `R__` migration runs before the application starts, so it cannot reference rows the application inserts at
+startup — demo users of an `ApplicationRunner`, a seeded administrator. When the test data needs such a row (a
+member linked to a user account, a loan of that member), insert it in the test data file too, with a fixed id the
+table's sequence does not hand out and `ON CONFLICT DO NOTHING` (or the database's equivalent), so the repeatable
+migration can run again on a database that already holds the rows.
 
 A rule that needs a competing change — a stale version on save, an email registered after the actor opened the
 form — arranges that row through the repository or service after the view has loaded the original. The test removes

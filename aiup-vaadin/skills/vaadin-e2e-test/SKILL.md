@@ -130,6 +130,8 @@ collide with the next production version. A use case's
 rather than inserting through back doors. A test that creates data cleans it up in `@AfterEach` — through the UI
 or targeted deletes — idempotently, because the test may have failed midway. For a journey, the document's
 **Postconditions** section is the cleanup contract: remove exactly the records it lists, in the stated order.
+The test data cannot reference rows the application inserts at startup (demo users of an `ApplicationRunner`): the
+migration runs first. `/vaadin-flow-ui-test`, "Test Data Strategy", says how the test data file inserts them itself.
 
 A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
 gets no browser test. The application runs in threads and connections of its own, so a delete in a rolled-back test
@@ -252,6 +254,11 @@ Assert a locator with Playwright's `com.microsoft.playwright.assertions.Playwrig
 `assertThat`: import AssertJ statically and call Playwright's qualified, as the templates do — a locator passed to
 AssertJ has no `hasText` and does not compile. A notification's message is the full text of
 `notification.getContentLocator()`, not `assertOpen()` alone.
+
+A filter field whose value change mode is lazy or eager with a timeout (`ValueChangeMode.LAZY`, `TIMEOUT`) refreshes
+the grid after a delay, and `getTotalRowCount()` does not retry. After setting the filter, first assert a cell that
+only the filtered result shows — a row index whose text differs from the unfiltered grid — and only then count rows
+or read cells that the unfiltered grid shows as well.
 
 ## Markers
 
