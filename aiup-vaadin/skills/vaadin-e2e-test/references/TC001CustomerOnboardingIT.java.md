@@ -14,6 +14,7 @@ package com.example.app.e2e;
 
 import java.util.List;
 
+import com.example.app.TestcontainersConfiguration;
 import com.example.app.usecase.TestCase;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
@@ -42,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * a new customer is created (UC-001) and places a first order (UC-004).
  * AssertJ's assertThat checks values; PlaywrightAssertions.assertThat checks locators and retries.
  */
+@Import(TestcontainersConfiguration.class) // the database the project's other Spring tests use
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 @TestCase(id = "TC-001", useCases = {"UC-001", "UC-004"})

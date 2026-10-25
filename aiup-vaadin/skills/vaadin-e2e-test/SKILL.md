@@ -95,8 +95,28 @@ Vaadin synchronization:
 ```
 
 Annotate the class `@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)`, inject `@LocalServerPort`, and
-override `getUrl()` (`http://localhost:<port>/`) and `getView()` (the view's route). When the view is secured, log
-in through the login view as the role the actor has, with test users from the test configuration.
+override `getUrl()` (`http://localhost:<port>/`) and `getView()` (the view's route). Give the application the
+database the project's other Spring tests use: when they import a Testcontainers configuration
+(`@Import(TestcontainersConfiguration.class)` on the Browserless base class or the tests), import it here too —
+without it Spring Boot connects to the datasource of `application.properties`, which is usually not running.
+
+When the view is secured, `AbstractBasePlaywrightIT` lands on the login view instead. Log in in a `@BeforeEach` of
+the test class — JUnit runs it after the base class has opened the page — as the role the actor has, with a test user
+from the test data or the project's seeded demo accounts, then open the view again:
+
+```java
+@BeforeEach
+void login() {
+    TextFieldElement.getByLabel(page, "Username").setValue("alice");
+    PasswordFieldElement.getByLabel(page, "Password").setValue("alice");
+    ButtonElement.getByText(page, "Log in").click();
+    page.waitForURL(url -> !url.contains("/login"));
+    page.navigate(getUrl() + getView());
+}
+```
+
+The labels are those of Vaadin's `LoginForm` and `LoginOverlay`; take them from the project's login view when it
+changes them through `LoginI18n`.
 
 ## Test Data
 
@@ -254,10 +274,10 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 4. Plan: `@Nested` groups per scenario for a use case; one private step method per Flow row for a journey, and the
    `@TestCase` annotation (bootstrap step) with the use cases the Flow links.
 5. Look up every element class you will use in [references/dramafinder-api.md](references/dramafinder-api.md).
-6. Write the class: `AbstractBasePlaywrightIT`, `@SpringBootTest(webEnvironment = RANDOM_PORT)`, `@TestCase` for a
-   journey, `getUrl()`,
-   `getView()`, the tests with expected values from the specification and test data, and the `@AfterEach` cleanup.
-7. Run it (`./mvnw verify -Pit -Dit.test=UC001*IT`, or the End-to-end tests command in `docs/architecture/stack.md`).
+6. Write the class: `AbstractBasePlaywrightIT`, `@SpringBootTest(webEnvironment = RANDOM_PORT)`, the project's
+   Testcontainers configuration, `@TestCase` for a journey, `getUrl()`, `getView()`, the login when the view is secured, the tests with expected values from the specification and test data, and the `@AfterEach` cleanup.
+7. Run it with the End-to-end tests command of `docs/architecture/stack.md` (with Maven Failsafe:
+   `./mvnw verify -Dit.test='UC001*IT'`).
    On a failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check that the view loaded,
    assert something on a target view before acting on it, use `waitForGridToStopLoading()` for asynchronous grids,
    and debug with `-Dheadless=false`.

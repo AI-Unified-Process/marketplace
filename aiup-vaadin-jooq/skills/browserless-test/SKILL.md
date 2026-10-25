@@ -171,9 +171,9 @@ The version comes from the Vaadin BOM.
 - Use services, repositories, or DSLContext to create test data
 - Delete all data in cleanup (only remove data created during the test)
 - Use browser-based testing patterns (this is server-side testing)
-- Use Karibu's `LocatorJ`, `_get`, `_find`, `_click`, `GridKt`, `NotificationsKt` — those are the legacy Karibu API. Use the Browserless `$()` query and `test()` wrapper instead
+- Use Karibu's `LocatorJ`, `_get`, `_find`, `_click`, `GridKt`, `NotificationsKt` — those are the legacy Karibu API. Use the Browserless `find()` query and `test()` wrapper instead
 - Read component state through `test(...)` — use the component's Java API directly (e.g. `textField.getValue()`, `button.isEnabled()`)
-- Use `$()` for overlay components (Context Menu, Menu Bar) — use the dedicated tester's `clickItem()` / `find()` methods
+- Use `find()` for overlay components (Context Menu, Menu Bar) — use the dedicated tester's `clickItem()` / `find()` methods
 
 ## Test Data Strategy
 
@@ -217,26 +217,30 @@ navigate(PersonTemplateView.class, Map.of("id", "42"));      // with URL templat
 HasElement currentView = getCurrentView();
 ```
 
-### Find Components — `$()` Query
+### Find Components — `find()` Query
+
+Browserless 1.1 (Vaadin 25.2) renamed the query methods: `find()` and `findInView()` replace `$()` and `$view()`,
+which are deprecated for removal and fail a build that compiles with `-Werror`. Use the new names; only on
+Vaadin 25.1 (Browserless 1.0), where they do not exist yet, write `$()` and `$view()` instead.
 
 ```java
 // Single result
-TextField name = $(TextField.class).single();
-Button save = $(Button.class).withText("Save").single();
-TextField nameField = $(TextField.class).withCaption("Name").single();
-ComboBox<Country> country = $(ComboBox.class).withId("country").single();
+TextField name = find(TextField.class).single();
+Button save = find(Button.class).withText("Save").single();
+TextField nameField = find(TextField.class).withCaption("Name").single();
+ComboBox<Country> country = find(ComboBox.class).withId("country").single();
 
 // Scope to current view
-TextField name = $view(TextField.class).single();
+TextField name = findInView(TextField.class).single();
 
 // Scope to a parent component
-TextField name = $(TextField.class, view.formLayout).single();
+TextField name = find(TextField.class, view.formLayout).single();
 
 // All matching
-List<Button> buttons = $(Button.class).all();
+List<Button> buttons = find(Button.class).all();
 
 // Existence check (no exception)
-if ($(Notification.class).exists()) { /* ... */ }
+if (find(Notification.class).exists()) { /* ... */ }
 ```
 
 #### Filters
@@ -272,17 +276,17 @@ Use `test(component)` for **actions** (click, setValue, selectItem). Read state 
 
 ```java
 // Form interactions
-test($(TextField.class).withCaption("Name").single()).setValue("John");
-test($(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
-test($(DatePicker.class).withCaption("Birth Date").single())
+test(find(TextField.class).withCaption("Name").single()).setValue("John");
+test(find(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
+test(find(DatePicker.class).withCaption("Birth Date").single())
     .setValue(LocalDate.of(1990, 1, 1));
-test($(Checkbox.class).withCaption("Active").single()).click();
+test(find(Checkbox.class).withCaption("Active").single()).click();
 
 // Buttons
-test($(Button.class).withText("Save").single()).click();
+test(find(Button.class).withText("Save").single()).click();
 
 // Reading state — use the component API, not the tester
-String value = $(TextField.class).withCaption("Name").single().getValue();
+String value = find(TextField.class).withCaption("Name").single().getValue();
 ```
 
 #### Built-in Testers
@@ -307,7 +311,7 @@ String value = $(TextField.class).withCaption("Name").single().getValue();
 ### Grid Operations
 
 ```java
-Grid<PersonRecord> grid = $(Grid.class).single();
+Grid<PersonRecord> grid = find(Grid.class).single();
 
 // Size
 assertThat(test(grid).size()).isEqualTo(100);
@@ -323,27 +327,27 @@ PersonRecord row = test(grid).getRow(0);
 
 // Component column action — get the renderer's component and click it
 test(grid).getRow(0); // ensure row is materialized
-$(Button.class, grid).withCondition(b -> /* ... */).first().click();
+find(Button.class, grid).withCondition(b -> /* ... */).first().click();
 ```
 
 ### Notification Assertions
 
 ```java
 // Notification is open?
-assertThat($(Notification.class).exists()).isTrue();
+assertThat(find(Notification.class).exists()).isTrue();
 
 // Read its text
-String message = test($(Notification.class).single()).getText();
+String message = test(find(Notification.class).single()).getText();
 assertThat(message).isEqualTo("Record saved successfully");
 
 // No notification
-assertThat($(Notification.class).exists()).isFalse();
+assertThat(find(Notification.class).exists()).isFalse();
 ```
 
 ### ConfirmDialog
 
 ```java
-ConfirmDialog dialog = $(ConfirmDialog.class).single();
+ConfirmDialog dialog = find(ConfirmDialog.class).single();
 test(dialog).confirm();   // click confirm
 test(dialog).cancel();    // click cancel
 test(dialog).reject();    // click reject (3-button dialogs)
@@ -365,7 +369,7 @@ For components without a stable label/text, set a test ID on the server side and
 submitButton.setTestId("submit-button");
 
 // In the test
-Button submit = $(Button.class).id("submit-button");
+Button submit = find(Button.class).id("submit-button");
 ```
 
 ## Assertions Reference
@@ -381,7 +385,7 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 | Field invalid     | `assertThat(textField.isInvalid()).isTrue()`                |
 | Collection size   | `assertThat(items).hasSize(5)`                              |
 | Notification text | `assertThat(test(notif).getText()).isEqualTo("Saved")`      |
-| Component open    | `assertThat($(Dialog.class).exists()).isTrue()`             |
+| Component open    | `assertThat(find(Dialog.class).exists()).isTrue()`             |
 
 ## Workflow
 
@@ -398,16 +402,16 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
     - Annotate with `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-…"})`
       mirroring the spec headings
     - Navigate to the view with `navigate(...)`
-    - Find components with `$()` / `$view()`
+    - Find components with `find()` / `findInView()`
     - Perform interactions through `test(component)`
     - Assert outcomes against the component's Java API
     - Clean up test data if created during the test
 7. Run tests to verify they pass
 8. If a test fails, decide first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails). For a failure in the test itself:
-    - Use `$()...exists()` to verify the component is in the tree
+    - Use `find(...).exists()` to verify the component is in the tree
     - Use `getCurrentView()` to confirm navigation succeeded
     - Verify test data exists in the Flyway test migrations
-    - For overlay components, use the dedicated tester (`ContextMenuTester`, `MenuBarTester`) — `$()` won't see them
+    - For overlay components, use the dedicated tester (`ContextMenuTester`, `MenuBarTester`) — `find()` won't see them
 9. Mark todos complete
 10. Report the result and hand off to `/coverage-check UC-XXX` — see
    [Coverage Check](#coverage-check) below

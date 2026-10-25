@@ -43,7 +43,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
 
         // Expected values come from the Flyway test data (100 persons, sorted by first name),
         // never from a run of the code.
-        Grid<PersonRecord> grid = $(Grid.class).single();
+        Grid<PersonRecord> grid = find(Grid.class).single();
         assertThat(test(grid).size()).isEqualTo(100);
         assertThat(test(grid).getRow(0).getFirstName()).isEqualTo("Eula");
     }
@@ -53,7 +53,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void grid_row_can_be_selected() {
         navigate(ManagePersonsView.class);
 
-        Grid<PersonRecord> grid = $(Grid.class).single();
+        Grid<PersonRecord> grid = find(Grid.class).single();
         assertThat(test(grid).size()).isEqualTo(100);
 
         PersonRecord first = test(grid).getRow(0);
@@ -72,10 +72,10 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void saving_a_person_shows_notification() {
         navigate(ManagePersonsView.class);
 
-        test($(Button.class).withText("Save").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         // Main success scenario step 4: the exact message the specification states
-        Notification notification = $(Notification.class).single();
+        Notification notification = find(Notification.class).single();
         assertThat(test(notification).getText()).isEqualTo("Saved successfully");
     }
 
@@ -84,15 +84,15 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void form_submission_creates_record() {
         navigate(ManagePersonsView.class);
 
-        test($(TextField.class).withCaption("First Name").single()).setValue("Test Name");
-        test($(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
-        test($(DatePicker.class).withCaption("Birth Date").single())
+        test(find(TextField.class).withCaption("First Name").single()).setValue("Test Name");
+        test(find(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
+        test(find(DatePicker.class).withCaption("Birth Date").single())
                 .setValue(LocalDate.of(1990, 1, 1));
 
-        test($(Button.class).withText("Save").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         // Postcondition: the new person is listed — 100 from the test data plus the one created
-        Grid<PersonRecord> grid = $(Grid.class).single();
+        Grid<PersonRecord> grid = find(Grid.class).single();
         assertThat(test(grid).size()).isEqualTo(101);
         assertThat(grid.getGenericDataView().getItems().map(PersonRecord::getFirstName))
                 .contains("Test Name");
@@ -103,9 +103,9 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void required_field_shows_validation_error() {
         navigate(ManagePersonsView.class);
 
-        TextField nameField = $(TextField.class).withCaption("First Name").single();
+        TextField nameField = find(TextField.class).withCaption("First Name").single();
         test(nameField).clear();
-        test($(Button.class).withText("Save").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         // BR-002: the first name is required — message as the specification words it
         assertThat(nameField.isInvalid()).isTrue();
@@ -117,16 +117,16 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void delete_confirms_via_dialog() {
         navigate(ManagePersonsView.class);
 
-        Grid<PersonRecord> grid = $(Grid.class).single();
+        Grid<PersonRecord> grid = find(Grid.class).single();
         grid.select(test(grid).getRow(0));
 
-        test($(Button.class).withText("Delete").single()).click();
+        test(find(Button.class).withText("Delete").single()).click();
 
-        ConfirmDialog dialog = $(ConfirmDialog.class).single();
+        ConfirmDialog dialog = find(ConfirmDialog.class).single();
         test(dialog).confirm();
 
         // Postcondition of A2: the selected person is removed
-        assertThat($(ConfirmDialog.class).exists()).isFalse();
+        assertThat(find(ConfirmDialog.class).exists()).isFalse();
         assertThat(test(grid).size()).isEqualTo(99);
     }
 }

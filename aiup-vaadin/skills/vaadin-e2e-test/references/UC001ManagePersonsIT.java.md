@@ -14,6 +14,7 @@ package com.example.app.views;
 
 import java.util.List;
 
+import com.example.app.TestcontainersConfiguration;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
@@ -40,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * AssertJ's assertThat checks values; Playwright's PlaywrightAssertions.assertThat checks
  * locators and retries until the browser shows the expected state.
  */
+@Import(TestcontainersConfiguration.class) // the database the project's other Spring tests use
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 @DisplayName("UC-001: Manage Persons")

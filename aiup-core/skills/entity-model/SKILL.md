@@ -152,6 +152,17 @@ attribute table and list each constraint as a bullet, one rule per bullet:
 Never write the constraints as a bold `**Constraints:**` line or as an extra table row, and
 omit the heading when the entity has no multi-column constraint.
 
+A rule that combines two rows of the closed set goes there too: a foreign key that is also unique (a one-to-one
+link) keeps `Not Null, Foreign Key (TABLE.id)` in its cell and states the uniqueness as a bullet
+(`- A user account belongs to at most one member (user_id is unique).`).
+
+## External Entities
+
+A foreign key may point at a table the model does not own — an identity table the starter project ships, a table
+of another system. Such an entity gets no `###` section and no line in the Mermaid diagram. Write its cell as
+usual (`Not Null, Foreign Key (APP_USER.id)`) and name it once, in one sentence under the document title:
+`APP_USER (id, username, password_hash, role) ships with the project and is an external boundary.`
+
 ## Modules
 
 A large project may hold its entity model split by module, as `/reverse-engineer` writes it: `docs/entity_model.md`
@@ -194,8 +205,8 @@ module's folder under `docs/use_cases/`. Keep that structure when you update the
     - Every entity in the ER diagram has a corresponding attribute table section
     - Every attribute table has exactly 5 columns
     - No attributes appear inside the Mermaid diagram entity blocks
-    - All foreign keys reference existing entities
-    - Every foreign key has a relationship line in the ER diagram
+    - All foreign keys reference an entity of the model, or an external entity named under the title
+    - Every foreign key to an entity of the model has a relationship line in the ER diagram
     - Every entity heading is `###` with the name in UPPERCASE
     - Multi-column constraints are a `#### Constraints` bullet list below the table
     - All Data Type values come from the Data Types table above (no SQL types anywhere)

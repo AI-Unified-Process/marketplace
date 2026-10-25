@@ -227,16 +227,20 @@ navigate(PersonTemplateView.class, Map.of("id", "42"));      // with URL templat
 HasElement currentView = getCurrentView();
 ```
 
-### Find Components — `$()` Query
+### Find Components — `find()` Query
+
+Browserless 1.1 (Vaadin 25.2) renamed the query methods: `find()` and `findInView()` replace `$()` and `$view()`,
+which are deprecated for removal and fail a build that compiles with `-Werror`. Use the new names; only on
+Vaadin 25.1 (Browserless 1.0), where they do not exist yet, write `$()` and `$view()` instead.
 
 ```java
-TextField name = $(TextField.class).withCaption("Name").single();
-Button save = $(Button.class).withText("Save").single();
-ComboBox<Country> country = $(ComboBox.class).withId("country").single();
-TextField scoped = $view(TextField.class).single();               // current view only
-TextField inForm = $(TextField.class, view.formLayout).single();  // inside a parent
-List<Button> buttons = $(Button.class).all();
-boolean open = $(Notification.class).exists();                    // no exception
+TextField name = find(TextField.class).withCaption("Name").single();
+Button save = find(Button.class).withText("Save").single();
+ComboBox<Country> country = find(ComboBox.class).withId("country").single();
+TextField scoped = findInView(TextField.class).single();               // current view only
+TextField inForm = find(TextField.class, view.formLayout).single();  // inside a parent
+List<Button> buttons = find(Button.class).all();
+boolean open = find(Notification.class).exists();                    // no exception
 ```
 
 Filters: `withText`, `withTextContaining`, `withCaption`, `withCaptionContaining`, `withId`, `withClassName`,
@@ -249,13 +253,13 @@ Use `test(component)` for **actions**. Read a plain field value from the compone
 notification text through their tester.
 
 ```java
-test($(TextField.class).withCaption("Name").single()).setValue("John");
-test($(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
-test($(DatePicker.class).withCaption("Birth Date").single()).setValue(LocalDate.of(1990, 1, 1));
-test($(Checkbox.class).withCaption("Active").single()).click();
-test($(Button.class).withText("Save").single()).click();
+test(find(TextField.class).withCaption("Name").single()).setValue("John");
+test(find(ComboBox.class).withCaption("Country").single()).selectItem("Switzerland");
+test(find(DatePicker.class).withCaption("Birth Date").single()).setValue(LocalDate.of(1990, 1, 1));
+test(find(Checkbox.class).withCaption("Active").single()).click();
+test(find(Button.class).withText("Save").single()).click();
 
-String value = $(TextField.class).withCaption("Name").single().getValue();
+String value = find(TextField.class).withCaption("Name").single().getValue();
 ```
 
 | Component     | Key tester methods                                             |
@@ -278,25 +282,25 @@ String value = $(TextField.class).withCaption("Name").single().getValue();
 ### Grid, Notification, ConfirmDialog
 
 ```java
-Grid<Person> grid = $(Grid.class).single();
+Grid<Person> grid = find(Grid.class).single();
 assertThat(test(grid).getCellText(0, 1)).isEqualTo("Lane");   // size() and getRow() work with lazy data providers
 Person row = test(grid).getRow(0);
 grid.select(row);
 
-Notification notification = $(Notification.class).single();
+Notification notification = find(Notification.class).single();
 assertThat(test(notification).getText()).isEqualTo("Person saved");   // the full message from the spec
 
-ConfirmDialog dialog = $(ConfirmDialog.class).single();
+ConfirmDialog dialog = find(ConfirmDialog.class).single();
 test(dialog).confirm();   // or cancel(), reject()
 
 fireShortcut(Key.ENTER);
-Button submit = $(Button.class).id("submit-button");     // components without a stable label
+Button submit = find(Button.class).id("submit-button");     // components without a stable label
 ```
 
 ### Assertions
 
 AssertJ on component state: `isVisible()`, `isEnabled()`, `getValue()`, `isInvalid()` with `getErrorMessage()`
-for a Binder validation (assert the full message the specification states), `$(Dialog.class).exists()`.
+for a Binder validation (assert the full message the specification states), `find(Dialog.class).exists()`.
 
 ## Markers
 
@@ -312,10 +316,10 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Delete all data in cleanup — only what the test created
 - Edit or delete a row of the shared test data, or assert a table's total — another test or use case changes it;
   act on rows the test created and assert the rows the specification names
-- Use Karibu's `LocatorJ`, `_get`, `_find`, `_click`, `GridKt`, `NotificationsKt` — use `$()` and `test()`
+- Use Karibu's `LocatorJ`, `_get`, `_find`, `_click`, `GridKt`, `NotificationsKt` — use `find()` and `test()`
 - Read a plain field value through `test(...)` — use the component's Java API (grid cells and notification text
   are the exception: read them through their tester)
-- Use `$()` for overlay components (Context Menu, Menu Bar) — use their tester's `clickItem()`
+- Use `find()` for overlay components (Context Menu, Menu Bar) — use their tester's `clickItem()`
 - Use browser-based patterns; browser tests are `/vaadin-e2e-test`
 
 ## Workflow
@@ -327,11 +331,11 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 3. Look for an existing `UC<id>*Test` class and `@UseCase(id = "UC-XXX")` methods; reconcile instead of
    duplicating.
 4. Create or open `UC<id><Name>Test`, extending `SpringBrowserlessTest` with `@SpringBootTest`.
-5. Per scenario: annotate with `@UseCase`, `navigate(...)`, find with `$()`, act through `test(...)`, assert on the
+5. Per scenario: annotate with `@UseCase`, `navigate(...)`, find with `find()`, act through `test(...)`, assert on the
    component API with the expected values from the specification and test data, clean up created data.
 6. Run the class (`./mvnw test -Dtest='UC001*Test'`, or the Integration tests command in `docs/architecture/stack.md` —
    the view runs against the real database). On a
-   failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check `$()...exists()`,
+   failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check `find(...).exists()`,
    `getCurrentView()`, the test data, and use the dedicated tester for overlays.
 7. Update this skill's rows of the Markers table.
 8. Report the tests written, the command, and the result, listing every test left failing with the expected and

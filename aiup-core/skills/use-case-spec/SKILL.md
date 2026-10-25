@@ -107,7 +107,8 @@ in the implementation, not the specification.
    Before writing, ask of each one: *is this use case a complete goal that the primary
    actor would recognize as valuable?* A subfunction ("Validate METAR", "Load NOTAM",
    "Persist Result") is a step of a larger user goal ("Determine Airport Suitability"),
-   and a summary ("Manage Flight Operations") spans several. A scenario that hands the
+   and a summary ("Manage Flight Operations") spans several; one actor adding, changing,
+   and removing one business object ("Manage Catalog") is a user goal, not a summary. A scenario that hands the
    work over to another role, waits for an outside event or a deadline, or runs branches
    in parallel for different actors is a summary, too: its parts are separate user goals,
    and the flow between them is a business process in BPMN (`docs/processes/`, written by

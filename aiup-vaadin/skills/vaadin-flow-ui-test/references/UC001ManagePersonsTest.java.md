@@ -63,7 +63,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
 
         // Expected values come from the Flyway test data (sorted by first name), never from a
         // run of the code. Assert rows, not the total: other use cases' test data may share the table.
-        Grid<Person> grid = $(Grid.class).id("person-grid");
+        Grid<Person> grid = find(Grid.class).id("person-grid");
         assertThat(test(grid).getRow(0).firstName()).isEqualTo("Eula");
         assertThat(test(grid).getCellText(0, 1)).isEqualTo("Lane");
     }
@@ -73,13 +73,13 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void selecting_a_row_fills_the_form() {
         navigate(ManagePersonsView.class);
 
-        Grid<Person> grid = $(Grid.class).id("person-grid");
+        Grid<Person> grid = find(Grid.class).id("person-grid");
         grid.select(test(grid).getRow(0));
 
         // First row of the test data — not read back from the grid, which would only compare
         // the view with itself
-        assertThat($(TextField.class).withCaption("First Name").single().getValue()).isEqualTo("Eula");
-        assertThat($(TextField.class).withCaption("Last Name").single().getValue()).isEqualTo("Lane");
+        assertThat(find(TextField.class).withCaption("First Name").single().getValue()).isEqualTo("Eula");
+        assertThat(find(TextField.class).withCaption("Last Name").single().getValue()).isEqualTo("Lane");
     }
 
     @Test
@@ -90,13 +90,13 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
         createPerson("Carol", "Miller", NEW_EMAIL);
 
         // Main success scenario step 5: the exact message the specification states
-        Notification notification = $(Notification.class).single();
+        Notification notification = find(Notification.class).single();
         assertThat(test(notification).getText()).isEqualTo("Person saved");
         // Postcondition: the new person is persisted — read back from the database, not only from the
         // grid — and listed
         assertThat(jdbcClient.sql("select first_name from person where email = ?")
                 .param(NEW_EMAIL).query(String.class).list()).containsExactly("Carol");
-        assertThat(rowOf($(Grid.class).id("person-grid"), NEW_EMAIL)).isNotNegative();
+        assertThat(rowOf(find(Grid.class).id("person-grid"), NEW_EMAIL)).isNotNegative();
     }
 
     @Test
@@ -104,15 +104,15 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
     void required_first_name_shows_validation_error() {
         navigate(ManagePersonsView.class);
 
-        TextField firstName = $(TextField.class).withCaption("First Name").single();
-        test($(TextField.class).withCaption("Last Name").single()).setValue("Miller");
-        test($(TextField.class).withCaption("Email").single()).setValue(NEW_EMAIL);
-        test($(Button.class).withText("Save").single()).click();
+        TextField firstName = find(TextField.class).withCaption("First Name").single();
+        test(find(TextField.class).withCaption("Last Name").single()).setValue("Miller");
+        test(find(TextField.class).withCaption("Email").single()).setValue(NEW_EMAIL);
+        test(find(Button.class).withText("Save").single()).click();
 
         // Entity model: the first name is required — message as the specification words it
         assertThat(firstName.isInvalid()).isTrue();
         assertThat(firstName.getErrorMessage()).isEqualTo("Field is required");
-        assertThat(rowOf($(Grid.class).id("person-grid"), NEW_EMAIL)).isNegative();
+        assertThat(rowOf(find(Grid.class).id("person-grid"), NEW_EMAIL)).isNegative();
     }
 
     @Test
@@ -123,7 +123,7 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
         // BR-001: the email is unique — eula.lane@example.com is registered by the test data
         createPerson("Carol", "Miller", "eula.lane@example.com");
 
-        Notification notification = $(Notification.class).single();
+        Notification notification = find(Notification.class).single();
         assertThat(test(notification).getText()).isEqualTo("Email already registered");
     }
 
@@ -134,25 +134,25 @@ class UC001ManagePersonsTest extends SpringBrowserlessTest {
         // Delete a person this test created, never a row of the shared test data
         createPerson("Carol", "Miller", NEW_EMAIL);
 
-        Grid<Person> grid = $(Grid.class).id("person-grid");
+        Grid<Person> grid = find(Grid.class).id("person-grid");
         grid.select(test(grid).getRow(rowOf(grid, NEW_EMAIL)));
-        test($(Button.class).withText("Delete").single()).click();
+        test(find(Button.class).withText("Delete").single()).click();
 
-        ConfirmDialog dialog = $(ConfirmDialog.class).single();
+        ConfirmDialog dialog = find(ConfirmDialog.class).single();
         test(dialog).confirm();
 
         // Postcondition of A2: the person is removed from the database and the grid
-        assertThat($(ConfirmDialog.class).exists()).isFalse();
+        assertThat(find(ConfirmDialog.class).exists()).isFalse();
         assertThat(jdbcClient.sql("select count(*) from person where email = ?")
                 .param(NEW_EMAIL).query(Long.class).single()).isZero();
         assertThat(rowOf(grid, NEW_EMAIL)).isNegative();
     }
 
     private void createPerson(String firstName, String lastName, String email) {
-        test($(TextField.class).withCaption("First Name").single()).setValue(firstName);
-        test($(TextField.class).withCaption("Last Name").single()).setValue(lastName);
-        test($(TextField.class).withCaption("Email").single()).setValue(email);
-        test($(Button.class).withText("Save").single()).click();
+        test(find(TextField.class).withCaption("First Name").single()).setValue(firstName);
+        test(find(TextField.class).withCaption("Last Name").single()).setValue(lastName);
+        test(find(TextField.class).withCaption("Email").single()).setValue(email);
+        test(find(Button.class).withText("Save").single()).click();
     }
 
     /** Index of the row with this email, or -1 — reads every row, so it works with lazy data providers. */

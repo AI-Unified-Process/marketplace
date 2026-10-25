@@ -72,7 +72,10 @@ result the primary actor walks away with. Test each use case with one question:
   flow that connects them is a business process, modeled in BPMN in `docs/processes/` by `/business-process` once
   the use cases are specified; its activities are those use cases, and `/test-case BP-XXX` derives the test cases
   from it. Do not describe the process inside a use case or
-  attach a process model to it.
+  attach a process model to it. "Manage <business object>" is the exception when it means
+  one actor maintaining one business object in one sitting — adding, changing, and removing books in the catalog:
+  that is a user goal (Cockburn's CRUD use case), with each operation a branch of its scenario. Split it only when
+  the operations differ in actor or carry rules of their own.
 
 A functional requirement that describes a step rather than a goal traces to the user goal use case that contains
 the step.
