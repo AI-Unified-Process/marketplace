@@ -171,7 +171,7 @@ Always use `getTotalRowCount()` for data assertions — the viewport limits how 
 - `void select(int rowIndex)` / `void deselect(int rowIndex)` / `int getSelectedItemCount()`
 - select-all: `checkSelectAll()` / `uncheckSelectAll()` / `isSelectAllChecked()` / `isSelectAllIndeterminate()`
 - `void scrollToRow(int)` / `scrollToStart()` / `scrollToEnd()`
-- `void waitForGridToStopLoading()` — call after scrolling an async/lazy grid
+- `void waitForGridToStopLoading()` — call after opening a view with a lazy grid, before the first `findCell`/`getTotalRowCount`, and after scrolling
 
 #### `GridElement.RowElement`
 

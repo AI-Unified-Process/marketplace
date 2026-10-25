@@ -70,6 +70,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         // the person a test created, never a row of the shared test data
         page.navigate(getUrl() + getView());
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
         List<Integer> rows = grid.findRowIndexesWithColumnText(EMAIL_COLUMN, NEW_EMAIL);
         if (!rows.isEmpty()) {
             grid.select(rows.get(0));
@@ -101,6 +102,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         @DisplayName("Step 1: Grid shows the persons on page load")
         void grid_displays_data() {
             GridElement grid = GridElement.get(page);
+            grid.waitForGridToStopLoading(); // the lazy grid fetches its rows after the view rendered
 
             // First row of the test data; assert rows, not the total, which other tests change
             var firstCell = grid.findCell(0, "Name");
@@ -111,6 +113,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         @DisplayName("Step 1: Grid headers match the columns the specification lists")
         void grid_has_expected_headers() {
             GridElement grid = GridElement.get(page);
+            grid.waitForGridToStopLoading();
 
             assertThat(grid.getHeaderCellContents()).contains("Name", "Email", "Status");
         }
@@ -119,6 +122,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         @DisplayName("Step 2: Selecting a row populates the form")
         void select_row_populates_form() {
             GridElement grid = GridElement.get(page);
+            grid.waitForGridToStopLoading();
             grid.select(0);
 
             // First row of the test data — not read back from the grid, which would only
@@ -138,6 +142,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
             PlaywrightAssertions.assertThat(notification.getContentLocator()).hasText("Person saved");
 
             GridElement grid = GridElement.get(page);
+            grid.waitForGridToStopLoading();
             List<Integer> rows = grid.findRowIndexesWithColumnText(EMAIL_COLUMN, NEW_EMAIL);
             assertThat(rows).hasSize(1);
             var nameCell = grid.findCell(rows.get(0), "Name");
@@ -175,6 +180,7 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         @DisplayName("Cancelling the confirmation keeps the person")
         void delete_opens_confirm_dialog() {
             GridElement grid = GridElement.get(page);
+            grid.waitForGridToStopLoading();
             grid.select(0);
 
             ButtonElement deleteButton = ButtonElement.getByText(page, "Delete");

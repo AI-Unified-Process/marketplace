@@ -159,7 +159,8 @@ in the implementation, not the specification.
    accepts the placeholder as a deliberate statement and warns only when the section is left empty.
 10. Define postconditions for both success and failure (both subsections non-empty). **Success Postconditions**
    state what is true when the goal is achieved. **Failure Postconditions** are the minimum guarantees for every
-   unsuccessful end — what the system protects, not how it reacts; the rules are in
+   unsuccessful end — what the system protects, not how it reacts; a use case that changes no data gets the
+   placeholder `_None — the use case changes no data._`. The rules are in
    [references/overview-and-postconditions.md](references/overview-and-postconditions.md).
 11. Document applicable business rules with `BR-XXX` IDs, numbered as "Scope" says.
 12. Write each use case to its **own** file completely before moving to the next —

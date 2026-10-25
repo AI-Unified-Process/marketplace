@@ -107,7 +107,9 @@ the method, query condition, or validator that enforces it:
 
 - Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications `UC-001 GR-003`. Rules are
   numbered per use case, so a bare `BR-003` is ambiguous in code.
-- Restate the rule in one line after the colon; do not paste the whole rule text.
+- Restate the rule in one line after the colon; do not paste the whole rule text. Keep the whole comment, indentation
+  included, within the line length of the project's formatter (Spring Java Format wraps comments at 90 columns), so
+  the build does not break the marker onto a second line: shorten the restated rule rather than let it wrap.
 - A rule enforced in several layers (a database constraint, a service check, a form validator) gets the marker at
   each place. Each layer skill says where the marker goes in its layer.
 - A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).

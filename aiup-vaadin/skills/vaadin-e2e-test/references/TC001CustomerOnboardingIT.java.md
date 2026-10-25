@@ -97,6 +97,7 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
 
     private void assertCustomerListed(String name) {
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
         assertThat(grid.findRowIndexesWithColumnText(0, name)).isNotEmpty();
     }
 
@@ -105,6 +106,7 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
         // back to direct navigation when the UI offers no path
         page.navigate(getUrl() + "orders");
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
         grid.assertVisible();
 
         ButtonElement.getByText(page, "New Order").click();
@@ -120,6 +122,7 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
     private void assertCustomerStatus(String name, String expectedStatus) {
         page.navigate(getUrl() + "customers");
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
 
         List<Integer> rows = grid.findRowIndexesWithColumnText(0, name);
         assertThat(rows).isNotEmpty();
@@ -138,6 +141,7 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
     private void deleteOrderIfPresent(String customer) {
         page.navigate(getUrl() + "orders");
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
 
         List<Integer> rows = grid.findRowIndexesWithColumnText(0, customer);
         if (!rows.isEmpty()) {
@@ -152,6 +156,7 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
     private void deleteCustomerIfPresent(String name) {
         page.navigate(getUrl() + "customers");
         GridElement grid = GridElement.get(page);
+        grid.waitForGridToStopLoading();
 
         List<Integer> rows = grid.findRowIndexesWithColumnText(0, name);
         if (!rows.isEmpty()) {

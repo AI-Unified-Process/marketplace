@@ -255,6 +255,12 @@ Assert a locator with Playwright's `com.microsoft.playwright.assertions.Playwrig
 AssertJ has no `hasText` and does not compile. A notification's message is the full text of
 `notification.getContentLocator()`, not `assertOpen()` alone.
 
+A grid bound lazily to the service (the default `/vaadin-flow-ui` builds) fetches its rows after the view has
+rendered, and `findCell`, `findRowIndexesWithColumnText`, and `getTotalRowCount()` do not retry: right after a
+navigation they see an empty grid, so `findCell(...).get()` throws `NoSuchElementException` and a cleanup finds no
+row to remove. Call `grid.waitForGridToStopLoading()` after every navigation to a view with a grid, before the
+first lookup, as the templates do.
+
 A filter field whose value change mode is lazy or eager with a timeout (`ValueChangeMode.LAZY`, `TIMEOUT`) refreshes
 the grid after a delay, and `getTotalRowCount()` does not retry. After setting the filter, first assert a cell that
 only the filtered result shows — a row index whose text differs from the unfiltered grid — and only then count rows
@@ -292,7 +298,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 7. Run it with the End-to-end tests command of `docs/architecture/stack.md` (with Maven Failsafe:
    `./mvnw verify -Dit.test='UC001*IT'`).
    On a failure apply "When a Test Fails" of `/use-case-test`; for a mechanical failure check that the view loaded,
-   assert something on a target view before acting on it, use `waitForGridToStopLoading()` for asynchronous grids,
+   assert something on a target view before acting on it, call `waitForGridToStopLoading()` after opening a view with a grid and after scrolling,
    and debug with `-Dheadless=false`.
 8. Update this skill's rows of the Markers table.
 9. Report the tests written, the command, and the result, listing every test left failing with the expected and

@@ -50,3 +50,8 @@ variants are in `format-spec.md` next to this file; this file says what goes int
   valid", "No partial payment remains booked". A message, a notification, or a return to a screen is
   not a guarantee — it belongs in the alternative flow that handles the failure. A statement that
   holds for only one failure path belongs in that flow, not here.
+- A use case that changes no data — it only searches, lists, or shows — has nothing to protect when it
+  fails. Do not write a guarantee such as "The catalog is unchanged": it holds by construction and only
+  asks for a test that proves nothing. Write the italic placeholder
+  `_None — the use case changes no data._` instead; the validator accepts it, and `/use-case-coverage`
+  counts it as `n/a`.
