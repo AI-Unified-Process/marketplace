@@ -159,40 +159,10 @@ entities. Split both diagrams by module when the project has **more than about
 that, write the single diagrams of stages 5 and 7 and skip the module parts of
 every later stage.
 
-Take the modules from the code, in this order of authority (the stack
-sections of `references/stack-signals.md` list the signals per stack):
-
-1. **Declared modules** — Maven or Gradle subprojects, Spring Modulith
-   application modules, JPMS `module-info.java`, the projects of a `*.sln`,
-   Nx or pnpm workspace packages, Django apps, Rails engines.
-2. **Feature packages or directories** — `com.acme.booking`,
-   `src/app/billing/`, a lazy-loaded route; route prefixes such as
-   `/api/billing/**`.
-3. **The database** — schemas, table name prefixes (`bil_invoice`).
-4. **Clusters of the data** — when the code is cut by layer
-   (`controller/`, `service/`, `repository/`) and nothing above applies, group
-   the entities that the foreign keys hold tightly together, and cut where few
-   foreign keys cross.
-
-Then assign:
-
-- **Every entity to exactly one module** — the module whose code writes it.
-  An entity that several modules only read stays with its writer.
-- **Every use case to exactly one module** — the module of its goal, usually
-  the one that owns the entity the use case changes.
-- **Name each module in business language** ("Billing", not `billing-core`),
-  with one sentence on what it is responsible for.
-- **Give each module a slug**: its name in lowercase kebab-case ("Billing" →
-  `billing`, "Guest Management" → `guest-management`). The slug is the
-  `package` alias in the overview, the folder `docs/use_cases/<slug>/`, and
-  the file `docs/entity_model/<slug>.md`, so each name leads to the others.
-
-Do not make a module of shared technical code (`common`, `util`, `security`,
-`config`): its tables and entry points join the module they serve, and pure
-infrastructure is skipped as in stages 4 and 7. Aim for at most about 10 use
-cases and 12 entities per module; a module far above that is split along its
-feature packages, two tiny modules that share most of their foreign keys are
-merged. Note which signal the cut is based on; the summary names it.
+**With modules, read [references/modules.md](references/modules.md) now.** It
+holds how to find and name the modules (the order of authority of the signals,
+the slug), the diagram and entity model templates of the split, and the module
+checks; stages 5 to 9 point to its sections.
 
 ### 3. Identify actors
 
@@ -234,21 +204,13 @@ the entry points and group them by goal:
 Twelve endpoints above → three use cases, not twelve specs.
 
 **Self-check (do this before writing any spec):** count your endpoints and
-count your use cases. If the two numbers are close, you have *not* aggregated —
-you are mirroring the API surface. Re-group every endpoint under the actor goal
-it serves and merge until each use case is a complete goal an actor pursues
-end-to-end.
-
-A small codebase is *not* an excuse to skip aggregation. Even a compact API with
-10–15 route handlers usually collapses to roughly 4–8 use cases — a CRUD resource
-(`list` + `get` + `create` + `update` + `delete`) is **one** "Manage X" use case,
-not five. If you are about to write more than 8 spec files for a small service,
-stop and merge: you are almost certainly enumerating endpoints, not goals.
+count your use cases. If the two numbers are close — or a small service has
+more than about 8 — you are mirroring the API surface, not the actor goals
+(contract rule 1). Re-group every endpoint under the goal it serves and merge.
 
 Assign each use case an ID `UC-001`, `UC-002`, … in a stable order (group
-by actor, then by importance to the system's purpose). With modules, number
-module by module in the order of the overview, so each module holds one
-contiguous range. Pick a short descriptive name in title case.
+by actor, then by importance to the system's purpose); with modules, number
+module by module. Pick a short descriptive name in title case.
 
 ### 5. Generate the use case diagram
 
@@ -283,86 +245,15 @@ admin --> UC002
 
 #### With modules
 
-`docs/use_cases.puml` holds only the overview — the actors and one `package`
-per module, no use cases, so it stays readable however large the system is.
-Each module gets its own diagram in `docs/use_cases/<slug>/use_cases.puml`,
-with the template above and the module name on the `rectangle`:
-
-```plantuml
-' docs/use_cases.puml
-@startuml Modules
-left to right direction
-
-actor "Customer" as customer
-actor "Accountant" as accountant
-
-package "Ordering" as ordering
-package "Billing" as billing
-
-customer --> ordering
-customer --> billing
-accountant --> billing
-ordering ..> billing : "invoices orders"
-
-@enduml
-```
-
-```plantuml
-' docs/use_cases/ordering/use_cases.puml
-@startuml Ordering
-left to right direction
-
-actor "Customer" as customer
-
-rectangle "Ordering" {
-    usecase "UC-001\nPlace Order" as UC001
-    usecase "UC-002\nTrack Order" as UC002
-}
-
-customer --> UC001
-customer --> UC002
-
-@enduml
-```
-
-```plantuml
-' docs/use_cases/billing/use_cases.puml
-@startuml Billing
-left to right direction
-
-actor "Customer" as customer
-actor "Accountant" as accountant
-
-rectangle "Billing" {
-    usecase "UC-003\nPay Invoice" as UC003
-    usecase "UC-004\nReconcile Payments" as UC004
-}
-
-customer --> UC003
-accountant --> UC004
-
-@enduml
-```
-
-- The `@startuml` title of a module diagram is the module name; the
-  overview's title is `Modules`. `/use-case-diagram` recognizes the split by
-  it. Every `package` alias of the overview has its folder, and every folder
-  its `package`.
-- Every use case appears in exactly one module diagram. An actor appears in
-  the overview and in every module diagram it has a use case in, with the same
-  name and alias each time.
-- An actor links to a module in the overview when it has a use case there.
-- Draw a dependency `a ..> b : "<why>"` when a use case of module `a` uses
-  data or a use case of module `b`; a foreign key from an entity of `a` to one
-  of `b` is the usual evidence. `<<include>>` and `<<extend>>` stay inside one
-  module diagram; across modules the dependency arrow says it.
+`docs/use_cases.puml` holds only the `@startuml Modules` overview, and each
+module gets `docs/use_cases/<slug>/use_cases.puml` — the templates and rules are
+in the section "Use case diagrams" of `references/modules.md`.
 
 ### 6. Write use case specifications
 
 Create `docs/use_cases/` and write one file per use case named
-`UC-XXX-short-name.md` (kebab-case); with modules, write it into the folder of
-its module, next to the module's diagram
-(`docs/use_cases/billing/UC-003-pay-invoice.md`). Use the structure from
+`UC-XXX-short-name.md` (contract rule 2); with modules, into the folder of
+its module (`references/modules.md`, "Specifications"). Use the structure from
 `/use-case-spec`:
 
 - **Overview**: ID, name, primary actor (several comma-separated when
@@ -378,8 +269,7 @@ its module, next to the module's diagram
   describes what the code does, not what it should do, and a test derived
   from it before a human has approved it only restates the code — see
   step 9). Add
-  the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`, from
-  a module folder `../../requirements.md`)
+  the `**Requirements:**` link (`[FR-001, NFR-002](../requirements.md)`)
   only when a `docs/requirements.md` already exists and its ids match the
   use case; otherwise omit the line — never invent requirement ids. Add
   a `**Layers:**` line only when the code offers the use case through
@@ -411,11 +301,10 @@ its module, next to the module's diagram
   from error responses or messages, which belong in the alternative flows.
 - **Business Rules**: extract from validation annotations, domain
   constants, configuration, and any `if (...)` that encodes a policy
-  decision (limits, thresholds, eligibility). Name them `BR-001`, `BR-002`,
-  …, starting again at `BR-001` in every spec file — rule ids are unique
-  within their use case, not across files. A policy the code enforces in
-  several places is still one rule: write it in the use case that owns the
-  data and cite it elsewhere as "UC-005 BR-002" instead of copying it.
+  decision (limits, thresholds, eligibility). Number and cite them by
+  contract rule 4. A policy the code enforces in several places is still one
+  rule: write it in the use case that owns the data and cite it elsewhere
+  instead of copying it.
   When `docs/glossary.md` exists, name actors and business objects with its
   terms, never with a synonym from its Avoid column.
 
@@ -444,11 +333,9 @@ If a step would only make sense to someone who has read the code, rewrite it.
 > **Treat this as a dedicated pass, not an afterthought.** The entity model is
 > the artifact most often degraded when it is rushed at the end of a long
 > reverse-engineering task. Give it the same care as a standalone `/entity-model`
-> run: **every** entity gets a 5-column table (`Attribute | Description | Data
-> Type | Length/Precision | Validation Rules`), **every** type is mapped to the
-> AI Unified Process vocabulary, and **no** raw SQL/ORM type (`VARCHAR`, `bigint`, `numeric`,
-> `int8`, `TEXT`, `Decimal(10,2)`, `@db.Decimal`, Prisma `Int`/`String?`) survives
-> into the document. If you would not ship this table from `/entity-model`, it is
+> run: contract rules 5–8 hold for **every** entity, and no raw SQL/ORM type
+> (`int8`, `Decimal(10,2)`, `@db.Decimal`, Prisma `Int`/`String?`) survives into
+> the document. If you would not ship this table from `/entity-model`, it is
 > not done.
 
 Write `docs/entity_model.md` matching the `/entity-model` format. Sources,
@@ -476,8 +363,7 @@ For each entity, write:
 - A `### ENTITY_NAME` heading (UPPER_SNAKE_CASE).
 - A one-sentence description of what the entity represents (not what it
   contains — that's the table).
-- An attribute table with **exactly these 5 columns, in this order**:
-  `Attribute | Description | Data Type | Length/Precision | Validation Rules`.
+- An attribute table with the five columns of contract rule 6.
 
 Match this exact shape — a Mermaid block with relationships only, followed by
 one `###` section per entity with a filled 5-column table:
@@ -506,16 +392,9 @@ A title available for sale in the catalog.
 | author_id | Author of the book    | Long      | 19               | Not Null, Foreign Key (AUTHOR.id) |
 ```
 
-Never leave the Validation Rules column empty and never emit raw SQL types
-(`VARCHAR(200)`, `bigint`, `numeric`) — map them to the AI Unified Process vocabulary below.
-
-Map types to the AI Unified Process type vocabulary (`Long`, `String`, `Integer`,
-`Decimal`, `Boolean`, `Date`, `DateTime`) — don't leak `VARCHAR(255)` or
-`bigint` into the document, and don't substitute descriptive "business types"
-of your own (`Money`, `Email Address`, `Hashed String`, `Timestamp`,
-`Identifier`, `Positive Integer`): the seven types are the complete
-list, and semantics belong in the Description and Validation Rules columns,
-not the Data Type column. Map validation to the AI Unified Process vocabulary too
+Map each type by contract rule 7: semantics belong in the Description and
+Validation Rules columns, not the Data Type column. Map validation to the AI
+Unified Process vocabulary
 (`Primary Key, Sequence`, `Primary Key`, `Primary Key, Foreign Key (TABLE.id)`,
 `Not Null`, `Not Null, Unique`, `Not Null, Foreign Key (TABLE.id)`, `Optional`,
 `Not Null, Min: X, Max: Y`, `Not Null, Values: A, B, C`, `Not Null, Format: Email`).
@@ -531,9 +410,8 @@ the column happens to hold. An unbounded text column (`TEXT`, `CLOB`,
 even when every value has a fixed length, such as a hex SHA-256. Put that
 fixed length in the Description instead.
 
-The Mermaid ER diagram contains relationships **only** — no attributes
-inside entity blocks. Derive cardinality from foreign key constraints and
-ORM associations:
+Derive the cardinality of each relationship line (contract rule 5) from
+foreign key constraints and ORM associations:
 
 | ORM/SQL signal                                    | Mermaid relationship              |
 |---------------------------------------------------|-----------------------------------|
@@ -569,57 +447,9 @@ the user to delete than to miss.
 
 #### With modules
 
-`docs/entity_model.md` holds only the `## Modules` table, in the order of the
-diagram overview, with each module linked to its file. Each module gets its
-own document `docs/entity_model/<slug>.md` in the format above — title with the
-module name, one sentence on the module, its own ER diagram, and the tables of
-the entities the module owns:
-
-````markdown
-<!-- docs/entity_model.md -->
-# Entity Model
-
-## Modules
-
-| Module                                | Description                           | Entities             | Depends on |
-|---------------------------------------|---------------------------------------|----------------------|------------|
-| [Ordering](entity_model/ordering.md)  | Orders customers place and track      | CUSTOMER, ORDER, ... | -          |
-| [Billing](entity_model/billing.md)    | Invoices for orders and their payment | INVOICE, PAYMENT     | Ordering   |
-````
-
-````markdown
-<!-- docs/entity_model/billing.md -->
-# Entity Model: Billing
-
-Invoices for orders and their payment.
-
-## Entity Relationship Diagram
-
-```mermaid
-erDiagram
-    ORDER ||--o| INVOICE : "is billed by"
-    INVOICE ||--o{ PAYMENT : "is settled by"
-```
-
-From other modules: ORDER (Ordering).
-
-### INVOICE
-
-...
-````
-
-- Every entity has its `###` section exactly once, in the file of the module
-  that owns it. Another module's diagram may name it in a relationship line,
-  and the line `From other modules:` under that diagram lists it with its
-  module.
-- A module's diagram holds every relationship line of its own entities,
-  including the ones to entities of other modules, so a foreign key that
-  crosses modules appears in the diagram of the module whose table holds it.
-- `Depends on` lists the modules whose entities this module's foreign keys
-  point to, or `-`. Each module it lists has a `..>` arrow in the diagram
-  overview.
-- All rules of this stage — the 5-column tables, the type and validation
-  vocabulary, relationships only in Mermaid — hold in every module file.
+`docs/entity_model.md` holds only the `## Modules` table, and each module gets
+`docs/entity_model/<slug>.md` in the format above — the templates and rules are
+in the section "Entity model" of `references/modules.md`.
 
 ### 8. Cross-validate
 
@@ -650,20 +480,11 @@ Then check the three documents agree:
   mandatory on both sides; otherwise it is `||--o|`.
 - **Aggregation check:** your use-case count is meaningfully smaller than your
   endpoint count. If it is not, you mirrored the API — go back and merge.
-- **Entity-model format check:** every attribute table has exactly 5 columns
-  in the required order; no raw SQL types (`VARCHAR`, `bigint`, `numeric`,
-  `int8`) appear anywhere; no Validation Rules cell is empty; no attributes
-  appear inside the Mermaid entity blocks; every Length/Precision matches the
-  declared column (unbounded text is `-`); every key column says `Primary Key`.
-- **Module check** (only with modules): the overview's packages, the folders
-  under `docs/use_cases/`, the rows of the `## Modules` table, and the files
-  under `docs/entity_model/` name the same modules (by slug) in the same order;
-  every use case sits in exactly one module diagram and its specification in
-  the same module's folder; every entity section is in exactly one module
-  file; a module's diagram names only its own entities and those listed in its
-  `From other modules:` line; every module in a `Depends on` cell has a `..>`
-  arrow in the overview. With modules, "the diagram" in the checks above means
-  the diagram of the module the use case or entity belongs to.
+- **Entity-model format check:** contract rules 5–8 hold in every table and
+  diagram; every Length/Precision matches the declared column (unbounded text
+  is `-`); every key column says `Primary Key`.
+- **Module check** (only with modules): the section "Module check" of
+  `references/modules.md`.
 
 The cross-file part of these checks (diagram against spec files, duplicated
 ids, rule citations that point to nothing, rules copied between use cases)
@@ -679,10 +500,9 @@ recommendation for what the user should review first — typically the
 use cases where the main success scenario was hard to recover, since
 those are the ones most likely to need a human pass.
 
-With modules, list them with their use case and entity counts and name the
-signal the cut is based on (stage 2) — a module cut recovered from foreign
-key clusters is a proposal, and the user may want it moved. Without modules
-in a project close to the threshold, say that the diagrams were not split.
+With modules, list them as the section "Summary" of `references/modules.md`
+says. Without modules in a project close to the threshold, say that the
+diagrams were not split.
 
 Every specification you wrote is `Draft`. Say so, and say why: the code
 was the only source, so a bug in it is now written down as required
