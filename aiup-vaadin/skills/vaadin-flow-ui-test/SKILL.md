@@ -62,7 +62,7 @@ is not repeated here. What it means for a view:
 | Business rule                                     | its allowed and rejected case as the view shows them: the field error or notification with the specified message |
 | Input validation from the entity model            | one rejected input per constraint, as the Binder reports it                            |
 | Postcondition                                     | read back from the persisted state (`JdbcClient` or the repository's read), not only from the grid or the reopened detail |
-| Linked NFR or constraint with an observable limit | the limit as the view enforces it — for a required role or sign-in: navigate without it (`@WithAnonymousUser`, or `@WithMockUser` with another role) and assert the view is not shown; `requirements = {"NFR-XXX"}` on the method |
+| Linked NFR or constraint with an observable limit | the limit as the view enforces it — for a required role or sign-in: navigate without it (`@WithAnonymousUser`, or `@WithMockUser` with another role) and assert the view is not shown, as "Access Denied" shows; `requirements = {"NFR-XXX"}` on the method |
 
 A unit no view of this use case can reach (a service method only a job calls, a query only another use case's view
 runs) is listed in the report, so `/use-case-test` runs the test skill of the layer that owns it.
@@ -339,6 +339,26 @@ Button submit = find(Button.class).id("submit-button");     // components withou
 
 AssertJ on component state: `isVisible()`, `isEnabled()`, `getValue()`, `isInvalid()` with `getErrorMessage()`
 for a Binder validation (assert the full message the specification states), `find(Dialog.class).exists()`.
+
+### Access Denied
+
+A test that proves a role or sign-in is required navigates by route through the UI, not with `navigate(View.class)`,
+which expects the view to open and fails on the reroute. After the access check reroutes, no route target may be
+active, so `getCurrentView()` throws `IndexOutOfBoundsException`; assert that the view is absent instead:
+
+```java
+@Test
+@WithAnonymousUser   // or @WithMockUser(roles = "MEMBER") for a view of another role
+@UseCase(id = "UC-004", requirements = {"NFR-002"})
+void member_does_not_reach_active_loans() {
+    UI.getCurrent().navigate("active-loans");
+
+    assertThat(find(ActiveLoansView.class).exists()).isFalse();
+}
+```
+
+Pair it with a test in which the allowed role reaches the same route, so the absence proves the access rule and not
+a wrong route.
 
 ## Markers
 
