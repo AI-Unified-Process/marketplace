@@ -86,6 +86,15 @@ on this use case first, ask the user or leave the test out, and record every new
 `/open-questions`, with the test skill that found it as **Raised by**. A test for an element a blocking question is
 about is left out and listed in the report. Every test skill run from here follows this section.
 
+## Decision Rights
+
+The decision rights `/use-case-implement` defines in its section "Decision Rights" — `docs/architecture/decision-rights.md`,
+or its defaults — apply to the tests too: by default, test data and the structure of the tests are decided alone,
+an expected value the specification does not give is asked first, and changing an existing test to make it pass is
+never done. A new test library or dependency is asked first, like any other. Every test skill run from here follows
+this section, and the report lists the decisions taken alone under **Decisions** — test data that encodes a
+choice, such as a boundary value or a date the specification does not name.
+
 ## Test Markers
 
 Every test carries the id of the use case or test case it covers, in the form the test skill of its layer defines
@@ -159,8 +168,9 @@ Finish by:
 
 - Summarising the tests written per layer, the layers skipped because the integration layer covers them, the
   commands you ran, and whether the suites pass. List every test left failing because the code disagrees with the
-  specification, with the expected and the actual value, and an **Open questions** list with the id and element of
-  every question you recorded and every test a blocking question left out.
+  specification, with the expected and the actual value, a short **Decisions** list (see "Decision Rights"), and an
+  **Open questions** list with the id and element of every question you recorded and every test a blocking
+  question left out.
 - Ending with one hand-off line: `Next: /use-case-coverage UC-XXX`. If tests are still unfinished, suggest
   `/use-case-coverage UC-XXX tests wip` so the audit lists remaining work instead of defects.
 - Leaving the specification's `**Status:**` line alone; the audit suggests the next value.

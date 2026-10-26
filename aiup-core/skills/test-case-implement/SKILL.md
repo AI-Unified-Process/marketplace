@@ -53,6 +53,9 @@ these sections of it to the journey, reading "use case" as "test case":
   or the Validation items, never from what the application shows.
 - **Test Markers** — the test carries the `TC-XXX` id and names each step after its Flow row; where the E2E rows of
   the Markers table prescribe it, it also names the use cases the Flow links (`@TestCase(useCases = …)` in Vaadin).
+- **Decision Rights** — test data and the test's structure are decided alone by default, an expected value the test
+  case does not give is asked first, and an existing test is never changed to make it pass; the report lists the
+  decisions taken alone under **Decisions**.
 
 If `/use-case-test` is not installed, say so and stop; aiup-core ships both skills together.
 

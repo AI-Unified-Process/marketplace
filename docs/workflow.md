@@ -57,6 +57,7 @@ of files under `docs/`, not a specific coding agent.
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
 | `docs/open-questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
+| `docs/architecture/decision-rights.md` | The team; `/stack` creates it on request | `/use-case-implement`, `/use-case-test`, and the layer skills; optional, the defaults apply without it   |
 
 For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
 
@@ -274,11 +275,31 @@ The use case is the traceability hub for construction. Every implementation skil
 | `docs/glossary.md`                      | When present: names in code follow its terms, never its Avoid synonyms.           |
 | Architecture decisions (`docs/**/adr/`) | When present: followed like existing conventions.                                 |
 | `docs/architecture/stack.md`            | Layered stacks only: the layer skills to run, the module layout, the API contract. |
+| `docs/architecture/decision-rights.md`  | Layered stacks, when present: replaces the default decision rights (see below).   |
 
 An implementation agent therefore sees every NFR and constraint that applies to its use case without reading the rest
 of the catalog. That only works when the `**Requirements:**` line is complete: a missing or unresolved line is
 reported and handed to `/spec-review`, never guessed, and `/spec-review` flags NFRs and constraints a use case should
 reference but does not. The coverage audit treats each linked NFR and constraint as a coverage unit.
+
+### Decision rights
+
+"No assumptions for specification gaps" needs a line between a gap and an implementation choice. In a layered stack,
+`/use-case-implement` draws it in three sections, which its layer skills and `/use-case-test` follow:
+
+- **The agent decides alone** — internal structure and naming within the glossary, UI layout, labels and column
+  order within the project's conventions, endpoint paths and DTO shapes within the API contract, test data and the
+  structure of the tests. The report lists these choices under **Decisions**, so a reviewer checks them quickly.
+- **The agent asks first** — gaps, ambiguity, and contradictions in the specification; validation values, limits,
+  defaults, and user-visible messages with business meaning that it does not state; changes to the data model beyond
+  the entity model; a deviation from a constraint or the Rationale of a requirement (each recorded in
+  `docs/open-questions.md`); and a new library or dependency or a deviation from an accepted ADR, which have no
+  element of the specification and are asked and reported only.
+- **The agent never** changes a specification, requirement, ADR, or the glossary on its own, changes an existing test
+  to make it pass, or sets a status line.
+
+A team tightens or loosens the first two sections in `docs/architecture/decision-rights.md` (`/stack` offers to
+create it from the defaults); the "never" rules always apply, and a decision no rule names is asked first.
 
 ## Specification review
 

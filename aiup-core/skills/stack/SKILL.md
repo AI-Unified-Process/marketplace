@@ -138,7 +138,10 @@ a missing `## Markers` goes at the end of the file.
    `**E2E scope:**` line yet, ask in the same round whether browser tests cover use cases and test cases, or test
    cases only (the catalog's section "E2E scope"); an ADR that already decides it is not a question either — name
    it as the reason. A technology or a module layout the team's architecture documentation already records is
-   not a question either; name the document.
+   not a question either; name the document. When `docs/architecture/decision-rights.md` does not exist, ask in
+   the same round whether to create it with the default decision rights, for the team to tighten or loosen — which
+   decisions the agent takes alone, asks about first, or never takes during construction. Recommend leaving it out
+   while the defaults fit: without the file, `/use-case-implement` uses them.
 4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular) needs an
    API layer, and a use case offered through its UI is built and tested in that API layer too. A server-side UI (Vaadin Flow) and a Hilla UI call the service directly and need none; an API layer
    next to them is valid and serves other clients — then say that a use case offered through only one of the two
@@ -164,11 +167,16 @@ a missing `## Markers` goes at the end of the file.
      use (`./mvnw verify`, `./mvnw test`, `npx playwright test`);
    - keep the Markers rows that are already there. The layer skills add and correct their own rows; you add only
      the `All` code marker row of the template when it is missing.
+
+   When the user wants the decision rights file, write `docs/architecture/decision-rights.md` as a copy of the
+   defaults of `/use-case-implement` — locate them with a glob for
+   `**/*use-case-implement/references/decision-rights.md` (the folder may carry a host prefix such as
+   `tessl__use-case-implement`). Never rewrite an existing decision rights file; it is the team's.
 6. **Check the skills are installed.** Every skill in the Skill and Test skill columns must be installed by the
    rules of *The layer skills*. Name each missing skill together with the plugin that ships it, from the catalog;
    for a skill the catalog does not list, say that the team's skill is not installed.
-7. **Report** the layers in one short table, the plugins still to install, and hand
-   off: `Next: /use-case-implement UC-XXX` for the first `Approved` use case, or `/use-case-spec` when there is none.
+7. **Report** the layers in one short table, the plugins still to install, the decision rights file when you
+   wrote it, and hand off: `Next: /use-case-implement UC-XXX` for the first `Approved` use case, or `/use-case-spec` when there is none.
 
 ## Changing a layer later
 
@@ -189,7 +197,8 @@ deleting the existing ones is the team's call. Changing it to `Use cases and tes
 ## DO NOT
 
 - Do not write code, build files, or dependencies. Adding a library to `pom.xml` is the layer skill's work.
-- Do not write any file other than `docs/architecture/stack.md`. The team's architecture documentation — arc42,
+- Do not write any file other than `docs/architecture/stack.md`, and `docs/architecture/decision-rights.md` when
+  the user asks for it and it does not exist yet. The team's architecture documentation — arc42,
   C4, 4+1 views, `docs/architecture.md`, an index, an ADR — is read, never written, moved, or linked into. Do not
   rewrite prose of the stack file outside the sections this skill owns.
 - Do not invent a layer skill: a Skill or Test skill column names only a skill that is installed, from a

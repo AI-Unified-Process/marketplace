@@ -63,6 +63,11 @@ the rules of "If an Implementation Already Exists". Do not repeat them; implemen
 - Reconcile an existing implementation instead of building a parallel one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
 
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
+
 ## Module Layout
 
 Read the Module layout section of `docs/architecture/stack.md`, then confirm it against the build files with the shared

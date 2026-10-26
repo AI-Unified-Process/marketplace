@@ -64,6 +64,11 @@ Run directly, apply the same rules yourself — `/use-case-implement` describes 
 - When the service already exists, reconcile it with the specification in place instead of writing a second one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
 
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
+
 ## Module Layout
 
 Take the layout from the `## Module layout` section of `docs/architecture/stack.md`. When it is silent, detect it with

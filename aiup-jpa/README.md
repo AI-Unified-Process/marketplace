@@ -16,7 +16,7 @@ stack plugin such as `aiup-angular-jpa`.
 
 ## Requirements
 
-- `aiup-core` **3.2.0 or later**. Its `/stack` records this plugin as the Persistence layer in
+- `aiup-core` **3.3.0 or later**. Its `/stack` records this plugin as the Persistence layer in
   `docs/architecture/stack.md`; `/use-case-implement` and `/use-case-test` run the skills below in their place in the layer order, and
   `/use-case-coverage` finds their code and tests by the markers they keep in that document.
 - A Migration layer that owns the schema — normally `aiup-flyway` with `/flyway-schema`. Hibernate only validates

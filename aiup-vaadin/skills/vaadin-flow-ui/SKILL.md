@@ -67,6 +67,11 @@ Markers table and new sections of `docs/open-questions.md` (record every gap the
 reconcile an existing view instead of building a second one. Implement this layer only and say that `/use-case-implement
 UC-XXX` runs all layers.
 
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
+
 ## Without a Service Layer
 
 A project may decide against a service layer — a thin `ui` + `domain` design, usually recorded in an ADR. The

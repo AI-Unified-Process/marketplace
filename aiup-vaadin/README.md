@@ -12,7 +12,7 @@ Vaadin Flow, or React views with Hilla — on top of the service layer, and auto
 journeys in the browser with Playwright and Drama Finder.
 
 It is one plugin of a layered setup: a project combines `aiup-core` with one plugin per layer. The skills are
-driven by `aiup-core` and need **`aiup-core` 3.2.0 or later**:
+driven by `aiup-core` and need **`aiup-core` 3.3.0 or later**:
 
 - `/stack` records in `docs/architecture/stack.md` which skill builds and tests each layer
 - `/use-case-implement UC-XXX` runs the implementation skills bottom-up and hands each layer the Handover of the one below

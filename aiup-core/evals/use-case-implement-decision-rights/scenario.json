@@ -1,0 +1,15 @@
+{
+  "description": "A use case is implemented under a project file of decision rights that loosens one rule (message texts), tightens another (new endpoint paths), and moves a never rule (the status line): the agent words the missing message itself and reports it, leaves the new endpoint out and asks without an OQ section, and keeps the status line",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

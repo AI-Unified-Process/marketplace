@@ -67,6 +67,11 @@ length, a nullability, or a range the entity model does not state is a question,
 file under `docs/` other than new sections of `docs/open-questions.md` (record every gap there as `/use-case-implement`
 defines it), and build the migration layer only. Say that `/use-case-implement UC-XXX` runs all layers.
 
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
+
 This is a migration skill: there is no test skill for it. The schema is exercised by the persistence and service
 tests, and the test data those tests need is written by the test skills as test migrations.
 
