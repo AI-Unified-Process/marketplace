@@ -23,7 +23,8 @@ human-reviewable artifacts between intent and implementation:
 - an explicit domain entity model;
 - use cases that define user goals and behavior;
 - test journeys that trace back to those use cases;
-- stack-specific implementation and tests built from the reviewed specifications.
+- stack-specific implementation and tests built from the reviewed specifications;
+- a user guide, an acceptance protocol, and release notes derived from those same specifications.
 
 The workflow is inspired by the phases of the
 [Rational Unified Process](https://en.wikipedia.org/wiki/Rational_unified_process), adapted for coding agents and
@@ -32,11 +33,11 @@ plain-text artifacts that live with the source code.
 ## Workflow
 
 ```text
-Inception        Elaboration                                Construction
-─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────
-/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage
-                                 ↘ /business-process        /test-case     → automate the journey
-                                   (optional)
+Inception        Elaboration                                Construction                                        Transition
+─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────    ──────────────────────
+/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
+                                 ↘ /business-process        /test-case     → automate the journey            /user-guide
+                                   (optional)                                                                /release-notes
                  /spec-review at any point
 ```
 
@@ -45,6 +46,10 @@ layer plugins — one per technology, combined per project — or with one combi
 `/stack` once; then *implement*, *test*, and *coverage* are `/use-case-implement`, `/use-case-test`, and
 `/use-case-coverage`, and *automate the journey* is `/test-case-implement`. A combined stack plugin uses its own
 `/implement`, test skills, and `/coverage-check` where it ships one.
+
+Transition hands the system over: `/acceptance-protocol` runs the user acceptance round from the test cases and sets
+the accepted use cases to `Done`, `/user-guide` writes the user guide from the use cases, and `/release-notes` lists
+what reached `Done` since the last release.
 
 Each step reads the files produced by earlier steps. You can review or edit an artifact before continuing, and every
 later result remains traceable to the corresponding requirement or use case.
