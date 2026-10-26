@@ -51,7 +51,7 @@ out.
   scenario, every alternative flow's status and `detail`, and the field errors. "Which Layer Tests What" of
   `/use-case-test` decides the rest.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 

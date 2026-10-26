@@ -24,6 +24,7 @@ reviewable files under `docs/`.
 | Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                      |
 | Construction | [`/test-case`](skills/test-case/SKILL.md)                     | Executable journeys across specified use cases or BPMN process paths         |
 | Any          | [`/spec-review`](skills/spec-review/SKILL.md)                 | Deterministic lint and advisory review of the specification quality          |
+| Any          | [`/open-questions`](skills/open-questions/SKILL.md)           | `docs/open-questions.md`: the questions the specification does not answer yet |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md)       | Entity and use case documentation recovered from existing code               |
 | Construction | [`/stack`](skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skill for each technical layer       |
 | Construction | [`/use-case-implement`](skills/use-case-implement/SKILL.md)   | A use case implemented by running the layer skills bottom-up                 |
@@ -40,7 +41,7 @@ Inception          Elaboration                             Construction
 ```
 
 The last six skills drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
-`aiup-vaadin`, `aiup-angular`, `aiup-playwright`), which require `aiup-core` 3.0.0 or later: install one per layer of
+`aiup-vaadin`, `aiup-angular`, `aiup-playwright`), which require `aiup-core` 3.2.0 or later: install one per layer of
 your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only

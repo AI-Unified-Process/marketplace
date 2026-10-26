@@ -77,6 +77,15 @@ anything:
 An expected value changes only when the specification has changed — see the section above. Every test skill run
 from here follows this section; it is not repeated in the layer skills.
 
+## Gaps in the Specification
+
+An expected value a test needs that the specification does not give — a message it does not state, a limit without a
+number, a rejection without an outcome — is a gap, not a value to read off the code. Handle it as `/use-case-implement`
+defines in its section "Gaps in the Specification": take the `Open` and `Answered` questions of `docs/open-questions.md`
+on this use case first, ask the user or leave the test out, and record every new gap there in the format of
+`/open-questions`, with the test skill that found it as **Raised by**. A test for an element a blocking question is
+about is left out and listed in the report. Every test skill run from here follows this section.
+
 ## Test Markers
 
 Every test carries the id of the use case or test case it covers, in the form the test skill of its layer defines
@@ -150,7 +159,8 @@ Finish by:
 
 - Summarising the tests written per layer, the layers skipped because the integration layer covers them, the
   commands you ran, and whether the suites pass. List every test left failing because the code disagrees with the
-  specification, with the expected and the actual value.
+  specification, with the expected and the actual value, and an **Open questions** list with the id and element of
+  every question you recorded and every test a blocking question left out.
 - Ending with one hand-off line: `Next: /use-case-coverage UC-XXX`. If tests are still unfinished, suggest
   `/use-case-coverage UC-XXX tests wip` so the audit lists remaining work instead of defects.
 - Leaving the specification's `**Status:**` line alone; the audit suggests the next value.
@@ -158,6 +168,7 @@ Finish by:
 ## DO NOT
 
 - Change production code to make a test pass; report the disagreement instead.
-- Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the test skills maintain.
+- Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the test skills
+  maintain, and new sections of `docs/open-questions.md` — see "Gaps in the Specification".
 - Weaken, delete, or disable an assertion whose expected value the specification states.
 - Claim a suite passes without having run it.

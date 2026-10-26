@@ -49,7 +49,7 @@
     },
     {
       "name": "Scope respected",
-      "description": "No controller, no test class, no change to GuestRepository or any file under docs/ other than the Markers table of docs/architecture/stack.md",
+      "description": "No controller, no test class, no change to GuestRepository or any file under docs/ other than the Markers table of docs/architecture/stack.md (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
       "max_score": 9
     },
     {

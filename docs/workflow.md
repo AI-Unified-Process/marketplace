@@ -56,6 +56,7 @@ of files under `docs/`, not a specific coding agent.
 | `docs/processes/BP-*.bpmn`         | `/business-process` or business analysts | `/test-case` (one test case per path)                                                                        |
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
+| `docs/open-questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
 
 For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
 
@@ -97,8 +98,10 @@ it chose without asking as an assumption. `/requirements` and `/entity-model` do
 scope, quality thresholds, conflicts) and for the entity model (cardinality, optionality, identity, cross-attribute
 rules).
 The `/implement` and `/use-case-implement` skills act on this: they ask before implementing a use case that is not yet `Approved`, and they
-report each gap in the specification as an open question — naming the step, flow, or rule — instead of closing it
-with an assumption. The answer goes into the specification through `/use-case-spec`, not into the code alone.
+record each gap in the specification as an open question in `docs/open-questions.md` — naming the step, flow, or
+rule — instead of closing it with an assumption. The answer goes into the specification through `/use-case-spec`,
+not into the code alone. The defaults the clarifying skills choose without asking are recorded there too, so a
+product owner confirms or corrects them later (see [Open questions](#open-questions)).
 
 ## Traceability
 
@@ -129,6 +132,7 @@ processes: one test case per path through a BPMN process model.
 | `A<n>`    | Alternative flow, `### A<n>:` inside one use case                                       | Its use case  | `UC-XXX A<n>`      |
 | `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`                                                | Project       | `TC-XXX`           |
 | `BP-XXX`  | Business process, `docs/processes/BP-XXX-*.bpmn`; also the `id` of its `<bpmn:process>` | Project       | `BP-XXX`           |
+| `OQ-XXX`  | Open question, `## OQ-XXX:` section of `docs/open-questions.md`                         | Project       | `OQ-XXX`           |
 
 German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
 so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`. A rule that applies to several
@@ -151,6 +155,7 @@ cases and a use case never lists its test cases; the reverse direction is comput
 | BPMN activity | Use case                           | The use case id in the activity name, or the same name as the use case title  |
 | Code          | Use case, rule                     | The implementation marker below                                               |
 | Test          | Use case or test case, flow, rules | The test markers below                                                        |
+| Open question | One element of the specification   | The `**Element:**` line; `**Resolved in:**` names where the answer went       |
 
 ### Markers in code
 
@@ -222,6 +227,40 @@ cases do not count.
 differ, and `/requirements` sets the stored value when it updates the catalog. A use case moves by
 `/coverage-check` (aiup-vaadin-jooq and aiup-angular-jpa) or `/use-case-coverage` (layer plugins); its requirements follow.
 
+### Open questions
+
+A gap in the specification is answered in the specification. Until it is, it is a question in
+`docs/open-questions.md`, one `## OQ-XXX:` section per question, so it survives the session that found it and a
+product owner answers every question in one place. The format is owned by
+[`/open-questions`](../aiup-core/skills/open-questions/SKILL.md); people may edit the file by hand in the same form:
+
+```markdown
+## OQ-002: Maximum length of the comment field?
+
+**Element:** UC-003 BR-002
+**Raised by:** /use-case-test, 2026-10-26
+**Blocking:** No
+**Status:** Open
+
+BR-002 requires a comment but sets no limit. Readings: (a) 255 characters; (b) unlimited; (c) 2000 characters.
+```
+
+- **Element** names one element: `UC-003`, `UC-003 step 4`, `UC-003 A2`, `UC-003 BR-002`, `FR-014`, `NFR-002`, `C-006`,
+  `Glossary: <Term>`, or `Entity: <ENTITY>` and `Entity: <ENTITY>.<attribute>`.
+- **Status** runs `Open` → `Answered` (a person gave the answer, in `**Answer:**` and `**Answered by:**`) →
+  `Resolved` (the answer is in the specification; `**Resolved in:**` names where). `Withdrawn`, with a
+  `**Withdrawn:**` reason, ends a question that no longer applies. Resolved and withdrawn questions stay as history.
+- A default chosen without asking stays `Open` with an `**Assumed:**` line; answering it confirms or corrects it.
+- Only the skill that changes the specification resolves a question: `/use-case-spec` for use case elements,
+  `/requirements` for requirements and glossary terms, `/entity-model` for entities. Construction and test skills
+  only append new sections; `/spec-review` and the coverage audits only read the file.
+- A **blocking** question that is `Open` or `Answered` blocks the use case its element names, and every use case that
+  links the requirement it names. `spec_lint.py` warns on such a use case at `Approved` or `Implemented` and fails at
+  `Tested` or `Done` (`OQ_BLOCKING`); the coverage audit does not suggest `Tested`; `/use-case-implement` asks before
+  it goes ahead and, when no one can answer, leaves out the elements the question is about.
+- Nobody creates the file ahead of time; a missing file means there are no open questions. Questions about scope,
+  priority, or budget belong in the team's issue tracker.
+
 ### Construction inputs
 
 The use case is the traceability hub for construction. Every implementation skill of every stack plugin, and
@@ -250,7 +289,8 @@ does that in two parts:
   use case of `use_cases.puml` has a specification and every specification is in the diagram, ids are unique, every
   `FR-XXX`, `UC-xxx BR-yyy`, use case, and process reference resolves, every functional requirement is covered,
   every BPMN activity maps to a use case, every requirement status matches its use cases, the same rule text is not
-  copied between use cases, and no weak word or glossary synonym is used. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
+  copied between use cases, no weak word or glossary synonym is used, and every open question is well-formed, points
+  to an element, and no blocking one is left on a use case that claims to be tested. It also runs the per-file checks of `validate_use_case.py`. Errors fail a CI build.
 - **Review (advisory).** The agent adds findings that need judgment: contradicting or reworded business rules, UI or
   technical detail in a use case, steps that can fail without an alternative flow, a scenario that does not reach its
   goal, untestable rules, ambiguity, wrong or missing actors, NFRs and constraints a use case does not reference, and
@@ -264,7 +304,7 @@ reported and can be removed.
 coverage check below.
 
 Both checks have an end point, so that a review does not turn into a loop. `/spec-review` ends with **Ready for
-Approved**: yes once the lint passes and no semantic warning is open; `info` findings never block it and are not
+Approved**: yes once the lint passes, no semantic warning is open, and no blocking open question is left; `info` findings never block it and are not
 turned into fix commands. `/coverage-check` is finished when every unit is `Covered` or `n/a`. A second run in the
 same conversation compares with the first and separates real changes from a judgment that merely wobbled, and drift
 between code and specification is a decision for you — which side is right — never fixed on one side by guesswork.
@@ -310,6 +350,7 @@ with the markers of the stack in question.
 | [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                 |
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |
+| [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md)           | `docs/open-questions.md`: record, list, answer, and withdraw questions  |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md)       | AI Unified Process baseline recovered from an existing codebase         |
 | [`/stack`](../aiup-core/skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skills of a layered stack       |
 | [`/use-case-implement`](../aiup-core/skills/use-case-implement/SKILL.md)   | A use case implemented across all layers of a layered stack             |

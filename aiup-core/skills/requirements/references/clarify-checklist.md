@@ -56,9 +56,10 @@ Name the element the question is about (`NFR-002`, `C-006 Source`, glossary term
 
 ## Where the answer goes
 
-Into the catalog and the glossary themselves — the user story, the NFR threshold, the Priority, the Source column, a
-new row, or a glossary row with its Avoid synonyms. Never add a questions-and-answers section to either document; the
-history of the decisions lives in version control.
+Into the catalog and the glossary themselves — the user story, the NFR threshold, the Priority, the Source column, a new
+row, or a glossary row with its Avoid synonyms. Never add a questions-and-answers section to either document; the
+history of the decisions lives in version control. A question nobody answers now goes into `docs/open-questions.md`,
+never into the document.
 
 ## Report
 
@@ -66,6 +67,7 @@ After writing, list in the final report:
 
 - **Clarified:** each answered question in one line (`NFR-001: search answers within 1 second for 95% of requests`);
 - **Assumed:** each default you chose without asking, naming the element (`C-006 Source: GDPR Art. 17(1) — the vision
-  names GDPR but no article`), so the user can correct it with `/requirements`;
+  names GDPR but no article`), so the user can correct it with `/requirements`; each one is also recorded as an `Open`
+  question with an `**Assumed:**` line, and the report names its id;
 - **Open:** any category still **Missing** that you could not resolve, such as a role nobody could name or a conflict
   the user wants to settle with a stakeholder.

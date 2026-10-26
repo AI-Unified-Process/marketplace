@@ -136,10 +136,13 @@ Every requirement must pass these checks before finalizing:
 2. **Clarify before writing.** Scan the sources with [references/clarify-checklist.md](references/clarify-checklist.md)
    and ask the user the questions whose answer changes the catalog and has no reasonable default — at most five, the
    most important first (scope and roles before quality thresholds), each with a recommended option; for a quality
-   threshold, propose a number. Write the answers into the rows and glossary terms they affect, never into a
-   questions section. Decide everything else with the best default and report it as an assumption (step 12). When no
-   one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended
-   option for every question and report it as an assumption as well.
+   threshold, propose a number. Write the answers into the rows and glossary terms they affect, never into a questions
+   section. Decide everything else with the best default and report it as an assumption (step 12). When no one can
+   answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for
+   every question and report it as an assumption as well. For the questions of `docs/open-questions.md` on requirements
+   and glossary terms (`FR-`, `NFR-`, `C-`, `Glossary:`), follow the section "In the Clarify Step of a Specification
+   Skill" of `/open-questions` — locate it with a glob for `**/*open-questions/SKILL.md`; the folder may carry a host
+   prefix such as `tessl__open-questions`.
 3. Use TodoWrite to create tasks for each requirement type
 4. Write the document header
 5. For functional requirements:

@@ -22,7 +22,7 @@ those layers write the test data migrations.
 
 ## How it is driven
 
-`aiup-core` (3.0.0 or later) orchestrates the layer plugins:
+`aiup-core` (3.2.0 or later) orchestrates the layer plugins:
 
 ```text
 /stack             → docs/architecture/stack.md records flyway-schema for the Migration layer

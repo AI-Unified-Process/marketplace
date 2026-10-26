@@ -43,8 +43,8 @@ in and leave the value out.
 - **Produces** the routed page, its components, the HTTP service and models, and the route — what the E2E layer
   drives in the browser and what `/angular-ui-test` tests.
 - **Never touches** the API, service, persistence, or migration layers, tests, or anything under `docs/` except the
-  Markers table of `docs/architecture/stack.md`. When the API lacks an endpoint or a field the UI needs, do not work
-  around it in the client — report it as a contract gap for the API layer.
+  Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`. When the API lacks an
+  endpoint or a field the UI needs, do not work around it in the client — report it as a contract gap for the API layer.
 
 ## Run Directly or from /use-case-implement
 
@@ -57,8 +57,9 @@ Run directly, apply the same rules yourself:
 - Read the use case and check its `**Status:**` line, exactly the `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**`
   line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs (`docs/**/adr/*.md`) when present, and
   `docs/architecture/stack.md` (its UI row and Location, and the API contract section).
-- Never close a specification gap with an assumption: ask the user or leave that part out, and end with an
-  **Open questions** list. Never edit a test or a file under `docs/` other than the Markers table.
+- Never close a specification gap with an assumption: ask the user or leave that part out, and end with an **Open
+  questions** list. Never edit a test or a file under `docs/` other than the Markers table and new sections of
+  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the page already exists, reconcile it with the specification in place instead of building a second one.
 - Implement this layer only. `/use-case-implement UC-XXX` runs all layers bottom-up.
 
@@ -273,7 +274,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Rename, drop, or invent a field in a TypeScript model that the API's DTO does not have.
 - Enforce a business rule only in the client — the service layer is the enforcer.
 - Create test files — `/angular-ui-test` follows.
-- Edit tests or anything under `docs/` other than the Markers table of `docs/architecture/stack.md`.
+- Edit tests or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
+  `docs/open-questions.md`.
 
 ## Workflow
 

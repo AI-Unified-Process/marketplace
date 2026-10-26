@@ -55,7 +55,7 @@ implementation exists, **reconcile it with the specification instead of building
 ## DO NOT
 
 - Create test classes (use dedicated testing skills instead)
-- Edit existing tests or anything under `docs/` — see "Gaps in the Specification"
+- Edit existing tests or anything under `docs/` other than new sections of `docs/open-questions.md` — see "Gaps in the Specification"
 - Use `fetchInto(SomeDto.class)` for projected queries — use `Records.mapping(SomeDto::new)` instead
 
 ## Business Rule Markers
@@ -87,17 +87,37 @@ a validation rule, a term that neither the entity model nor the glossary defines
 - Check the `**Status:**` line first. A `Draft` or `Reviewed` use case is not yet approved for
   implementation: say so and ask the user whether to go ahead or to run `/spec-review UC-XXX` first.
   Do not implement an `Obsolete` use case. Never change the status line.
+- Then read `docs/open-questions.md` when it exists, and take the questions that are `Open` or
+  `Answered` on this use case: those whose `**Element:**` names it, and those on a requirement its
+  `**Requirements:**` line links. A **blocking** one means the use case is not ready: list them and
+  ask whether to go ahead without the elements they are about, or to get them answered first
+  (`/open-questions answer OQ-XXX`, then `/use-case-spec UC-XXX`). When no one can answer — a
+  pipeline run, a host without a way to ask, or the user said not to ask — go ahead and leave out
+  only those elements. An `Answered` question is not the specification yet: suggest
+  `/use-case-spec UC-XXX` to resolve it first; when the user goes on, implement its answer as a
+  reading the user chose.
 - For each gap, ask the user or leave that part unimplemented — do not pick one reading silently.
-  A reading the user chooses is implemented and still reported, so the answer reaches the
-  specification and does not live in the code alone.
+  A reading the user chooses is implemented and still recorded, so the answer reaches the
+  specification and does not live in the code alone. A gap an `Open` or `Answered` question
+  already asks is not asked again; name the question instead.
+- **Record every new gap in `docs/open-questions.md`**, one section each, in the format of
+  `/open-questions` from `aiup-core` — locate it with a glob for `**/*open-questions/SKILL.md` (the
+  folder may carry a host prefix such as `tessl__open-questions`), section "The File"; when the
+  file is missing, create it from that skill's `references/open-questions.md`. **Raised by** is
+  `/implement` and today's date; the body holds the readings you saw. A part left out is
+  `**Blocking:** Yes`, `**Status:** Open`. A reading the user chose is `**Status:** Answered`, with
+  the reading as **Answer** and the user (`git config user.name`) as **Answered by**; it is
+  `**Blocking:** No`, because the code now follows it.
 - Never edit an existing test or a file under `docs/` — a specification, test case, requirement,
-  the entity model, the glossary. The tests and the specifications are the oracle for your code: a
-  test that fails against it, or a specification that looks wrong, goes into the report and the
-  **Open questions** list, never into an edit that makes the two agree.
-- End your report with an **Open questions** list: one line per gap, naming the element
-  (`UC-001 step 4`, `UC-001 A2`, `UC-001 BR-003`), the question, the readings you saw, and whether
-  that part was left out or implemented with the reading the user chose. Hand off to
-  `/use-case-spec UC-XXX` to answer the questions in the specification.
+  the entity model, the glossary. The only exception is new sections appended to
+  `docs/open-questions.md`; never change a section that is already there. The tests and the
+  specifications are the oracle for your code: a test that fails against it, or a specification
+  that looks wrong, goes into the report and the **Open questions** list, never into an edit that
+  makes the two agree.
+- End your report with an **Open questions** list: one line per gap, naming its id and element
+  (`OQ-007 UC-001 step 4`), the question, and whether that part was left out or implemented with
+  the reading the user chose; and one line per blocking question that left an element out. Hand
+  off to `/use-case-spec UC-XXX` to put the answers into the specification.
 - A choice the specification leaves to the implementation on purpose — a label, a layout, a column
   order — is not a gap; follow the project's existing conventions.
 

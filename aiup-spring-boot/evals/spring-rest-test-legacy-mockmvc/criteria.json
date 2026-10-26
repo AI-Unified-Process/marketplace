@@ -49,7 +49,7 @@
     },
     {
       "name": "No production or docs changes",
-      "description": "No file under src/main and no existing test file changes; nothing under docs/ changes except the spring-rest-test rows of the Markers table (Test row for @UseCase, Name row for UC<id><Name>ApiTest), the existing rows kept",
+      "description": "No file under src/main and no existing test file changes; nothing under docs/ changes except the spring-rest-test rows of the Markers table (Test row for @UseCase, Name row for UC<id><Name>ApiTest), the existing rows kept (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
       "max_score": 7
     },
     {

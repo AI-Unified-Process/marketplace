@@ -51,8 +51,8 @@ entry — into generated code, test data, or your summary; name the file it live
   `hilla-ui` Handover or the code, and the generated client and models under `Frontend/generated/`.
 - **Produces** one Vitest suite per use case under `src/main/frontend/tests/`, the one-time Vitest setup when
   the project has none, and one endpoint contract test per use case (see *The Endpoint Contract*).
-- **Never touches** production code, the service and persistence tests, or anything under `docs/` other than this skill's rows of the
-  Markers table in `docs/architecture/stack.md`.
+- **Never touches** production code, the service and persistence tests, or anything under `docs/` other than this
+  skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 What to test in this layer, following "Which Layer Tests What" of `/use-case-test`: every step and alternative flow the
 actor sees, that the view sends the right data to the endpoint, that a rule's rejection reaches the actor (a

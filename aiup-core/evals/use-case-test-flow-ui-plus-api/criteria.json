@@ -39,7 +39,7 @@
     },
     {
       "name": "Production code and documents untouched",
-      "description": "No file under src/main is changed, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md, which gains the spring-rest-test and vaadin-flow-ui-test rows with the other rows kept",
+      "description": "No file under src/main is changed, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md, which gains the spring-rest-test and vaadin-flow-ui-test rows with the other rows kept (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
       "max_score": 10
     },
     {

@@ -1,0 +1,31 @@
+{
+  "context": "Tests /open-questions on a docs/open-questions.md that holds OQ-001 (Resolved, on UC-001) and OQ-002 (Open, blocking, on UC-002 BR-002). The product owner P. Meier asks to record a question on UC-002 BR-003 (not blocking), to record a question on UC-002 step 7 — UC-002 has only five steps — to record an answer to OQ-002, and to list what is still open for UC-002. The agent records the first, refuses the second because the element does not exist, records the answer verbatim without resolving the question or changing the specification, and lists the questions. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "New question recorded",
+      "description": "docs/open-questions.md ends with a new section '## OQ-003: <the question about registering a colleague>' with the lines **Element:** UC-002 BR-003, **Raised by:** P. Meier, 2026-10-27, **Blocking:** No, and **Status:** Open",
+      "max_score": 20
+    },
+    {
+      "name": "Question on a missing step refused",
+      "description": "No section is recorded for UC-002 step 7 (no OQ-004, and no section on another element in its place), and the agent tells the product owner that UC-002 has no step 7 and asks which element the question is about",
+      "max_score": 20
+    },
+    {
+      "name": "Answer recorded verbatim",
+      "description": "The OQ-002 section gains **Answer:** with the product owner's answer word for word (24 calendar hours before the start; the partner portal switches to the same rule) and **Answered by:** P. Meier, 2026-10-27, and its status line reads Answered; its question, Element, Raised by, Blocking, and body are unchanged",
+      "max_score": 20
+    },
+    {
+      "name": "Not resolved, specification unchanged",
+      "description": "OQ-002 is not set to Resolved and has no **Resolved in:** line; no file under docs/ other than docs/open-questions.md is changed — UC-002's BR-002 still reads 24 hours as before — and OQ-001 is unchanged",
+      "max_score": 20
+    },
+    {
+      "name": "Overview and hand-off",
+      "description": "The answer shows the questions on UC-002 that are Open or Answered — OQ-002 (blocking, Answered) before OQ-003 (not blocking, Open) — without the resolved OQ-001, and names /use-case-spec UC-002 as the step that puts the answer of OQ-002 into the specification",
+      "max_score": 20
+    }
+  ]
+}

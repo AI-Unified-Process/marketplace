@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether /use-case-spec resolves the open questions on a use case in an unattended run: OQ-002 on UC-002 BR-002 is Answered (registration closes at 12:00 on the last business day before the workshop starts), OQ-003 on UC-002 A3 is Open and nobody can answer it, OQ-001 is resolved history on UC-001. The agent writes the answer of OQ-002 into BR-002, marks OQ-002 Resolved with a Resolved in line, leaves OQ-003 and A3 as they are, and adds no questions section to the use case. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Answer in the rule",
+      "description": "BR-002 of UC-002 now states that registration closes at 12:00 on the last business day (Monday to Friday) before the workshop starts, and no longer says 24 hours; A2's trigger, if it repeats the deadline, says the same",
+      "max_score": 25
+    },
+    {
+      "name": "OQ-002 resolved",
+      "description": "The OQ-002 section reads **Status:** Resolved and has a **Resolved in:** line naming UC-002 BR-002 (A2 may be named too); its Answer, Answered by, question, Element, and body are unchanged",
+      "max_score": 25
+    },
+    {
+      "name": "Open question left open",
+      "description": "The OQ-003 section is unchanged — still Open, no Answer, no Assumed line added — and A3 of UC-002 is not changed to settle it either way",
+      "max_score": 20
+    },
+    {
+      "name": "Use case stays a use case",
+      "description": "UC-002 has no questions, answers, or open-questions section, keeps its template structure (Overview, Preconditions, Main Success Scenario, Alternative Flows, Postconditions, Business Rules) and its **Status:** line unchanged; OQ-001 and every other file under docs/ except UC-002 and docs/open-questions.md are unchanged (a glossary term for business day may be added)",
+      "max_score": 15
+    },
+    {
+      "name": "Report names the questions",
+      "description": "The report says that OQ-002 was resolved in UC-002 BR-002 and that OQ-003 is still open and needs an answer (e.g. /open-questions answer OQ-003), and offers /spec-review UC-002",
+      "max_score": 15
+    }
+  ]
+}

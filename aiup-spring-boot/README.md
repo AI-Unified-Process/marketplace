@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 [Spring Boot](https://spring.io/projects/spring-boot) application: the business logic with its transactions and
 business rules, and a REST API with RFC 9457 Problem Details — each with its test skill.
 
-It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.0.0 or later) and one plugin per other layer
+It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.2.0 or later) and one plugin per other layer
 of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 

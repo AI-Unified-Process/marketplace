@@ -49,7 +49,7 @@ out.
   queries with logic of their own — filters, joins, projections, paging — because `/use-case-test` runs no persistence
   tests below it.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 

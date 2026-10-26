@@ -32,6 +32,7 @@ fix=0
 # use-case-spec validator rejects any content before the title line.
 EXCLUDED='
 aiup-core/skills/stack/references/stack.md
+aiup-core/skills/open-questions/references/open-questions.md
 aiup-core/skills/requirements/references/glossary.md
 aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md

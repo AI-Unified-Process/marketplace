@@ -56,6 +56,11 @@ Read the specification first and completely, before you look at any code:
 - Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
   `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The `FR-*` rows help
   where a step is ambiguous; the linked `NFR-*` and `C-*` rows become coverage units (Step 2).
+- Read `docs/open-questions.md` when it exists, and take the questions that are `Open` or
+  `Answered` on the artifact: those whose `**Element:**` names the use case (for a test case, one
+  of the use cases its Flow links), and those on a requirement its `**Requirements:**` line links.
+  They are no coverage units: a unit a question is about is judged against what the specification
+  says, and an `Answered` question's answer is not the specification until it is written there.
 
 If the specification does not exist, stop and report that. Never audit against a specification you
 reconstructed from the code — that would confirm whatever the code happens to do.
@@ -220,6 +225,10 @@ Implementation 8/11 · Tests 6/11 · Spec: docs/use_cases/UC-001-register-person
    UC-001 describes. Wanted → the specification needs a flow (`/use-case-spec UC-001`); not wanted → remove it
    (`/implement UC-001`). The user decides which.
 
+### Open questions
+
+- OQ-004 (UC-001 step 4, blocking, Open): Customer without an email address?
+
 ### Suggested status
 
 `Approved` is still correct — one implementation gap remains. `Implemented` becomes justified once
@@ -241,7 +250,12 @@ Report rules:
 - When everything is covered, say so in one line and keep the matrix as the proof.
 - Suggest the next `**Status:**` value using the specification's own vocabulary — `Approved`,
   `Implemented` (implementation complete), `Tested` (implementation and tests complete and the
-  caller confirmed the suite passes), `Done` — and always as a suggestion.
+  caller confirmed the suite passes), `Done` — and always as a suggestion. Never suggest `Tested`
+  or `Done` while a blocking question of the **Open questions** section is `Open` or `Answered`;
+  name it as the reason, with `/open-questions answer OQ-XXX` or, when it is answered, the skill
+  that puts the answer into the specification (`/use-case-spec UC-XXX`, `/requirements`).
+- List the questions of Step 1 under **Open questions** — id, element, blocking, status, the
+  question — or leave the section out when there are none.
 - Name the files you read at the end when the caller asked for `both` or for a review, so the audit
   can be checked.
 
@@ -252,6 +266,8 @@ Report rules:
 - Do not write the missing implementation or the missing tests, not even "as an illustration" in
   the report.
 - Do not claim to have run a build or a test suite.
+- Do not record, answer, or resolve an open question; list it. A gap you find is a finding of
+  your report, not a new section of `docs/open-questions.md`.
 - Do not mark a unit `Covered` without a `file:line`, and do not soften a verdict because the
   caller has just finished writing the code.
 - Do not re-litigate the specification's format or wording — `validate_use_case.py` in the

@@ -45,10 +45,10 @@ in and leave the value out.
   for the alternative flows. Without a Handover (run directly), read the existing service classes instead.
 - **Produces** the `@BrowserCallable` endpoint, the generated TypeScript client (by building), and the `.tsx`
   view with its form, grid, dialogs, and notifications.
-- **Never touches** the service, persistence, or migration layer, jOOQ or JPA types, tests, or anything under
-  `docs/` other than this skill's rows of the Markers table in `docs/architecture/stack.md`. When the view needs a
-  service method or a field that does not exist, stop and report it as a gap of the service layer instead of
-  reaching into a repository.
+- **Never touches** the service, persistence, or migration layer, jOOQ or JPA types, tests, or anything under `docs/`
+  other than this skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of
+  `docs/open-questions.md`. When the view needs a service method or a field that does not exist, stop and report it as a
+  gap of the service layer instead of reaching into a repository.
 
 ## Run Directly or from /use-case-implement
 
@@ -56,11 +56,13 @@ Run from `/use-case-implement`, this skill inherits the inputs, the status check
 rules ("If an Implementation Already Exists") and does not repeat them or ask the same questions again.
 
 Run directly, read the same inputs `/use-case-implement` reads — the use case and its `**Status:**` line, exactly the
-`FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the
-ADRs when present, and `docs/architecture/stack.md` — and apply the same rules: never close a specification gap with an
-assumption (ask, or leave that part out and list it under **Open questions**), never edit a test or a file under
-`docs/` other than the Markers table, reconcile an existing view and endpoint instead of building second ones.
-Implement this layer only and say that `/use-case-implement UC-XXX` runs all layers.
+`FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also
+the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
+`docs/architecture/stack.md` — and apply the same rules: never close a specification gap with an assumption (ask, or
+leave that part out and list it under **Open questions**), never edit a test or a file under `docs/` other than the
+Markers table and new sections of `docs/open-questions.md` (record every gap there as `/use-case-implement` defines it),
+reconcile an existing view and endpoint instead of building second ones. Implement this layer only and say that
+`/use-case-implement UC-XXX` runs all layers.
 
 ## The Endpoint
 
@@ -138,7 +140,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Inject a repository, `DSLContext`, or `EntityManager` into the endpoint
 - Hand-write TypeScript clients, call `fetch`, or create a REST controller for the view
 - Paraphrase a message the specification words; use it verbatim
-- Create tests, or edit tests or anything under `docs/` other than this skill's Markers rows
+- Create tests, or edit tests or anything under `docs/` other than this skill's Markers rows and new sections of
+  `docs/open-questions.md`
 
 ## Workflow
 

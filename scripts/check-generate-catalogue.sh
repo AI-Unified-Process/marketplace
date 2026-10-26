@@ -16,11 +16,12 @@ import glob, os, re, sys
 
 WORKFLOW = ".github/workflows/aiup-generate.yml"
 SCRIPT = "pipelines/aiup-generate.sh"
-# Skills the Studio never runs: read-only audits (a run that changes nothing has no result to propose) and the legacy
-# Karibu test skill, superseded by browserless-test.
+# Skills the Studio never runs: read-only audits (a run that changes nothing has no result to propose), the question
+# log (recording and answering need a person; spec_lint.py --report gives the overview), and the legacy Karibu test
+# skill, superseded by browserless-test.
 LEFT_OUT = {
     "aiup-core/spec-review", "aiup-core/use-case-coverage", "aiup-core/test-case-coverage",
-    "aiup-vaadin-jooq/coverage-check", "aiup-angular-jpa/coverage-check", "aiup-vaadin-jooq/karibu-test",
+    "aiup-core/open-questions", "aiup-vaadin-jooq/coverage-check", "aiup-angular-jpa/coverage-check", "aiup-vaadin-jooq/karibu-test",
 }
 NOT_LAYER = {"aiup-core", "aiup-vaadin-jooq", "aiup-angular-jpa", "aiup-blazor-dotnet", "aiup-nestjs-nextjs"}
 errors = 0

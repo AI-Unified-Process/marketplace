@@ -204,13 +204,15 @@ module's folder under `docs/use_cases/`. Keep that structure when you update the
 
 1. Read the requirements document
 2. **Clarify before writing.** Scan the sources with [references/clarify-checklist.md](references/clarify-checklist.md)
-   and ask the user the questions whose answer changes the model and has no reasonable default — at most five, the
-   most important first (entities and cardinality before ranges and lengths), each with a recommended option. Write
-   the answers into the relationship lines, Validation Rules cells, and constraints they affect, never into a
-   questions section. Decide everything else with the best default and report it as an assumption (step 7). When no
-   one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended
-   option for every question and report it as an assumption as well. Never ask about SQL types, indexes, or other
-   implementation choices.
+   and ask the user the questions whose answer changes the model and has no reasonable default — at most five, the most
+   important first (entities and cardinality before ranges and lengths), each with a recommended option. Write the
+   answers into the relationship lines, Validation Rules cells, and constraints they affect, never into a questions
+   section. Decide everything else with the best default and report it as an assumption (step 7). When no one can answer
+   — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for every
+   question and report it as an assumption as well. Never ask about SQL types, indexes, or other implementation choices.
+   For the questions of `docs/open-questions.md` on entities (`Entity: BOOK`, `Entity: BOOK.isbn`), follow the section
+   "In the Clarify Step of a Specification Skill" of `/open-questions` — locate it with a glob for
+   `**/*open-questions/SKILL.md`; the folder may carry a host prefix such as `tessl__open-questions`.
 3. Use TodoWrite to create a task for each entity
 4. Write the document header and ER diagram (relationships only); in a model split by module, the diagram of each
    module file (see "Modules")

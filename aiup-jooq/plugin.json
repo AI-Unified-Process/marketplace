@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-jooq",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "AI Unified Process persistence layer - jOOQ repositories, projections, and repository tests",
   "author": {
     "name": "Simon Martinelli",

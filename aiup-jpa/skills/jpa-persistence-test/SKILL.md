@@ -41,8 +41,8 @@ test; name the file it lives in and leave the value out.
   hexagonal layout the adapter that implements the outbound port.
 - **Produces** one test class per use case, `UC<id><Name>RepositoryTest`, and the Flyway test migration with its
   data.
-- **Never touches** production code, main migrations, tests of other layers, or anything under `docs/` other than
-  this skill's rows of the Markers table in `docs/architecture/stack.md`.
+- **Never touches** production code, main migrations, tests of other layers, or anything under `docs/` other than this
+  skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 

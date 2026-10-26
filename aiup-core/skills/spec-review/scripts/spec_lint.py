@@ -14,21 +14,33 @@ check is exact and gives the same result on every run:
            a reference points to nothing, a BPMN activity is no use case of
            the diagram or of a specification,
            a process model's BP-XXX id does not match its file name,
+           a use case at Tested or Done has an unresolved blocking open
+           question, an open question lacks a required field,
            or a use case document does not parse (from validate_use_case.py).
 - WARN   = the artifacts are connected but weak: an uncovered functional
            requirement, a requirement status its use cases contradict, an
            actor of a use case the diagram does not connect to it (or the
            other way round), the
            same business rule in two use cases, a weak word, a synonym the
-           glossary says to avoid, or a rule of the use-case-spec skill that
-           validate_use_case.py reports as broken.
+           glossary says to avoid, an answered open question whose answer
+           is not in the specification yet, a use case at Approved or
+           Implemented with an unresolved blocking open question, or a rule
+           of the use-case-spec skill that validate_use_case.py reports as
+           broken.
 - INFO   = worth knowing, never a failure: e.g. an NFR or constraint no
            use case links, which is fine when it applies system-wide.
 
 Artifacts (each check runs only when its artifacts exist):
 
     requirements.md  use_cases.puml  use_cases/UC-*.md  test_cases/TC-*.md
-    processes/*.bpmn  entity_model.md  glossary.md
+    processes/*.bpmn  entity_model.md  glossary.md  open-questions.md
+
+open-questions.md holds one '## OQ-XXX: <question>' section per question,
+with **Element:**, **Raised by:**, **Blocking:**, and **Status:** lines, as
+the open-questions skill defines it. A blocking question that is Open or
+Answered blocks the use case its element names, and every use case that
+links the requirement it names. Resolved and Withdrawn questions are history:
+their elements are not checked, because they may have been renumbered since.
 
 A project split by module (as /reverse-engineer writes it) keeps the module
 overview in use_cases.puml and the module table in entity_model.md; each
@@ -60,9 +72,12 @@ with the ids that stop at each stage. It reads docs/ only; whether code and
 tests realize the use cases is /use-case-coverage (layer plugins) or
 /coverage-check (aiup-vaadin-jooq and aiup-angular-jpa).
 
+Both also list the open questions that are Open or Answered.
+
 --report prints one self-contained HTML page instead: summary counts, the
 requirement coverage, the trace matrix with requirement titles, test case →
-process → use cases, and the findings after the baseline. Links are relative
+process → use cases, the open questions, and the findings after the
+baseline. Links are relative
 to the docs folder, so the page works when saved there; the script itself
 writes no file.
 
@@ -130,6 +145,17 @@ MD_LINK = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
 ENTITY_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9_]*)\s*$")
 BP_REF = re.compile(r"(?<![A-Za-z0-9])(BP-\d{3,})(?![0-9])")
 FILE_BP = re.compile(r"^(BP-\d{3,})-")
+OQ_HEADING = re.compile(r"^##\s+(OQ-[A-Za-z0-9]+)\s*:?\s*(.*)$")
+OQ_FIELD = re.compile(r"^\*\*([A-Za-z ]+):\*\*\s*(.*)$")
+STEP_LINE = re.compile(r"^(\d+)\.\s+\S")
+FLOW_HEADING = re.compile(r"^###\s+(A\d+)\b")
+# The element forms of an open question (open-questions skill, Elements)
+ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+)(?:\s+(?:(?:step|schritt)\s+"
+                        r"(\d+)|(A\d+)|((?:BR|GR)-[A-Za-z0-9_-]+)))?$",
+                        re.IGNORECASE)
+ELEMENT_GLOSSARY = re.compile(r"^(?:Glossary|Glossar):\s*(.+)$", re.IGNORECASE)
+ELEMENT_ENTITY = re.compile(r"^(?:Entity|Entität):\s*([A-Za-z][A-Za-z0-9_]*)"
+                            r"(?:\.([A-Za-z][A-Za-z0-9_]*))?$", re.IGNORECASE)
 
 ID_FIELDS = ("**Use Case ID:**", "**Use-Case-ID:**")
 NAME_FIELDS = ("**Use Case Name:**", "**Use-Case-Name:**")
@@ -144,6 +170,19 @@ RULES_HEADINGS = ("## Business Rules", "## Geschäftsregeln")
 TITLE_PREFIX = "# Use Case:"
 OBSOLETE = ("obsolete", "obsolet")
 INACTIVE_REQUIREMENT = ("rejected", "deferred", "abgelehnt", "zurückgestellt")
+MAIN_HEADINGS = ("## Main Success Scenario", "## Hauptablauf")
+FLOWS_HEADINGS = ("## Alternative Flows", "## Alternativabläufe")
+OQ_NAME = "open-questions.md"
+OQ_STATUSES = ("Open", "Answered", "Resolved", "Withdrawn")
+OQ_ACTIVE = ("Open", "Answered")
+OQ_REQUIRED = ("Element", "Raised by", "Blocking", "Status")
+# A blocking question fails the lint on a use case that claims completeness,
+# and warns on one that is approved or implemented but not yet tested.
+OQ_BLOCKING_SEVERITY = {
+    "approved": WARN, "implemented": WARN, "tested": ERROR, "done": ERROR,
+    "genehmigt": WARN, "implementiert": WARN, "getestet": ERROR,
+    "abgeschlossen": ERROR,
+}
 
 # A requirement's progress follows the use cases that link it (docs/workflow.md,
 # Requirement status): Verified when every one is Tested or Done, Implemented
@@ -278,7 +317,10 @@ class Spec:
         self.actor_line = 1
         self.rules = {}          # rule id -> {"line", "name", "text"}
         self.rule_order = []
-        in_rules = False
+        self.status_line = 1
+        self.steps = set()       # step numbers of the main success scenario
+        self.flows = set()       # alternative flow ids (A1, A2, ...)
+        in_rules = in_main = in_flows = False
         current = None
         for number, line in prose_lines(self.lines):
             if line.startswith(TITLE_PREFIX) and self.title is None:
@@ -293,6 +335,7 @@ class Spec:
             value = field_value(line, (STATUS_FIELD,))
             if value is not None and not self.status:
                 self.status = value
+                self.status_line = number
             for fields, kind in ((PRIMARY_ACTOR_FIELDS, "primary"),
                                  (SECONDARY_ACTOR_FIELDS, "secondary")):
                 value = field_value(line, fields)
@@ -310,8 +353,16 @@ class Spec:
                                       for rid in REQ_ID.findall(value)]
             if line.startswith("## "):
                 in_rules = line.strip() in RULES_HEADINGS
+                in_main = line.strip() in MAIN_HEADINGS
+                in_flows = line.strip() in FLOWS_HEADINGS
                 current = None
                 continue
+            match = STEP_LINE.match(line) if in_main else None
+            if match:
+                self.steps.add(match.group(1))
+            match = FLOW_HEADING.match(line) if in_flows else None
+            if match:
+                self.flows.add(match.group(1))
             if in_rules:
                 match = RULE_HEADING.match(line)
                 if match:
@@ -354,6 +405,8 @@ class Project:
                                                       "TC-*.md")))
         self.bpmn_paths = sorted(glob.glob(os.path.join(docs, "processes",
                                                         "*.bpmn")))
+        path = os.path.join(docs, OQ_NAME)
+        self.oq_path = path if os.path.isfile(path) else None
 
     def add(self, severity, code, path, line, element, message):
         self.findings.append(Finding(severity, code, path, line, element,
@@ -899,20 +952,30 @@ def check_process_ids(project, path, model, text, owners):
 
 
 def check_entities(project):
-    seen = {}
+    """Entity names unique; returns {ENTITY: {attribute, casefolded}}."""
+    seen, attributes = {}, {}
     for path in project.entity_paths:
+        current = None
         for number, line in prose_lines(read_lines(path)):
+            if line.startswith("#"):
+                current = None
             match = ENTITY_HEADING.match(line)
-            if not match:
+            if match:
+                name = match.group(1)
+                if name in seen:
+                    project.add(ERROR, "DUPLICATE_ID", path, number, name,
+                                "entity " + name + " is already defined in "
+                                + doc_path(project, seen[name][0])
+                                + " on line " + str(seen[name][1]))
+                else:
+                    seen[name] = (path, number)
+                    current = attributes.setdefault(name, set())
                 continue
-            name = match.group(1)
-            if name in seen:
-                project.add(ERROR, "DUPLICATE_ID", path, number, name,
-                            "entity " + name + " is already defined in "
-                            + doc_path(project, seen[name][0]) + " on line "
-                            + str(seen[name][1]))
-            else:
-                seen[name] = (path, number)
+            if current is not None and line.strip().startswith("|"):
+                cell = table_cells(line)[0].strip("`* ")
+                if cell and not re.fullmatch(r":?-+:?", cell):
+                    current.add(cell.casefold())
+    return attributes
 
 
 def load_glossary(project):
@@ -950,6 +1013,163 @@ def load_glossary(project):
         seen[key] = number
         entries.append((number, term, avoid))
     return entries
+
+
+def read_open_questions(project):
+    """The sections of open-questions.md as dicts, in file order.
+
+    Each has "id", "line", "question", "fields" ({label: (line, value)}),
+    and "body" (the lines that are no field line)."""
+    questions = []
+    if not project.oq_path:
+        return questions
+    current = None
+    for number, line in prose_lines(read_lines(project.oq_path)):
+        match = OQ_HEADING.match(line)
+        if match:
+            current = {"id": match.group(1), "line": number,
+                       "question": match.group(2).strip(), "fields": {},
+                       "body": []}
+            questions.append(current)
+            continue
+        if line.startswith("#"):
+            current = None
+            continue
+        if current is None:
+            continue
+        match = OQ_FIELD.match(line.strip())
+        if match:
+            label = match.group(1).strip().capitalize()
+            current["fields"].setdefault(label, (number, match.group(2)
+                                                 .strip().strip("`")))
+        elif line.strip():
+            current["body"].append(line.strip())
+    return questions
+
+
+def oq_value(question, label):
+    return question["fields"].get(label, (question["line"], ""))[1]
+
+
+def oq_status(question):
+    """The status as one of OQ_STATUSES, or the raw value when unknown."""
+    value = oq_value(question, "Status")
+    return next((s for s in OQ_STATUSES if normalize(s) == normalize(value)),
+                value)
+
+
+def resolve_element(element, specs, diagram, requirements, entities,
+                    glossary_terms):
+    """(use case ids it names, reason it points to nothing or None).
+
+    Returns None as the first value when the element has no known form."""
+    match = ELEMENT_UC.match(element)
+    if match:
+        uid, step, flow, rule = match.groups()
+        spec = specs.get(uid)
+        if spec is None:
+            if uid in diagram and not (step or flow or rule):
+                return [uid], None
+            return [uid], "use case " + uid + " has no specification"
+        if step and step not in spec.steps:
+            return [uid], uid + " has no step " + step
+        if flow and flow.upper() not in spec.flows:
+            return [uid], uid + " has no alternative flow " + flow
+        if rule and rule not in spec.rules:
+            return [uid], uid + " has no rule " + rule
+        return [uid], None
+    if REQ_ID.fullmatch(element):
+        uids = [uid for uid, spec in specs.items()
+                if element in (rid for _, rid in spec.requirements)]
+        if element not in requirements:
+            return uids, "requirement " + element + " is not in " \
+                "requirements.md"
+        return uids, None
+    match = ELEMENT_GLOSSARY.match(element)
+    if match:
+        if normalize(match.group(1)) not in glossary_terms:
+            return [], "term '" + match.group(1) + "' is not in glossary.md"
+        return [], None
+    match = ELEMENT_ENTITY.match(element)
+    if match:
+        name, attribute = match.group(1).upper(), match.group(2)
+        if name not in entities:
+            return [], "entity " + name + " is not in the entity model"
+        if attribute and attribute.casefold() not in entities[name]:
+            return [], "entity " + name + " has no attribute " + attribute
+        return [], None
+    return None, None
+
+
+def check_open_questions(project, specs, diagram, requirements, entities,
+                         glossary):
+    """Open questions are well-formed, point to something, and block.
+
+    Only Open and Answered questions are checked against the specification:
+    Resolved and Withdrawn ones are history."""
+    if not project.oq_path:
+        return
+    path = project.oq_path
+    terms = {normalize(term) for _, term, _ in glossary}
+    seen = {}
+    for question in read_open_questions(project):
+        qid, number = question["id"], question["line"]
+        if qid in seen:
+            project.add(ERROR, "DUPLICATE_ID", path, number, qid,
+                        "open question id " + qid + " is already used on "
+                        "line " + str(seen[qid]))
+            continue
+        seen[qid] = number
+        problems = ["no **" + label + ":** line" for label in OQ_REQUIRED
+                    if not oq_value(question, label)]
+        status = oq_status(question)
+        blocking = normalize(oq_value(question, "Blocking"))
+        if oq_value(question, "Status") and status not in OQ_STATUSES:
+            problems.append("status '" + status + "' is none of "
+                            + ", ".join(OQ_STATUSES))
+        if blocking and blocking not in ("yes", "no", "ja", "nein"):
+            problems.append("**Blocking:** is '" + oq_value(
+                question, "Blocking") + "', not Yes or No")
+        needs = {"Answered": ("Answer",), "Resolved": ("Resolved in",),
+                 "Withdrawn": ("Withdrawn",)}
+        for label in needs.get(status, ()):
+            if not oq_value(question, label):
+                problems.append(status + " but no **" + label + ":** line")
+        element = oq_value(question, "Element")
+        for problem in problems:
+            project.add(ERROR, "OQ_INVALID", path, number, qid, qid
+                        + (" (" + element + ")" if element else "") + ": "
+                        + problem)
+        if status not in OQ_ACTIVE or not element:
+            continue
+        uids, reason = resolve_element(element, specs, diagram, requirements,
+                                       entities, terms)
+        line = question["fields"]["Element"][0]
+        if uids is None:
+            project.add(ERROR, "OQ_INVALID", path, line, qid, qid + ": element"
+                        " '" + element + "' has no known form (UC-XXX, "
+                        "UC-XXX step N, UC-XXX A1, UC-XXX BR-XXX, FR-XXX, "
+                        "Glossary: <term>, Entity: <ENTITY>[.attribute])")
+            continue
+        if reason:
+            project.add(ERROR, "DANGLING_REF", path, line, qid, qid + " is "
+                        "about " + element + ": " + reason)
+        if status == "Answered":
+            project.add(WARN, "OQ_UNRESOLVED", path, number, qid, qid + " ("
+                        + element + ") is answered, but the answer is not in "
+                        "the specification yet; resolve it there")
+        if blocking not in ("yes", "ja"):
+            continue
+        for uid in uids:
+            spec = specs.get(uid)
+            words = normalize(spec.status).split() if spec else []
+            severity = OQ_BLOCKING_SEVERITY.get(words[0] if words else "")
+            if severity:
+                project.add(severity, "OQ_BLOCKING", spec.path,
+                            spec.status_line, uid, uid + " is "
+                            + spec.status + " but blocking question " + qid
+                            + " (" + element + ") is " + status + ": "
+                            + question["question"])
 
 
 def element_for(line, default):
@@ -1032,8 +1252,11 @@ def lint(docs, validator, bpmn):
     check_rules(project, specs)
     check_test_cases(project, specs)
     check_bpmn(project, specs, diagram, bpmn)
-    check_entities(project)
-    check_wording(project, specs, load_glossary(project))
+    entities = check_entities(project)
+    glossary = load_glossary(project)
+    check_wording(project, specs, glossary)
+    check_open_questions(project, specs, diagram, requirements, entities,
+                         glossary)
     return sorted(project.findings,
                   key=lambda f: (SEVERITY_ORDER[f.severity], f.path, f.line))
 
@@ -1117,12 +1340,37 @@ def trace(docs):
         if not spec.requirements:
             rows.append(row(None, uid))
     return {"requirements": rows, "test_cases": test_cases,
+            "open_questions": trace_open_questions(project, ucs_by_req),
             "coverage": coverage(requirements, specs, ucs_by_req,
                                  tcs_by_uc),
             "counts": {"requirements": len(requirements),
                        "use_cases": len(specs),
                        "test_cases": len(test_cases),
                        "processes": len(project.bpmn_paths)}}
+
+
+def trace_open_questions(project, ucs_by_req):
+    """The Open and Answered questions, blocking first, with their use cases.
+
+    A question on a requirement belongs to every use case that links it."""
+    rows = []
+    for question in read_open_questions(project):
+        status = oq_status(question)
+        if status not in OQ_ACTIVE:
+            continue
+        element = oq_value(question, "Element")
+        match = ELEMENT_UC.match(element)
+        uids = [match.group(1)] if match else list(
+            ucs_by_req.get(element, []))
+        rows.append({"id": question["id"], "element": element,
+                     "question": question["question"],
+                     "blocking": oq_value(question, "Blocking"),
+                     "status": status,
+                     "raised_by": oq_value(question, "Raised by"),
+                     "use_cases": uids})
+    rows.sort(key=lambda q: (normalize(q["blocking"]) not in ("yes", "ja"),
+                             q["status"] != "Open"))
+    return rows
 
 
 COVERAGE_STAGES = ("Linked to a use case", "Every use case in a test case",
@@ -1171,7 +1419,10 @@ def filter_trace(matrix, only):
            if only in (t["id"], t["process_id"]) or only in t["use_cases"]]
     kept = {r["requirement"] for r in rows}
     cov = matrix["coverage"]
-    return {"requirements": rows, "test_cases": tcs,
+    oqs = [q for q in matrix["open_questions"]
+           if only in (q["id"], q["element"].split(" ")[0])
+           or only in q["use_cases"]]
+    return {"requirements": rows, "test_cases": tcs, "open_questions": oqs,
             "counts": matrix["counts"],
             "coverage": summarize_coverage(
                 {rid: stop for rid, stop in cov["stops"].items()
@@ -1214,6 +1465,12 @@ def render_trace(matrix):
             ["Test Case", "Process", "Use Cases"],
             [[t["id"], t["process"] or "—", cell(t["use_cases"])]
              for t in matrix["test_cases"]])
+    if matrix["open_questions"]:
+        lines += ["", "## Open Questions", ""]
+        lines += markdown_table(
+            ["ID", "Element", "Question", "Blocking", "Status"],
+            [[q["id"], q["element"], q["question"], q["blocking"],
+              q["status"]] for q in matrix["open_questions"]])
     cov = matrix["coverage"]
     if cov["active"]:
         lines += ["", "## Requirement Coverage", "",
@@ -1337,6 +1594,7 @@ def render_report(matrix, findings, suppressed, docs):
              ("Use cases", counts["use_cases"]),
              ("Test cases", counts["test_cases"]),
              ("Processes", counts["processes"]),
+             ("Open questions", len(matrix["open_questions"])),
              ("Errors", len(severities[ERROR])),
              ("Warnings", len(severities[WARN])),
              ("Infos", len(severities[INFO])),
@@ -1406,6 +1664,20 @@ def render_report(matrix, findings, suppressed, docs):
               link(t["process_path"], t["process"]) if t["process"]
               else '<span class="muted">—</span>', ids(t["use_cases"])]
              for t in matrix["test_cases"]]))
+
+    if matrix["open_questions"]:
+        out.append("<h2>Open Questions</h2>")
+        out.append(table(
+            ["ID", "Element", "Question", "Blocking", "Status", "Raised by"],
+            [[link("open-questions.md", q["id"]), esc(q["element"]),
+              esc(q["question"]),
+              '<span class="badge s-err">Yes</span>'
+              if normalize(q["blocking"]) in ("yes", "ja")
+              else esc(q["blocking"]),
+              '<span class="badge %s">%s</span>' % (
+                  "s-warn" if q["status"] == "Open" else "s-info",
+                  esc(q["status"])), esc(q["raised_by"])]
+             for q in matrix["open_questions"]]))
 
     out.append("<h2>Findings</h2>")
     if not findings:
@@ -1619,6 +1891,56 @@ clerk --> UC002
   </process>
 </definitions>
 """,
+    # Resolved and Withdrawn questions are history: their elements may point
+    # to nothing, and a resolved blocking question blocks nothing.
+    "open-questions.md": """\
+# Open Questions
+
+Questions about the specification that the specification does not answer yet.
+
+## OQ-001: Minimum age for guests travelling with a parent?
+
+**Element:** UC-001 A7
+**Raised by:** /use-case-implement, 2026-10-01
+**Blocking:** Yes
+**Status:** Resolved
+
+**Answer:** No exception; BR-001 applies to every guest.
+**Answered by:** P. Meier, 2026-10-02
+**Resolved in:** UC-001 A9
+
+## OQ-002: Which data does a guest need?
+
+**Element:** UC-001 step 2
+**Raised by:** /use-case-spec, 2026-10-03
+**Blocking:** No
+**Status:** Open
+**Assumed:** name and date of birth
+
+Step 2 names no data.
+
+## OQ-003: Store the guest's age?
+
+**Element:** Entity: GUEST.age
+**Raised by:** /entity-model, 2026-10-03
+**Blocking:** No
+**Status:** Withdrawn
+**Withdrawn:** duplicate of OQ-002
+
+## OQ-004: Can a room be out of service?
+
+**Element:** Entity: ROOM
+**Raised by:** S. Huber, 2026-10-04
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-005: Does a guest include children?
+
+**Element:** Glossary: Guest
+**Raised by:** /requirements, 2026-10-04
+**Blocking:** No
+**Status:** Open
+""",
 }
 
 BROKEN = dict(CLEAN)
@@ -1660,6 +1982,67 @@ BROKEN.update({
         'name="UC-001 Create Guest"', 'name="UC-003 Cancel Room"'),
     "processes/legacy.bpmn": CLEAN[
         "processes/BP-001-hotel-stay.bpmn"].replace('"BP-001"', '"p"'),
+    "open-questions.md": """\
+# Open Questions
+
+## OQ-001: Deposit for guests under eighteen?
+
+**Element:** UC-002 BR-001
+**Raised by:** /use-case-test, 2026-10-05
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-002: Which guests may be recorded?
+
+**Element:** FR-001
+**Raised by:** /requirements, 2026-10-05
+**Blocking:** Yes
+**Status:** Answered
+
+**Answer:** Every guest over eighteen.
+**Answered by:** P. Meier, 2026-10-06
+
+## OQ-003: What follows the confirmation?
+
+**Element:** UC-001 step 9
+**Raised by:** /use-case-implement, 2026-10-05
+**Blocking:** No
+**Status:** Open
+
+## OQ-004: Room rate rounding?
+
+**Element:** UC-002 BR-002
+**Raised by:** /use-case-implement, 2026-10-05
+**Blocking:** No
+**Status:** Resolved
+
+## OQ-004: Twice the same id?
+
+**Element:** UC-002
+**Raised by:** /use-case-implement, 2026-10-05
+**Blocking:** No
+**Status:** Open
+
+## OQ-005: Length of the comment field?
+
+**Element:** the comment field
+**Raised by:** /use-case-test, 2026-10-05
+**Blocking:** No
+**Status:** Open
+
+## OQ-006: Is a booking a reservation?
+
+**Element:** Glossary: Booking
+**Raised by:** /requirements, 2026-10-05
+**Blocking:** No
+**Status:** Open
+
+## OQ-007: Is the guest's phone mandatory?
+
+**Element:** UC-001 step 2
+**Raised by:** /use-case-implement, 2026-10-05
+**Status:** Open
+""",
 })
 
 BROKEN_EXPECTED = {
@@ -1667,7 +2050,7 @@ BROKEN_EXPECTED = {
     "BPMN_UNMAPPED", "FR_UNCOVERED", "BR_DUPLICATE", "WEAK_WORD",
     "GLOSSARY_AVOIDED_TERM", "GLOSSARY_DUPLICATE", "UC_UNUSED_BY_TC",
     "REQ_STATUS_DRIFT", "BP_ID_MISMATCH", "BP_NO_ID", "REQ_UNCOVERED",
-    "ACTOR_MISMATCH",
+    "ACTOR_MISMATCH", "OQ_BLOCKING", "OQ_UNRESOLVED", "OQ_INVALID",
 }
 
 ACTOR_DIAGRAM = """\
@@ -1841,6 +2224,17 @@ def self_test():
                 failures.append("report: clean page lacks " + needle)
         if "| FR-001" not in render_trace(matrix):
             failures.append("trace: rendered matrix lacks FR-001")
+        oqs = [q["id"] for q in matrix["open_questions"]]
+        if oqs != ["OQ-004", "OQ-002", "OQ-005"]:
+            failures.append("trace: open questions should be OQ-004, OQ-002, "
+                            "OQ-005 (blocking first, history left out), got "
+                            + str(oqs))
+        if [q["id"] for q in filter_trace(matrix, "UC-001")["open_questions"]] \
+                != ["OQ-002"]:
+            failures.append("trace: --only UC-001 should keep OQ-002")
+        if "## Open Questions" not in render_trace(matrix) \
+                or "<h2>Open Questions</h2>" not in page:
+            failures.append("trace: open questions not rendered")
         if fr1 and (fr1["requirement_status"], fr1["derived_status"]) \
                 != ("Open", "Open"):
             failures.append("trace: FR-001 status should be Open/Open, got "
@@ -1973,6 +2367,25 @@ def self_test():
         duplicates = [f.message for f in found if f.code == "DUPLICATE_ID"]
         if not any("business process id BP-001" in m for m in duplicates):
             failures.append("broken: no DUPLICATE_ID for BP-001")
+        if not any("open question id OQ-004" in m for m in duplicates):
+            failures.append("broken: no DUPLICATE_ID for OQ-004")
+        blocking = sorted((f.severity, f.element) for f in found
+                          if f.code == "OQ_BLOCKING")
+        if blocking != [(ERROR, "UC-002"), (WARN, "UC-001")]:
+            failures.append("broken: OQ_BLOCKING should be ERROR on the Done "
+                            "UC-002 and WARN on the Approved UC-001 (via "
+                            "FR-001), got " + str(blocking))
+        if [f.element for f in found if f.code == "OQ_UNRESOLVED"] \
+                != ["OQ-002"]:
+            failures.append("broken: OQ_UNRESOLVED should name OQ-002 only")
+        invalid = sorted(f.element for f in found if f.code == "OQ_INVALID")
+        if invalid != ["OQ-004", "OQ-005", "OQ-007"]:
+            failures.append("broken: OQ_INVALID should name OQ-004 (Resolved "
+                            "without Resolved in), OQ-005 (unknown element), "
+                            "and OQ-007 (no Blocking), got " + str(invalid))
+        for needle in ("UC-001 has no step 9", "term 'Booking'"):
+            if not any(needle in m for m in dangling):
+                failures.append("broken: no DANGLING_REF for " + needle)
 
         baseline = os.path.join(root, BASELINE_NAME)
         write_baseline(baseline, found, root)

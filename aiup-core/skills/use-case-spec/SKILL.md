@@ -120,12 +120,16 @@ in the implementation, not the specification.
    diagram draws as an `<<include>>` shared by several use cases is intended; leave it.
 3. **Clarify before writing.** Scan the sources for each use case with
    [references/clarify-checklist.md](references/clarify-checklist.md) and ask the user the questions whose answer
-   changes the specification and has no reasonable default — at most five per use case, the most important first,
-   each with a recommended option. Write the answers into the steps, flows, and rules they affect, never into a
-   questions section. Decide everything else with the best default and report it as an assumption (step 16). When
-   no one can answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the
-   recommended option for every question and report it as an assumption as well. Never ask about implementation
-   choices; they do not belong in a use case.
+   changes the specification and has no reasonable default — at most five per use case, the most important first, each
+   with a recommended option. Write the answers into the steps, flows, and rules they affect, never into a questions
+   section. Decide everything else with the best default and report it as an assumption (step 16). When no one can
+   answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for
+   every question and report it as an assumption as well. Never ask about implementation choices; they do not belong in
+   a use case. For the questions of `docs/open-questions.md` on the use case — resolving the answered ones, asking the
+   open ones, recording your assumptions, withdrawing the ones that no longer apply — follow the section "In the Clarify
+   Step of a Specification Skill" of `/open-questions` — locate it with a glob for `**/*open-questions/SKILL.md`; the
+   folder may carry a host prefix such as `tessl__open-questions`. It is the only file under `docs/` besides the
+   specifications and the glossary that this skill writes.
 4. Use TodoWrite to track progress — one item per use case file.
 5. For each use case, derive the filename with the rule in "File naming" above.
 6. Write the Overview section — `Use Case ID`, primary actors, secondary actors, goal, trigger, and a `Status` from
@@ -184,7 +188,8 @@ in the implementation, not the specification.
     whether a use case is a user goal, whether its actors are right, whether the scenario reaches the
     goal, whether every failing step has a flow, or whether rules and postconditions are testable.
     That semantic review is `/spec-review`. Tell the user which files you wrote, list what step 3
-    clarified, assumed, and left open (the report format is in the clarification checklist), and offer
+    clarified, assumed, and left open with the ids of the open questions (the report format is in the clarification
+   checklist), and offer
     `/spec-review UC-XXX` for each of them (or `/spec-review` for the whole project after writing all
     use cases) before a use case moves to `Reviewed`. Do not run it yourself and do not restate its
     checklist here — one review, in one place.

@@ -29,7 +29,7 @@ database. It is one plugin of a layer combination; it builds neither the schema 
 
 ## How it is driven
 
-`aiup-core` (3.0.0 or later) orchestrates the layer plugins:
+`aiup-core` (3.2.0 or later) orchestrates the layer plugins:
 
 ```text
 /stack             → docs/architecture/stack.md records jooq-persistence and jooq-persistence-test
@@ -84,7 +84,7 @@ See the marketplace [installation guides](../docs/installation/) for other agent
 
 ## Prerequisites
 
-- `aiup-core` 3.0.0 or later, `docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/architecture/stack.md`.
+- `aiup-core` 3.2.0 or later, `docs/entity_model.md`, `docs/use_cases/UC-*.md`, and `docs/architecture/stack.md`.
 - A Maven or Gradle Spring Boot project with `spring-boot-starter-jooq` and Flyway migrations.
 - Docker for Testcontainers (code generation and repository tests) unless the project uses another database setup.
 

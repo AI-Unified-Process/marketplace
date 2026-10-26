@@ -93,7 +93,7 @@ you expect the answer to be. The agent must find its own evidence; a caller-supp
 the fastest way to turn an audit into a rubber stamp.
 
 Present the report as it came back — the heading, the score line, the full matrix, `### Gaps`,
-`### Drift`, and `### Suggested status`. Do not summarize it into prose, do not drop the covered
+`### Drift`, `### Open questions`, and `### Suggested status`. Do not summarize it into prose, do not drop the covered
 rows to save space, and do not change a verdict. The matrix is the deliverable; if you disagree
 with a verdict, say so underneath it and leave the row alone.
 
@@ -114,6 +114,8 @@ with a verdict, say so underneath it and leave the row alone.
   suite passes.
 - Pass the `### Suggested status` on as a suggestion, and name the line that would change. Do not
   edit the specification's `**Status:**` line as part of this report.
+- Open questions are not yours to close: offer `/open-questions answer OQ-XXX` for an `Open` one
+  and the skill that resolves an `Answered` one, and never record a gap of the report as a question.
 
 ## Repeated Runs
 

@@ -59,8 +59,8 @@ Name the element the question is about (`RESERVATION.check_out`, `GUEST ||--o{ R
 
 Into the entity model itself — the relationship line of the ER diagram, the Validation Rules cell, or a bullet under
 `#### Constraints`. Never add a questions-and-answers section to the document; the history of the decisions lives in
-version control. A new domain term goes into the glossary and a new requirement into the catalog — both hand-offs to
-`/requirements`.
+version control. A question nobody answers now goes into `docs/open-questions.md`, never into the document. A new domain
+term goes into the glossary and a new requirement into the catalog — both hand-offs to `/requirements`.
 
 ## Report
 
@@ -68,7 +68,8 @@ After writing, list in the final report:
 
 - **Clarified:** each answered question in one line (`RESERVATION ||--|{ RESERVATION_ROOM: a reservation books one or
   more rooms`);
-- **Assumed:** each default you chose without asking, naming the element (`GUEST.email: Optional — walk-in guests
-  give no email`), so the user can correct it with `/entity-model`;
+- **Assumed:** each default you chose without asking, naming the element (`GUEST.email: Optional — walk-in guests give
+  no email`), so the user can correct it with `/entity-model`; each one is also recorded as an `Open` question with an
+  `**Assumed:**` line, and the report names its id;
 - **Open:** any category still **Missing** that you could not resolve, with the command that would (`/requirements`,
   `/use-case-spec`).

@@ -50,8 +50,8 @@ leave the value out.
   links, and the project's test data.
 - **Produces** one `UC<id><Name>IT` or `TC<id><Name>IT` class under `src/test/java`, and the `@TestCase` annotation
   in the test sources when a journey needs it and the project has none.
-- **Never touches** production code, the tests of other layers, or anything under `docs/` other than this skill's
-  rows of the Markers table in `docs/architecture/stack.md`.
+- **Never touches** production code, the tests of other layers, or anything under `docs/` other than this skill's rows
+  of the Markers table in `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 What to test in this layer, following "Which Layer Tests What" of `/use-case-test`: the main success scenario and the
 alternative flows the actor sees, end to end — not every business rule's boundary, which the integration layer's

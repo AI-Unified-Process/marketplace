@@ -48,8 +48,8 @@ entry — into generated code, test data, or your summary; name the file it live
   Handover or the view code, and the project's test data.
 - **Produces** one Browserless test class per use case under `src/test/java`, and the `UseCase` annotation type
   in the same test sources when the module lacks it.
-- **Never touches** production code, the service or persistence tests, or anything under `docs/` other than this
-  skill's rows of the Markers table in `docs/architecture/stack.md`.
+- **Never touches** production code, the service or persistence tests, or anything under `docs/` other than this skill's
+  rows of the Markers table in `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 What to test in this layer: in a Vaadin Flow stack this is the integration layer of
 `docs/architecture/stack.md`, so these tests cover everything "Which Layer Tests What" of `/use-case-test`

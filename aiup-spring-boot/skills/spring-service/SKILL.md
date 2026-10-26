@@ -44,8 +44,9 @@ in and leave the value out.
   they return. In a project without a persistence skill run, the existing repositories.
 - **Produces** the public service methods the layer above calls — a `@RestController`, a Vaadin Flow view, or a Hilla
   `@BrowserCallable` endpoint — with their input records, return types, and the exceptions they throw.
-- **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints,
-  the tests, or anything under `docs/` other than the Markers table of `docs/architecture/stack.md`.
+- **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints, the
+  tests, or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
+  `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -58,7 +59,8 @@ Run directly, apply the same rules yourself — `/use-case-implement` describes 
   `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
-  questions**. Never edit a test or a file under `docs/` other than the Markers table.
+  questions**. Never edit a test or a file under `docs/` other than the Markers table and new sections of
+  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the service already exists, reconcile it with the specification in place instead of writing a second one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
 

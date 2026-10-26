@@ -54,7 +54,7 @@
     },
     {
       "name": "Markers table rows added",
-      "description": "docs/architecture/stack.md gains Markers rows for Persistence / jpa-persistence, the All row stays, and no other file under docs/ changes",
+      "description": "docs/architecture/stack.md gains Markers rows for Persistence / jpa-persistence, the All row stays, and no other file under docs/ changes (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
       "max_score": 8
     },
     {

@@ -49,7 +49,7 @@
     },
     {
       "name": "Scope respected",
-      "description": "GuestService, GuestRepository, and the exception classes are unchanged; no tests are written; nothing under docs/ changes except the spring-rest rows of the Markers table",
+      "description": "GuestService, GuestRepository, and the exception classes are unchanged; no tests are written; nothing under docs/ changes except the spring-rest rows of the Markers table (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
       "max_score": 8
     },
     {

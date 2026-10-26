@@ -44,9 +44,9 @@ in and leave the value out.
 - **Produces:** repository classes, the record types they return and accept, and the jOOQ code generation setup when
   the project has none — in a hexagonal layout also the outbound port and the domain records it speaks in (see
   "Where the Code Lives"). The Handover lists the method signatures and record types the service layer (without one, the UI) calls.
-- **Never touches:** migrations (a missing table or column goes back to `/flyway-schema UC-XXX`), the service, API,
-  and UI layers, generated sources, tests, and anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md`.
+- **Never touches:** migrations (a missing table or column goes back to `/flyway-schema UC-XXX`), the service, API, and
+  UI layers, generated sources, tests, and anything under `docs/` other than the Markers table of
+  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -56,8 +56,9 @@ and the reconcile rules, and does not repeat them.
 Run directly, read the same inputs `/use-case-implement` lists: the use case and its `**Status:**` line, only the
 `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, the entity model, the glossary and the ADRs when they
 exist, and `docs/architecture/stack.md`. Apply the same rules: never close a specification gap with an assumption, never
-edit a test or a file under `docs/`, reconcile an existing repository instead of writing a second one, and build
-the persistence layer only. Say that `/use-case-implement UC-XXX` runs all layers.
+edit a test or a file under `docs/` other than new sections of `docs/open-questions.md` (record every gap there as
+`/use-case-implement` defines it), reconcile an existing repository instead of writing a second one, and build the
+persistence layer only. Say that `/use-case-implement UC-XXX` runs all layers.
 
 ## Where the Code Lives
 

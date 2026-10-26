@@ -43,8 +43,8 @@ name the file it lives in and leave the value out.
   migrations, and the existing tests of this use case.
 - **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (a repeatable
   migration in `src/test/resources/db/migration`), and the `UseCase` annotation when the project has none.
-- **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than
-  the Markers table of `docs/architecture/stack.md`.
+- **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than the
+  Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 

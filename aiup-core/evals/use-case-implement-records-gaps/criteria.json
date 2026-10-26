@@ -1,0 +1,41 @@
+{
+  "context": "Tests whether /use-case-implement handles specification gaps in a run nobody can answer: docs/open-questions.md holds a blocking Open question OQ-002 on UC-002 BR-002 (registration deadline), and UC-002 BR-004 limits the registrations per participant without stating the number. The agent must leave out only the elements those two are about, implement the rest of UC-002 across the layers, and record BR-004 as a new section OQ-003 in docs/open-questions.md in the format of /open-questions (Element, Raised by, Blocking, Status lines; readings in the body), without changing the existing sections or any specification. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Blocking question named before the code",
+      "description": "Before writing code, the agent states that the blocking question OQ-002 on UC-002 BR-002 is Open, that nobody can answer it in this run, and that it goes ahead without BR-002",
+      "max_score": 10
+    },
+    {
+      "name": "BR-002 left out",
+      "description": "No code enforces a registration deadline: no check of the time left before the workshop starts, no exception or 409 response for a closed registration (A2), and no // UC-002 BR-002 marker",
+      "max_score": 15
+    },
+    {
+      "name": "BR-004 not guessed",
+      "description": "No code limits the number of registrations per participant email: no counting query across workshops, no constant or configuration value for such a limit, and no // UC-002 BR-004 marker",
+      "max_score": 15
+    },
+    {
+      "name": "Gap recorded as a section",
+      "description": "docs/open-questions.md ends with a new section headed '## OQ-003: <question>' about the number of registrations a participant may hold, with the lines **Element:** UC-002 BR-004, **Raised by:** /use-case-implement (or the service layer skill) and an ISO date, **Blocking:** Yes, and **Status:** Open, and a body naming at least two readings or what the specification leaves open",
+      "max_score": 20
+    },
+    {
+      "name": "Existing sections untouched",
+      "description": "The sections OQ-001 and OQ-002 are byte for byte unchanged (OQ-002 still Open, no Answer line added), no section is removed or renumbered, and no OQ id is used twice",
+      "max_score": 10
+    },
+    {
+      "name": "Rest of UC-002 implemented",
+      "description": "A Flyway migration (V2 or later) creates the registration table, a jOOQ repository and a @Service enforce BR-001 capacity and BR-003 one registration per email with domain exceptions and // UC-002 BR-001 and // UC-002 BR-003 markers, and a @RestController exposes the registration and maps A1 and A3 to Problem Details",
+      "max_score": 15
+    },
+    {
+      "name": "Report and no other docs change",
+      "description": "The final report has an Open questions list naming OQ-002 (BR-002 left out) and OQ-003 (BR-004 left out) and hands off to /use-case-spec UC-002 for the answers and to /use-case-test UC-002 next; no specification, requirement, or entity model file changes, and UC-002's **Status:** line still reads Approved",
+      "max_score": 15
+    }
+  ]
+}
