@@ -14,6 +14,18 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 | NFR    | Non-Functional Requirement | NFR-001 |
 | C      | Constraint                 | C-001   |
 
+## Columns
+
+Every table ends with `Source | Rationale | Priority | Status`; Status is always the last column.
+
+| Column    | FR       | NFR      | C        | Content                                                                              |
+|-----------|----------|----------|----------|--------------------------------------------------------------------------------------|
+| Source    | Required | Required | Required | Role or person, document, meeting, or law (`GDPR Art. 17(1)`)                        |
+| Rationale | Optional | Required | Required | Why it exists and what breaks if it changes; at most two sentences, or `See ADR-XXX` |
+
+A `Rejected` requirement needs neither. `/spec-review` reports an empty Source as `SOURCE_MISSING` and an empty
+Rationale of an NFR or constraint as `RATIONALE_MISSING`; a table without the column gets one finding on its header.
+
 ## Priority
 
 | Priority | Description                                         |

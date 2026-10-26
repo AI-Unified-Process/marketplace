@@ -40,11 +40,13 @@ the `## OQ-XXX:` sections of `open-questions.md`, in the format of the `open-que
 | WARN     | `MODULE_MISMATCH`       | A specification that does not lie in the folder of the module whose diagram holds its use case | move the file       |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no active use case lists in `**Requirements:**`      | `/use-case-spec`    |
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
+| WARN     | `SOURCE_MISSING`        | A requirement (not `Rejected`) with an empty Source; a requirements table without a Source column is one finding on its header line | `/requirements` |
+| WARN     | `RATIONALE_MISSING`     | An NFR or C (not `Rejected`) with an empty Rationale; a table of NFRs or constraints without a Rationale column is one finding on its header line | `/requirements` |
 | WARN     | `OQ_BLOCKING`           | The same at `Approved` or `Implemented`: the use case should not have been approved, or the answer is still missing | `/open-questions`, `/use-case-spec` |
 | WARN     | `OQ_UNRESOLVED`         | An open question is `Answered`, but the answer is not in the specification yet               | `/use-case-spec`, `/requirements`, `/entity-model` |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |
 | WARN     | `WEAK_WORD`             | A vague or optional word ("fast", "appropriate", "etc.", "and/or", "should", "ggf.", …)        | the owning skill    |
-| WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column (in `requirements.md` only in the prose columns, not in ID, Priority, Status, Category, or Source) | the owning skill    |
+| WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column (in `requirements.md` only in the prose columns, Rationale included, not in ID, Priority, Status, Category, or Source) | the owning skill    |
 | WARN     | `GLOSSARY_DUPLICATE`    | A term defined twice in `glossary.md`                                                          | `/requirements`     |
 | INFO     | `NO_TRACEABILITY`       | No use case has a `**Requirements:**` field, so FR coverage is not checked                     | `/use-case-spec`    |
 | INFO     | `BP_NO_ID`              | A process model without a `BP-XXX` process id (e.g. drawn before `/business-process`)          | `/business-process` |

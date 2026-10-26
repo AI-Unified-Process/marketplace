@@ -120,6 +120,20 @@ traceable requirements (in German-speaking projects often the *Lastenheft*); a v
 is prose without identifiers and is not linked. Test cases are not derived from business rules but from business
 processes: one test case per path through a BPMN process model.
 
+### Where the "why" lives
+
+Code can pass every test and still break the reason a rule exists, so the reason is written down once, next to the
+requirement:
+
+| Kind of "why"           | Where it lives                                                                   |
+|-------------------------|----------------------------------------------------------------------------------|
+| Business why            | Requirements catalog: the **Source** and **Rationale** columns of FR, NFR, and C |
+| Technical why           | An architecture decision record, which the constraint's Rationale points to      |
+| Use case, business rule | Only links (`**Requirements:**`, `UC-xxx BR-yyy`), no rationale of their own     |
+
+Every requirement names its Source; every NFR and constraint states its Rationale, and an FR does when the reason
+goes beyond its "so that". `/spec-review` reports the gaps as `SOURCE_MISSING` and `RATIONALE_MISSING`.
+
 ### Identifiers
 
 | Id        | Artifact                                                                                | Unique within | Cited elsewhere as |
@@ -269,7 +283,7 @@ The use case is the traceability hub for construction. Every implementation skil
 | Input                                   | Rule                                                                              |
 |-----------------------------------------|-----------------------------------------------------------------------------------|
 | `docs/use_cases/UC-XXX-*.md`            | Required.                                                                         |
-| `FR-*`, `NFR-*`, `C-*` rows             | Only the ids on the use case's `**Requirements:**` line, never the whole catalog. |
+| `FR-*`, `NFR-*`, `C-*` rows             | Only the ids on the use case's `**Requirements:**` line, never the whole catalog, with their Source and Rationale. |
 | `docs/entity_model.md`                  | Required.                                                                         |
 | `docs/glossary.md`                      | When present: names in code follow its terms, never its Avoid synonyms.           |
 | Architecture decisions (`docs/**/adr/`) | When present: followed like existing conventions.                                 |
@@ -278,7 +292,8 @@ The use case is the traceability hub for construction. Every implementation skil
 An implementation agent therefore sees every NFR and constraint that applies to its use case without reading the rest
 of the catalog. That only works when the `**Requirements:**` line is complete: a missing or unresolved line is
 reported and handed to `/spec-review`, never guessed, and `/spec-review` flags NFRs and constraints a use case should
-reference but does not. The coverage audit treats each linked NFR and constraint as a coverage unit.
+reference but does not. The coverage audit treats each linked NFR and constraint as a coverage unit. A reading that would go against the Rationale of a
+linked requirement is not implemented: the agent records an open question on the requirement instead.
 
 ## Specification review
 

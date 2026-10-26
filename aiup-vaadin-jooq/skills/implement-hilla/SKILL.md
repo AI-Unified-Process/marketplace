@@ -119,6 +119,12 @@ a validation rule, a term that neither the entity model nor the glossary defines
   (`OQ-007 UC-001 step 4`), the question, and whether that part was left out or implemented with
   the reading the user chose; and one line per blocking question that left an element out. Hand
   off to `/use-case-spec UC-XXX` to put the answers into the specification.
+- **Never implement against a Rationale.** When a reading of the specification, or a change you
+  are asked for, would go against the Rationale of a requirement the use case links — a discount
+  the Rationale calls a contract promise made configurable, a retention period the Rationale ties
+  to a law shortened — do not implement that part, even when the wording allows it. Record an
+  open question on the requirement (`**Element:** FR-014`) in the format of `/open-questions`,
+  naming the reading and the Rationale it breaks, and list it in the **Open questions** report.
 - A choice the specification leaves to the implementation on purpose — a label, a layout, a column
   order — is not a gap; follow the project's existing conventions.
 
@@ -129,7 +135,9 @@ a validation rule, a term that neither the entity model nor the glossary defines
    `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional
    requirements explain the intent where a step is terse; every linked NFR and constraint is a limit
    the implementation must honour (a maximum, a response time, a mandatory external system, an
-   accessibility level). When the line is missing or an id does not resolve, say so in your report
+   accessibility level). Read each row's **Source** and **Rationale** too: the Rationale is the
+   reason the requirement exists, and the implementation keeps it — see "Gaps in the
+   Specification". When the line is missing or an id does not resolve, say so in your report
    and suggest `/spec-review UC-XXX` — do not guess which requirements apply
 3. Read the entity model from `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links)
 4. Read `docs/glossary.md` when it exists and name classes, fields, and labels with its terms, never

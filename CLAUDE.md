@@ -307,6 +307,16 @@ Business rules stay numbered per use case, so "defined once" means no rule text 
 globally unique rule ids. There is deliberately no syntax for entity references in use cases; entity consistency
 is judged from context in Part B.
 
+The business "why" of a requirement lives in the catalog (#40): every FR, NFR, and C table has `Source | Rationale`
+before `Priority | Status`. Source is required for every requirement, Rationale for every NFR and C (optional for an
+FR); a Rationale is at most two sentences, longer technical reasoning goes to an ADR it points to. Use cases and
+business rules only link, they carry no rationale. `spec_lint.py` reports `SOURCE_MISSING` and `RATIONALE_MISSING`
+(WARN, `Rejected` rows exempt), but a table without the column gets **one** finding on its header line, not one per
+row, so an older catalog is nudged without being flooded. Rationale is prose, so weak words and glossary Avoid
+synonyms apply to it. Every `/implement` and `/use-case-implement` reads the Rationale of the linked rows and never
+implements against it: it records an open question on the requirement instead. `/reverse-engineer` writes no
+catalog and therefore no Source or Rationale.
+
 #### Open questions
 
 `docs/open-questions.md` (#41) is the persistent log of specification gaps: one `## OQ-XXX: <question>` section per

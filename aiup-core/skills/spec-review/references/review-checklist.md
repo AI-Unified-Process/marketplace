@@ -22,6 +22,12 @@ contradiction — check the conditions before reporting.
 
 Report the finding on the later of the two rules and name the other one (`UC-009 BR-001`). Severity: `warning`.
 
+A rule or step also contradicts a requirement when it works against that requirement's **Rationale** — the reason
+the catalog gives for it — even when the requirement's wording allows it: the Rationale says the 5% discount is a
+contract promise, and a rule lets a clerk change the rate. Check the Rationale of every requirement on the use
+case's `**Requirements:**` line. Report the finding on the rule or step and name the requirement (`FR-014
+Rationale`). A Rationale that contradicts its own requirement row is a finding on the requirement.
+
 ## 2. Duplication in other words
 
 **Where:** business rules across use cases.

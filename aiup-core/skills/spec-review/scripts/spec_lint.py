@@ -170,6 +170,13 @@ RULES_HEADINGS = ("## Business Rules", "## Geschäftsregeln")
 TITLE_PREFIX = "# Use Case:"
 OBSOLETE = ("obsolete", "obsolet")
 INACTIVE_REQUIREMENT = ("rejected", "deferred", "abgelehnt", "zurückgestellt")
+
+# Source and Rationale of a requirement (/requirements, Columns): every
+# requirement names its Source, every NFR and constraint its Rationale. A
+# Rejected requirement needs neither.
+SOURCE_HEADERS = ("source", "quelle")
+RATIONALE_HEADERS = ("rationale", "begründung")
+REJECTED_REQUIREMENT = ("rejected", "abgelehnt")
 MAIN_HEADINGS = ("## Main Success Scenario", "## Hauptablauf")
 FLOWS_HEADINGS = ("## Alternative Flows", "## Alternativabläufe")
 OQ_NAME = "open-questions.md"
@@ -423,6 +430,7 @@ def check_requirements(project):
     if not project.requirements_path:
         return requirements
     lines = read_lines(project.requirements_path)
+    check_requirement_origin(project, lines)
     for number, line in prose_lines(lines):
         match = REQ_ROW.match(line)
         if not match:
@@ -438,6 +446,77 @@ def check_requirements(project):
         requirements[rid] = (number, cells[-1],
                              cells[1] if len(cells) > 2 else "")
     return requirements
+
+
+def requirement_tables(lines):
+    """The requirement tables of requirements.md.
+
+    Yields (header line number, header cells, [(line number, cells), ...]) for
+    every table with at least one FR, NFR, or C row; header cells are
+    casefolded."""
+    table, numbered = None, list(prose_lines(lines))
+    for position, (number, line) in enumerate(numbered):
+        if not line.lstrip().startswith("|"):
+            if table and table[2]:
+                yield table
+            table = None
+            continue
+        following = numbered[position + 1][1] \
+            if position + 1 < len(numbered) else ""
+        if table is None:
+            if re.match(r"^\s*\|[\s:|-]+\|\s*$", following):
+                table = (number, [c.casefold() for c in table_cells(line)], [])
+            continue
+        if REQ_ROW.match(line):
+            table[2].append((number, table_cells(line)))
+    if table and table[2]:
+        yield table
+
+
+def table_column(header, names):
+    """Index of the first header cell named in names, or None."""
+    return next((i for i, cell in enumerate(header) if cell in names), None)
+
+
+def check_requirement_origin(project, lines):
+    """Every requirement has a Source, every NFR and C a Rationale.
+
+    A table without the column gets one finding on its header line, so an
+    older catalog is not flooded with one finding per row."""
+    path = project.requirements_path
+    for header_line, header, rows in requirement_tables(lines):
+        active = [(number, cells) for number, cells in rows
+                  if normalize(cells[-1]) not in REJECTED_REQUIREMENT]
+        if not active:
+            continue
+        kinds = sorted({cells[0].split("-")[0] for _, cells in active})
+        needs_rationale = [(number, cells) for number, cells in active
+                           if not cells[0].startswith("FR-")]
+        table = "/".join(kinds) + " table"
+        source = table_column(header, SOURCE_HEADERS)
+        rationale = table_column(header, RATIONALE_HEADERS)
+        if source is None:
+            project.add(WARN, "SOURCE_MISSING", path, header_line, table,
+                        "the " + table + " has no Source column; name where "
+                        "each requirement comes from")
+        if rationale is None and needs_rationale:
+            project.add(WARN, "RATIONALE_MISSING", path, header_line, table,
+                        "the " + table + " has no Rationale column; state why "
+                        "each NFR and constraint exists")
+        for number, cells in active:
+            rid = cells[0]
+            if source is not None and not row_cell(cells, source):
+                project.add(WARN, "SOURCE_MISSING", path, number, rid,
+                            rid + " names no Source")
+            if rationale is not None and not rid.startswith("FR-") \
+                    and not row_cell(cells, rationale):
+                project.add(WARN, "RATIONALE_MISSING", path, number, rid,
+                            rid + " states no Rationale")
+
+
+def row_cell(cells, index):
+    """The cell at index, or "" when the row is shorter."""
+    return cells[index] if index < len(cells) else ""
 
 
 def diagram_name(project):
@@ -1180,7 +1259,7 @@ def element_for(line, default):
 # Columns of the requirements tables that hold a fixed value, not prose: an
 # Avoid synonym equal to a priority ("Medium") must not match them.
 REQ_VALUE_COLUMNS = {"id", "priority", "status", "category", "source",
-                     "priorität", "kategorie", "quelle"}
+                     "priorität", "kategorie", "quelle"}  # Rationale is prose
 
 
 def requirement_prose(lines):
@@ -1827,11 +1906,11 @@ CLEAN = {
     "requirements.md": """\
 # Requirements
 
-| ID     | Title         | User Story                                                          | Priority | Status |
-|--------|---------------|---------------------------------------------------------------------|----------|--------|
-| FR-001 | Create Guest  | As a clerk, I want to record guests so that I can reserve rooms.    | High     | Open   |
-| FR-002 | Reserve Room  | As a clerk, I want to reserve rooms so that guests have a room.     | High     | Open   |
-| FR-003 | Export Report | As a manager, I want to export a report so that I can plan budgets. | Low      | Rejected |
+| ID     | Title         | User Story                                                          | Source     | Rationale | Priority | Status |
+|--------|---------------|---------------------------------------------------------------------|------------|-----------|----------|--------|
+| FR-001 | Create Guest  | As a clerk, I want to record guests so that I can reserve rooms.    | Front desk |           | High     | Open   |
+| FR-002 | Reserve Room  | As a clerk, I want to reserve rooms so that guests have a room.     | Front desk |           | High     | Open   |
+| FR-003 | Export Report | As a manager, I want to export a report so that I can plan budgets. |            |           | Low      | Rejected |
 """,
     "use_cases.puml": """\
 @startuml
@@ -1947,11 +2026,11 @@ BROKEN = dict(CLEAN)
 BROKEN.update({
     "requirements.md": CLEAN["requirements.md"]
     + "| FR-004 | Cancel Room   | As a clerk, I want to cancel quickly so "
-      "that rooms are free again. | High | Open |\n"
+      "that rooms are free again. | | | High | Open |\n"
       "| FR-001 | Duplicate     | As a clerk, I want a duplicate id.       "
-      "                          | Low  | Open |\n"
+      "                          | Front desk | | Low  | Open |\n"
       "| NFR-001 | <b>Bold</b> Availability | The system is available 99.5 % of each "
-      "month. | High | Open |\n",
+      "month. | Operations | | High | Open |\n",
     "use_cases.puml": CLEAN["use_cases.puml"].replace(
         "}", "    usecase \"UC-003\\nCancel Room\" as UC003\n}"),
     "glossary.md": CLEAN["glossary.md"]
@@ -2051,6 +2130,7 @@ BROKEN_EXPECTED = {
     "GLOSSARY_AVOIDED_TERM", "GLOSSARY_DUPLICATE", "UC_UNUSED_BY_TC",
     "REQ_STATUS_DRIFT", "BP_ID_MISMATCH", "BP_NO_ID", "REQ_UNCOVERED",
     "ACTOR_MISMATCH", "OQ_BLOCKING", "OQ_UNRESOLVED", "OQ_INVALID",
+    "SOURCE_MISSING", "RATIONALE_MISSING",
 }
 
 ACTOR_DIAGRAM = """\
@@ -2313,6 +2393,32 @@ def self_test():
         if got != expected:
             failures.append("derived_status(%s): expected %s, got %s"
                             % (statuses, expected, got))
+
+    with tempfile.TemporaryDirectory() as root:
+        # A catalog without the Source and Rationale columns gets one finding
+        # per table, not one per row
+        old = dict(CLEAN)
+        old["requirements.md"] = (
+            "# Requirements\n\n"
+            "| ID     | Title        | User Story | Priority | Status |\n"
+            "|--------|--------------|------------|----------|--------|\n"
+            "| FR-001 | Create Guest | As a clerk, I want to record "
+            "guests so that I can reserve rooms. | High | Open |\n"
+            "| FR-002 | Reserve Room | As a clerk, I want to reserve "
+            "rooms so that guests have a room. | High | Open |\n\n"
+            "| ID      | Title | Requirement        | Priority | Status |\n"
+            "|---------|-------|--------------------|----------|--------|\n"
+            "| NFR-001 | Load  | Pages load in 2 s. | High     | Open   |\n"
+            "| NFR-002 | Scale | 100 users at once. | High     | Open   |\n")
+        write_fixture(root, old)
+        origin = sorted((f.code, f.element)
+                        for f in lint(root, validator, bpmn)
+                        if f.code in ("SOURCE_MISSING", "RATIONALE_MISSING"))
+        if origin != [("RATIONALE_MISSING", "NFR table"),
+                      ("SOURCE_MISSING", "FR table"),
+                      ("SOURCE_MISSING", "NFR table")]:
+            failures.append("origin: a catalog without the columns should "
+                            "get one finding per table, got " + str(origin))
 
     with tempfile.TemporaryDirectory() as root:
         # An Avoid synonym equal to a priority or status value matches only prose

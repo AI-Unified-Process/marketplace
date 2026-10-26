@@ -31,6 +31,8 @@ tables. Alongside it, create or update the glossary at `docs/glossary.md` (see [
 - Skip the user story format for functional requirements
 - Use duplicate IDs across requirement types
 - Leave the Status column empty
+- Leave a Source empty, or the Rationale of an NFR or constraint, without reporting it under **Assumed** or **Open**
+- Invent a Source or Rationale the sources do not give; ask, or record the default you took as an assumption
 
 ## Requirement Types
 
@@ -40,41 +42,50 @@ Define what the system should do. Always use the user story format:
 
 **Format:** As a [role], I want [goal] so that [benefit].
 
-| ID     | Title        | User Story                                                                                | Priority | Status |
-|--------|--------------|-------------------------------------------------------------------------------------------|----------|--------|
-| FR-001 | Create Task  | As a project manager, I want to create tasks so that I can track work items.              | High     | Open   |
-| FR-002 | Assign Task  | As a project manager, I want to assign tasks to team members so that work is distributed. | High     | Open   |
-| FR-003 | Filter Tasks | As a team member, I want to filter tasks by status so that I can focus on relevant items. | Medium   | Open   |
+| ID     | Title        | User Story                                                                                | Source                            | Rationale                                                                           | Priority | Status |
+|--------|--------------|-------------------------------------------------------------------------------------------|-----------------------------------|-------------------------------------------------------------------------------------|----------|--------|
+| FR-001 | Create Task  | As a project manager, I want to create tasks so that I can track work items.              | Vision                            |                                                                                     | High     | Open   |
+| FR-002 | Assign Task  | As a project manager, I want to assign tasks to team members so that work is distributed. | PMO (A. Brun), kickoff 2025-01-14 | Only one person is accountable per task; shared tasks were dropped in the old tool. | High     | Open   |
+| FR-003 | Filter Tasks | As a team member, I want to filter tasks by status so that I can focus on relevant items. | Team survey 2025-01               |                                                                                     | Medium   | Open   |
 
 ### Non-Functional Requirements (NFR)
 
 Define quality attributes. Must be measurable.
 
-| ID      | Title            | Requirement                                                   | Category     | Priority | Status |
-|---------|------------------|---------------------------------------------------------------|--------------|----------|--------|
-| NFR-001 | Response Time    | All page loads must complete within 2 seconds.                | Performance  | High     | Open   |
-| NFR-002 | Availability     | System must maintain 99.9% uptime during business hours.      | Availability | High     | Open   |
-| NFR-003 | Concurrent Users | System must support 100 concurrent users without degradation. | Scalability  | Medium   | Open   |
-| NFR-004 | Data Encryption  | All data in transit must use TLS 1.3 encryption.              | Security     | High     | Open   |
+| ID      | Title            | Requirement                                                   | Category     | Source                 | Rationale                                                               | Priority | Status |
+|---------|------------------|---------------------------------------------------------------|--------------|------------------------|-------------------------------------------------------------------------|----------|--------|
+| NFR-001 | Response Time    | All page loads must complete within 2 seconds.                | Performance  | Vision                 | Managers update tasks during stand-ups; slower pages stall the meeting. | High     | Open   |
+| NFR-002 | Availability     | System must maintain 99.9% uptime during business hours.      | Availability | IT operations SLA v2   | Teams plan their day in the tool; an outage stops work for everyone.    | High     | Open   |
+| NFR-003 | Concurrent Users | System must support 100 concurrent users without degradation. | Scalability  | HR headcount plan 2025 | The company plans 100 staff by year end; all use the tool at 9 a.m.     | Medium   | Open   |
+| NFR-004 | Data Encryption  | All data in transit must use TLS 1.3 encryption.              | Security     | Security Policy SP-3   | Tasks hold customer names; the policy forbids older protocols.          | High     | Open   |
 
 ### Constraints (C)
 
 Define limitations and boundaries imposed on the solution.
 
-| ID    | Title             | Constraint                                                              | Category   | Source                 | Priority | Status |
-|-------|-------------------|-------------------------------------------------------------------------|------------|------------------------|----------|--------|
-| C-001 | Runtime Platform  | Backend must run on Java 21 LTS.                                        | Technical  |                        | High     | Open   |
-| C-002 | Database Platform | System must use PostgreSQL 16.                                          | Technical  |                        | High     | Open   |
-| C-003 | Browser Support   | UI must support Chrome, Firefox, and Safari (latest 2 versions).        | Technical  |                        | High     | Open   |
-| C-004 | Budget Limit      | Total development cost must not exceed $50,000.                         | Business   |                        | High     | Open   |
-| C-005 | Deadline          | System must be production-ready by Q2 2025.                             | Schedule   |                        | High     | Open   |
-| C-006 | Right to Erasure  | Personal data of a customer must be erased within 30 days of a request. | Regulatory | GDPR Art. 17(1), 12(3) | High     | Open   |
+| ID    | Title             | Constraint                                                              | Category   | Source                 | Rationale                                                                  | Priority | Status |
+|-------|-------------------|-------------------------------------------------------------------------|------------|------------------------|----------------------------------------------------------------------------|----------|--------|
+| C-001 | Runtime Platform  | Backend must run on Java 21 LTS.                                        | Technical  | IT operations          | Operations supports only LTS runtimes. See ADR-001.                        | High     | Open   |
+| C-002 | Database Platform | System must use PostgreSQL 16.                                          | Technical  | IT operations          | Backups and monitoring exist only for PostgreSQL.                          | High     | Open   |
+| C-003 | Browser Support   | UI must support Chrome, Firefox, and Safari (latest 2 versions).        | Technical  | Vision                 | Staff use their own laptops; no browser is mandated.                       | High     | Open   |
+| C-004 | Budget Limit      | Total development cost must not exceed $50,000.                         | Business   | Board decision 2024-11 | The budget is fixed for the fiscal year; more needs a new board decision.  | High     | Open   |
+| C-005 | Deadline          | System must be production-ready by Q2 2025.                             | Schedule   | PMO (A. Brun)          | The license of the old tool ends in Q2 2025.                               | High     | Open   |
+| C-006 | Right to Erasure  | Personal data of a customer must be erased within 30 days of a request. | Regulatory | GDPR Art. 17(1), 12(3) | The law sets the deadline; a change needs legal advice, not a code change. | High     | Open   |
 
-The **Source** column is optional — omit it when no constraint comes from an outside document. It names where a
-constraint comes from — a law, regulation, standard, or internal policy, down to the article or paragraph and, where it
-matters, the version (`GDPR Art. 17(1)`, `ISO 27001:2022 A.8.24`, `Operating Policy OP-12 v3`) — so the origin of a
-mandated rule stays traceable. When the column is present, fill it for every `Regulatory` constraint and leave it empty
-for the others. Keep Status the last column.
+Every requirement gets a **Source** and a **Rationale** column, placed before Priority; keep Status the last column.
+The use cases and their business rules only link to a requirement — the business "why" lives here, next to it, and
+the technical "why" lives in an architecture decision record.
+
+- **Source** — who or what the requirement comes from: a role or person, a document, a meeting, a law. Fill it for
+  every requirement. For a `Regulatory` constraint, or any requirement from an outside document, name the law,
+  regulation, standard, or internal policy down to the article or paragraph and, where it matters, the version
+  (`GDPR Art. 17(1)`, `ISO 27001:2022 A.8.24`, `Operating Policy OP-12 v3`), so the origin of a mandated rule stays
+  traceable.
+- **Rationale** — why the requirement exists and what breaks if it changes, in one or two sentences. Required for
+  every NFR and constraint; optional for an FR, whose "so that" is often enough — fill it when the reason goes beyond
+  the benefit (a contract, a past incident, a promise to customers). A constraint that led to an architectural
+  decision gets a short rationale and points to the record (`See ADR-004`). Never write more than two sentences:
+  longer reasoning belongs in an ADR.
 
 ## Glossary
 
@@ -149,14 +160,17 @@ Every requirement must pass these checks before finalizing:
     - Identify user roles
     - Define user stories with clear goals and benefits
     - Assign priorities based on business value
+    - Name the Source of each, and a Rationale where the reason goes beyond the "so that"
 6. For non-functional requirements:
     - Define measurable quality attributes
     - Categorize by NFR type
     - Ensure requirements are testable
+    - Name the Source and the Rationale of each
 7. For constraints:
     - Document technical and business limitations
     - Categorize by constraint type
-    - Name the source of each regulatory or externally imposed constraint in the Source column
+    - Name the Source and the Rationale of each; a regulatory or externally imposed constraint names its document
+      down to the article
 8. Validate: run every requirement against the quality checks table above
     - No duplicate IDs across all tables
     - All Status columns filled
@@ -164,6 +178,9 @@ Every requirement must pass these checks before finalizing:
       that [benefit]" — scan each row; any row missing "As a", "I want", or "so
       that" is rejected and rewritten before finalizing, no exceptions
     - All NFRs contain a measurable threshold
+    - Every requirement has a Source, every NFR and constraint a Rationale of at most two sentences. When an existing
+      catalog lacks the Source or Rationale column, add it to each table and fill the existing rows from the sources;
+      what they do not give, ask in step 2 or report as an assumption — never invent it
 9. When updating an existing catalog whose use cases exist, set the progress status of each requirement (Open,
    In Progress, Implemented, Verified) from the `**Status:**` of the use cases that link it, as defined under
    Status in the reference; never change a Deferred or Rejected status on your own
