@@ -13,13 +13,12 @@ versioned, human-reviewable artifacts that every later step consumes.
 ## Workflow
 
 ```text
-Inception          Elaboration                            Construction
-─────────────     ───────────────────────────────────     ─────────────────────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  migration
-                                                     │                    ↘  implementation
-                                                     │                    ↘  tests
-                                                     │                    ↘  /test-case
-                                                     └→ /business-process ↗
+Inception        Elaboration                                Construction
+─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────
+/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage
+                                 ↘ /business-process        /test-case     → automate the journey
+                                   (optional)
+                 /spec-review at any point
 ```
 
 `aiup-core` owns the stack-independent steps. Construction comes in two forms:

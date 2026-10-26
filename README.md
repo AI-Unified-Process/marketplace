@@ -32,16 +32,19 @@ plain-text artifacts that live with the source code.
 ## Workflow
 
 ```text
-Inception          Elaboration                            Construction
-─────────────     ───────────────────────────────────     ─────────────────────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  migration
-                                                                          ↘  implementation
-                                                                          ↘  tests
+Inception        Elaboration                                Construction
+─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────
+/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage
+                                 ↘ /business-process        /test-case     → automate the journey
+                                   (optional)
+                 /spec-review at any point
 ```
 
 `aiup-core` owns the stack-independent path from vision to specifications. Construction continues either with
-layer plugins — one per technology, combined per project and run by `/use-case-implement` and `/use-case-test` in `aiup-core` —
-or with one combined stack plugin.
+layer plugins — one per technology, combined per project — or with one combined stack plugin. With layer plugins, run
+`/stack` once; then *implement*, *test*, and *coverage* are `/use-case-implement`, `/use-case-test`, and
+`/use-case-coverage`, and *automate the journey* is `/test-case-implement`. A combined stack plugin uses its own
+`/implement`, test skills, and `/coverage-check` where it ships one.
 
 Each step reads the files produced by earlier steps. You can review or edit an artifact before continuing, and every
 later result remains traceable to the corresponding requirement or use case.
