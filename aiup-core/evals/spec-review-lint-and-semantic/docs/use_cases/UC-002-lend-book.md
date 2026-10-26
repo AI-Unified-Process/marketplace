@@ -28,7 +28,7 @@
 
 ### A1: Member Not Found
 
-**Trigger:** No member has the entered member number (step 2)
+**Trigger:** No member has the entered member number (step 2)  
 **Flow:**
 
 1. System displays that the member number is unknown.
@@ -36,7 +36,7 @@
 
 ### A2: Loan Limit Reached
 
-**Trigger:** The member already has the maximum number of copies on loan (step 2)
+**Trigger:** The member already has the maximum number of copies on loan (step 2)  
 **Flow:**
 
 1. System displays the loan limit and the copies on loan.

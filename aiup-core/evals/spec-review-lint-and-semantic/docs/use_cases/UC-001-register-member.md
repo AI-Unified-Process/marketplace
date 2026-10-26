@@ -25,7 +25,7 @@
 
 ### A1: Email Address Already Registered
 
-**Trigger:** A member with this email address already exists (step 3)
+**Trigger:** A member with this email address already exists (step 3)  
 **Flow:**
 
 1. System displays the existing member.
@@ -33,7 +33,7 @@
 
 ### A2: Member Too Young
 
-**Trigger:** The date of birth is less than 16 years before today (step 3)
+**Trigger:** The date of birth is less than 16 years before today (step 3)  
 **Flow:**
 
 1. System rejects the registration and names the minimum age.

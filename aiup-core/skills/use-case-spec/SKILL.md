@@ -138,6 +138,8 @@ in the implementation, not the specification.
    [references/overview-and-postconditions.md](references/overview-and-postconditions.md) first: it defines who
    is a primary or secondary actor, what makes a trigger an event rather than a precondition, how the
    Requirements line links the catalog, and which values the Layers line takes.
+   Every Overview line followed by another one ends in two spaces, the Markdown line break, and so does the
+   `**Trigger:**` line of an alternative flow before its `**Flow:**` line; without them the lines render as one.
 7. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
    actions, and the use case does not check them again. **A precondition must not describe a

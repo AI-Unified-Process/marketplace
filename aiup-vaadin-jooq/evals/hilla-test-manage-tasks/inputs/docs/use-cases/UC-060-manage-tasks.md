@@ -1,6 +1,6 @@
 # Use Case Specification: Manage Tasks
 
-**Use Case ID:** UC-060
+**Use Case ID:** UC-060  
 **Use Case Name:** Manage Tasks
 
 ## Brief Description

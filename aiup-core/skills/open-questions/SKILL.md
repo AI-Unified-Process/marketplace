@@ -57,16 +57,16 @@ Each question is one section, appended at the end of the file in the order of it
 ````markdown
 ## OQ-002: Maximum length of the comment field?
 
-**Element:** UC-003 BR-002
-**Raised by:** /use-case-test, 2026-10-26
-**Blocking:** No
+**Element:** UC-003 BR-002  
+**Raised by:** /use-case-test, 2026-10-26  
+**Blocking:** No  
 **Status:** Answered
 
 BR-002 requires a comment but sets no limit. The entity model has `comment` as text without a length.
 Readings: (a) 255 characters, as for the other text fields; (b) unlimited; (c) 2000 characters, as in the
 legacy system.
 
-**Answer:** 2000 characters; the legacy limit is binding for the data migration.
+**Answer:** 2000 characters; the legacy limit is binding for the data migration.  
 **Answered by:** P. Meier, 2026-10-27
 ````
 
@@ -86,7 +86,8 @@ legacy system.
 
 The id is `OQ-` and three digits, the highest id in the file plus one; ids are never reused, also not after a
 withdrawal. Dates are ISO dates (`2026-10-26`). A section ends at the next `## ` heading; keep the field lines
-together and the body between them, as above.
+together and the body between them, as above. Every field line followed by another field line ends in two
+spaces, the Markdown line break; without them the lines render as one.
 
 ### Elements
 

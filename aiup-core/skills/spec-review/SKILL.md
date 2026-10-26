@@ -93,7 +93,7 @@ location and nature, never by quoting the text itself.
 ```markdown
 ## Spec Review: UC-004 (or: whole project)
 
-**Lint:** 2 errors, 3 warnings, 1 info, 4 suppressed by baseline — blocks the build
+**Lint:** 2 errors, 3 warnings, 1 info, 4 suppressed by baseline — blocks the build  
 **Semantic:** 4 warnings, 2 infos — advisory
 
 ### Lint findings (deterministic)

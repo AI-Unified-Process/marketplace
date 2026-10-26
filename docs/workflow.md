@@ -251,9 +251,9 @@ product owner answers every question in one place. The format is owned by
 ```markdown
 ## OQ-002: Maximum length of the comment field?
 
-**Element:** UC-003 BR-002
-**Raised by:** /use-case-test, 2026-10-26
-**Blocking:** No
+**Element:** UC-003 BR-002  
+**Raised by:** /use-case-test, 2026-10-26  
+**Blocking:** No  
 **Status:** Open
 
 BR-002 requires a comment but sets no limit. Readings: (a) 255 characters; (b) unlimited; (c) 2000 characters.

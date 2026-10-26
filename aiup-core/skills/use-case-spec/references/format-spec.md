@@ -31,15 +31,15 @@ this order on save):
 
 ## Overview
 
-**Use Case ID:** UC-XXX
-**Use Case Name:** <name>
-**Primary Actor:** <roles>                      (one or more, comma-separated)
-**Secondary Actors:** <roles>                    (optional)
-**Goal:** <one sentence>
-**Trigger:** <event that starts the use case>     (optional)
+**Use Case ID:** UC-XXX  
+**Use Case Name:** <name>  
+**Primary Actor:** <roles>                      (one or more, comma-separated)  
+**Secondary Actors:** <roles>                    (optional)  
+**Goal:** <one sentence>  
+**Trigger:** <event that starts the use case>     (optional)  
 **Status:** <status value>
 
-**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
+**Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)  
 **Layers:** UI                                      (optional)
 
 ## Preconditions
@@ -54,7 +54,7 @@ this order on save):
 
 ### A1: <flow name>
 
-**Trigger:** <condition> (step N)
+**Trigger:** <condition> (step N)  
 **Flow:**
 
 1. <numbered steps>
