@@ -151,8 +151,10 @@ then work use case by use case:
 
 `/stack` writes the stack file, the table of which layer skill builds and tests each layer, as
 `docs/architecture/stack.md`. It sits next to whatever architecture documentation the team writes (arc42, C4, 4+1,
-or none), which `/stack` reads but never changes. A use case offered through only some
-entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
+or none), which `/stack` reads but never changes. Record why a technology was chosen with
+`/architecture-decision`: each decision record in `docs/architecture/decisions/` links the non-functional
+requirements and constraints it serves, and `/stack` and `/use-case-implement` follow the accepted ones. A use
+case offered through only some entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
 test only those layers.
 `/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
 tests from the integration layer up: starting at the entry layer the use case is offered through, the first layer

@@ -16,14 +16,21 @@ your-project/
 ├── docs/
 │   ├── vision.md
 │   ├── requirements.md
+│   ├── glossary.md
 │   ├── entity_model.md
 │   ├── use_cases.puml
 │   ├── use_cases/
 │   │   ├── UC-001-*.md
 │   │   └── ...
-│   └── test_cases/
-│       ├── TC-001-*.md
-│       └── ...
+│   ├── test_cases/
+│   │   ├── TC-001-*.md
+│   │   └── ...
+│   ├── open-questions.md
+│   └── architecture/
+│       ├── stack.md
+│       └── decisions/
+│           ├── ADR-001-*.md
+│           └── ...
 └── agent instruction file
 ```
 

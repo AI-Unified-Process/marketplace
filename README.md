@@ -175,8 +175,11 @@ docs/
 │   └── UC-001-*.md                   # /use-case-spec
 ├── test_cases/
 │   └── TC-001-*.md                   # /test-case
+├── open-questions.md                 # /open-questions and the skills that find a gap (created with the first question)
 └── architecture/
-    └── stack.md                      # /stack (layer plugins only): layer → technology → skill → test skill
+    ├── stack.md                      # /stack (layer plugins only): layer → technology → skill → test skill
+    └── decisions/
+        └── ADR-001-*.md              # /architecture-decision, each linked to the NFRs and constraints it serves
 ```
 
 Stack plugins consume these files and place generated code and tests according to the conventions of the target
