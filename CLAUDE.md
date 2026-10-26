@@ -32,6 +32,7 @@ marketplace/
 │       ├── test-case/
 │       ├── spec-review/
 │       ├── open-questions/       # docs/open-questions.md: the log of specification gaps
+│       ├── architecture-decision/ # docs/architecture/decisions/ADR-*.md, each linked to an NFR or constraint
 │       ├── stack/                # writes docs/architecture/stack.md (layer → skill)
 │       ├── use-case-implement/   # runs the layer skills bottom-up
 │       ├── use-case-test/        # runs the layer test skills from the integration layer up
@@ -140,7 +141,7 @@ layer plugins can. Rules that hold it together:
   lands in the user's project).
 - **The stack file is AIUP's, the architecture documentation is the team's.** The stack file does not depend on
   how a team documents its architecture — arc42, C4, Kruchten's 4+1, a single `docs/architecture.md`, or nothing —
-  and looks the same next to each. `/stack` reads those documents and the ADRs (glob `docs/**/adr/*.md`) as input,
+  and looks the same next to each. `/stack` reads those documents and the ADRs (globs `docs/**/{decisions,adr,adrs}/*.md`) as input,
   and never writes, moves, or indexes them. It owns the `## Layers` and `## Markers` sections and writes
   `## Module layout`, `## API contract`, and `## Commands` only when their heading is missing, so a team can refine
   them. An earlier design made the file the Development View of a 4+1 folder; that tied an AIUP contract to one
@@ -263,6 +264,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/test-case`           | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
 | Any          | `/spec-review`         | Lint and review the specification artifacts against each other       |
 | Any          | `/open-questions`      | Record, list, answer, and withdraw questions in docs/open-questions.md |
+| Any          | `/architecture-decision` | Record, supersede, and list ADRs, each linked to an NFR or constraint |
 | Any          | `/reverse-engineer`    | Recover use case diagram, use case specs, and entity model from code |
 | Construction | `/stack`               | Record the layer plugins of a layered stack in the stack file        |
 | Construction | `/use-case-implement`  | Implement a use case by running the layer skills bottom-up           |
@@ -338,6 +340,38 @@ ends at `Resolved` once its answer is in the specification.
   `Withdrawn` ones may point to renumbered elements.
 - The Studio never runs `/open-questions` (`LEFT_OUT` of `check-generate-catalogue.sh`); `spec_lint.py --report`
   lists the open questions instead.
+
+#### Architecture decisions
+
+`/architecture-decision` (#39) writes architecture decision records — the first skill that writes into the team's
+architecture documentation, and only on the user's request. The name follows the core's full-word nouns
+(`requirements`, `open-questions`); `/adr` would be the only abbreviation and a generic name that clashes with other
+ADR skills on Tessl or in `~/.claude/skills`. Its description triggers on "ADR".
+
+- **Every ADR links an `NFR-` or a `C-`** in a `**Requirements:**` line (the label of the use cases, so
+  `spec_lint.py` reads it the same way). A decision is justified by a quality or a constraint, never by a feature
+  alone; the link is what makes a changed NFR or constraint show the decisions to revisit. When the reason is not in
+  the requirements, the skill writes nothing and hands off to `/requirements` first, instead of recording an ADR
+  without one.
+- **One owner of the format, the team's format kept.** Template `references/adr.md` (not copyright-stamped):
+  `**Status:**`, `**Date:**`, `**Requirements:**`, `**Supersedes:**`/`**Superseded by:**`, Context, Decision,
+  Consequences. A project with MADR or Nygard ADRs keeps its format and gets the lines added. Location: the existing
+  ADR folder, default `docs/architecture/decisions/` — plural and in full words like `use_cases/`, `test_cases/`,
+  and `processes/`; every reader also finds `adr/` and `adrs/` (adr-tools, Log4brains, existing projects) and globs
+  `docs/**/{decisions,adr,adrs}/*.md`.
+- **Statuses** `Proposed`, `Accepted`, `Superseded`, `Deprecated`, `Rejected`. Only `Accepted` ADRs are followed by
+  `/stack`, `/use-case-implement`, and (through it) the layer skills, and by the `/implement` skills of the combined
+  stack plugins and `/angular-ui`, which read the three folders themselves; an accepted ADR is never rewritten, a
+  changed decision supersedes it.
+- **No other skill writes an ADR; three hand off.** `/stack` names the choices of its question round that no
+  constraint or accepted ADR fixed, `/use-case-implement` names an answered architecture question (new dependency,
+  deviation from an ADR), `/requirements` names the ADRs linking an NFR or constraint it changed. The "never changes
+  an ADR" rule of the decision rights stays.
+- **Lint.** `DANGLING_REF` and `DUPLICATE_ID` cover ADR ids and their links (ERROR); `ADR_UNLINKED`, `ADR_STALE`,
+  `ADR_INVALID` are WARN only, because the ADRs are the team's documents and a brownfield ADR without the line must
+  not fail CI. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
+  ADRs and broken constraints.
+- The Studio never runs it (`LEFT_OUT`): a decision needs a person.
 
 #### Decision rights
 

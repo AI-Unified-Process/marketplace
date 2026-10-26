@@ -170,4 +170,9 @@ Every requirement must pass these checks before finalizing:
 10. Create or update `docs/glossary.md` with the domain terms used in the catalog, and use exactly those terms (never
    an Avoid synonym) in every requirement
 11. Mark todos complete
-12. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist
+12. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist. When
+    the project has architecture decision records (glob `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`) and this run changed, rejected, or
+    deferred an NFR or constraint, or removed one, name the ADRs whose `**Requirements:**` line links it and hand off
+    to `/architecture-decision ADR-XXX` to revisit each; never edit an ADR. When the user states an architecture
+    decision while you gather requirements, write the NFR or constraint behind it here and hand the decision itself
+    to `/architecture-decision`

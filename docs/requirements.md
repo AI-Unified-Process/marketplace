@@ -35,6 +35,7 @@ Derived from [vision.md](vision.md). Terms follow [glossary.md](glossary.md).
 | FR-021 | Test Case from Use Cases | As a tester, I want an end-to-end test case written that chains several use cases I name so that I can test a user journey for which no business process exists.                                                                                     | Medium   | Open   |
 | FR-022 | Journey Test             | As a tester, I want a test case automated as a browser test in my stack with one step per row of its flow so that the user journey is verified on every build.                                                                                       | High     | Open   |
 | FR-023 | Coverage Audit           | As a tester, I want a use case or test case audited against the code and the tests that realize it so that I know which steps, flows, and rules are still open before I set the status to Tested.                                                    | High     | Open   |
+| FR-024 | Architecture Decision    | As an architect, I want each architecture decision recorded with the non-functional requirements and constraints it serves so that a changed quality or constraint shows which decisions to revisit.                                                 | Medium   | Open   |
 
 ## Non-Functional Requirements
 

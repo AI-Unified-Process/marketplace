@@ -55,7 +55,7 @@ layer's Handover and builds on exactly that contract.
 Run directly, apply the same rules yourself:
 
 - Read the use case and check its `**Status:**` line, exactly the `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**`
-  line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs (`docs/**/adr/*.md`) when present, and
+  line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the `Accepted` ADRs (`docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`) when present, and
   `docs/architecture/stack.md` (its UI row and Location, and the API contract section).
 - Never close a specification gap with an assumption: ask the user or leave that part out, and end with an **Open
   questions** list. Never edit a test or a file under `docs/` other than the Markers table and new sections of

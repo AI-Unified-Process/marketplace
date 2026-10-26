@@ -57,6 +57,7 @@ of files under `docs/`, not a specific coding agent.
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
 | `docs/open-questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
+| `docs/architecture/decisions/ADR-*.md` | `/architecture-decision`, the team       | `/stack`, `/use-case-implement`, and the layer skills follow the `Accepted` ones; `/spec-review`             |
 | `docs/architecture/decision-rights.md` | The team; `/stack` creates it on request | `/use-case-implement`, `/use-case-test`, and the layer skills; optional, the defaults apply without it   |
 
 For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
@@ -134,6 +135,7 @@ processes: one test case per path through a BPMN process model.
 | `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`                                                | Project       | `TC-XXX`           |
 | `BP-XXX`  | Business process, `docs/processes/BP-XXX-*.bpmn`; also the `id` of its `<bpmn:process>` | Project       | `BP-XXX`           |
 | `OQ-XXX`  | Open question, `## OQ-XXX:` section of `docs/open-questions.md`                         | Project       | `OQ-XXX`           |
+| `ADR-XXX` | Architecture decision record, `docs/architecture/decisions/ADR-XXX-*.md`                | Project       | `ADR-XXX`          |
 
 German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
 so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`. A rule that applies to several
@@ -262,6 +264,35 @@ BR-002 requires a comment but sets no limit. Readings: (a) 255 characters; (b) u
 - Nobody creates the file ahead of time; a missing file means there are no open questions. Questions about scope,
   priority, or budget belong in the team's issue tracker.
 
+### Architecture decisions
+
+An architecture decision is justified by a quality the system must have or a constraint it must respect, so every
+architecture decision record links at least one `NFR-` or `C-` of `docs/requirements.md` in its `**Requirements:**`
+line. When the NFR or the constraint changes, the ADRs that link it are the ones to revisit. They live in
+`docs/architecture/decisions/`; an existing `adr/` or `adrs/` folder anywhere in `docs/` is read as well. The format
+is owned by [`/architecture-decision`](../aiup-core/skills/architecture-decision/SKILL.md); teams keep their own ADR
+format and add the lines:
+
+```markdown
+# ADR-008: HttpOnly cookies for the session
+
+**Status:** Accepted
+**Date:** 2026-10-26
+**Requirements:** NFR-004, C-005
+**Supersedes:** ADR-002
+```
+
+- **Status** runs `Proposed` → `Accepted`, and from there to `Superseded` (by the ADR named in `**Superseded by:**`)
+  or `Deprecated`; a proposal the team decides against is `Rejected`. Construction follows only `Accepted` ADRs.
+- A decision whose quality or constraint is not in the requirements yet goes to `/requirements` first; an FR alone is
+  no reason for an architecture decision.
+- No other skill writes an ADR. `/stack` names the choices of its question round that no constraint or ADR fixed,
+  `/use-case-implement` names an answered architecture question (a new dependency, a deviation from an ADR), and
+  `/requirements` names the ADRs linking an NFR or constraint it changed — each with `/architecture-decision` as the
+  next step.
+- `spec_lint.py` reports an ADR link to nothing as `DANGLING_REF`, and `ADR_UNLINKED`, `ADR_STALE`, and `ADR_INVALID`
+  as warnings: the ADRs are the team's documents, so a brownfield ADR without the line never fails a build.
+
 ### Construction inputs
 
 The use case is the traceability hub for construction. Every implementation skill of every stack plugin, and
@@ -273,7 +304,7 @@ The use case is the traceability hub for construction. Every implementation skil
 | `FR-*`, `NFR-*`, `C-*` rows             | Only the ids on the use case's `**Requirements:**` line, never the whole catalog. |
 | `docs/entity_model.md`                  | Required.                                                                         |
 | `docs/glossary.md`                      | When present: names in code follow its terms, never its Avoid synonyms.           |
-| Architecture decisions (`docs/**/adr/`) | When present: followed like existing conventions.                                 |
+| Architecture decisions (`decisions/`)   | When present: the `Accepted` ones are followed like existing conventions.         |
 | `docs/architecture/stack.md`            | Layered stacks only: the layer skills to run, the module layout, the API contract. |
 | `docs/architecture/decision-rights.md`  | Layered stacks, when present: replaces the default decision rights (see below).   |
 
@@ -372,6 +403,7 @@ with the markers of the stack in question.
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |
 | [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md)           | `docs/open-questions.md`: record, list, answer, and withdraw questions  |
+| [`/architecture-decision`](../aiup-core/skills/architecture-decision/SKILL.md) | ADRs linked to the NFRs and constraints they serve                  |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md)       | AI Unified Process baseline recovered from an existing codebase         |
 | [`/stack`](../aiup-core/skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skills of a layered stack       |
 | [`/use-case-implement`](../aiup-core/skills/use-case-implement/SKILL.md)   | A use case implemented across all layers of a layered stack             |

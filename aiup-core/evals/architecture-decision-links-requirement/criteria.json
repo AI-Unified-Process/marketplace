@@ -1,0 +1,31 @@
+{
+  "context": "Tests /architecture-decision on a project whose requirements hold NFR-002 (a session token must not be readable by browser scripts) and C-002 (an SPA on the same origin), and whose ADRs are ADR-001 (Flyway, Accepted) and ADR-002 (session token in localStorage, Accepted). The lead developer asks to record two decisions taken today: the session moves to an HttpOnly cookie, and Kafka goes between two services 'because we like event-driven architectures'. The first is justified by NFR-002 and replaces ADR-002; the second has no NFR or constraint in the requirements, and nobody can answer a follow-up question. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Cookie decision recorded",
+      "description": "A new file docs/architecture/decisions/ADR-003-<slug>.md exists with a heading '# ADR-003: <the cookie decision>', **Status:** Accepted, **Date:** 2026-10-27, and Context, Decision, and Consequences sections that describe the HttpOnly cookie set by the API and the CSRF double-submit token",
+      "max_score": 20
+    },
+    {
+      "name": "Linked to the NFR it serves",
+      "description": "ADR-003's **Requirements:** line links NFR-002 (C-002 may follow); it links no requirement id that is not in docs/requirements.md, and not an FR alone",
+      "max_score": 20
+    },
+    {
+      "name": "ADR-002 superseded on both sides",
+      "description": "ADR-003 has **Supersedes:** ADR-002; ADR-002 now reads **Status:** Superseded with **Superseded by:** ADR-003 and **Date:** 2026-10-27, while its Context, Decision, and Consequences are unchanged; ADR-001 is unchanged",
+      "max_score": 20
+    },
+    {
+      "name": "Kafka decision not recorded",
+      "description": "No ADR file for the Kafka decision exists (no ADR-004, and no Kafka text added to ADR-003 or another ADR), and no ADR with an empty or FR-only **Requirements:** line was written",
+      "max_score": 20
+    },
+    {
+      "name": "Hand-off to /requirements, requirements unchanged",
+      "description": "The agent tells R. Keller that no NFR or constraint justifies the Kafka decision and that a preference is no reason, asks which quality or constraint drives it, and names /requirements as the step that adds it before the ADR is recorded; docs/requirements.md is unchanged",
+      "max_score": 20
+    }
+  ]
+}

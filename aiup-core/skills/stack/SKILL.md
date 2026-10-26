@@ -120,7 +120,7 @@ a missing `## Markers` goes at the end of the file.
 1. **Read what is there.** Read `docs/architecture/stack.md` when it exists — this run updates it, never
    replaces it. A file without the Integration layer table — or with the one-line `**Integration layer:** <layer>`
    of an earlier version, a value and no table under the label — gets the table in this run. Read `docs/requirements.md` for constraints (`C-*`) that fix a
-   technology, the architecture decision records when the project has them (glob `docs/**/adr/*.md`), and the
+   technology, the architecture decision records when the project has them (glob `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`), and the
    team's architecture documentation when there is some — `docs/architecture.md`, the other files under
    `docs/architecture/` (arc42 chapters, C4 or Structurizr models, 4+1 views) — as input for the stack, the module
    layout, and the API contract.
@@ -136,8 +136,8 @@ a missing `## Markers` goes at the end of the file.
    two technologies fit (both JPA and jOOQ on the classpath), and never pick one silently. A constraint in the
    requirements that fixes a technology is not a question: name it as the reason. With an E2E layer and no
    `**E2E scope:**` line yet, ask in the same round whether browser tests cover use cases and test cases, or test
-   cases only (the catalog's section "E2E scope"); an ADR that already decides it is not a question either — name
-   it as the reason. A technology or a module layout the team's architecture documentation already records is
+   cases only (the catalog's section "E2E scope"); an `Accepted` ADR that already decides it is not a question
+   either — name it as the reason. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
    not a question either; name the document. When `docs/architecture/decision-rights.md` does not exist, ask in
    the same round whether to create it with the default decision rights, for the team to tighten or loosen — which
    decisions the agent takes alone, asks about first, or never takes during construction. Recommend leaving it out
@@ -176,7 +176,9 @@ a missing `## Markers` goes at the end of the file.
    rules of *The layer skills*. Name each missing skill together with the plugin that ships it, from the catalog;
    for a skill the catalog does not list, say that the team's skill is not installed.
 7. **Report** the layers in one short table, the plugins still to install, the decision rights file when you
-   wrote it, and hand off: `Next: /use-case-implement UC-XXX` for the first `Approved` use case, or `/use-case-spec` when there is none.
+   wrote it, and the choices of the question round that no constraint and no `Accepted` ADR fixed — a technology
+   picked between two that fit, the E2E scope — each with `/architecture-decision` to record why, linked to the NFR
+   or constraint behind it. Then hand off: `Next: /use-case-implement UC-XXX` for the first `Approved` use case, or `/use-case-spec` when there is none.
 
 ## Changing a layer later
 

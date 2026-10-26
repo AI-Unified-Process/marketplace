@@ -216,7 +216,8 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 3. Read the entity model from `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links).
 4. Read `docs/glossary.md` when it exists and name classes, fields, endpoints, and labels with its terms, never with
    a synonym from its Avoid column; read the architecture decision records when the project has them (glob
-   `docs/**/adr/*.md`) and follow the ones that apply as you follow existing conventions.
+   `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`) and follow the `Accepted` ones that apply as you follow existing conventions — a `Proposed`,
+   `Superseded`, `Deprecated`, or `Rejected` ADR is no decision to follow.
 5. Read the stack file, `docs/architecture/stack.md`, and the use case's `**Layers:**` line — see
    "Which Layers Run" — and the decision rights, `docs/architecture/decision-rights.md` or the defaults — see
    "Decision Rights". When the stack file does not exist, stop and hand off to `/stack` — do not guess
@@ -259,6 +260,9 @@ Finish by:
   every class and method name. Include the decisions of the layer skills. With a project file of decision rights,
   say so in one line, and name any rule under "never" it tried to move.
 - The **Open questions** list, when there is one.
+- When the user answered an architecture question in this run — a new library or dependency, a deviation from an
+  ADR — one line that names the answer and `/architecture-decision` to record it; a deviation from an `Accepted` ADR
+  is recorded as an ADR that supersedes it. Do not write the ADR yourself.
 - Ending with one hand-off line to the tests: `Next: /use-case-test UC-XXX`.
 - Only when the user explicitly wants an audit before any tests exist, point to `/use-case-coverage UC-XXX
   implementation`.

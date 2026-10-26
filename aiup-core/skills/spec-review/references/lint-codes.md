@@ -23,13 +23,17 @@ In a project split by module, "`use_cases.puml`" below stands for the overview a
 folder; entity headings are read from `entity_model.md` and every `entity_model/<module>.md`. Open questions are
 the `## OQ-XXX:` sections of `open-questions.md`, in the format of the `open-questions` skill; only `Open` and
 `Answered` questions are checked against the specification, because `Resolved` and `Withdrawn` ones are history.
+Architecture decisions are the files under a `decisions/`, `adr/`, or `adrs/` folder anywhere in `docs/` whose name or title carries
+`ADR-XXX`, in the format of the `architecture-decision` skill; other formats count when they have a `## Status`
+section or `status:` front matter. They are the team's documents, so only a link to nothing and a duplicate id are
+errors.
 
 | Severity | Code                    | Meaning                                                                                        | Fix with            |
 |----------|-------------------------|------------------------------------------------------------------------------------------------|---------------------|
 | ERROR    | `SPEC_MISSING`          | A use case in `use_cases.puml` has no `use_cases/UC-XXX-*.md`                                  | `/use-case-spec`    |
 | ERROR    | `NOT_IN_DIAGRAM`        | A specification (not `Obsolete`) whose use case is not in `use_cases.puml`                    | `/use-case-diagram` |
-| ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, C, or OQ id, or an entity heading, is used twice — also a use case in two module diagrams or an entity in two module files | the owning skill |
-| ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, a `**Process:**` link or `BP-XXX` id, or the `**Element:**` of an open question points to nothing | the owning skill |
+| ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, C, OQ, or ADR id, or an entity heading, is used twice — also a use case in two module diagrams or an entity in two module files | the owning skill |
+| ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, a `**Process:**` link or `BP-XXX` id, the `**Element:**` of an open question, or an id in an ADR's `**Requirements:**`, `**Supersedes:**`, or `**Superseded by:**` line points to nothing | the owning skill |
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
 | ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias | `/use-case-diagram` |
@@ -42,6 +46,9 @@ the `## OQ-XXX:` sections of `open-questions.md`, in the format of the `open-que
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
 | WARN     | `OQ_BLOCKING`           | The same at `Approved` or `Implemented`: the use case should not have been approved, or the answer is still missing | `/open-questions`, `/use-case-spec` |
 | WARN     | `OQ_UNRESOLVED`         | An open question is `Answered`, but the answer is not in the specification yet               | `/use-case-spec`, `/requirements`, `/entity-model` |
+| WARN     | `ADR_UNLINKED`          | A `Proposed` or `Accepted` ADR whose `**Requirements:**` line links no NFR or C (an FR alone does not count): a decision is justified by a quality or a constraint | `/requirements`, then `/architecture-decision` |
+| WARN     | `ADR_STALE`             | A `Proposed` or `Accepted` ADR links a `Rejected` or `Deferred` requirement; or an ADR supersedes one that is not `Superseded`, or the two do not name each other in `**Supersedes:**` and `**Superseded by:**` | `/architecture-decision` |
+| WARN     | `ADR_INVALID`           | An ADR without a status, with a status other than Proposed, Accepted, Superseded, Deprecated, or Rejected, without a date, or `Superseded` without the ADR that replaced it | `/architecture-decision` |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |
 | WARN     | `WEAK_WORD`             | A vague or optional word ("fast", "appropriate", "etc.", "and/or", "should", "ggf.", …)        | the owning skill    |
 | WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column (in `requirements.md` only in the prose columns, not in ID, Priority, Status, Category, or Source) | the owning skill    |
@@ -67,7 +74,7 @@ broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_RE
 | Option                       | Effect                                                                                  |
 |------------------------------|-----------------------------------------------------------------------------------------|
 | `--docs DIR`                 | documentation folder (default `docs`)                                                    |
-| `--only UC-XXX` / `TC-XXX` / `BP-XXX` | report only findings about this element                                         |
+| `--only UC-XXX` / `TC-XXX` / `BP-XXX` / `ADR-XXX` | report only findings about this element                             |
 | `--strict`                   | fail on warnings too                                                                     |
 | `--format json`              | print `{"findings": [...], "summary": {...}}`                                            |
 | `--baseline FILE`            | use this baseline (default `DIR/.spec-lint-baseline.json` when it exists)               |

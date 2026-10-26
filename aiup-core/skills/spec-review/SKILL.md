@@ -3,10 +3,10 @@ name: spec-review
 description: >
   Reviews the specification artifacts in docs/ (requirements, use case
   diagram, use case specifications, test cases, BPMN process models, entity
-  model, glossary) against each other in two parts: a deterministic lint that
-  can block a build (missing specifications, duplicate or unresolved ids,
-  uncovered FRs, unmapped BPMN activities, actor mismatches, weak words,
-  glossary synonyms, blocking questions) and
+  model, glossary, ADRs) against each other in two parts: a deterministic
+  lint that can block a build (missing specifications, duplicate or
+  unresolved ids, uncovered FRs, unmapped BPMN activities, actor mismatches,
+  weak words, glossary synonyms, blocking questions, unlinked ADRs) and
   an advisory semantic review (contradicting or duplicated rules, wrong level
   of detail, missing alternative flows, untestable rules, ambiguity, actors,
   NFRs and constraints, entity model consistency), plus a traceability matrix
@@ -14,8 +14,7 @@ description: >
   "review the specs", "lint the use cases", "find contradictions", "is this use
   case ready", "show the traceability matrix", "which use cases realize
   FR-014", "are all requirements covered", "HTML report", or wants a spec
-  quality gate in CI. It never edits a specification; code against specs is
-  /use-case-coverage.
+  quality gate in CI. It never edits a specification.
 ---
 
 <!--
@@ -80,7 +79,7 @@ location and nature, never by quoting the text itself.
 3. **Do the semantic review** with [references/review-checklist.md](references/review-checklist.md). Read the
    documents in scope, plus what they depend on: the use cases a rule or a test case refers to, `requirements.md`,
    `entity_model.md` (with the module files under `entity_model/` it links), `glossary.md`, and the `Open` and
-   `Answered` questions of `open-questions.md` when present. For a single use case, also read the business rules of the
+   `Answered` questions of `open-questions.md` and the ADRs (`ADR-*.md` under a `decisions/`, `adr/`, or `adrs/` folder) when present. For a single use case, also read the business rules of the
    other use cases, because contradictions and duplicates live across files. An ambiguity an open question already
    asks is no new finding; name the question instead.
    Skip a checklist item whose finding the lint already reported for the same element.
@@ -141,6 +140,10 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`; an `Open` one first needs an answer,
   `/open-questions answer OQ-XXX`; a malformed one (`OQ_INVALID`) → `/open-questions`
 - a test case without a use case → `/test-case`
+- an ADR without an NFR or constraint (`ADR_UNLINKED`), linking a rejected or deferred one or out of step with the ADR
+  that supersedes it (`ADR_STALE`), or without a valid status or date (`ADR_INVALID`) →
+  `/architecture-decision ADR-XXX`; when the quality or constraint it serves is not in the requirements yet,
+  `/requirements` first
 - a BPMN activity without a use case, a process model without a `BP-XXX` id, or a summary use case whose flow belongs
   in a process → `/business-process BP-XXX` (it hands a missing use case on to `/use-case-diagram`)
 
@@ -185,7 +188,9 @@ python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, 
 It prints two tables: requirement (with its status, followed by the status its use cases make it when the two differ) →
 use case (with its status) → business rules → test cases, and test case → process → use cases. When
 `docs/open-questions.md` holds `Open` or `Answered` questions, an **Open Questions** table lists them, blocking first;
-`--only UC-XXX` keeps the questions on that use case and on the requirements it links. A requirement no use case links
+`--only UC-XXX` keeps the questions on that use case and on the requirements it links. When the project has ADRs, an
+**Architecture Decisions → Requirements** table lists each with its status, the requirements it links, and the ADR
+that superseded it; `--only NFR-002` keeps the ADRs that link it. A requirement no use case links
 and a use case without a `**Requirements:**` line appear with `—`. A third table, **Requirement Coverage**, answers "are
 all requirements covered": for the active requirements (Deferred and Rejected are listed as out of scope) it counts how
 many are linked to a use case, have every linking use case in a test case, and are Verified by the status of their use
@@ -201,7 +206,7 @@ not this matrix.
 ## HTML Report
 
 `/spec-review report` writes one HTML page with the state of the whole project; `/spec-review report UC-001` (or any
-`FR-`, `UC-`, `TC-`, or `BP-` id) narrows it to that id. The user wants it to share the state, open it in a browser,
+`FR-`, `UC-`, `TC-`, `BP-`, or `ADR-` id) narrows it to that id. The user wants it to share the state, open it in a browser,
 or keep it as a build artifact. Resolve an id like step 1 of the workflow, then run:
 
 ```bash
@@ -215,9 +220,9 @@ This page is the only file the skill writes, and only on this command.
 
 The page is self-contained (no external assets) and holds summary counts, the Requirement Coverage table, the trace
 matrix with requirement titles and a filter box, test case → process → use cases, the open questions that are `Open` or
-`Answered`, and the lint findings after the baseline. It holds no semantic review (Part B). After writing it, say where
+`Answered`, the architecture decisions with their requirements, and the lint findings after the baseline. It holds no semantic review (Part B). After writing it, say where
 it is and repeat the counts from its header in one line (requirements, use cases, test cases, processes, open questions,
-errors, warnings); do not restate the tables. Whether to commit it or add it to `.gitignore` is the user's call.
+decisions, errors, warnings); do not restate the tables. Whether to commit it or add it to `.gitignore` is the user's call.
 
 ## CI
 

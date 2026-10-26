@@ -133,7 +133,8 @@ a validation rule, a term that neither the entity model nor the glossary defines
 3. Read the entity model from `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links)
 4. Read `docs/glossary.md` when it exists and name classes, fields, and labels with its terms, never
    with a synonym from its Avoid column; read the architecture decision records when the project has
-   them (glob `docs/**/adr/*.md`) and follow the ones that apply as you follow existing conventions
+   them (glob `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`) and follow the `Accepted` ones that apply as you follow existing
+   conventions
 5. Check existing code for patterns and conventions, and determine whether the use case is
    already implemented — if so, follow "If an Implementation Already Exists" above and update
    those files rather than creating new ones

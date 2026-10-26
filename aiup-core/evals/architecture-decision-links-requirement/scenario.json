@@ -1,0 +1,1 @@
+{ "description": "Record a decision linked to the NFR it serves and supersede the accepted ADR it replaces; refuse to record a decision no NFR or constraint justifies and hand it to /requirements", "include": ["./inputs"] }

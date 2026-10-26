@@ -33,6 +33,7 @@ fix=0
 EXCLUDED='
 aiup-core/skills/stack/references/stack.md
 aiup-core/skills/open-questions/references/open-questions.md
+aiup-core/skills/architecture-decision/references/adr.md
 aiup-core/skills/use-case-implement/references/decision-rights.md
 aiup-core/skills/requirements/references/glossary.md
 aiup-core/skills/use-case-spec/references/example.md

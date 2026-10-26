@@ -193,3 +193,19 @@ be an NFR or a constraint instead.
 
 Skip this check when there is no `requirements.md` or it has no NFRs and constraints. Severity: `info`, `warning`
 when the missing NFR or constraint sets a limit a test would check (a response time, a maximum, a mandatory system).
+
+## 11. Architecture decisions
+
+**Where:** the `Accepted` ADRs (`ADR-*.md` under a `decisions/`, `adr/`, or `adrs/` folder) against each other and against the `NFR-*` and `C-*` rows of
+`requirements.md`.
+
+The lint checks that every ADR links an NFR or a constraint, that the links resolve, and that a supersession is
+recorded on both sides; it cannot tell whether the decisions agree. Report two `Accepted` ADRs that cannot both hold
+(one decides server-side sessions, another keeps the session in the browser) and name both; an `Accepted` ADR whose
+Decision breaks a constraint it does not link (a decision for MySQL next to `C-002 System must use PostgreSQL 16`); an
+ADR whose Consequences put the threshold of an NFR at risk without saying how it is still met; and an ADR that links
+an NFR or constraint its Context and Decision never address — a link added to silence the lint.
+
+Skip this check when the project has no ADRs. Severity: `warning` for two contradicting `Accepted` ADRs and for a
+broken constraint, `info` otherwise. The fix is `/architecture-decision` (supersede, or add the link) or
+`/requirements` when the constraint itself has to change.

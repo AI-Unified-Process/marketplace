@@ -103,7 +103,7 @@ off to it rather than running it themselves, so a construction round stays fast.
 access together in one slice, which horizontal layer plugins would split apart.
 
 `aiup-core` itself ships `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`,
-`/test-case`, `/spec-review`, `/open-questions`, `/reverse-engineer`, and, for layer plugins, `/stack`,
+`/test-case`, `/spec-review`, `/open-questions`, `/architecture-decision`, `/reverse-engineer`, and, for layer plugins, `/stack`,
 `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, and `/test-case-coverage`.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,

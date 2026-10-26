@@ -15,7 +15,9 @@ check is exact and gives the same result on every run:
            the diagram or of a specification,
            a process model's BP-XXX id does not match its file name,
            a use case at Tested or Done has an unresolved blocking open
-           question, an open question lacks a required field,
+           question, an open question lacks a required field, an
+           architecture decision links a requirement or ADR that does not
+           exist,
            or a use case document does not parse (from validate_use_case.py).
 - WARN   = the artifacts are connected but weak: an uncovered functional
            requirement, a requirement status its use cases contradict, an
@@ -24,9 +26,11 @@ check is exact and gives the same result on every run:
            same business rule in two use cases, a weak word, a synonym the
            glossary says to avoid, an answered open question whose answer
            is not in the specification yet, a use case at Approved or
-           Implemented with an unresolved blocking open question, or a rule
-           of the use-case-spec skill that validate_use_case.py reports as
-           broken.
+           Implemented with an unresolved blocking open question, an
+           architecture decision that links no NFR or constraint, links a
+           rejected or deferred one, or has no valid status or date, or a
+           rule of the use-case-spec skill that validate_use_case.py reports
+           as broken.
 - INFO   = worth knowing, never a failure: e.g. an NFR or constraint no
            use case links, which is fine when it applies system-wide.
 
@@ -34,6 +38,7 @@ Artifacts (each check runs only when its artifacts exist):
 
     requirements.md  use_cases.puml  use_cases/UC-*.md  test_cases/TC-*.md
     processes/*.bpmn  entity_model.md  glossary.md  open-questions.md
+    **/decisions/ADR-*.md  (also **/adr/ and **/adrs/)
 
 open-questions.md holds one '## OQ-XXX: <question>' section per question,
 with **Element:**, **Raised by:**, **Blocking:**, and **Status:** lines, as
@@ -41,6 +46,15 @@ the open-questions skill defines it. A blocking question that is Open or
 Answered blocks the use case its element names, and every use case that
 links the requirement it names. Resolved and Withdrawn questions are history:
 their elements are not checked, because they may have been renumbered since.
+
+An architecture decision record is a file under a decisions/ folder (the
+default, docs/architecture/decisions/), or an adr/ or adrs/ folder, anywhere
+in docs/ whose name or title carries ADR-XXX, as the architecture-decision skill
+defines it: a **Status:** line (or a ## Status section, or status: in front
+matter), a **Date:**, and a **Requirements:** line that links at least one
+NFR- or C- — the quality or constraint the decision serves. ADRs are the
+team's documents, so only a link to nothing is an error; everything else
+about them is a warning.
 
 A project split by module (as /reverse-engineer writes it) keeps the module
 overview in use_cases.puml and the module table in entity_model.md; each
@@ -72,12 +86,13 @@ with the ids that stop at each stage. It reads docs/ only; whether code and
 tests realize the use cases is /use-case-coverage (layer plugins) or
 /coverage-check (aiup-vaadin-jooq and aiup-angular-jpa).
 
-Both also list the open questions that are Open or Answered.
+Both also list the open questions that are Open or Answered, and the
+architecture decisions with the requirements they link.
 
 --report prints one self-contained HTML page instead: summary counts, the
 requirement coverage, the trace matrix with requirement titles, test case →
-process → use cases, the open questions, and the findings after the
-baseline. Links are relative
+process → use cases, the open questions, the architecture decisions, and the
+findings after the baseline. Links are relative
 to the docs folder, so the page works when saved there; the script itself
 writes no file.
 
@@ -89,11 +104,12 @@ any WARN was found), 2 on usage errors. --trace and --report exit 0.
 Usage:
     spec_lint.py [--docs DIR] [--strict] [--format text|json]
                  [--baseline FILE | --no-baseline] [--update-baseline]
-                 [--only UC-XXX|TC-XXX|BP-XXX]
+                 [--only UC-XXX|TC-XXX|BP-XXX|ADR-XXX]
     spec_lint.py --trace [--docs DIR] [--format text|json]
-                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX]
+                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX|ADR-XXX]
     spec_lint.py --report [--docs DIR] [--baseline FILE | --no-baseline]
-                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX] > docs/spec-report.html
+                 [--only FR-XXX|UC-XXX|TC-XXX|BP-XXX|ADR-XXX]
+                 > docs/spec-report.html
     spec_lint.py --self-test
 
 Requires Python 3.9+, standard library only.
@@ -147,6 +163,9 @@ BP_REF = re.compile(r"(?<![A-Za-z0-9])(BP-\d{3,})(?![0-9])")
 FILE_BP = re.compile(r"^(BP-\d{3,})-")
 OQ_HEADING = re.compile(r"^##\s+(OQ-[A-Za-z0-9]+)\s*:?\s*(.*)$")
 OQ_FIELD = re.compile(r"^\*\*([A-Za-z ]+):\*\*\s*(.*)$")
+ADR_REF = re.compile(r"(?<![A-Za-z0-9])(ADR-\d+)(?![0-9])")
+ADR_HEADING = re.compile(r"^#\s+(?:(ADR-\d+)\s*:?\s*)?(.*)$")
+FRONT_MATTER = re.compile(r"^(status|date):\s*(.*)$", re.IGNORECASE)
 STEP_LINE = re.compile(r"^(\d+)\.\s+\S")
 FLOW_HEADING = re.compile(r"^###\s+(A\d+)\b")
 # The element forms of an open question (open-questions skill, Elements)
@@ -176,6 +195,16 @@ OQ_NAME = "open-questions.md"
 OQ_STATUSES = ("Open", "Answered", "Resolved", "Withdrawn")
 OQ_ACTIVE = ("Open", "Answered")
 OQ_REQUIRED = ("Element", "Raised by", "Blocking", "Status")
+ADR_FOLDERS = ("decisions", "adr", "adrs")
+ADR_STATUSES = ("Proposed", "Accepted", "Superseded", "Deprecated", "Rejected")
+ADR_STATUS_GERMAN = {"vorgeschlagen": "Proposed", "akzeptiert": "Accepted",
+                     "angenommen": "Accepted", "ersetzt": "Superseded",
+                     "veraltet": "Deprecated", "abgelehnt": "Rejected"}
+ADR_ACTIVE = ("Proposed", "Accepted")
+SUPERSEDES_FIELDS = ("**Supersedes:**", "**Ersetzt:**")
+SUPERSEDED_BY_FIELDS = ("**Superseded by:**", "**Superseded By:**",
+                        "**Ersetzt durch:**")
+DATE_FIELDS = ("**Date:**", "**Datum:**")
 # A blocking question fails the lint on a use case that claims completeness,
 # and warns on one that is approved or implemented but not yet tested.
 OQ_BLOCKING_SEVERITY = {
@@ -407,6 +436,10 @@ class Project:
                                                         "*.bpmn")))
         path = os.path.join(docs, OQ_NAME)
         self.oq_path = path if os.path.isfile(path) else None
+        self.adr_paths = sorted({path for folder in ADR_FOLDERS
+                                 for path in glob.glob(os.path.join(
+                                     docs, "**", folder, "*.md"),
+                                     recursive=True)})
 
     def add(self, severity, code, path, line, element, message):
         self.findings.append(Finding(severity, code, path, line, element,
@@ -1172,6 +1205,153 @@ def check_open_questions(project, specs, diagram, requirements, entities,
                             + question["question"])
 
 
+def read_adrs(project):
+    """The architecture decision records in the ADR_FOLDERS of docs/, by id.
+
+    A file counts when its name or its title carries ADR-XXX; an index or a
+    template does not. Each ADR is a dict with "id", "path", "title",
+    "line", "status" (one of ADR_STATUSES, the raw value when unknown, or ""),
+    "status_line", "date", "requirements" ([(line, id)]), "supersedes" and
+    "superseded_by" ([(line, id)])."""
+    adrs = []
+    for path in project.adr_paths:
+        lines = read_lines(path)
+        match = ADR_REF.match(os.path.basename(path))
+        adr = {"id": match.group(1) if match else "", "path": path,
+               "title": "", "line": 1, "status": "", "status_line": 1,
+               "date": "", "requirements": [], "supersedes": [],
+               "superseded_by": []}
+        raw_status = ""
+        front = bool(lines) and lines[0].strip() == "---"
+        in_status = False
+        for number, line in prose_lines(lines):
+            text = line.strip()
+            if front:
+                if number > 1 and text == "---":
+                    front = False
+                    continue
+                match = FRONT_MATTER.match(text)
+                if match and match.group(1).lower() == "status":
+                    raw_status, adr["status_line"] = match.group(2), number
+                elif match:
+                    adr["date"] = match.group(2)
+                continue
+            match = ADR_HEADING.match(text) if text.startswith("# ") else None
+            if match and not adr["title"]:
+                adr["id"] = match.group(1) or adr["id"]
+                adr["title"], adr["line"] = match.group(2).strip(), number
+                continue
+            if text.startswith("## "):
+                in_status = normalize(text) == "status"
+                continue
+            if in_status and text and not raw_status:
+                raw_status, adr["status_line"] = text, number
+                in_status = False
+            value = field_value(text, (STATUS_FIELD,))
+            if value is not None and not raw_status:
+                raw_status, adr["status_line"] = value, number
+            value = field_value(text, DATE_FIELDS)
+            if value and not adr["date"]:
+                adr["date"] = value
+            value = field_value(text, REQUIREMENTS_FIELDS)
+            if value is not None:
+                adr["requirements"] += [(number, rid)
+                                        for rid in REQ_ID.findall(value)]
+            for fields, key in ((SUPERSEDED_BY_FIELDS, "superseded_by"),
+                                (SUPERSEDES_FIELDS, "supersedes")):
+                value = field_value(text, fields)
+                if value is not None:
+                    adr[key] += [(number, aid)
+                                 for aid in ADR_REF.findall(value)]
+                    break
+        if not adr["id"]:
+            continue
+        words = normalize(raw_status).split()
+        first = words[0] if words else ""
+        adr["status"] = next((s for s in ADR_STATUSES if s.lower() == first),
+                             ADR_STATUS_GERMAN.get(first, raw_status.strip()))
+        # Nygard style: "Superseded by ADR-009" in the status itself
+        if adr["status"] == "Superseded" and not adr["superseded_by"]:
+            adr["superseded_by"] = [(adr["status_line"], aid)
+                                    for aid in ADR_REF.findall(raw_status)]
+        adrs.append(adr)
+    return sorted(adrs, key=lambda adr: (adr["id"], adr["path"]))
+
+
+def check_adrs(project, requirements):
+    """Architecture decisions are well-formed and linked to their reason.
+
+    An ADR is justified by a quality or a constraint, so a Proposed or
+    Accepted one links at least one NFR- or C-. A link to nothing is an
+    error; the rest are warnings, because the ADRs are the team's documents.
+    """
+    adrs = read_adrs(project)
+    by_id = {}
+    for adr in adrs:
+        aid, path = adr["id"], adr["path"]
+        if aid in by_id:
+            project.add(ERROR, "DUPLICATE_ID", path, adr["line"], aid,
+                        "ADR id " + aid + " is already used in "
+                        + doc_path(project, by_id[aid]["path"]))
+            continue
+        by_id[aid] = adr
+    for adr in by_id.values():
+        aid, path, status = adr["id"], adr["path"], adr["status"]
+        if not status:
+            project.add(WARN, "ADR_INVALID", path, adr["line"], aid,
+                        aid + " has no **Status:** line")
+        elif status not in ADR_STATUSES:
+            project.add(WARN, "ADR_INVALID", path, adr["status_line"], aid,
+                        aid + ": status '" + status + "' is none of "
+                        + ", ".join(ADR_STATUSES))
+        if not adr["date"]:
+            project.add(WARN, "ADR_INVALID", path, adr["line"], aid,
+                        aid + " has no **Date:** line")
+        if status == "Superseded" and not adr["superseded_by"]:
+            project.add(WARN, "ADR_INVALID", path, adr["status_line"], aid,
+                        aid + " is Superseded but names no **Superseded by:**"
+                        " ADR")
+        for number, rid in adr["requirements"]:
+            if project.requirements_path and rid not in requirements:
+                project.add(ERROR, "DANGLING_REF", path, number, aid,
+                            aid + " links requirement " + rid + ", which is "
+                            "not in requirements.md")
+            elif rid in requirements and status in ADR_ACTIVE and normalize(
+                    requirements[rid][1]) in INACTIVE_REQUIREMENT:
+                project.add(WARN, "ADR_STALE", path, number, aid,
+                            aid + " is " + status + " but links " + rid
+                            + ", which is " + requirements[rid][1]
+                            + "; revisit the decision")
+        if status in ADR_ACTIVE and not any(
+                rid.startswith(("NFR-", "C-"))
+                for _, rid in adr["requirements"]):
+            project.add(WARN, "ADR_UNLINKED", path, adr["line"], aid,
+                        aid + " links no NFR- or C- in a **Requirements:** "
+                        "line; name the quality or constraint the decision "
+                        "serves")
+        for key, back, label in (("supersedes", "superseded_by",
+                                  "**Superseded by:**"),
+                                 ("superseded_by", "supersedes",
+                                  "**Supersedes:**")):
+            for number, other in adr[key]:
+                target = by_id.get(other)
+                if target is None:
+                    project.add(ERROR, "DANGLING_REF", path, number, aid,
+                                aid + " names " + other + ", which is no ADR "
+                                "under a decisions/, adr/, or adrs/ folder")
+                elif aid not in [a for _, a in target[back]]:
+                    project.add(WARN, "ADR_STALE", target["path"],
+                                target["line"], other, aid + " names " + other
+                                + ", but " + other + " has no " + label + " "
+                                + aid)
+                elif key == "supersedes" and target["status"] != "Superseded":
+                    project.add(WARN, "ADR_STALE", target["path"],
+                                target["status_line"], other, other + " is "
+                                + (target["status"] or "without status")
+                                + " but " + aid + " supersedes it")
+    return adrs
+
+
 def element_for(line, default):
     match = REQ_ROW.match(line)
     return match.group(1) if match else default
@@ -1257,6 +1437,7 @@ def lint(docs, validator, bpmn):
     check_wording(project, specs, glossary)
     check_open_questions(project, specs, diagram, requirements, entities,
                          glossary)
+    check_adrs(project, requirements)
     return sorted(project.findings,
                   key=lambda f: (SEVERITY_ORDER[f.severity], f.path, f.line))
 
@@ -1339,14 +1520,21 @@ def trace(docs):
     for uid, spec in specs.items():
         if not spec.requirements:
             rows.append(row(None, uid))
+    decisions = [{"id": adr["id"], "path": doc_path(project, adr["path"]),
+                  "title": adr["title"], "status": adr["status"],
+                  "requirements": [rid for _, rid in adr["requirements"]],
+                  "superseded_by": [aid for _, aid in adr["superseded_by"]]}
+                 for adr in read_adrs(project)]
     return {"requirements": rows, "test_cases": test_cases,
             "open_questions": trace_open_questions(project, ucs_by_req),
+            "decisions": decisions,
             "coverage": coverage(requirements, specs, ucs_by_req,
                                  tcs_by_uc),
             "counts": {"requirements": len(requirements),
                        "use_cases": len(specs),
                        "test_cases": len(test_cases),
-                       "processes": len(project.bpmn_paths)}}
+                       "processes": len(project.bpmn_paths),
+                       "decisions": len(decisions)}}
 
 
 def trace_open_questions(project, ucs_by_req):
@@ -1422,8 +1610,11 @@ def filter_trace(matrix, only):
     oqs = [q for q in matrix["open_questions"]
            if only in (q["id"], q["element"].split(" ")[0])
            or only in q["use_cases"]]
+    decisions = [d for d in matrix["decisions"]
+                 if only == d["id"] or only in d["requirements"]
+                 or kept.intersection(d["requirements"])]
     return {"requirements": rows, "test_cases": tcs, "open_questions": oqs,
-            "counts": matrix["counts"],
+            "decisions": decisions, "counts": matrix["counts"],
             "coverage": summarize_coverage(
                 {rid: stop for rid, stop in cov["stops"].items()
                  if rid in kept},
@@ -1471,6 +1662,13 @@ def render_trace(matrix):
             ["ID", "Element", "Question", "Blocking", "Status"],
             [[q["id"], q["element"], q["question"], q["blocking"],
               q["status"]] for q in matrix["open_questions"]])
+    if matrix["decisions"]:
+        lines += ["", "## Architecture Decisions → Requirements", ""]
+        lines += markdown_table(
+            ["ADR", "Status", "Requirements", "Superseded by"],
+            [[(d["id"] + " " + d["title"]).strip(), d["status"] or "—",
+              cell(d["requirements"]), cell(d["superseded_by"])]
+             for d in matrix["decisions"]])
     cov = matrix["coverage"]
     if cov["active"]:
         lines += ["", "## Requirement Coverage", "",
@@ -1544,7 +1742,8 @@ STATUS_CLASS = {
     "approved": "s-info", "reviewed": "s-info", "genehmigt": "s-info",
     "geprüft": "s-info", "obsolete": "s-muted", "obsolet": "s-muted",
     "rejected": "s-muted", "deferred": "s-muted", "abgelehnt": "s-muted",
-    "zurückgestellt": "s-muted",
+    "zurückgestellt": "s-muted", "accepted": "s-ok", "proposed": "s-info",
+    "superseded": "s-muted", "deprecated": "s-muted",
 }
 SEVERITY_CLASS = {ERROR: "s-err", WARN: "s-warn", INFO: "s-info"}
 
@@ -1595,6 +1794,7 @@ def render_report(matrix, findings, suppressed, docs):
              ("Test cases", counts["test_cases"]),
              ("Processes", counts["processes"]),
              ("Open questions", len(matrix["open_questions"])),
+             ("Decisions", len(matrix["decisions"])),
              ("Errors", len(severities[ERROR])),
              ("Warnings", len(severities[WARN])),
              ("Infos", len(severities[INFO])),
@@ -1678,6 +1878,14 @@ def render_report(matrix, findings, suppressed, docs):
                   "s-warn" if q["status"] == "Open" else "s-info",
                   esc(q["status"])), esc(q["raised_by"])]
              for q in matrix["open_questions"]]))
+
+    if matrix["decisions"]:
+        out.append("<h2>Architecture Decisions → Requirements</h2>")
+        out.append(table(
+            ["ADR", "Status", "Requirements", "Superseded by"],
+            [[link(d["path"], (d["id"] + " " + d["title"]).strip()),
+              badge(d["status"]), ids(d["requirements"]),
+              ids(d["superseded_by"])] for d in matrix["decisions"]]))
 
     out.append("<h2>Findings</h2>")
     if not findings:
@@ -2167,6 +2375,109 @@ From other modules: GUEST (Guests).
 })
 
 
+ADRS = {
+    "requirements.md": """\
+# Requirements
+
+| ID      | Title        | Requirement                                     | Category    | Priority | Status   |
+|---------|--------------|-------------------------------------------------|-------------|----------|----------|
+| FR-001  | Create Guest | As a clerk, I want to record guests.            |             | High     | Open     |
+| NFR-001 | Query Cost   | A list loads in one query per page.             | Performance | High     | Open     |
+| C-001   | Database     | The system must use PostgreSQL 16.              | Technical   | High     | Open     |
+| C-002   | Mainframe    | Bookings are stored on the mainframe.           | Technical   | Low      | Rejected |
+""",
+    "architecture/decisions/README.md": "# Architecture Decisions\n\nAn index.\n",
+    "architecture/decisions/ADR-001-jooq.md": """\
+# ADR-001: jOOQ instead of JPA
+
+**Status:** Accepted
+**Date:** 2026-09-17
+**Requirements:** NFR-001, FR-001
+
+## Context
+
+The query in the code must be the query at the database.
+""",
+    "architecture/decisions/ADR-002-h2.md": """\
+# ADR-002: H2 for development
+
+## Status
+
+Superseded by ADR-003
+
+**Date:** 2026-09-01
+**Requirements:** C-001
+""",
+    "architecture/decisions/ADR-003-postgres-everywhere.md": """\
+# ADR-003: PostgreSQL in every environment
+
+**Status:** Accepted
+**Date:** 2026-09-20
+**Requirements:** C-001
+**Supersedes:** ADR-002
+""",
+    "adr/ADR-004-testcontainers.md": """\
+---
+status: proposed
+date: 2026-10-01
+---
+
+# ADR-004: Testcontainers for integration tests
+
+**Requirements:** [C-001](../requirements.md)
+""",
+}
+
+ADRS_TRACE = [
+    ("ADR-001", "Accepted", ["NFR-001", "FR-001"], []),
+    ("ADR-002", "Superseded", ["C-001"], ["ADR-003"]),
+    ("ADR-003", "Accepted", ["C-001"], []),
+    ("ADR-004", "Proposed", ["C-001"], []),
+]
+
+ADRS_BROKEN = {
+    "architecture/decisions/ADR-005-rest.md": """\
+# ADR-005: REST between the modules
+
+**Status:** Accepted
+**Date:** 2026-10-02
+**Requirements:** FR-001
+""",
+    "architecture/decisions/ADR-006-mainframe.md": """\
+# ADR-006: Bookings on the mainframe
+
+**Status:** Proposed
+**Requirements:** NFR-009, C-002
+""",
+    "modules/billing/adrs/ADR-007-graphql.md": """\
+# ADR-007: GraphQL instead of jOOQ
+
+**Status:** Maybe
+**Date:** 2026-10-03
+**Requirements:** NFR-001
+**Supersedes:** ADR-001, ADR-099
+""",
+    "modules/billing/adr/ADR-005-duplicate.md": """\
+# ADR-005: Twice the same id
+
+**Status:** Accepted
+**Date:** 2026-10-04
+**Requirements:** C-001
+""",
+}
+
+ADRS_BROKEN_EXPECTED = {
+    (WARN, "ADR_UNLINKED", "ADR-005"),
+    (ERROR, "DANGLING_REF", "ADR-006"),
+    (WARN, "ADR_STALE", "ADR-006"),
+    (WARN, "ADR_INVALID", "ADR-006"),
+    (WARN, "ADR_INVALID", "ADR-007"),
+    (WARN, "ADR_STALE", "ADR-001"),
+    (ERROR, "DANGLING_REF", "ADR-007"),
+    (ERROR, "DUPLICATE_ID", "ADR-005"),
+}
+
+
 def write_fixture(root, files):
     for rel, content in files.items():
         path = os.path.join(root, rel)
@@ -2402,6 +2713,37 @@ def self_test():
         if "BASELINE_STALE" not in {f.code for f in kept}:
             failures.append("baseline: fixed finding not reported as stale")
 
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, ADRS)
+        adr_codes = ("ADR_", "DANGLING_REF", "DUPLICATE_ID")
+        found = [f for f in lint(root, validator, bpmn)
+                 if f.code.startswith(adr_codes)]
+        for f in found:
+            failures.append("adr: unexpected %s %s %s:%d %s" % (
+                f.severity, f.code, os.path.relpath(f.path, root), f.line,
+                f.message))
+        matrix = trace(root)
+        got = [(d["id"], d["status"], d["requirements"], d["superseded_by"])
+               for d in matrix["decisions"]]
+        if got != ADRS_TRACE:
+            failures.append("adr: trace wrong, got " + str(got))
+        if [d["id"] for d in filter_trace(matrix, "C-001")["decisions"]] \
+                != ["ADR-002", "ADR-003", "ADR-004"]:
+            failures.append("adr: --only C-001 should keep ADR-002 to ADR-004")
+        if "## Architecture Decisions" not in render_trace(matrix) \
+                or "<h2>Architecture Decisions" not in render_report(
+                    matrix, [], 0, root):
+            failures.append("adr: decisions not rendered")
+
+        write_fixture(root, ADRS_BROKEN)
+        found = {(f.severity, f.code, f.element)
+                 for f in lint(root, validator, bpmn)
+                 if f.code.startswith(adr_codes)}
+        if found != ADRS_BROKEN_EXPECTED:
+            failures.append("adr: broken findings wrong, missing %s, extra %s"
+                            % (sorted(ADRS_BROKEN_EXPECTED - found),
+                               sorted(found - ADRS_BROKEN_EXPECTED)))
+
     if failures:
         for failure in failures:
             print("SELF-TEST FAIL: " + failure)
@@ -2447,7 +2789,7 @@ def main(argv):
                         help="accept all current findings into the baseline")
     parser.add_argument("--only", metavar="ID",
                         help="report only findings about this UC-XXX, "
-                             "TC-XXX, or BP-XXX")
+                             "TC-XXX, BP-XXX, or ADR-XXX")
     parser.add_argument("--trace", action="store_true",
                         help="print the requirement -> use case -> business "
                              "rule -> test case matrix instead of findings")
