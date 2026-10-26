@@ -112,7 +112,8 @@ your-project/
 `/spec-review` checks these files against each other. Its bundled script `spec_lint.py` needs only Python and can
 run as a blocking CI gate; accepted findings of an existing project go into `docs/.spec-lint-baseline.json`.
 `/spec-review report` writes `docs/spec-report.html`: requirement coverage, the traceability matrix, and the findings
-on one page.
+on one page. `/spec-review impact FR-014` lists what a change to a requirement, business rule, or use case affects
+before anything is edited, with the trace behind each hit and the skills that carry the change through.
 
 Review and commit these files with the source code. Layer and stack plugins consume the entity model, use case
 specifications, and test journeys without depending on which coding agent produced them.

@@ -20,7 +20,12 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
   process → use cases) and a requirement coverage summary (linked → in a test case → Verified, with the gaps by
   id) from the same parsed documents instead of findings; `--report` prints all of it plus the findings as one
   self-contained HTML page. The script writes no file; `/spec-review report [ID]` redirects `--report` into
-  `docs/spec-report.html`.
+  `docs/spec-report.html`. `--impact ID...` walks the same graph transitively from a change (requirement → use
+  cases → citing, including, and extending use cases → processes → test cases, requirement → ADRs) and prints each
+  affected element with its shortest trace. Edges back up (use case → its requirements, process → its use cases,
+  ADR → its requirements) count only from a changed element; otherwise one change would reach the whole catalog.
+  `/spec-review impact` adds the untraced, advisory part and the hand-offs, so change impact analysis needs no skill
+  and no parser of its own.
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are

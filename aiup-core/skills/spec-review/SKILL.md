@@ -2,19 +2,20 @@
 name: spec-review
 description: >
   Reviews the specification artifacts in docs/ (requirements, use case
-  diagram, use case specifications, test cases, BPMN process models, entity
-  model, glossary, ADRs) against each other in two parts: a deterministic
-  lint that can block a build (missing specifications, duplicate or
-  unresolved ids, uncovered FRs, unmapped BPMN activities, actor mismatches,
-  weak words, glossary synonyms, blocking questions, unlinked ADRs) and
-  an advisory semantic review (contradicting or duplicated rules, wrong level
-  of detail, missing alternative flows, untestable rules, ambiguity, actors,
-  NFRs and constraints, entity model consistency), plus a traceability matrix
-  and requirement coverage on request, also as HTML. Use when the user asks to
-  "review the specs", "lint the use cases", "find contradictions", "is this use
-  case ready", "show the traceability matrix", "which use cases realize
-  FR-014", "are all requirements covered", "HTML report", or wants a spec
-  quality gate in CI. It never edits a specification.
+  diagram, use cases, test cases, BPMN models, entity model, glossary, ADRs)
+  against each other: a deterministic lint that can block a build (missing
+  specifications, duplicate or unresolved ids, uncovered FRs, unmapped BPMN
+  activities, actor mismatches, weak words, glossary synonyms, blocking
+  questions, unlinked ADRs) and an advisory semantic review (contradicting or
+  duplicated rules, wrong level of detail, missing alternative flows,
+  untestable rules, ambiguity), plus a traceability matrix, requirement
+  coverage, an HTML report, and a change impact analysis of what a changed
+  requirement, rule, or use case affects. Use when the user asks to "review
+  the specs", "lint the use cases", "find contradictions", "is this use case
+  ready", "show the traceability matrix", "which use cases realize FR-014",
+  "are all requirements covered", "HTML report", "what does FR-014
+  affect", "impact analysis", or wants a CI spec gate. It never
+  edits a specification.
 ---
 
 <!--
@@ -32,6 +33,10 @@ nothing for the whole project — and report every finding with severity, file, 
 
 When $ARGUMENTS starts with `report` (`/spec-review report`, `/spec-review report UC-001`), or the user asks for the
 HTML report, write the report page instead and skip the review: see [HTML Report](#html-report).
+
+When $ARGUMENTS starts with `impact` (`/spec-review impact FR-014`, `/spec-review impact "UC-003 BR-002"`), or the
+user asks what a planned change affects, analyze the change instead and skip the review: see
+[Change Impact](#change-impact).
 
 The review has two parts, and keeping them apart is the point of this skill:
 
@@ -202,6 +207,72 @@ prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only 
 wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill writes no file. Whether code
 and tests realize the use cases is `/use-case-coverage` (or `/coverage-check` in aiup-vaadin-jooq and aiup-angular-jpa),
 not this matrix.
+
+## Change Impact
+
+A change to an existing product starts with the question of what it touches. Answer it before anything is edited,
+in two parts like the review:
+
+1. **Traced impact (deterministic).** Resolve each id like step 1 of the workflow — a requirement (`FR-`, `NFR-`,
+   `C-`), a use case, a business rule (`UC-003 BR-002`), a test case, a process, or an ADR — and run:
+
+   ```bash
+   python3 scripts/spec_lint.py --docs docs --impact FR-014
+   python3 scripts/spec_lint.py --docs docs --impact "UC-003 BR-002" NFR-004
+   ```
+
+   It lists every element that traces to the change, `direct` (one step) or `indirect`, with the reason and the
+   shortest trace (`FR-014 → UC-003 → UC-003 BR-002 → UC-007`): the use cases that link a changed requirement, cite
+   a changed rule, include a changed use case or extend it; the processes with an activity for it; the test cases
+   that chain it or follow such a process; the ADRs that serve a changed requirement; and the requirements a changed
+   use case realizes. Below come the open questions on what is affected and the **Gaps**: a changed requirement
+   nothing links, an affected use case in no test case. An unknown id exits 2; list the near matches and ask. Show
+   the output verbatim.
+2. **Untraced impact (advisory).** The graph sees only ids. Read the changed elements and search `docs/` for what
+   touches the same subject without a link: steps and rules of other use cases that state the same condition in
+   other words, glossary terms, entity model attributes and constraints, NFRs and constraints the changed behavior
+   has to keep. List each as `possibly affected`, with file, line, element id, and one phrase why — never as
+   certain, and never merged into the traced table.
+
+Then write the assessment:
+
+```markdown
+## Change Impact: FR-014 Guests under 18 need a guardian
+
+**Change:** <what changes and why, in the user's words>
+
+### Traced (spec_lint.py --impact)
+
+<output, verbatim>
+
+### Possibly affected (no link)
+
+| File:Line                            | Element       | Why                                              |
+|--------------------------------------|---------------|--------------------------------------------------|
+| docs/use_cases/UC-009-check-in.md:22 | UC-009 step 4 | Checks the guest's age without citing UC-003 BR-002 |
+
+### Decisions needed
+
+- <a question only the product owner, the business analyst, or the architect can answer, and who>
+
+### Next
+
+1. `/use-case-spec UC-003` — change BR-002; then UC-007, which cites it
+2. ...
+```
+
+- **Decisions needed** lists what the documents cannot settle: scope, which behavior existing users keep, a quality
+  an NFR or constraint guarantees. Name who decides; a technical choice is the architect's, recorded with
+  `/architecture-decision`. Offer `/open-questions` for a decision nobody can make now. Do not invent business,
+  regulatory, or operational risks the documents do not support; when there are none, leave the section out.
+- **Next** orders the hand-offs from the source of the change outward: `/requirements` for a requirement, then
+  `/use-case-spec UC-XXX` for each affected use case (`/use-case-diagram` when include or extend changes),
+  `/business-process BP-XXX`, `/test-case TC-XXX`, `/architecture-decision ADR-XXX`. For every affected use case at
+  `Implemented`, `Tested`, or `Done`, add `/use-case-implement UC-XXX` and `/use-case-test UC-XXX` (with a combined
+  stack plugin its `/implement` and test skills) and `/use-case-coverage UC-XXX` (or `/coverage-check UC-XXX`) before
+  it may claim `Tested` again.
+- Run nothing and edit nothing: the assessment is the deliverable, and the user picks the steps. Which code and tests
+  realize the affected use cases is `/use-case-coverage`, not this analysis.
 
 ## HTML Report
 

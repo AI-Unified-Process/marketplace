@@ -212,6 +212,11 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
   covered": active requirements linked to a use case, with every linking use case in a test case, and Verified.
   `/spec-review report` puts the counts, the coverage, the matrix, and the lint findings on one HTML page,
   `docs/spec-report.html`; `/spec-review report FR-014` narrows it to one id.
+- **Change impact:** `spec_lint.py --impact FR-014` (skill `/spec-review impact FR-014`) walks the same chain the
+  other way, transitively, before a change is made: which use cases link the requirement, cite a changed rule, or
+  include or extend a changed use case, which processes, test cases, and ADRs follow, each with the trace that
+  explains it, and where the trace has gaps. The skill adds what touches the change without an id link and the
+  hand-offs, from `/use-case-spec` to `/use-case-coverage`.
 - **Code and tests:** `/coverage-check UC-XXX` (in `aiup-vaadin-jooq` and `aiup-angular-jpa`) maps every step, flow,
   rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
   above first. In a layered stack, `/use-case-coverage UC-XXX` in `aiup-core` does the same with the markers of
