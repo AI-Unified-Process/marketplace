@@ -1,0 +1,1 @@
+{ "description": "Close an acceptance round: set the one accepted use case to Done, keep the use case with a failed row and the one held by a blocking question, and name both fixes for the failure", "include": ["./inputs"] }

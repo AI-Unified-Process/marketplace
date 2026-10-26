@@ -204,6 +204,23 @@ plugins, `/use-case-coverage UC-001` in `aiup-core` runs the same audit with the
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).
 
+## 6. Hand over
+
+When use cases reach `Tested`, let the people who asked for them accept them, and document the release for its
+users:
+
+```text
+/acceptance-protocol release-1.4     # the checklist for the acceptance round
+/acceptance-protocol close release-1.4
+/user-guide
+/release-notes 1.4.0
+```
+
+`/acceptance-protocol` writes a checklist per test case into `docs/acceptance/release-1.4.md`; the testers fill in
+Result, Tester, Date, and Remark. `close` proposes `Done` for every use case whose rows all passed and sets it after
+you confirm. `/user-guide` writes `docs/user_guide/` from the use cases that are `Tested` or `Done`, and
+`/release-notes 1.4.0` adds the use cases that reached `Done` since the last Git tag to `docs/release-notes.md`.
+
 ## Existing projects
 
 When a project already contains working code but lacks AI Unified Process documents, start with:

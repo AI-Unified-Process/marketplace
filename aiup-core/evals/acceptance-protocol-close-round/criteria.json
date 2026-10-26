@@ -1,0 +1,31 @@
+{
+  "context": "Tests /acceptance-protocol close on docs/acceptance/release-1.0.md. All three use cases are Tested. UC-001 has only passed rows and no blocking question, so it is the one use case ready for Done. UC-002 has only passed rows, but OQ-002 on UC-002 BR-002 is a blocking question that is still Open. UC-003 has a failed row (A1: an empty table instead of the message 'No one has registered yet.'). The product owner confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Accepted use case set to Done",
+      "description": "docs/use_cases/UC-001-manage-workshops.md has **Status:** Done, and nothing else in that file changed",
+      "max_score": 20
+    },
+    {
+      "name": "Blocked and failed use cases stay",
+      "description": "UC-002 and UC-003 still have **Status:** Tested, and the agent names the reasons: OQ-002 (blocking, Open) for UC-002, the failed A1 row for UC-003",
+      "max_score": 20
+    },
+    {
+      "name": "Both fixes named for the failure",
+      "description": "For the failed UC-003 A1 row the agent names both possibilities without choosing one: the system is wrong (fix with /use-case-implement or the stack's /implement, plus a test via /use-case-test), or the stakeholder wants something other than the specification (change via /use-case-spec UC-003)",
+      "max_score": 20
+    },
+    {
+      "name": "Protocol closed",
+      "description": "docs/acceptance/release-1.0.md has **Status:** Closed, a **Closed:** 2026-10-27 line, and an **Accepted:** line naming UC-001 only; no recorded result, tester, date, or remark in its tables was changed",
+      "max_score": 20
+    },
+    {
+      "name": "Nothing else changed",
+      "description": "docs/open-questions.md, docs/test_cases/TC-001-run-a-workshop.md (including its Status), docs/requirements.md, and the use case files of UC-002 and UC-003 are unchanged",
+      "max_score": 20
+    }
+  ]
+}

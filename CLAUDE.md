@@ -38,7 +38,10 @@ marketplace/
 │       ├── use-case-test/        # runs the layer test skills from the integration layer up
 │       ├── use-case-coverage/    # front door to uc-coverage-layered
 │       ├── test-case-implement/  # runs the E2E test skill for a TC-* journey
-│       └── test-case-coverage/   # front door to uc-coverage-layered for a TC-* journey
+│       ├── test-case-coverage/   # front door to uc-coverage-layered for a TC-* journey
+│       ├── user-guide/           # docs/user_guide/ from the use cases at Tested or Done
+│       ├── acceptance-protocol/  # docs/acceptance/<round>.md; the only skill that sets a use case to Done
+│       └── release-notes/        # docs/release-notes.md: use cases that reached Done since a Git tag
 ├── aiup-vaadin-jooq/             # Vaadin + jOOQ technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
@@ -218,6 +221,9 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/use-case-coverage`   | Audit a UC-* in a layered stack (uc-coverage-layered agent)          |
 | Construction | `/test-case-implement` | Automate a TC-* journey by running the E2E test skill                |
 | Construction | `/test-case-coverage`  | Audit a TC-* journey in a layered stack (uc-coverage-layered agent)  |
+| Transition   | `/user-guide`          | Write the user guide from the use cases that are Tested or Done      |
+| Transition   | `/acceptance-protocol` | Protocol a user acceptance round; set accepted use cases to Done     |
+| Transition   | `/release-notes`       | Business release notes: use cases that reached Done since a Git tag  |
 
 #### Spec review
 
@@ -282,6 +288,20 @@ Why: [`docs/design/modules.md`](docs/design/modules.md).
   glob.
 
 Why: [`docs/design/business-process.md`](docs/design/business-process.md).
+
+#### Transition
+
+- Three skills, not one `/transition` with modes; the Studio runs none of them (`LEFT_OUT`).
+- All three derive from the specifications and never edit one, with one exception: `/acceptance-protocol close`
+  sets `**Status:** Done`, and only on a use case at `Tested` whose rows all passed and that no blocking question
+  holds, after the user confirms. No other skill sets `Done`.
+- `/user-guide` covers `Tested` and `Done` (`all` adds `Approved` and `Implemented`); a section it writes carries a
+  `<!-- UC-XXX -->` anchor, and a section without one belongs to the team and is kept.
+- `/release-notes` reads the use cases at a Git ref with `git show`, matches them by id, and never takes content from
+  commit messages.
+- The templates `chapter.md`, `protocol.md`, and `release.md` are not copyright-stamped.
+
+Why: [`docs/design/transition.md`](docs/design/transition.md).
 
 ### Layer plugins (Java)
 

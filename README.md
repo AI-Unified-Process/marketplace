@@ -106,7 +106,8 @@ off to it rather than running it themselves, so a construction round stays fast.
 access together in one slice, which horizontal layer plugins would split apart.
 
 `aiup-core` itself ships `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`,
-`/test-case`, `/spec-review`, `/open-questions`, `/architecture-decision`, `/reverse-engineer`, and, for layer plugins, `/stack`,
+`/test-case`, `/spec-review`, `/open-questions`, `/architecture-decision`, `/reverse-engineer`, for the Transition phase
+`/user-guide`, `/acceptance-protocol`, and `/release-notes`, and, for layer plugins, `/stack`,
 `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, and `/test-case-coverage`.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,
@@ -179,6 +180,10 @@ docs/
 ├── test_cases/
 │   └── TC-001-*.md                   # /test-case
 ├── open-questions.md                 # /open-questions and the skills that find a gap (created with the first question)
+├── user_guide/                       # /user-guide: one chapter per actor, from the accepted use cases
+├── acceptance/
+│   └── release-1.4.md                # /acceptance-protocol: one protocol per acceptance round
+├── release-notes.md                  # /release-notes: what reached Done, newest version first
 └── architecture/
     ├── stack.md                      # /stack (layer plugins only): layer → technology → skill → test skill
     └── decisions/

@@ -35,6 +35,7 @@ aiup-core/skills/use-case-spec/references/example.md
 aiup-core/skills/use-case-spec/references/use-case.md
 aiup-core/skills/test-case/references/example.md
 aiup-core/skills/test-case/references/test-case.md
+aiup-core/skills/acceptance-protocol/references/protocol.md
 '
 
 files=()

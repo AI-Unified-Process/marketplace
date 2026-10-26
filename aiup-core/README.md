@@ -33,12 +33,16 @@ reviewable files under `docs/`.
 | Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests               |
 | Construction | [`/test-case-implement`](skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey                         |
 | Construction | [`/test-case-coverage`](skills/test-case-coverage/SKILL.md)   | Read-only coverage matrix of a test case journey                             |
+| Transition   | [`/user-guide`](skills/user-guide/SKILL.md)                   | `docs/user_guide/`: one chapter per actor from the accepted use cases        |
+| Transition   | [`/acceptance-protocol`](skills/acceptance-protocol/SKILL.md) | `docs/acceptance/<round>.md`: the acceptance checklist; accepted use cases go to `Done` |
+| Transition   | [`/release-notes`](skills/release-notes/SKILL.md)             | `docs/release-notes.md`: the use cases that reached `Done` since a Git tag   |
 
 ```text
-Inception          Elaboration                             Construction
-─────────────     ───────────────────────────────────     ──────────────────────────────────────────────────
-/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case
-                                                    └→  /business-process  ↗
+Inception          Elaboration                             Construction                            Transition
+─────────────     ───────────────────────────────────     ───────────────────────────────────     ─────────────────────
+/requirements  →  /entity-model  →  /use-case-diagram  →  /use-case-spec  →  /test-case        →  /acceptance-protocol
+                                                    └→  /business-process  ↗                      /user-guide
+                                                                                                  /release-notes
 ```
 
 The last six skills drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,

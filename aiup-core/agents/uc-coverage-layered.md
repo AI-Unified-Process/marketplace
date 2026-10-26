@@ -309,8 +309,9 @@ Report rules:
 - When everything is covered, say so in one line and keep the matrix as the proof.
 - Suggest the next `**Status:**` value using the specification's own vocabulary — `Approved`,
   `Implemented` (implementation complete), `Tested` (implementation and tests complete and the
-  caller confirmed the suite passes), `Done` — and always as a suggestion. Never suggest `Tested`
-  or `Done` while a blocking question of the **Open questions** section is `Open` or `Answered`;
+  caller confirmed the suite passes) — always as a suggestion. Never suggest `Done`: acceptance is not
+  visible in code, so a use case at `Tested` goes on with `/acceptance-protocol`. Never suggest `Tested`
+  while a blocking question of the **Open questions** section is `Open` or `Answered`;
   name it as the reason, with `/open-questions answer OQ-XXX` or, when it is answered, the skill
   that puts the answer into the specification (`/use-case-spec UC-XXX`, `/requirements`).
 - List the questions of Step 1 under **Open questions** — id, element, blocking, status, the

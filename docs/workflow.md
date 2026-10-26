@@ -13,11 +13,11 @@ versioned, human-reviewable artifacts that every later step consumes.
 ## Workflow
 
 ```text
-Inception        Elaboration                                Construction
-─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────
-/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage
-                                 ↘ /business-process        /test-case     → automate the journey
-                                   (optional)
+Inception        Elaboration                                Construction                                        Transition
+─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────    ──────────────────────
+/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
+                                 ↘ /business-process        /test-case     → automate the journey            /user-guide
+                                   (optional)                                                                /release-notes
                  /spec-review at any point
 ```
 
@@ -58,6 +58,9 @@ of files under `docs/`, not a specific coding agent.
 | `docs/open-questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
 | `docs/architecture/decisions/ADR-*.md` | `/architecture-decision`, the team       | `/stack`, `/use-case-implement`, and the layer skills follow the `Accepted` ones; `/spec-review`             |
 | `docs/architecture/decision-rights.md` | The team; `/stack` creates it on request | `/use-case-implement`, `/use-case-test`, and the layer skills; optional, the defaults apply without it   |
+| `docs/user_guide/*.md`             | `/user-guide`; the team adds sections    | The people who use the system                                                                                |
+| `docs/acceptance/<round>.md`       | `/acceptance-protocol`; testers fill in the results | `/acceptance-protocol close`, which sets accepted use cases to `Done`                             |
+| `docs/release-notes.md`            | `/release-notes`                         | The people who use the system                                                                                |
 
 For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
 
@@ -233,6 +236,7 @@ cases do not count.
 `spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
 differ, and `/requirements` sets the stored value when it updates the catalog. A use case moves by
 `/coverage-check` (aiup-vaadin-jooq and aiup-angular-jpa) or `/use-case-coverage` (layer plugins); its requirements follow.
+It reaches `Done` only through `/acceptance-protocol close` (see [Transition](#transition)).
 
 ### Open questions
 
@@ -396,6 +400,34 @@ Each agent's marker table is specific to its stack's conventions. In a layered s
 equivalent yet; the same check can be run by hand from [the agent definition](../aiup-vaadin-jooq/agents/uc-coverage.md)
 with the markers of the stack in question.
 
+## Transition
+
+Transition hands the system to the people who use it. Its three skills read the specifications and write documents
+for those people; none of them changes a specification, except that closing an acceptance round sets `Done`.
+
+```text
+/acceptance-protocol release-1.4                     # checklist per TC-* (and per uncovered UC-*) at Tested
+/acceptance-protocol record release-1.4 TC-002 "steps 1-5 pass" P. Meier
+/acceptance-protocol close release-1.4               # proposes Done; sets it after you confirm
+/user-guide                                          # docs/user_guide/, one chapter per actor
+/release-notes 1.4.0 since v1.3.0                    # use cases that reached Done since the tag
+```
+
+- **Acceptance.** `/acceptance-protocol` writes `docs/acceptance/<round>.md` with one checklist per test case — a row
+  per Flow row and validation — and one per use case that no test case covers, each row with Result (`Pass`,
+  `Fail`, `Blocked`), Tester, Date, and Remark. Testers fill it in by hand or report to the skill. `close` proposes
+  `Done` for every use case at `Tested` whose rows all passed and that no blocking open question holds, and sets it
+  after you confirm. For a failed row it names both fixes — the code (`/use-case-implement`, `/use-case-test`) or the
+  specification (`/use-case-spec`) — and leaves the choice to you.
+- **User guide.** `/user-guide` writes `docs/user_guide/` from the use cases at `Tested` or `Done`: one chapter per
+  primary actor (per module in a split project), one task section per use case in the second person and the
+  glossary's terms. Each section it writes carries a `<!-- UC-XXX -->` anchor; sections without one are the team's
+  and survive every re-run. It never invents screens or labels the specification does not name.
+- **Release notes.** `/release-notes` compares the use cases at a Git tag with the working tree and adds a version to
+  `docs/release-notes.md`: use cases that reached `Done` (new), accepted use cases whose behaviour changed, use cases
+  that became `Obsolete` (removed), and requirements that reached `Verified`. The content comes from the
+  specifications, never from commit messages.
+
 ## Core skills
 
 | Skill                                                                      | Result                                                                  |
@@ -415,6 +447,9 @@ with the markers of the stack in question.
 | [`/use-case-coverage`](../aiup-core/skills/use-case-coverage/SKILL.md)     | Coverage matrix of a use case in a layered stack                        |
 | [`/test-case-implement`](../aiup-core/skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey in a layered stack |
 | [`/test-case-coverage`](../aiup-core/skills/test-case-coverage/SKILL.md)   | Coverage matrix of a test case journey in a layered stack               |
+| [`/user-guide`](../aiup-core/skills/user-guide/SKILL.md)                   | `docs/user_guide/`: the user guide from the accepted use cases          |
+| [`/acceptance-protocol`](../aiup-core/skills/acceptance-protocol/SKILL.md) | `docs/acceptance/<round>.md`; accepted use cases set to `Done`          |
+| [`/release-notes`](../aiup-core/skills/release-notes/SKILL.md)             | `docs/release-notes.md`: what reached `Done` since a Git tag            |
 
 The linked `SKILL.md` files are the authoritative descriptions of inputs, outputs, and behavior.
 
