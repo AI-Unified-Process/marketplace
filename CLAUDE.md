@@ -102,7 +102,7 @@ marketplace/
 ├── aiup-vaadin/                  # Layer plugin: UI + E2E (vaadin-flow-ui, hilla-ui, *-test, vaadin-e2e-test)
 ├── aiup-angular/                 # Layer plugin: UI (angular-ui, angular-ui-test)
 ├── aiup-playwright/              # Layer plugin: E2E for TypeScript (playwright-e2e-test)
-├── docs/                         # User guides, installation docs, and reusable templates
+├── docs/                         # User guides, installation docs, design notes (docs/design/), and templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
 ├── scripts/                      # Validation and publication helpers
 └── README.md
@@ -131,82 +131,26 @@ A project uses either layer plugins or one combined stack plugin, never both.
 
 #### Layered construction
 
-The design answers "REST API + Spring Boot + jOOQ, no UI": a combined plugin cannot express it, a combination of
-layer plugins can. Rules that hold it together:
+A combination of layer plugins expresses what a combined plugin cannot ("REST API + Spring Boot + jOOQ, no UI").
+Rules a change must keep:
 
-- **The stack file is the contract, at one path.** It is always `docs/architecture/stack.md`, and no skill reads
-  any other file for the layers — one path keeps every reader free of a layout rule. `/stack` writes the Layers
-  table (layer → technology → skill → test skill → location), the Integration layer table, module layout, API
-  contract, and commands from the template `aiup-core/skills/stack/references/stack.md` (not copyright-stamped; it
-  lands in the user's project).
-- **The stack file is AIUP's, the architecture documentation is the team's.** The stack file does not depend on
-  how a team documents its architecture — arc42, C4, Kruchten's 4+1, a single `docs/architecture.md`, or nothing —
-  and looks the same next to each. `/stack` reads those documents and the ADRs (globs `docs/**/{decisions,adr,adrs}/*.md`) as input,
-  and never writes, moves, or indexes them. It owns the `## Layers` and `## Markers` sections and writes
-  `## Module layout`, `## API contract`, and `## Commands` only when their heading is missing, so a team can refine
-  them. aiup-core 3.0.0 made the file the Development View of a 4+1 folder (`docs/architecture/development.md`,
-  written by `/architecture`); that tied an AIUP contract to one documentation style and was dropped in 3.1.0.
-  `/stack` renames a `development.md` it finds without a `stack.md` and fixes the links to it — the only place that
-  still knows the old path; `docs/migration.md` describes the update.
-- **Layer plugins describe themselves.** Each build skill, and each E2E test skill, ships `references/layer.md` with
-  its catalog row (plugin, layer, skill, test skill, Tests run, Detect); `/stack` discovers installed skills by
-  listing `*/references/layer.md` in the project's skill folders (`.claude/skills/`, `.github/skills/`, … — hidden,
-  Tessl-symlinked, and gitignored in managed mode, so a default `rg` or a `find` without `-L` misses them), in
-  `~/.claude/skills/`, and, for Claude Code marketplace installs, under each `installPath` of
-  `~/.claude/plugins/installed_plugins.json` minus plugins disabled in `enabledPlugins` (fallback: the sibling
-  plugins in the marketplace cache, newest version). Where the host lists the session's skills, that list decides
-  what is installed — the cache also holds uninstalled plugins. So a layer plugin works without a core release.
-- **Teams bring their own layer skills.** A skill with a `references/layer.md` is discovered like ours; one without
-  it counts when the user names it for a layer, and `/stack` asks for its Tests run. The contract a layer
-  skill fulfils is `docs/guides/layer-skill.md`; keep it in step with the skeleton below. The Plugins table of
-  `references/layer-catalog.md` only names plugins to install; `scripts/check-layer-catalog.sh` keeps it and the
-  `layer.md` files in step. A new layer plugin adds a `layer.md` and, when it lives in this marketplace, its row.
-- **A use case names its entry layers.** The optional `**Layers:**` line of a use case (German `**Schichten:**`)
-  lists `UI`, `API`, or `Service` alone; without it, every entry layer of the project offers the use case. It is
-  what makes a Vaadin Flow UI plus a public REST API expressible: `/use-case-implement` builds only the named entry
-  layers, `/use-case-test` tests in the topmost in-process layer the use case uses, and the coverage agent reports no
-  gap for a layer the line leaves out. The line names entry points, never a technology; `validate_use_case.py` warns
-  on any other value.
-- **Shared rules live once, in core.** `/use-case-implement` owns inputs, status check, reconcile-existing,
-  specification gaps, and the BR marker rule; `/use-case-test` owns "If tests already exist", "When a Test Fails", and
-  "Which Layer Tests What". Layer skills and `/test-case-implement` refer to these by slash command and must not copy
-  them back; `/test-case-coverage` likewise applies the presentation rules of `/use-case-coverage`.
-- **Bottom-up with a Handover.** Layers run migration → persistence → service → API → UI (→ E2E for tests). Each layer
-  skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on.
-- **One integration layer per entry point.** Start at the entry layer a use case is offered through: when its test
-  skill runs in process against the real database (the catalog's Tests run column: `vaadin-flow-ui-test`,
-  `spring-rest-test`, `spring-service-test`, the persistence tests), that is the integration layer; when it mocks the
-  backend (`hilla-ui-test`, `angular-ui-test`), it is the layer that entry layer calls. So Flow → UI, Hilla → Service,
-  Angular → API, REST → API, Service → Service; an API next to Flow or Hilla never moves the UI's integration layer,
-  because the UI does not call it. The rule lives once, in the section "Tests run, and the integration layer" of
-  `layer-catalog.md`. Only `/stack` applies it and records the result as the Integration layer table under
-  the Layers table — one row per entry layer, in the order UI, API, Service; a use case is tested in the first row
-  its `**Layers:**` line names, or the first row without the line. `/use-case-test`, the coverage agent, and the
-  layer test skills look the layer up and never derive it; a missing table is a hand-off to `/stack`.
-  `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
-  layers below, with three exceptions: a second in-process entry layer the use case is offered through (the API next
-  to a Vaadin Flow or Hilla UI) gets its own contract tests by default, even below the integration layer; tests that
-  already exist there are reconciled; and units the integration layer's skill reports it cannot reach are tested in
-  their own layer. A use case is tested once, there — every business rule with its allowed and rejected case
-  included — not once per layer. The coverage agent reads the table so a skipped layer is never a gap, but reports a
-  missing contract test of such a second entry layer as one.
-- **The E2E scope is the team's decision, recorded once.** With an E2E layer, `/stack` writes the line
-  `**E2E scope:** Use cases and test cases` or `Test cases only` under the Integration layer table — asked in its
-  question round, or taken from an ADR that decides it. `/use-case-test` runs the E2E test skill for a use case only
-  under the first value (a missing line counts as it); the coverage agent then reports a missing use case browser
-  test as a gap, under `Test cases only` it does not. TC-* journeys are in scope under either value. The rule lives
-  in the section "E2E scope" of `layer-catalog.md`.
-- **One `@UseCase` shape.** The Java layer test skills each carry the annotation, since no skill can link another's
-  file; `scripts/check-usecase-annotation.sh` fails CI when one of them has no copy or the copies differ. A Java
-  journey carries `@TestCase(id, useCases)` on the class, `useCases` being the use cases its Flow table links;
-  only `/vaadin-e2e-test` writes it, so its one copy needs no check until a second Java E2E skill exists.
-- **Markers come from the project.** Each layer skill ships `references/markers.md` and keeps its own rows in the
-  Markers table of `docs/architecture/stack.md` in sync; `agents/uc-coverage-layered.md` reads that table instead of a fixed
-  marker list, so core needs no knowledge of any stack's markers and no glob into another plugin.
-- **Names never collide with combined stacks.** Core's orchestrators are `use-case-<step>` and `test-case-<step>`
-  names, next to `/use-case-spec` and `/test-case`, and layer skills are `<technology>-<layer>[-test]`, so old and
-  new plugins can coexist on Tessl (`tessl__<skill>`). The names are final: they stay when the combined stacks are gone.
-- **Layer skills run standalone too** (`/jooq-persistence UC-001`), reading the same inputs and implementing one layer.
+- The stack file is always `docs/architecture/stack.md`; no skill reads any other file for the layers (only `/stack`
+  still knows the 3.0.0 `development.md`, to rename it). `/stack` owns `## Layers` and `## Markers` and never writes
+  the team's architecture documentation.
+- Each build skill, and each E2E test skill, ships `references/layer.md` and `references/markers.md`. A new layer
+  plugin of this marketplace also adds its row to the Plugins table of `layer-catalog.md`
+  (`scripts/check-layer-catalog.sh`). The contract is `docs/guides/layer-skill.md`; keep it in step with the
+  skeleton under *Layer plugins (Java)*.
+- Shared rules live once, in `/use-case-implement` and `/use-case-test`; layer skills and the `test-case-*` skills
+  refer to them by slash command and never copy them.
+- Layers run bottom-up, and every layer skill ends with a **Handover** block.
+- The integration layer and the E2E scope rules live once, in `layer-catalog.md`. Only `/stack` derives them; every
+  other skill looks them up in the stack file.
+- The Java `@UseCase` copies stay identical (`scripts/check-usecase-annotation.sh`).
+- The `**Layers:**` line names `UI`, `API`, or `Service`, never a technology.
+- Names are final: `use-case-<step>`, `test-case-<step>`, `<technology>-<layer>[-test]`.
+
+Why: [`docs/design/layered-construction.md`](docs/design/layered-construction.md).
 
 ### Marketplace Configuration
 
@@ -277,161 +221,67 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 
 #### Spec review
 
-`/spec-review` has two parts, and the split is the design:
+- Only `skills/spec-review/scripts/spec_lint.py` (Python standard library only) may fail a build; the semantic
+  review's findings are `warning`/`info` and never block.
+- `spec_lint.py` imports `validate_use_case.py` and `bpmn_paths.py` by glob from the sibling skill folders; keep one
+  copy of each script.
+- The skill is read-only: it writes only `docs/spec-report.html`, on `/spec-review report`.
+- Business rules stay numbered per use case; there is no syntax for entity references in use cases.
 
-- **Part A, `skills/spec-review/scripts/spec_lint.py`** — deterministic, Python standard library only, the only
-  part that may fail a build. It checks what connects the documents (diagram ↔ spec files, unique ids, resolving
-  `FR-`/`UC-xxx BR-yyy`/TC/process references, FR coverage, requirement status against the linking use cases, BPMN
-  activity mapping, a use case's actors against the diagram's links, copied rule text, weak words, glossary Avoid
-  synonyms) plus a baseline file (`docs/.spec-lint-baseline.json`) for brownfield projects.
-  It does **not** copy the per-file checks or the BPMN parser: it imports `validate_use_case.py` and
-  `bpmn_paths.py` at runtime from the sibling skill folders by glob (`*use-case-spec/`, `*test-case/`, host prefixes
-  allowed) and reports an INFO finding when one is missing. Keep one copy of each script.
-  `--trace` prints the traceability matrix (requirement → use case → business rules → test cases, test case →
-  process → use cases) and a requirement coverage summary (linked → in a test case → Verified, with the gaps by
-  id) from the same parsed documents instead of findings; `--report` prints all of it plus the findings as one
-  self-contained HTML page. The script writes no file; `/spec-review report [ID]` redirects `--report` into
-  `docs/spec-report.html`.
-- **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
-  reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
-  preconditions, actors, missing NFR and constraint references). Its findings are
-  `warning`/`info` only and never block.
-- **Converges.** The verdict states **Ready for Approved** (lint exit 0, no open semantic warning); `info`
-  findings get no fix command, and a repeated run in the same conversation reports what changed since the last one
-  instead of a fresh list. Without this, every fix is followed by a review that finds the next thing.
-- **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; the
-  only file it writes is the generated page `docs/spec-report.html`, on `/spec-review report` alone. It
-  hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
-  `docs/`; comparing specifications with code is `/use-case-coverage` (layer plugins) or a combined stack's
-  `/coverage-check`.
-
-The glossary (`docs/glossary.md`, columns `Term | Definition | Avoid`) is written by `/requirements` from the
-template `skills/requirements/references/glossary.md`; `/use-case-spec` and `/reverse-engineer` use its terms.
-Business rules stay numbered per use case, so "defined once" means no rule text copied between use cases, not
-globally unique rule ids. There is deliberately no syntax for entity references in use cases; entity consistency
-is judged from context in Part B.
+Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
 #### Open questions
 
-`docs/open-questions.md` (#41) is the persistent log of specification gaps: one `## OQ-XXX: <question>` section per
-question with `**Element:**`, `**Raised by:**`, `**Blocking:**`, and `**Status:**` lines (`Open` → `Answered` →
-`Resolved`, or `Withdrawn`). It supersedes the part of #29 that rejected a central status file, because it is a log
-of questions, not a second maturity record: the `**Status:**` line of the use case stays the truth, and a question
-ends at `Resolved` once its answer is in the specification.
+- `/open-questions` owns the format of `docs/open-questions.md`; every other skill refers to it by glob. The file is
+  created lazily, never empty.
+- Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve or
+  withdraw; `/spec-review` and the coverage agents only read.
+- `OQ_BLOCKING` is WARN at `Approved`/`Implemented` and ERROR at `Tested`/`Done`.
+- The Studio never runs `/open-questions` (`LEFT_OUT`).
 
-- **One owner of the format.** `/open-questions` defines the section, the Element forms (`UC-003 step 4`,
-  `UC-003 A2`, `UC-003 BR-002`, `FR-014`, `Glossary: <Term>`, `Entity: BOOK.isbn`), and the statuses; every other
-  skill says "in the format of `/open-questions`" and locates it by glob. Its template
-  `references/open-questions.md` is not copyright-stamped. Sections, not a table: a table cannot hold the readings
-  and multi-sentence answers, and its diffs and merge conflicts are unreadable.
-- **One file, created lazily.** No file per module (the element names the module), and nobody creates an empty
-  one; a missing file means no questions for every reader.
-- **Who writes what.** Construction and test skills (`/use-case-implement`, the layer skills, `/use-case-test`,
-  the combined `/implement`) append sections only — the one exception to "never edit `docs/`" besides the Markers
-  table. A part left out is `Blocking: Yes`; a reading the user chose is recorded `Answered`. `/use-case-spec`,
-  `/requirements`, and `/entity-model` resolve the answered questions on their own elements, ask the open ones in
-  their clarify step, record every default they took without asking as `Open` with an `**Assumed:**` line, and
-  withdraw questions whose element they removed. Only they set `Resolved`. `/spec-review` and the coverage agents
-  read the file and never write it.
-- **Blocking.** An `Open` or `Answered` blocking question blocks the use case its element names and every use case
-  linking the requirement it names. `spec_lint.py` reports `OQ_BLOCKING` as WARN at `Approved`/`Implemented` and
-  as ERROR at `Tested`/`Done` — an ERROR at `Approved` would fail CI as soon as implementation records a gap, and no
-  skill may change the status line. `/use-case-implement` asks before going ahead; when no one can answer, it
-  leaves out only the elements the question is about. The coverage agents never suggest `Tested` past one.
-- **History is not checked.** `DANGLING_REF` covers only `Open` and `Answered` questions; `Resolved` and
-  `Withdrawn` ones may point to renumbered elements.
-- The Studio never runs `/open-questions` (`LEFT_OUT` of `check-generate-catalogue.sh`); `spec_lint.py --report`
-  lists the open questions instead.
+Why: [`docs/design/open-questions.md`](docs/design/open-questions.md).
 
 #### Architecture decisions
 
-`/architecture-decision` (#39) writes architecture decision records — the first skill that writes into the team's
-architecture documentation, and only on the user's request. The name follows the core's full-word nouns
-(`requirements`, `open-questions`); `/adr` would be the only abbreviation and a generic name that clashes with other
-ADR skills on Tessl or in `~/.claude/skills`. Its description triggers on "ADR".
+- Every ADR links an `NFR-` or `C-` on its `**Requirements:**` line; without one, `/architecture-decision` writes
+  nothing and hands off to `/requirements`.
+- Readers glob `docs/**/{decisions,adr,adrs}/*.md`; the default folder is `docs/architecture/decisions/`. The template
+  `references/adr.md` is not copyright-stamped.
+- Only `Accepted` ADRs are followed, and an accepted ADR is never rewritten. No other skill writes an ADR; `/stack`,
+  `/use-case-implement`, and `/requirements` hand off.
+- `ADR_UNLINKED`, `ADR_STALE`, `ADR_INVALID` stay WARN. The Studio never runs the skill (`LEFT_OUT`).
 
-- **Every ADR links an `NFR-` or a `C-`** in a `**Requirements:**` line (the label of the use cases, so
-  `spec_lint.py` reads it the same way). A decision is justified by a quality or a constraint, never by a feature
-  alone; the link is what makes a changed NFR or constraint show the decisions to revisit. When the reason is not in
-  the requirements, the skill writes nothing and hands off to `/requirements` first, instead of recording an ADR
-  without one.
-- **One owner of the format, the team's format kept.** Template `references/adr.md` (not copyright-stamped):
-  `**Status:**`, `**Date:**`, `**Requirements:**`, `**Supersedes:**`/`**Superseded by:**`, Context, Decision,
-  Consequences. A project with MADR or Nygard ADRs keeps its format and gets the lines added. Location: the existing
-  ADR folder, default `docs/architecture/decisions/` — plural and in full words like `use_cases/`, `test_cases/`,
-  and `processes/`; every reader also finds `adr/` and `adrs/` (adr-tools, Log4brains, existing projects) and globs
-  `docs/**/{decisions,adr,adrs}/*.md`.
-- **Statuses** `Proposed`, `Accepted`, `Superseded`, `Deprecated`, `Rejected`. Only `Accepted` ADRs are followed by
-  `/stack`, `/use-case-implement`, and (through it) the layer skills, and by the `/implement` skills of the combined
-  stack plugins and `/angular-ui`, which read the three folders themselves; an accepted ADR is never rewritten, a
-  changed decision supersedes it.
-- **No other skill writes an ADR; three hand off.** `/stack` names the choices of its question round that no
-  constraint or accepted ADR fixed, `/use-case-implement` names an answered architecture question (new dependency,
-  deviation from an ADR), `/requirements` names the ADRs linking an NFR or constraint it changed. The "never changes
-  an ADR" rule of the decision rights stays.
-- **Lint.** `DANGLING_REF` and `DUPLICATE_ID` cover ADR ids and their links (ERROR); `ADR_UNLINKED`, `ADR_STALE`,
-  `ADR_INVALID` are WARN only, because the ADRs are the team's documents and a brownfield ADR without the line must
-  not fail CI. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
-  ADRs and broken constraints.
-- The Studio never runs it (`LEFT_OUT`): a decision needs a person.
+Why: [`docs/design/architecture-decisions.md`](docs/design/architecture-decisions.md).
 
 #### Decision rights
 
-`/use-case-implement` (#42) sorts the decisions of construction into three sections — *The agent decides alone*,
-*The agent asks first*, *The agent never* — so the line between a specification gap and an implementation choice is
-explicit and a team can move it.
+- `skills/use-case-implement/references/decision-rights.md` is both the defaults and the template (not
+  copyright-stamped). Only the section "Decision Rights" of `/use-case-implement` says how they apply; other skills
+  refer to it.
+- A project file replaces the first two sections; the "never" section only grows.
+- Only specification questions go to `docs/open-questions.md`.
+- The combined stack plugins keep their own `/implement` rules.
 
-- **Defaults and template in one file.** `skills/use-case-implement/references/decision-rights.md` is both the
-  defaults and the template `/stack` copies to `docs/architecture/decision-rights.md` on request; it is not
-  copyright-stamped. The section "Decision Rights" of `/use-case-implement` owns how the rules apply; the layer
-  skills, `/use-case-test`, and `/test-case-implement` refer to it and must not copy it.
-- **The project file replaces the first two sections; "never" only grows.** A rule of the defaults' "never"
-  section applies whatever the project file says, and the skill reports a project file that moved one. The file
-  sorts decisions; it grants nothing outside the task. A decision no rule names is asked first.
-- **Only specification questions go to `docs/open-questions.md`.** A new library or dependency and a deviation from
-  an ADR are asked first too, but they have no element of the specification, so they are asked and listed in the
-  report's **Open questions** without an `OQ-` id. Adding an `Architecture:` element form was rejected: the answer
-  lands in an ADR or the build, never in the specification, so the question could never be `Resolved`.
-- **Decisions are reported.** The implementation and test reports list the decisions taken alone under
-  **Decisions** — the choices a reviewer would otherwise dig out of the diff, not every name.
-- The combined stack plugins are not part of it: they keep their own `/implement` rules.
+Why: [`docs/design/decision-rights.md`](docs/design/decision-rights.md).
 
 #### Modules in the diagrams
 
-`/reverse-engineer` splits the use case diagram and the entity model by module when a project has more than about
-12 use cases or 15 entities and the code shows at least two modules (build modules, feature packages, database
-schemas, or foreign key clusters). Each module gets **a folder or file of its own**, so a team reviews its part
-without scrolling through the others: `docs/use_cases.puml` keeps only the `@startuml Modules` overview (actors and
-`package`s, no use cases), and each module has `docs/use_cases/<slug>/` with its `use_cases.puml` and the
-specifications of its use cases; `docs/entity_model.md` keeps only the `## Modules` table, and each module has
-`docs/entity_model/<slug>.md` in the normal entity model format. The slug (module name in kebab-case) is the
-`package` alias, the folder, and the file name. The two entry files stay at their paths, and every reader finds a
-specification with the recursive glob `docs/use_cases/**/UC-XXX-*.md` — a change to how specifications are located
-is made in all readers (skills, the coverage agents, `spec_lint.py`) together, as defined in `docs/workflow.md`.
-An earlier design kept the split inside the two fixed files as `@startuml` blocks and `## Module:` sections; it was
-dropped because one file per system stays unreadable at that size. `spec_lint.py` checks the layout
-(`MODULE_UNKNOWN`, `MODULE_MISMATCH`, `DUPLICATE_ID` across module files). `/use-case-diagram`, `/use-case-spec`,
-and `/entity-model` keep an existing split and place new use cases and entities in it, but never introduce one; the
-`MODULAR` fixture of `spec_lint.py --self-test` holds the format.
+- Only `/reverse-engineer` introduces a split by module; the other skills keep an existing split.
+- `docs/use_cases.puml` and `docs/entity_model.md` stay at their paths; each module gets `docs/use_cases/<slug>/` and
+  `docs/entity_model/<slug>.md`.
+- Every reader finds a specification with `docs/use_cases/**/UC-XXX-*.md`; a change to how specifications are located
+  is made in all readers together. The `MODULAR` fixture of `spec_lint.py --self-test` holds the format.
+
+Why: [`docs/design/modules.md`](docs/design/modules.md).
 
 #### Business process
 
-`/business-process` writes BPMN 2.0 models to `docs/processes/BP-XXX-<name>.bpmn` from the requirements and the use
-case diagram; `/business-process BP-XXX` updates one. It needs no use case specification, so it can run right after
-`/use-case-diagram`; specifications are read only when they exist, and `/test-case BP-XXX` is what needs them. The
-`BP-XXX` id is both the file prefix and the `id` of the `<bpmn:process>` element, so it survives a round trip through
-a modeler; `spec_lint.py` reports `BP_ID_MISMATCH`, `DUPLICATE_ID`, and (for hand-drawn legacy models) `BP_NO_ID`,
-and `/test-case BP-XXX` cites it in the `**Process:**` line.
+- The `BP-XXX` id is the file prefix and the `id` of the `<bpmn:process>` element.
+- Every activity is a use case of the diagram; otherwise the skill writes nothing and hands off to `/use-case-diagram`.
+- The agent never writes diagram coordinates; `bpmn_layout.py` does, and imports `parse_xml` from `bpmn_paths.py` by
+  glob.
 
-- **Every activity is a use case of the diagram.** When the flow needs a step without one, the skill writes nothing
-  and hands off to `/use-case-diagram`. `spec_lint.py` matches activities against the diagram as well as the
-  specifications (`BPMN_UNMAPPED`); a diagram use case still lacking a specification is `SPEC_MISSING`. The process
-  sits above the use cases; it never replaces them, and a use case never carries a process model (see the goal-level
-  check in `/use-case-diagram`).
-- **The agent never writes diagram coordinates.** `skills/business-process/scripts/bpmn_layout.py` (standard library
-  only) adds DI for elements without a shape and keeps every existing shape byte for byte, so a layout tidied in a
-  modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in
-  the sibling test-case skill folder by glob, like `spec_lint.py` — keep one copy of the parser.
+Why: [`docs/design/business-process.md`](docs/design/business-process.md).
 
 ### Layer plugins (Java)
 
@@ -495,43 +345,18 @@ skills hand off to `/coverage-check UC-XXX`.
 
 #### Coverage sub-agent
 
-`aiup-vaadin-jooq/agents/uc-coverage.md` defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
-whether a `UC-XXX` or `TC-XXX` is completely implemented and completely tested. It derives coverage units from the specification
-(every main success scenario step, alternative flow, business rule, precondition, postcondition, and every NFR and
-constraint on its `**Requirements:**` line — for a test case, the
-Flow rows, Validation items, and Postconditions), maps each onto code and tests by id marker (`@UseCase`,
-`UC<id>…Test`, `UC<id>…ServiceTest`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`) or domain vocabulary, and
-reports gaps, drift, and the justified next `**Status:**` value.
+`agents/uc-coverage.md` (combined stacks) and `aiup-core/agents/uc-coverage-layered.md` are read-only auditors.
+Rules a change must keep:
 
-Three constraints hold this design together and must survive edits:
+- The agent never writes: its tools are `Read, Grep, Glob`.
+- No `file:line`, no `Covered`.
+- `/coverage-check` and `/use-case-coverage` stay thin front doors: parse, delegate, present, hand off. They never
+  close the gaps they report and never restate the agent's checklist.
+- Drift: the agent names both fixes and recommends neither; the front door asks which side is right.
+- Construction skills hand off to the audit; they never run the agent themselves.
+- Each combined stack has its own agent copy with its own markers.
 
-- **It never writes.** Its `tools:` list is `Read, Grep, Glob`, and the DO NOT section forbids editing files —
-  including the specification's `**Status:**` line. A reviewer that fixes its own findings hides them.
-- **No `file:line`, no `Covered`.** The evidence rule is what keeps the audit from rubber-stamping the code the
-  calling agent has just written.
-- **`/coverage-check` stays thin and read-only.** `skills/coverage-check/SKILL.md` is only a front door to the agent:
-  argument parsing, delegation, faithful presentation, hand-off. It must never gain the ability to close the gaps it
-  reports, and it must not restate the agent's checklist — that is how it would grow into the combined
-  implement-and-test skill this design deliberately avoids.
-- **Drift is the user's call, and reruns are compared.** The agent names both fixes for every drift item
-  (specification or code) and recommends neither; `/coverage-check` asks which side is right before offering a
-  command, and on a rerun in the same conversation flags verdicts that changed without a change to the
-  specification or the evidence files. Guessing the side of a drift fix is what bounced work between
-  `/spec-review` and `/coverage-check`.
-
-All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
-step that **hands off** — they never run the agent themselves. The four test skills hand off to
-`/coverage-check UC-XXX`; `/implement` and `/implement-hilla` hand off to their test skill (`/browserless-test`,
-`/hilla-test`), so the audit runs once, after the tests exist. This is deliberate: every
-audit re-reads the specification and the code base and takes minutes, and running it inside `/implement`, again
-inside the test skill, and once more in `/coverage-check` turned a two-minute construction round into thirty. One
-explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested`. A new
-construction skill needs the same hand-off section; do not add an in-skill audit back.
-
-The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
-plugin that wants the same check needs its own copy with its own markers (`aiup-angular-jpa` has one). Sub-agents are Claude Code-specific and are
-not part of the Agent Plugins standard; `/coverage-check` therefore also tells hosts without sub-agents to run the
-checklist from the agent file directly.
+Why: [`docs/design/coverage-agent.md`](docs/design/coverage-agent.md).
 
 ### NestJS / Next.js (stack-specific)
 
@@ -585,6 +410,8 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
 - Start with `README.md` for the marketplace overview and `docs/getting-started.md` for the user workflow.
 - `docs/workflow.md` defines artifacts and traceability; `docs/installation/` contains host-specific setup guides.
 - Skill behavior is authoritative in each `skills/*/SKILL.md`.
+- `docs/design/` explains why the rules in this file are what they are, one page per topic. A change to a rule
+  updates the short version here and the design page together.
 - Maintainers changing the shared generation workflows must read
   [`docs/generate-workflow-versioning.md`](docs/generate-workflow-versioning.md) before moving the `v1` tag.
   `scripts/check-generate-catalogue.sh` keeps the catalogue, the skill lists, and the plugin selection of
