@@ -144,8 +144,10 @@ layer plugins can. Rules that hold it together:
   and looks the same next to each. `/stack` reads those documents and the ADRs (globs `docs/**/{decisions,adr,adrs}/*.md`) as input,
   and never writes, moves, or indexes them. It owns the `## Layers` and `## Markers` sections and writes
   `## Module layout`, `## API contract`, and `## Commands` only when their heading is missing, so a team can refine
-  them. An earlier design made the file the Development View of a 4+1 folder; that tied an AIUP contract to one
-  documentation style and was dropped before release.
+  them. aiup-core 3.0.0 made the file the Development View of a 4+1 folder (`docs/architecture/development.md`,
+  written by `/architecture`); that tied an AIUP contract to one documentation style and was dropped in 3.1.0.
+  `/stack` renames a `development.md` it finds without a `stack.md` and fixes the links to it — the only place that
+  still knows the old path; `docs/migration.md` describes the update.
 - **Layer plugins describe themselves.** Each build skill, and each E2E test skill, ships `references/layer.md` with
   its catalog row (plugin, layer, skill, test skill, Tests run, Detect); `/stack` discovers installed skills by
   listing `*/references/layer.md` in the project's skill folders (`.claude/skills/`, `.github/skills/`, … — hidden,

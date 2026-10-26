@@ -125,6 +125,15 @@ there:
 Tests the combined plugin wrote below the new integration layer stay valid. `/use-case-test` runs their layer only to
 reconcile them when the specification changes; it writes no new tests there unless a run names the layer.
 
+## Coming from aiup-core 3.0.0
+
+`aiup-core` 3.0.0 recorded the layers in `docs/architecture/development.md`, the Development View of a 4+1 folder,
+written by `/architecture`. Since 3.1.0 the skill is `/stack`, the stack file is `docs/architecture/stack.md`, and
+no construction skill reads `development.md` any more. Run `/stack` once after the update: it renames
+`development.md` to `stack.md`, keeps its tables and the text the team wrote into it, changes the links to the old
+path, and asks no layer question the file already answers. The `docs/architecture/README.md` index 3.0.0 wrote stays
+as the team's document.
+
 ## What the layer plugins add
 
 - A REST API without a UI, or any other combination from the catalog, which a combined plugin could not express.

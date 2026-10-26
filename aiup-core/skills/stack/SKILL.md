@@ -115,10 +115,32 @@ their heading is missing or they hold only the template's placeholder, and touch
 Locate a section by its heading. A missing `## Layers` goes before the first `##` heading after the header block;
 a missing `## Markers` goes at the end of the file.
 
+## A Development View of aiup-core 3.0.0
+
+`aiup-core` 3.0.0 wrote the same record to `docs/architecture/development.md`, as the Development View of a 4+1
+folder, with a `docs/architecture/README.md` index of the views. When `docs/architecture/development.md` exists and
+`docs/architecture/stack.md` does not, that file is this project's stack file under its old name. Do not ask the
+layer questions again, and do not write a second file next to it:
+
+- Rename it to `docs/architecture/stack.md` (`git mv` in a Git repository, so the history follows), then run the
+  workflow on it as an update: its Layers, Markers, Module layout, API contract, and Commands sections are kept
+  like those of any existing stack file, and a one-line `**Integration layer:**` becomes the table (step 1).
+- Prose the team wrote into it — 3.0.0 offered to move a `docs/architecture.md` into the view — is the team's and
+  stays where it is in the renamed file, like any other text outside the sections this skill owns.
+- Change every link to the old path to the new one: grep `docs/`, `README.md`, `CLAUDE.md`, and `AGENTS.md` for
+  `development.md`, and change only the links that point to `docs/architecture/development.md`. The
+  `docs/architecture/README.md` index 3.0.0 wrote is the team's document now: change its link, nothing else, and do
+  not delete it.
+- Say in the report that the file was renamed and which links changed.
+
+When both files exist, `docs/architecture/stack.md` is the stack file; leave `development.md` alone and say in the
+report that it is no longer read.
+
 ## Workflow
 
 1. **Read what is there.** Read `docs/architecture/stack.md` when it exists — this run updates it, never
-   replaces it. A file without the Integration layer table — or with the one-line `**Integration layer:** <layer>`
+   replaces it. A `docs/architecture/development.md` without a `stack.md` is renamed first (see *A Development View
+   of aiup-core 3.0.0*). A file without the Integration layer table — or with the one-line `**Integration layer:** <layer>`
    of an earlier version, a value and no table under the label — gets the table in this run. Read `docs/requirements.md` for constraints (`C-*`) that fix a
    technology, the architecture decision records when the project has them (glob `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`), and the
    team's architecture documentation when there is some — `docs/architecture.md`, the other files under
@@ -200,7 +222,9 @@ deleting the existing ones is the team's call. Changing it to `Use cases and tes
 
 - Do not write code, build files, or dependencies. Adding a library to `pom.xml` is the layer skill's work.
 - Do not write any file other than `docs/architecture/stack.md`, and `docs/architecture/decision-rights.md` when
-  the user asks for it and it does not exist yet. The team's architecture documentation — arc42,
+  the user asks for it and it does not exist yet. The one exception is the rename of a 3.0.0
+  `docs/architecture/development.md` and the links to it (see *A Development View of aiup-core 3.0.0*). The team's
+  architecture documentation — arc42,
   C4, 4+1 views, `docs/architecture.md`, an index, an ADR — is read, never written, moved, or linked into. Do not
   rewrite prose of the stack file outside the sections this skill owns.
 - Do not invent a layer skill: a Skill or Test skill column names only a skill that is installed, from a
