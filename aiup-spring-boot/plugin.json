@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-spring-boot",
-  "version": "3.2.1",
-  "description": "AI Unified Process Spring Boot layers - service and REST API implementation and tests",
+  "version": "3.3.0",
+  "description": "AI Unified Process Spring Boot layers - service, REST API, and external system client implementation and tests",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

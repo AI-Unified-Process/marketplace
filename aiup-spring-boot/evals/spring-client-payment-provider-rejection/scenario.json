@@ -1,0 +1,6 @@
+{
+  "description": "Build the client layer for a payment provider from its OpenAPI contract, with the rejection and unavailability flows of the use case",
+  "include": [
+    "./inputs"
+  ]
+}

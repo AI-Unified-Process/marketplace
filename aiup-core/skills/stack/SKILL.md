@@ -2,14 +2,15 @@
 name: stack
 description: >
   Records the technical layers of a project in docs/architecture/stack.md, the AI Unified Process stack file: which
-  technology and which layer skill builds and tests the migration, persistence, service, API, UI, and end-to-end
-  layers, the integration layer, the module layout, the API contract, and the build and test commands. Detects the
+  technology and which layer skill builds and tests the migration, persistence, client, service, API, UI, and
+  end-to-end layers, the integration layer, the external systems, the module layout, the API contract, and the
+  commands. Detects the
   stack from pom.xml, package.json, and the source tree, discovers the installed layer skills from their
-  references/layer.md, and asks in a new project. Works next to any architecture documentation (arc42, C4, 4+1, or
-  none), which it reads but never writes. /use-case-implement, /use-case-test, and /use-case-coverage read the file.
+  references/layer.md, and asks in a new project. Works next to any architecture documentation (arc42, C4, 4+1),
+  which it reads but never writes. The construction skills read the file.
   Use when the user asks to "set up the stack", "choose the stack", "which layers does this project have", "we only
-  need a REST API", "add a UI layer", "add a REST API next to the UI", or mentions layer plugins or a technology
-  stack for construction. Also trigger when /use-case-implement or /use-case-test finds no stack file.
+  need a REST API", "add a UI layer", "we call a payment provider", or mentions layer plugins, an external system,
+  or a technology stack for construction. Also trigger when /use-case-implement or /use-case-test finds no stack file.
 ---
 
 <!--
@@ -102,12 +103,13 @@ the skill is not installed — name the plugin to install instead (step 6).
 ## What this skill owns in the stack file
 
 The stack file is this skill's, but a team may refine it: a module layout in its own words, an API contract it
-agreed on, a note under a table. This skill owns `## Layers` and `## Markers`, writes `## Module layout`, `## API contract`, and `## Commands` only while
+agreed on, a note under a table. This skill owns `## Layers`, `## External systems`, and `## Markers`, writes `## Module layout`, `## API contract`, and `## Commands` only while
 their heading is missing or they hold only the template's placeholder, and touches nothing else:
 
 | Section                                | On every run                                                                                       |
 |----------------------------------------|----------------------------------------------------------------------------------------------------|
 | `## Layers`                            | Created or updated: the table, the Integration layer table, the E2E scope line, the explanation, and any decision prose under the heading |
+| `## External systems`                  | Created with a Client layer; a row added for each system the user confirms, existing rows kept and changed only on request; dropped when the Client layer is `–` and no row remains |
 | `## Markers`                           | Created when missing with the `All` row; existing rows are kept, the layer skills own theirs       |
 | `## Module layout`, `## API contract`, `## Commands` | Written when the heading is missing, or when the section still holds only the template's placeholder comment or a table with empty cells. A section with content of its own is the team's, whatever it says; leave it |
 | Header, everything else                | Written on a new file only, from the template. Never rewritten                                     |
@@ -152,6 +154,11 @@ report that it is no longer read.
    evidence for either — ask. The evidence is in: `pom.xml` or `build.gradle(.kts)` dependencies, `package.json`, `angular.json`, and the
    source tree. Detect the module layout too — a flat single module, or a Maven/Gradle reactor with modules per
    hexagonal concern (`*-domain`, `*-application`, `*-persistence`, `*-api`, `*-app`) — and the root package.
+   **External systems:** collect the names on the `**Secondary Actors:**` lines of the use cases
+   (`docs/use_cases/**/UC-*.md`) that are not actors of the use case diagram's people, the existing clients in the
+   code (an adapter calling another host, a producer to another team's topic), and the OpenAPI and AsyncAPI files
+   that are not the project's own API (`docs/api/external/`, a provider's file elsewhere under `docs/`). They are
+   candidates, not rows.
 3. **Ask what cannot be detected**, in one round, before writing. A new project needs a technology per layer; ask
    with the layers as questions and the discovered skills (and, for a layer none covers, the catalog's plugins) as
    options, and offer `–` for a layer the project does not need. Ask about a layer even in an existing project when
@@ -159,14 +166,19 @@ report that it is no longer read.
    requirements that fixes a technology is not a question: name it as the reason. With an E2E layer and no
    `**E2E scope:**` line yet, ask in the same round whether browser tests cover use cases and test cases, or test
    cases only (the catalog's section "E2E scope"); an `Accepted` ADR that already decides it is not a question
-   either — name it as the reason. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
+   either — name it as the reason. With candidates for external systems, ask in the same round which of them our
+   system calls, under the name the use cases use, and where each one's contract is; a candidate the user does not
+   confirm is a person or a role and gets no row. A confirmed system without a contract gets `–` in the Contract
+   column. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
    not a question either; name the document. The decision rights are not a question: without
    `docs/architecture/decision-rights.md`, `/use-case-implement` uses its defaults, and the report says so (step 7).
 4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular) needs an
    API layer, and a use case offered through its UI is built and tested in that API layer too. A server-side UI (Vaadin Flow) and a Hilla UI call the service directly and need none; an API layer
    next to them is valid and serves other clients — then say that a use case offered through only one of the two
    names it in its `**Layers:**` line (`/use-case-spec`). A layer skill needs the layer below it unless the catalog
-   says otherwise. Report a combination that does not fit and ask.
+   says otherwise. Report a combination that does not fit and ask. External systems need a Client layer, and a
+   Client layer needs at least one external system: a confirmed system with Client `–` is a question (which
+   technology calls it), not a silent row.
 5. **Write the stack file** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
@@ -176,6 +188,8 @@ report that it is no longer read.
      start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read
      Tests run from each `layer.md`; for a team's own skill without one, use the answer to step 3. You are the only
      skill that derives this table; the others look it up;
+   - with a Client layer, the `## External systems` table of the catalog's section "External systems": System,
+     Contract, Location, one row per confirmed system, existing rows kept;
    - with an E2E layer, the `**E2E scope:**` line under the Integration layer table — `Use cases and test cases` or
      `Test cases only`, from step 3. Keep an existing line unless the user asks to change it; without an E2E layer,
      drop the line;
@@ -212,6 +226,11 @@ the service): rewrite the Integration layer table and say that `/use-case-test` 
 API layer next to a Vaadin Flow or Hilla UI adds the API row and moves no other; say that the use cases offered
 through only one of the two need a `**Layers:**` line, and that `/use-case-implement` otherwise builds both for every
 use case.
+
+Adding an external system — a new use case names a payment provider — adds its row to External systems, and a
+Client layer when the project had none. Say that `/use-case-implement` builds its adapter the next time a use case
+that calls it is implemented. A row's Contract changing (a new version of the provider's API) changes nothing that
+was built: say that the use cases calling the system need `/use-case-implement` again.
 
 Changing the E2E scope to `Test cases only` leaves the existing use case browser tests in place: say that
 `/use-case-test` writes no new ones and the coverage agent no longer counts a missing one as a gap, and that

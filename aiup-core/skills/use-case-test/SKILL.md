@@ -39,7 +39,7 @@ test; name the file it lives in and leave the value out.
 | Token                                                     | Meaning                                                            |
 |-----------------------------------------------------------|--------------------------------------------------------------------|
 | `UC-001`, `UC001`, or a path to a specification            | the use case — normalise to `UC-001`                               |
-| `persistence`, `service`, `api`, `ui`, `e2e`               | run exactly the named layers, in bottom-up order — also a layer below the integration layer, which otherwise gets no tests, and `e2e` under an E2E scope of `Test cases only`; never an entry layer the `**Layers:**` line leaves out |
+| `persistence`, `client`, `service`, `api`, `ui`, `e2e`     | run exactly the named layers, in bottom-up order — also a layer below the integration layer, which otherwise gets no tests, and `e2e` under an E2E scope of `Test cases only`; never an entry layer the `**Layers:**` line leaves out |
 | a diff after the path                                     | the specification change the tests must follow — see below         |
 
 ## If Tests for This Use Case Already Exist
@@ -120,6 +120,10 @@ layers run. In short:
   tests what an actor sees, and only under the E2E scope `Use cases and test cases` (or no line).
 - An entry layer the `**Layers:**` line names that the Layers table marks `–` is a contradiction: stop and ask
   whether `/stack` adds the layer or `/use-case-spec UC-XXX` corrects the line.
+- **No test reaches an external system.** For a use case whose secondary actors match the `## External systems`
+  table, the client test skill runs first: it tests the adapters against a stub of the contract and writes a fake of
+  each port. The integration layer puts the fake in place of the adapter and drives through it every alternative
+  flow the external system causes; E2E runs against a stub the test profile points the application at.
 
 ## Running a Test Skill
 
@@ -148,12 +152,13 @@ whether the E2E scope leaves out the E2E layer.
 5. Decide which layers run. With layer tokens in the arguments, exactly the named layers run. Without, the
    default set runs: the use case's integration layer, every layer above it that the use case uses, every other
    entry layer the use case uses whose test skill runs in process (the API next to a Vaadin Flow or Hilla UI), and
-   every lower layer with existing tests — but not the E2E layer when the E2E scope reads `Test cases only`, also
+   every lower layer with existing tests, and the client layer when a secondary actor of the use case matches the
+   `## External systems` table — but not the E2E layer when the E2E scope reads `Test cases only`, also
    not to reconcile existing browser tests of the use case (leave them as they are). Either way skip every layer marked `–`, every row whose Test skill is `–` (the
    migration layer has none), and every entry layer the `**Layers:**` line leaves out. When a test skill of a layer
    that runs is not installed (by the rules of `/stack`, section "The layer skills"), name the plugin that
    ships it — or, for a skill no catalog plugin ships, say the team's skill is missing — and stop; a skill missing for a layer that does not
-   run is no reason to stop. Run the test skills bottom-up: persistence, service, API, UI, E2E. When the
+   run is no reason to stop. Run the test skills bottom-up: persistence, client, service, API, UI, E2E. When the
    integration layer's test skill reports units it cannot reach, run the test skill of the layer that owns them for
    those units afterwards.
 6. Run the test commands from `docs/architecture/stack.md` for the layers that ran. On a failure, apply "When a Test

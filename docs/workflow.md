@@ -28,7 +28,7 @@ Inception        Elaboration                                Construction        
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
   `aiup-playwright`): one plugin per technology, combined per project. `/stack` records the combination in
   `docs/architecture/stack.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
-  names (`/test-case-implement` and `/test-case-coverage` the E2E layer of a journey) — `/use-case-implement` bottom-up (migration, persistence, service, API, UI), `/use-case-test` from the integration
+  names (`/test-case-implement` and `/test-case-coverage` the E2E layer of a journey) — `/use-case-implement` bottom-up (migration, persistence, client, service, API, UI), `/use-case-test` from the integration
   layer up: from the entry layer the use case is offered through, the first layer whose tests run in process
   against the real database (the Browserless tests of a Vaadin Flow UI, the API tests of a REST service), so the layers below it need no tests of their own.
   `/stack` derives it once per entry layer and records it in the Integration layer table; an API next to a
@@ -36,7 +36,10 @@ Inception        Elaboration                                Construction        
   alone, and gets contract tests of its own for the use cases it offers next to the UI. A REST service without a UI uses the same skills
   without the UI layer. The `**E2E scope:**` line under the Integration layer table says whether `/use-case-test`
   adds a browser test per use case (`Use cases and test cases`, the default) or leaves browser tests to the TC-*
-  journeys (`Test cases only`).
+  journeys (`Test cases only`). An external system a use case calls as a secondary actor is listed under
+  `## External systems` in the stack file with its contract (OpenAPI or AsyncAPI); the Client layer builds a port and
+  an adapter for it, and no test reaches it: the client tests run against a stub of the contract, the other layers
+  against a fake of the port.
 
 The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:
 the combined plugins do not read `docs/architecture/stack.md`. The boundary between `aiup-core` and construction is the set
@@ -178,7 +181,8 @@ every rule they implement. In the combined stack plugins the use case id itself 
 production code: Blazor feature folders carry it (`Features/UC001_<Feature>/`), the other stacks name views,
 services, and handlers after the use case's domain, and the tests carry the id. The layer plugins do mark it, because
 a layered use case spreads over classes named after entities: `UC-XXX` in the Javadoc of the service method
-(`/spring-service`) and the REST handler method (`/spring-rest`), in the class Javadoc of a Vaadin Flow view
+(`/spring-service`), the REST handler method (`/spring-rest`), and the port method of an external system
+(`/spring-client`), in the class Javadoc of a Vaadin Flow view
 (`/** UC-XXX <Use Case Name>. */`) and a Hilla endpoint, in the file comment of a Hilla view, and as
 `/** UC-XXX: <Use Case Name> */` above an Angular page component.
 
@@ -191,7 +195,7 @@ layer test skills; in a layered project the Markers table of `docs/architecture/
 | `aiup-angular-jpa`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test`; `describe('UC-001: …')` in `UC-001-<slug>.spec.ts`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                                                                                                              | `TC-001-<slug>.spec.ts` with `test.describe('TC-001: …')`, `{ tag: '@TC-001' }`, `test.step('Step <n>: …')` |
 | `aiup-blazor-dotnet` | `[UseCase("UC-001", Scenario = "A1: …", BusinessRules = ["BR-003"])]` in `UC001<Name>Test`, `UC001<Name>HandlerTest`, and `UC001<Name>IT`                                                                                                                                                                                                                                                          | `TC001<Name>IT` with `[Fact(DisplayName = "TC-001: …")]` and `// Step <n>: <name>` per Flow row             |
 | `aiup-nestjs-nextjs` | `describe('UC-001: …')` with `it('A1: …')` and `it('BR-003: …')`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                                                                                                                                                                                                | `test.describe('TC-001: …')` with `{ tag: '@TC-001' }` and `test.step('Step <n>: …')`                       |
-| Layer plugins        | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"}, requirements = {"NFR-002"})` in `UC001<Name>RepositoryTest`, `UC001<Name>ServiceTest`, `UC001<Name>ApiTest` (`…ApiIT` live), `UC001<Name>EndpointTest` (Hilla), and `UC001<Name>Test` (Vaadin Flow); `describe('UC-001: …')` in `UC-001-<slug>.test.tsx` (Hilla) or `UC-001-<slug>.spec.ts` (Angular); E2E `UC001<Name>IT`, or `UC-001-<slug>.spec.ts` in the E2E folder with `{ tag: '@UC-001' }` (Playwright) | `TC001<Name>IT` with `@TestCase(id = "TC-001", useCases = {"UC-001", …})` (Vaadin) or `TC-001-<slug>.spec.ts` (Playwright) with `// Step <n>: <name>` per Flow row |
+| Layer plugins        | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"}, requirements = {"NFR-002"})` in `UC001<Name>RepositoryTest`, `<System>ClientTest`, `UC001<Name>ServiceTest`, `UC001<Name>ApiTest` (`…ApiIT` live), `UC001<Name>EndpointTest` (Hilla), and `UC001<Name>Test` (Vaadin Flow); `describe('UC-001: …')` in `UC-001-<slug>.test.tsx` (Hilla) or `UC-001-<slug>.spec.ts` (Angular); E2E `UC001<Name>IT`, or `UC-001-<slug>.spec.ts` in the E2E folder with `{ tag: '@UC-001' }` (Playwright) | `TC001<Name>IT` with `@TestCase(id = "TC-001", useCases = {"UC-001", …})` (Vaadin) or `TC-001-<slug>.spec.ts` (Playwright) with `// Step <n>: <name>` per Flow row |
 
 **Layered stacks.** A project that combines layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
 `aiup-vaadin`, `aiup-angular`, `aiup-playwright`) instead of one combined stack plugin records its layers in

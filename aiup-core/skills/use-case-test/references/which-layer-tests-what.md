@@ -51,6 +51,30 @@ there — not once per layer:
 When a layer has nothing of its own to test for this use case, its test skill says so instead of writing a test that
 repeats another layer.
 
+## External systems
+
+A use case whose `**Secondary Actors:**` line names a system of the `## External systems` table of the stack file
+calls that system through the Client layer (the layer catalog of `/stack`, "External systems"). No test of any
+layer reaches the real system, a provider's sandbox included:
+
+- **The client layer runs first**, whatever the integration layer is — an exception to "the layers below it are not
+  run", because the integration layer replaces the adapter and so cannot exercise it. Its test skill tests each
+  adapter against a stub of the contract: the request on the wire, the mapping, and each alternative flow the
+  system causes. It also writes a fake of each port and names it in its hand-off.
+- **The integration layer** puts that fake in place of the adapter — `@TestBean` or the project's equivalent in an
+  in-process test — and tests the use case as always: the main success scenario with the fake's normal answer,
+  every alternative flow the external system causes by switching the fake to it (`declineNext()`), and the
+  postconditions, including what was sent (`charges()`). Never a stub server, never a real call. A test skill that
+  finds no fake for a mapped system reports it and runs the client test skill's fake first, rather than mocking the
+  adapter ad hoc.
+- **A UI above the integration layer that mocks the backend** sees only the service's exceptions and needs nothing
+  of its own.
+- **E2E** runs the started application, so the fake cannot reach it: the application runs with a test profile
+  whose `<system>.base-url` points at a stub server (WireMock, or what the project uses) that answers the main
+  success scenario. A flow the external system causes is left to the integration layer unless the project's stub
+  can be switched per test. When the project has no such profile, the E2E test skill says so and leaves out the
+  steps that call the system; it never points the application at the real one.
+
 ## The use case's own integration layer
 
 The `**Layers:**` line of the use case (German `**Schichten:**`) names the

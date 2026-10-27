@@ -74,6 +74,10 @@ Run directly, read the use case, the linked requirement rows, `docs/entity_model
 `docs/glossary.md` when present, and `docs/architecture/stack.md`; then test this layer only and say that
 `/use-case-test UC-XXX` runs all test layers.
 
+An external system the use case calls (its secondary actor in the `## External systems` table of the stack file) is
+replaced by the fake of its port that the client test skill wrote, put in place with `@TestBean`, as "Which Layer
+Tests What" of `/use-case-test` says for external systems; an alternative flow it causes is tested through that fake.
+
 ## Test Class Naming and `@UseCase` Annotation
 
 Browserless tests are **use case tests**: each test class verifies exactly one use case

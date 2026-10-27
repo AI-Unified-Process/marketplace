@@ -6,8 +6,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Backend module layout
 
-This is a lookup used by the Spring Boot layer skills (`/spring-service`, `/spring-rest`, `/spring-service-test`,
-`/spring-rest-test`) and by `/jpa-persistence` before writing any code. It is the only copy; the other skills
+This is a lookup used by the Spring Boot layer skills (`/spring-service`, `/spring-rest`, `/spring-client`,
+`/spring-service-test`, `/spring-rest-test`, `/spring-client-test`) and by `/jpa-persistence` before writing any code. It is the only copy; the other skills
 locate it by a glob for `**/*spring-service/references/module-layout.md`. Its job is to answer one question: **does this Spring Boot backend
 split hexagonal layers across separate Maven or Gradle modules, or is it one flat module?** Generating flat-style
 code into a hexagonal reactor (or the other way round) breaks the project's module dependency direction — for
@@ -41,6 +41,7 @@ a substring is not enough, so `main` does not match `domain`, `app` not `applica
 | Business/Application | `business`, `application`, `service`, `core`                      |
 | Persistence adapter  | `postgres`, `jpa`, `jooq`, `persistence`, `db`, `infra*`, `data`  |
 | Inbound adapter      | `api`, `web`, `rest`, `controller`, `ui`                          |
+| Client adapter       | `client`, `integration`, `gateway`, `external`                    |
 | Composition root     | `app`, `bootstrap`, `launcher`, `main`, `runner`                  |
 
 When a module matches several buckets, a Domain or Business/Application match wins over Composition root
@@ -49,7 +50,7 @@ When a module matches several buckets, a Domain or Business/Application match wi
 ## Step 3 — Confidence gate
 
 Classify as **Hexagonal Multi-Module** only if a Domain-bucket module is present **and** at least two of
-{Business/Application, Persistence adapter, Inbound adapter} are also present. Never switch pattern on a single
+{Business/Application, Persistence adapter, Inbound adapter, Client adapter} are also present. Never switch pattern on a single
 keyword match alone.
 
 Otherwise → **Flat Single-Module**. Say so explicitly ("found N modules but couldn't confidently classify them as a
@@ -86,6 +87,9 @@ textbook full hexagonal:
     → <Feature>Repository (interface)   (business module — the outbound port)
       → <Feature>RepositoryImpl         (persistence adapter module, implements the port)
         → JPA entity + JpaRepository, or jOOQ DSLContext queries
+    → <System>Client (interface)        (business module — the port of an external system)
+      → <System>RestClient / <System>Publisher  (client adapter module, implements the port)
+        → RestClient, KafkaTemplate, or RabbitTemplate; the provider's DTOs stay here
   → <Feature>Response.from(...)         (inbound adapter or business module — domain → response DTO)
 ```
 
@@ -94,8 +98,8 @@ it — that module's whole purpose is to have zero framework dependencies.
 
 ## Build verification order (hexagonal case)
 
-Compile `domain` first, then `business`, then the persistence and inbound adapters (either order, they don't depend
-on each other), then the composition root — following the reactor's own dependency graph rather than building
+Compile `domain` first, then `business`, then the persistence, client, and inbound adapters (any order, they don't
+depend on each other), then the composition root — following the reactor's own dependency graph rather than building
 everything at once and debugging a wall of cross-module errors.
 
 ## Where tests live (hexagonal case)
@@ -104,3 +108,5 @@ everything at once and debugging a wall of cross-module errors.
 - Tests that need the real persistence adapter, a database, or the web layer — `@SpringBootTest`, MockMvc, a live
   server — go in the **composition-root module**, the only module with every layer on the classpath.
 - Persistence-only tests (`@DataJpaTest`, `@JooqTest`) live in the persistence adapter module.
+- Adapter tests of an external system live in the client adapter module; the fake of its port lives with the
+  integration tests that use it, in the composition-root module.

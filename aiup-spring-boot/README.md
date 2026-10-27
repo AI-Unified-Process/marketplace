@@ -6,11 +6,12 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # aiup-spring-boot
 
-`aiup-spring-boot` is the AI Unified Process layer plugin for the **service** and **API** layers of a
+`aiup-spring-boot` is the AI Unified Process layer plugin for the **service**, **API**, and **client** layers of a
 [Spring Boot](https://spring.io/projects/spring-boot) application: the business logic with its transactions and
-business rules, and a REST API with RFC 9457 Problem Details — each with its test skill.
+business rules, a REST API with RFC 9457 Problem Details, and the calls to the external systems a use case names as
+secondary actors — each with its test skill.
 
-It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.3.0 or later) and one plugin per other layer
+It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.9.0 or later) and one plugin per other layer
 of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 
@@ -18,8 +19,10 @@ of your project. `/stack` records which plugin builds which layer in `docs/archi
 
 | Layer   | Skill                                                           | Result                                                                                      |
 |---------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| Client  | [`/spring-client`](skills/spring-client/SKILL.md)               | Outbound port and adapter per external system, from its OpenAPI or AsyncAPI contract: `RestClient`/`@HttpExchange` or a Kafka/AMQP producer, error mapping to domain exceptions |
 | Service | [`/spring-service`](skills/spring-service/SKILL.md)             | `@Service` methods, `@Transactional` boundaries, business rules with markers, domain exceptions, Bean Validation |
 | API     | [`/spring-rest`](skills/spring-rest/SKILL.md)                   | `@RestController` endpoints, request/response DTO records, Problem Details, status codes, paging |
+| Client  | [`/spring-client-test`](skills/spring-client-test/SKILL.md)     | `<System>ClientTest`: the adapter against a stub of the contract, every flow the system causes; `<System>ClientFake` for the tests above |
 | Service | [`/spring-service-test`](skills/spring-service-test/SKILL.md)   | `UC001<Name>ServiceTest`: every business rule allowed and rejected, against a real database or a fake port |
 | API     | [`/spring-rest-test`](skills/spring-rest-test/SKILL.md)         | `UC001<Name>ApiTest`: statuses, JSON contract, Problem Details bodies, through the full stack |
 
@@ -30,6 +33,12 @@ run directly, for example `/spring-rest UC-001` to change only the API of a use 
 The service layer is used by every UI: a Vaadin Flow view calls it directly, a Hilla `@BrowserCallable` endpoint
 (built by `/hilla-ui` in `aiup-vaadin`) delegates to it, and `/spring-rest` exposes it to a client-side UI such as
 Angular. The service never depends on a web or UI type.
+
+An external system the use case calls — a payment provider, a channel manager — is listed with its contract under
+`## External systems` in `docs/architecture/stack.md`. `/spring-client` runs only for a use case whose Secondary
+Actors line names such a system, before the service, and hands over the port the service calls. No test reaches the
+system: `/spring-client-test` stubs the contract and writes a fake of the port, which the service, API, and UI tests
+put in place of the adapter.
 
 ## Combinations
 

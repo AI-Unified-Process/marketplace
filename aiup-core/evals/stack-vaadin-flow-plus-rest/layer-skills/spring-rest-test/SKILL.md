@@ -153,7 +153,9 @@ everything else; never remove or rename an attribute, other tests use it.
   when the contract names none; the message from the specification.
 - **Full stack, nothing mocked**: no `@MockitoBean` on a service, port, or repository of the use case's own call
   chain. A test that mocks the service proves only the controller's wiring, not that the rejection reaches the
-  caller.
+  caller. An external system the use case calls is the exception: its port gets the fake `/spring-client-test`
+  wrote, as "Which Layer Tests What" of `/use-case-test` says for external systems, and an alternative flow it
+  causes is tested through that fake.
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected flows need (the guest whose email is already registered) come from the repeatable Flyway test migration
   of the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence and service
