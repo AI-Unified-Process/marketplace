@@ -126,6 +126,11 @@ its test classpath.
   lists, in the stated order (dependent records before their parents). An older document without Postconditions:
   derive the created data from the Flow.
 
+An external system the use case calls (its secondary actor in the `## External systems` table of the stack file)
+must not be reached from the running application: it runs with a test profile that points the system's base URL at a
+stub, as "Which Layer Tests What" of `/use-case-test` says for external systems. Without such a profile, leave out
+the steps that call the system and say so in the report.
+
 ## Use Case Tests (UC-*)
 
 One use case, one file `UC-XXX-<slug>.spec.ts`; template [references/use-case.spec.ts.md](references/use-case.spec.ts.md).

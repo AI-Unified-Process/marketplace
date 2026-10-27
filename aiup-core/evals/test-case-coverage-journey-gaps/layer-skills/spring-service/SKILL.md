@@ -41,7 +41,9 @@ in and leave the value out.
 ## Scope
 
 - **Consumes** the Handover of the persistence layer: the repository or outbound port, its methods, and the records
-  they return. In a project without a persistence skill run, the existing repositories.
+  they return. In a project without a persistence skill run, the existing repositories. When the use case calls an
+  external system, also the Handover of the client layer (`/spring-client`): the port `<System>Client`, its
+  methods, records, and the exceptions of the flows the system causes.
 - **Produces** the public service methods the layer above calls — a `@RestController`, a Vaadin Flow view, or a Hilla
   `@BrowserCallable` endpoint — with their input records, return types, and the exceptions they throw.
 - **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints, the
@@ -90,6 +92,7 @@ outside the transaction, and a caller that changes a managed entity writes to th
 | `domain`              | nothing new beyond what the Handover created — plain records, no framework imports |
 | `business`            | the `@Service` class, input records, domain exceptions                             |
 | persistence adapter   | nothing — it implements the outbound port                                          |
+| client adapter        | nothing — it implements the port of an external system                             |
 | `app` (composition)   | wiring only, usually nothing for a new feature                                     |
 
 The outbound port is the interface in the business module that the persistence adapter implements. The persistence
@@ -302,6 +305,26 @@ public record RegisterGuest(
   inside the method. When the Handover does not say that the port flushes, call `saveAndFlush` or ask for it — see
   [Domain Exceptions](#domain-exceptions).
 
+## Calling an External System
+
+A step that calls an external system — the use case names it as a secondary actor — calls the port the client
+Handover names, and only its listed methods. No HTTP client, message template, or provider type in a service.
+
+- When the use case calls a system and there is no client Handover and no existing port, stop and name the missing
+  method for the client skill of the Layers table (`/spring-client UC-XXX`); a system the `## External systems` table
+  of the stack file does not list goes to `/stack` first. Never write the call into the service.
+- Turn the port's exceptions into the specification's outcome: let the flow's exception reach the layer above when
+  the step stops there, or catch it where the specification continues differently (A3: the booking is kept as
+  *awaiting payment*). Whatever the flow does next — a compensating write, a status — is the specification's,
+  not a retry or fallback of your own.
+- Mind the transaction. A call whose answer the step needs (the charge before the booking is confirmed) is a plain
+  port call; keep it before the writes that depend on it, or outside the transaction when the specification allows,
+  so a slow provider does not hold a database connection. A call that must happen only after the commit (a
+  notification, a published message) goes through an `AFTER_COMMIT` event, as in [Transactions](#transactions). An
+  outbox is a decision for the project, not this skill.
+- A business rule the external system's answer decides (the card is declined) is still marked in the service, at the
+  place that turns the answer into the rejection.
+
 ## Clients of the Service
 
 - **REST** — `/spring-rest` builds controllers on the methods this skill hands over.
@@ -329,6 +352,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Put `@Transactional` on a controller, view, or endpoint, or call a `@Transactional` method through `this`
   expecting a new transaction.
 - Write SQL, JPQL, or jOOQ queries in the service — ask the persistence skill for the method.
+- Call an external system with `RestClient`, `KafkaTemplate`, or any other client in the service — ask the client
+  skill for the port method.
 - Change the outbound port's signatures or the domain records the persistence Handover provides.
 - Create tests — `/spring-service-test` writes them.
 - Invent an inbound port or a service interface the project does not already use.
@@ -340,7 +365,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    /use-case-implement](#run-directly-or-from-use-case-implement).
 2. Read `docs/architecture/stack.md` for the module layout and the root package; detect the layout with
    [references/module-layout.md](references/module-layout.md) when it is not recorded.
-3. Read the persistence Handover, or the existing repositories when there is none.
+3. Read the persistence Handover, or the existing repositories when there is none, and the client Handover when
+   the use case calls an external system.
 4. Search for the existing service of this entity and for `UC-XXX` references; reconcile instead of duplicating.
 5. Write or extend the service: one method per step or command, input records with Bean Validation, the
    transaction boundary, a guard clause with its marker per business rule, a domain exception per rejection, and

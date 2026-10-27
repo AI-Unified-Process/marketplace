@@ -34,12 +34,13 @@ One row of the layer catalog, in a table with exactly these columns:
 | `acme-mybatis` | Persistence | `mybatis-persistence` | `mybatis-persistence-test` | in process, real database | `mybatis-spring-boot-starter`; `@Mapper` interfaces |
 ```
 
-- **Layer** is one of `Migration`, `Persistence`, `Service`, `API`, `UI`, `E2E`.
+- **Layer** is one of `Migration`, `Persistence`, `Client`, `Service`, `API`, `UI`, `E2E`.
 - **Skill** is the build skill, **Test skill** the skill that tests the layer; either may be `–`. An E2E skill has
   no build skill, so its row lives in the test skill's `references/layer.md`.
 - **Tests run** is one of `in process, real database` (the tests run the application inside the process against the
-  real database, so every layer below is exercised), `backend mocked` (the tests stub the layer below), or
-  `running application` (black-box tests against the started application). A row whose **Test skill** is `–` has
+  real database, so every layer below is exercised), `backend mocked` (the tests stub the layer below),
+  `running application` (black-box tests against the started application), or — for a Client row only —
+  `in process, external system stubbed` (the adapter runs against a stub of the external system's contract). A row whose **Test skill** is `–` has
   `–` here too, and only such a row: a layer without a test skill, such as the migration layer, runs no tests.
 - `/stack` derives the integration layer of each entry layer, where `/use-case-test` tests every business
   rule, from this column: the entry layer itself when its tests run `in process, real database`, otherwise the

@@ -2,9 +2,9 @@
 name: use-case-implement
 description: >
   Implements a use case (UC-XXX) across the technical layers of the project by running the layer skills recorded in
-  docs/architecture/stack.md bottom-up — migration, persistence, service, API, UI, limited to the entry layers its
-  **Layers:** line names — after checking the specification's status, reading exactly the requirements the use case
-  links, reconciling an existing implementation. Owns the shared rules: no assumptions for specification gaps
+  docs/architecture/stack.md bottom-up — migration, persistence, client, service, API, UI, limited to the entry
+  layers its **Layers:** line names — after checking the specification's status, reading exactly the requirements the use case
+  links. Owns the shared rules: no assumptions for specification gaps
   (recorded in docs/open-questions.md), decision rights, UC-XXX BR-YYY markers, no edits to tests or docs. Use when
   the user asks to "implement UC-001", "build this use case", "implement the use case end to end", "implement only the
   API layer of UC-001", or mentions implementing a use case in a project that combines layer plugins (aiup-flyway,
@@ -43,7 +43,7 @@ only as far as "Decision Rights" below says: it sorts decisions into the three s
 | Token                                                         | Meaning                                                    |
 |---------------------------------------------------------------|------------------------------------------------------------|
 | `UC-001`, `UC001`, or a path to a specification               | the use case — normalise to `UC-001`                       |
-| `migration`, `persistence`, `service`, `api`, `ui`            | run only the named layers, in bottom-up order              |
+| `migration`, `persistence`, `client`, `service`, `api`, `ui`  | run only the named layers, in bottom-up order              |
 | a diff after the path                                         | the specification change to apply — see below              |
 
 ## If an Implementation Already Exists
@@ -162,7 +162,7 @@ SKILL.md). Both have the same three sections: *The agent decides alone*, *The ag
   layer, or leave the part out. A question about an element of the specification — a step, flow, rule,
   requirement (a constraint `C-*`, the Rationale of a requirement), glossary term, or entity — is recorded in
   `docs/open-questions.md`. A question about the architecture — a new library or dependency, a deviation from an
-  ADR — has no element there: ask it, and when no one can answer, leave the part out and list the question under
+  ADR, the retry, timeout, or fallback policy of an external system — has no element there: ask it, and when no one can answer, leave the part out and list the question under
   **Open questions** in the report, without an `OQ-` id. Never add a dependency or deviate from an ADR unasked.
 - **Never** — do not take the decision, also when a request implies it; report what would have to change and who
   changes it: `/use-case-spec` or `/requirements` for a specification, the team for an ADR, the coverage audit for
@@ -210,6 +210,16 @@ or `Service` alone for a use case no actor reaches through either (a scheduled j
   architecture: stop before the first layer and ask whether `/stack` adds the layer or `/use-case-spec
   UC-XXX` corrects the line. Never build an entry layer the stack file does not have.
 - **Layer tokens in the arguments** narrow further; they never add a layer the line leaves out.
+
+**The Client layer runs only for the external systems the use case calls.** Match the names on the use case's
+`**Secondary Actors:**` line against the `## External systems` table of the stack file (the layer catalog of
+`/stack`, "External systems"). With a match, the Client layer runs before the service; without one it does not run,
+and the opening line says `Client: no external system`; a stack file without a Client row or an External systems
+table has none. A step in which our system calls an external system the table does not list — "The system charges
+the card at the payment provider" — is a gap in the architecture (a person or role as secondary actor is not): stop before the first layer
+and hand off to `/stack`, which adds the system, its contract, and a Client layer when there is none. Never let the
+service layer call such a system itself. The retry, timeout, and fallback policy of an external system is a
+decision the defaults reserve for asking (see "Decision Rights").
 
 ## Running a Layer Skill
 
@@ -267,9 +277,10 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
    1. **Migration** — only when the use case needs an entity without a table, or one whose table lags behind the
       entity model.
    2. **Persistence**
-   3. **Service**
-   4. **API**
-   5. **UI** — with the use case's mockups, when it has a `**Mockup:**` line — see "Mockups"
+   3. **Client** — only for the external systems the use case calls — see "Which Layers Run"
+   4. **Service** — with the Handovers of persistence and client
+   5. **API**
+   6. **UI** — with the use case's mockups, when it has a `**Mockup:**` line — see "Mockups"
 9. Run the Build command from `docs/architecture/stack.md` and fix compile errors in the code this run wrote.
 10. **Check the contract between the layers.** Every type, method, and endpoint a layer above calls exists with the
     same name, field names, and types in the layer below; a client-side UI's request and response models match the
@@ -307,7 +318,8 @@ Finish by:
 - Edit existing tests or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new
   sections of `docs/open-questions.md` — see "Gaps in the Specification".
 - Skip a build layer the Layers table lists because the use case "looks simple"; a layer with nothing to do for
-  this use case says so in its Handover. Only the `**Layers:**` line and the arguments leave a layer out. The E2E
+  this use case says so in its Handover. Only the `**Layers:**` line, the arguments, and — for the Client layer — the
+  Secondary Actors line leave a layer out. The E2E
   row is no build layer; leave it to `/use-case-test`.
 - Let one layer reach past the next: the UI does not query the database, the API does not hold business rules the
   service does not enforce.

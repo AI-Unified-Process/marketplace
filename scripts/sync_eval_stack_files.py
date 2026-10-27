@@ -9,7 +9,8 @@ and the layer skills dictate, and leaves the scenario's own content (layers, mod
 alone:
 
 - the header up to **Last updated:**, the explanation under the Integration layer table, the explanation under the
-  **E2E scope:** line, the intro of ## Markers, and the All row: as in aiup-core/skills/stack/references/stack.md;
+  **E2E scope:** line, the explanation under the External systems table (when the file has one), the intro of
+  ## Markers, and the All row: as in aiup-core/skills/stack/references/stack.md;
 - the **E2E scope:** line: present exactly when the E2E layer is; a missing one is added as `Use cases and test
   cases`, which is how the skills read a stack file without the line, so the scenario's behaviour does not change;
 - the marker rows of each layer skill that has rows: exactly the rows of its references/markers.md, in that order.
@@ -53,6 +54,7 @@ def load_template():
         "header": t[:t.index("**Last updated:**")],
         "layers": paragraph(t, "A layer the project does not have"),
         "e2e": paragraph(t, "`Use cases and test cases`:"),
+        "external": paragraph(t, "The systems our system calls"),
         "markers": paragraph(t, "Each layer skill keeps its own rows"),
         "all": next(l for l in t.splitlines() if l.startswith("| All")),
     }
@@ -119,6 +121,10 @@ def sync(path, template, refs):
                                      "E2E scope explanation")
     elif scope:
         problems.append("**E2E scope:** line without an E2E layer (not fixed)")
+
+    if "## External systems" in text:
+        text = replace_paragraph(text, "The systems our system calls", template["external"], problems,
+                                 "External systems explanation")
 
     head, markers = text.split("## Markers", 1)
     markers = replace_paragraph("\n" + markers, "Each layer skill keeps its own rows", template["markers"], problems,

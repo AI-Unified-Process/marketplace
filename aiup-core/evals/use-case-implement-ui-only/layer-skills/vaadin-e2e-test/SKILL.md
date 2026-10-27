@@ -142,6 +142,11 @@ transaction never reaches it, and a committed delete would break the shared test
 that flow; leave it out — no `@Nested` class, no `@Disabled` test — and name it in the class Javadoc and the report
 (`A1 Catalog Is Empty is tested in the integration layer; the running application has one data set`).
 
+An external system the use case calls (its secondary actor in the `## External systems` table of the stack file)
+must not be reached from the running application: it runs with a test profile that points the system's base URL at a
+stub, as "Which Layer Tests What" of `/use-case-test` says for external systems. Without such a profile, leave out
+the steps that call the system and say so in the report.
+
 ## Use Case Tests (UC-*)
 
 One use case → one class `UC<id><PascalCaseName>IT` (`UC-001-create-reservation.md` →

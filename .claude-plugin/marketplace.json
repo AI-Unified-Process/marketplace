@@ -49,7 +49,7 @@
     {
       "name": "aiup-spring-boot",
       "source": "./aiup-spring-boot",
-      "description": "AI Unified Process Spring Boot layers - service and REST API implementation and tests"
+      "description": "AI Unified Process Spring Boot layers - service, REST API, and external system client implementation and tests"
     },
     {
       "name": "aiup-vaadin",

@@ -77,7 +77,7 @@ and tested.
 | [`aiup-flyway`](aiup-flyway/)           | Migration             | `/flyway-schema`                                                                             |
 | [`aiup-jooq`](aiup-jooq/)               | Persistence           | `/jooq-persistence`, `/jooq-persistence-test`                                                |
 | [`aiup-jpa`](aiup-jpa/)                 | Persistence           | `/jpa-persistence`, `/jpa-persistence-test`                                                  |
-| [`aiup-spring-boot`](aiup-spring-boot/) | Service, REST API     | `/spring-service`, `/spring-rest`, `/spring-service-test`, `/spring-rest-test`               |
+| [`aiup-spring-boot`](aiup-spring-boot/) | Service, REST API, Client | `/spring-service`, `/spring-rest`, `/spring-client`, `/spring-service-test`, `/spring-rest-test`, `/spring-client-test` |
 | [`aiup-vaadin`](aiup-vaadin/)           | UI (Flow, Hilla), E2E | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
 | [`aiup-angular`](aiup-angular/)         | UI                    | `/angular-ui`, `/angular-ui-test`                                                            |
 | [`aiup-playwright`](aiup-playwright/)   | E2E (TypeScript)      | `/playwright-e2e-test`                                                                       |

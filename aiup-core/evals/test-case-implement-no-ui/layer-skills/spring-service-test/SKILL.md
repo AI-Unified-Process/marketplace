@@ -176,8 +176,10 @@ folder containing this SKILL.md) as the structure: `@SpringBootTest`, a Testcont
 `@ServiceConnection`, a fixed clock, the service autowired, cleanup of created rows, and one allowed and one rejected
 case per rule. It is written for Spring Boot 4 and Testcontainers 2; its comments name the Testcontainers 1 import.
 Do not mock a repository, port, or service of the use case's own call chain with `@MockitoBean`; a
-`@MockitoBean` is only for a boundary the use case does not own — a mail gateway, an external HTTP client — and the
-test then verifies the call.
+`@MockitoBean` is only for a boundary the use case does not own — a mail gateway — and the test then verifies the
+call. The port of an external system the use case calls gets the fake `/spring-client-test` wrote, put in place with
+`@TestBean`, as "Which Layer Tests What" of `/use-case-test` says for external systems; drive the alternative flows
+it causes through that fake.
 
 ## Unit Style (Hexagonal Business Module)
 

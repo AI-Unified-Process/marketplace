@@ -24,6 +24,7 @@ there, not remove one. A decision no rule names is asked first.
 - A deviation from a constraint (`C-*`) or from the Rationale of a requirement
 - A deviation from an accepted architecture decision record
 - A new library or dependency
+- The retry, timeout, and fallback policy for a call to an external system
 
 ## The agent never
 

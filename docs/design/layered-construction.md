@@ -46,8 +46,26 @@ layer plugins can. Rules that hold it together:
   specification gaps, and the BR marker rule; `/use-case-test` owns "If tests already exist", "When a Test Fails", and
   "Which Layer Tests What". Layer skills and `/test-case-implement` refer to these by slash command and must not copy
   them back; `/test-case-coverage` likewise applies the presentation rules of `/use-case-coverage`.
-- **Bottom-up with a Handover.** Layers run migration → persistence → service → API → UI (→ E2E for tests). Each layer
+- **Bottom-up with a Handover.** Layers run migration → persistence → client → service → API → UI (→ E2E for tests). Each layer
   skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on.
+- **An external system is a layer below the service (#52).** A secondary actor our system calls — a payment
+  provider, a channel manager — is the outbound counterpart of the database, so it gets the same shape: a port in
+  the business module, an adapter behind it, and a Handover the service consumes like the persistence one. The
+  layer is named Client, not Integration (taken by the integration layer) and not Outbound (an odd skill name); the
+  catalog says once that it is not the "client" that calls our API. One Client row and one skill serve every system
+  of a project; the `## External systems` table (System, Contract, Location) maps the names of the Secondary Actors
+  lines to their contracts, because the skills must tell a system from a person and must not guess a provider's
+  wire format. A skill per system would make every orchestrator and the coverage agent resolve the skill per
+  system for a case no project has asked for yet. The Client layer runs only for a use case whose secondary actor
+  matches a row; a step calling an unmapped system is an architecture gap for `/stack`, never an HTTP client in the
+  service. Retry, timeout, and fallback are a decision the defaults ask about, because the specification states the
+  flows and the adapter must not invent a policy. No new marker kind: the Javadoc of the port method and the names of
+  port and adapter are enough for the coverage agent, and a rule the adapter enforces takes the usual BR marker.
+  No test reaches the system: `/spring-client-test` tests the adapter against a stub of the contract
+  (MockRestServiceServer by default, no new dependency) and writes a fake of the port; the integration layer puts
+  the fake in place with `@TestBean` and drives the external flows through it, so the client tests run first, an
+  exception to "the layers below are not run". The Tests run value `in process, external system stubbed` exists for
+  the Client row alone and never decides an integration layer.
 - **One integration layer per entry point.** Start at the entry layer a use case is offered through: when its test
   skill runs in process against the real database (the catalog's Tests run column: `vaadin-flow-ui-test`,
   `spring-rest-test`, `spring-service-test`, the persistence tests), that is the integration layer; when it mocks the

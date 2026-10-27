@@ -101,7 +101,7 @@ marketplace/
 ├── aiup-flyway/                  # Layer plugin: migration (flyway-schema)
 ├── aiup-jooq/                    # Layer plugin: persistence (jooq-persistence, jooq-persistence-test)
 ├── aiup-jpa/                     # Layer plugin: persistence (jpa-persistence, jpa-persistence-test)
-├── aiup-spring-boot/             # Layer plugin: service + REST (spring-service, spring-rest, *-test)
+├── aiup-spring-boot/             # Layer plugin: service + REST + client (spring-service, spring-rest, spring-client, *-test)
 ├── aiup-vaadin/                  # Layer plugin: UI + E2E (vaadin-flow-ui, hilla-ui, *-test, vaadin-e2e-test)
 ├── aiup-angular/                 # Layer plugin: UI (angular-ui, angular-ui-test)
 ├── aiup-playwright/              # Layer plugin: E2E for TypeScript (playwright-e2e-test)
@@ -138,7 +138,8 @@ A combination of layer plugins expresses what a combined plugin cannot ("REST AP
 Rules a change must keep:
 
 - The stack file is always `docs/architecture/stack.md`; no skill reads any other file for the layers (only `/stack`
-  still knows the 3.0.0 `development.md`, to rename it). `/stack` owns `## Layers` and `## Markers` and never writes
+  still knows the 3.0.0 `development.md`, to rename it). `/stack` owns `## Layers`, `## External systems`, and
+  `## Markers` and never writes
   the team's architecture documentation.
 - Each build skill, and each E2E test skill, ships `references/layer.md` and `references/markers.md`. A new layer
   plugin of this marketplace also adds its row to the Plugins table of `layer-catalog.md`
@@ -150,6 +151,11 @@ Rules a change must keep:
 - The integration layer and the E2E scope rules live once, in `layer-catalog.md`. Only `/stack` derives them; every
   other skill looks them up in the stack file.
 - The Java `@UseCase` copies stay identical (`scripts/check-usecase-annotation.sh`).
+- An external system a use case calls as a secondary actor is the Client layer, below the service: one Client row,
+  one skill for every system, and the stack file's `## External systems` table (System, Contract, Location), owned
+  by `/stack`, maps the Secondary Actors names to their contracts. A step calling an unmapped system hands off to
+  `/stack`. Retry, timeout, and fallback are asked first. No test reaches the system: the client test skill stubs the
+  contract and writes a fake of the port, which the integration layer puts in place.
 - The `**Layers:**` line names `UI`, `API`, or `Service`, never a technology.
 - Names are final: `use-case-<step>`, `test-case-<step>`, `<technology>-<layer>[-test]`.
 
@@ -325,7 +331,7 @@ Why: [`docs/design/mockups.md`](docs/design/mockups.md).
 | `aiup-flyway`      | Migration         | `/flyway-schema`                                                                        |
 | `aiup-jooq`        | Persistence       | `/jooq-persistence`, `/jooq-persistence-test`                                           |
 | `aiup-jpa`         | Persistence       | `/jpa-persistence`, `/jpa-persistence-test`                                             |
-| `aiup-spring-boot` | Service, API      | `/spring-service`, `/spring-rest`, `/spring-service-test`, `/spring-rest-test`          |
+| `aiup-spring-boot` | Service, API, Client | `/spring-service`, `/spring-rest`, `/spring-client`, `/spring-service-test`, `/spring-rest-test`, `/spring-client-test` |
 | `aiup-vaadin`      | UI, E2E           | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
 | `aiup-angular`     | UI                | `/angular-ui`, `/angular-ui-test`                                                       |
 | `aiup-playwright`  | E2E (TypeScript)  | `/playwright-e2e-test`                                                                  |

@@ -13,6 +13,7 @@ column from the integration layer up, and `/use-case-coverage` searches for the 
 |-------------|------------|-------|------------|----------|
 | Migration   |            |       | –          |          |
 | Persistence |            |       |            |          |
+| Client      |            |       |            |          |
 | Service     |            |       |            |          |
 | API         |            |       |            |          |
 | UI          |            |       |            |          |
@@ -38,6 +39,16 @@ of their own for the layers below unless a run names them (`/use-case-test UC-00
 `Use cases and test cases`: `/use-case-test` adds a browser test to every use case offered through the UI, and
 `/test-case-implement` automates the TC-* journeys. `Test cases only`: browser tests are written for the journeys
 alone, and a use case is tested in its integration layer. A project without an E2E layer drops the line.
+
+## External systems
+
+| System | Contract | Location |
+|--------|----------|----------|
+|        |          |          |
+
+The systems our system calls, by the name the use cases write on their `**Secondary Actors:**` line: the Client
+layer builds an adapter for each one from its contract (OpenAPI or AsyncAPI; `–` while there is none). A secondary
+actor without a row is a person or a role. Without a Client layer the section is dropped.
 
 ## Module layout
 

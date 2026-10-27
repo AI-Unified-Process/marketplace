@@ -168,6 +168,17 @@ missing use case browser test is no gap and the E2E rows of the Markers table ne
 an existing one still counts as evidence. A test case (TC-*) needs its journey test under either
 value.
 
+**External systems.** A secondary actor of the use case that the `## External systems` table of the stack file
+lists is called through the Client layer. Its calls are evidence there, under the Client rows of the Markers table:
+the port method whose Javadoc names the use case, and the adapter that implements it. An alternative flow the
+external system causes (a rejection, a timeout, an unavailable provider) needs both an adapter that maps the
+system's answer to the port's exception and code in the service that turns it into the flow's outcome; its test
+evidence is an adapter test against a stub of the contract **and** an integration layer test that drives the flow
+through the fake of the port — one without the other is `Partial`. A service that calls the system without a port
+(an HTTP client or a message template in a service class), or a secondary actor the use case calls that the table
+does not list, is drift: name both fixes — `/stack` maps the system, or `/use-case-spec` corrects the actor — and
+recommend neither. A test that calls the real system is a finding for Gaps.
+
 **Journey itinerary.** When an E2E marker names the use cases a journey walks (Vaadin's
 `@TestCase(id = "TC-XXX", useCases = {…})`), compare that list with the use cases the Flow table's
 Use Case column links. A use case in one and not the other is drift, in either direction; a journey

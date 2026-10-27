@@ -23,8 +23,9 @@ CATALOG = "aiup-core/skills/stack/references/layer-catalog.md"
 NOT_LAYER = {"aiup-core", "aiup-vaadin-jooq", "aiup-angular-jpa", "aiup-blazor-dotnet", "aiup-nestjs-nextjs"}
 LAYER_PLUGINS = sorted(os.path.dirname(p) for p in glob.glob("aiup-*/plugin.json")
                        if os.path.dirname(p) not in NOT_LAYER)
-LAYERS = {"Migration", "Persistence", "Service", "API", "UI", "E2E"}
-TESTS_RUN = {"–", "in process, real database", "backend mocked", "running application"}
+LAYERS = {"Migration", "Persistence", "Client", "Service", "API", "UI", "E2E"}
+TESTS_RUN = {"–", "in process, real database", "in process, external system stubbed", "backend mocked",
+             "running application"}
 errors = 0
 
 def error(message):
@@ -71,6 +72,8 @@ for path in sorted(glob.glob("aiup-*/skills/*/references/layer.md")):
         error(f"{path}: Tests run must be – exactly when there is no test skill")
     if (layer == "E2E") != (run == "running application"):
         error(f"{path}: Tests run is 'running application' exactly for an E2E row, not {run!r} for {layer}")
+    if (layer == "Client") != (run == "in process, external system stubbed") and run != "–":
+        error(f"{path}: Tests run is 'in process, external system stubbed' exactly for a Client row, not {run!r} for {layer}")
     if skill != "–" and skill != folder:
         error(f"{path}: Skill column {skill} is not the skill folder {folder}")
     if skill == "–" and test != folder:

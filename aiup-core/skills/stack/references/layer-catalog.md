@@ -15,7 +15,8 @@ Process marketplace. A project combines one plugin per layer with `aiup-core`.
 |-------------|------------------------------------------------------------------------------|---------------------|
 | Migration   | Versioned schema changes from the entity model                               | –                   |
 | Persistence | Data access: queries, repositories, entity mapping, projections into records | Migration           |
-| Service     | Business logic: transactions, business rules, orchestration                  | Persistence         |
+| Client      | Calls to external systems: outbound port, adapter, mapping of the provider's contract | –          |
+| Service     | Business logic: transactions, business rules, orchestration                  | Persistence, Client |
 | API         | Remote contract for a separate client: endpoints, DTOs, error format         | Service             |
 | UI          | Views, forms, grids, navigation                                              | Service (or API)¹   |
 | E2E         | Browser tests of a use case or a test case journey                           | UI                  |
@@ -25,6 +26,11 @@ is part of the Hilla UI skill, not of a separate API layer. A client-side UI (An
 reaches the service through it. An API layer next to a server-side or Hilla UI is valid: it serves other clients —
 a mobile app, a partner system — and not the UI. A REST service without a UI has no UI and no E2E layer; its API
 tests are the outermost tests.
+
+The **Client** layer is the outbound counterpart of Persistence: our system calls another system there, as the use
+case's Secondary Actors line says (a payment provider, a channel manager). It is not the "client" of the API row — a
+separate application that calls *us* — and never an entry layer. A project that calls no external system marks it
+`–`; which systems it calls is the section "External systems" below.
 
 ¹ **A Vaadin Flow UI may sit on the persistence layer.** A project can decide against a service layer — a thin
 `ui` + `domain` design, usually recorded in an ADR: the Service row is `–`, the view calls the repositories, the
@@ -45,12 +51,39 @@ without it (a layer with nothing to do for the use case says so), and E2E follow
 through `UI` is built in the API layer too, tested there (the UI row of the Integration layer table names the API), and its
 endpoints are part of the use case, not drift — whether or not the `**Layers:**` line also names `API`.
 
+## External systems
+
+The Client layer has one technology and one skill, which serves every external system of the project. Which systems
+those are, and the contract each one is called by, `/stack` records in the `## External systems` table of the stack
+file:
+
+```markdown
+| System           | Contract                                          | Location                                     |
+|------------------|---------------------------------------------------|----------------------------------------------|
+| Payment Provider | `docs/api/external/payment-provider.yaml`         | `com.example.hotel.client.paymentprovider`   |
+| Channel Manager  | `docs/api/external/channel-manager.asyncapi.yaml` | `hotel-channel-client`                       |
+```
+
+- **System** is the name the use cases write on their `**Secondary Actors:**` line. A secondary actor that matches
+  a row is an external system our system calls; every other one is a person or a role.
+- **Contract** is the provider's OpenAPI document (HTTP) or AsyncAPI document (messaging), usually supplied by the
+  provider; `–` while there is none, and the client skill then builds nothing for the system.
+- **Location** is the package or module of the adapter.
+
+A use case runs the Client layer only when one of its secondary actors matches a row. A step that calls a secondary
+actor no row lists is a gap in the architecture, not the specification: `/use-case-implement` stops and hands off to
+`/stack`. A system that calls us is a primary actor and reaches the system through an entry layer, never through
+Client.
+
 ## Tests run, and the integration layer
 
 Each layer skill's `references/layer.md` says what its test skill exercises: *in process, real database* means the
 tests run the application context inside the JVM against the real database, so every layer below is exercised for
 real; *backend mocked* means the UI test stubs the layer below; *running application* means black-box browser
-tests.
+tests; *in process, external system stubbed* means the client tests call the adapter against a stub of the
+provider's contract. Client is never an entry layer, so its value never decides an integration layer. The
+integration layer's tests put a fake of the client port in place of the adapter, so no test reaches the external
+system (`/use-case-test`, "Which Layer Tests What").
 
 This section is the only place that derives the integration layer. `/stack` applies it once per entry layer
 and records the result as the Integration layer table under the Layers table of `docs/architecture/stack.md`;
@@ -118,6 +151,7 @@ plugin outside this marketplace needs no row here. `scripts/check-layer-catalog.
 | `aiup-flyway`      | Migration   | `flyway-schema`    | –                          | –                           |
 | `aiup-jooq`        | Persistence | `jooq-persistence` | `jooq-persistence-test`    | in process, real database   |
 | `aiup-jpa`         | Persistence | `jpa-persistence`  | `jpa-persistence-test`     | in process, real database   |
+| `aiup-spring-boot` | Client      | `spring-client`    | `spring-client-test`       | in process, external system stubbed |
 | `aiup-spring-boot` | Service     | `spring-service`   | `spring-service-test`      | in process, real database   |
 | `aiup-spring-boot` | API         | `spring-rest`      | `spring-rest-test`         | in process, real database   |
 | `aiup-vaadin`      | UI          | `vaadin-flow-ui`   | `vaadin-flow-ui-test`      | in process, real database   |
