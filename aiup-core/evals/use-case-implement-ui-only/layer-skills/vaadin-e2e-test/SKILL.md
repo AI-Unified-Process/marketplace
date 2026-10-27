@@ -127,8 +127,11 @@ the application under test loads the test data without any configuration: no `@T
 `src/test/resources/application.properties`. Use repeatable `R__` migrations only; a versioned test migration would
 collide with the next production version. A use case's
 **Preconditions** and a test case's **Preconditions** are satisfied by that data; extend it when they are not,
-rather than inserting through back doors. A test that creates data cleans it up in `@AfterEach` — through the UI
-or targeted deletes — idempotently, because the test may have failed midway. For a journey, the document's
+rather than inserting through back doors. A test that creates data cleans it up in `@AfterEach`, idempotently,
+because the test may have failed midway: through the UI, or — only where the UI offers no way to remove a record —
+with a targeted delete through an injected `JdbcClient`, `JdbcTemplate`, or `DSLContext` that matches only the
+values the test entered. That database access belongs to the `@AfterEach` cleanup alone; it never arranges data,
+drives a step, or checks a result. For a journey, the document's
 **Postconditions** section is the cleanup contract: remove exactly the records it lists, in the stated order.
 The test data cannot reference rows the application inserts at startup (demo users of an `ApplicationRunner`): the
 migration runs first. `/vaadin-flow-ui-test`, "Test Data Strategy", says how the test data file inserts them itself.
@@ -273,7 +276,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## DO NOT
 
-- Use Mockito, or call services, repositories, or `DSLContext` directly
+- Use Mockito, or call services, repositories, or `DSLContext` to arrange data, drive a step, or assert a result —
+  the only database access is the targeted delete of "Test Data", in `@AfterEach`, where the UI cannot remove a record
 - Use raw Playwright locators (`page.locator("vaadin-text-field")`) or XPath (it does not pierce shadow DOM) — the
   one exception is a component Drama Finder has no wrapper for, located by role and name as shown for the Confirm
   Dialog
