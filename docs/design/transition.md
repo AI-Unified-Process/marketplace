@@ -29,6 +29,20 @@ every use case. Transition adds three skills that read them.
   by default because the guide describes what users get; `all` adds `Approved` and `Implemented` for training ahead of
   a release. It never names screens, buttons, or menu paths the specification does not, because the specification is
   written at the business level and a guessed label is worse than none.
+- **Hashes in the anchor tell a hand edit from a specification change** (#57). The guide is written by an agent in
+  its own words, so a section rewritten from an unchanged specification never matches the old one word for word;
+  comparing the guide with a fresh rewrite flagged every section as edited by hand, and a changed specification looked
+  the same as a hand edit. The anchor therefore records `spec=` (the use case without its `**Status:**` line, so
+  acceptance is no change) and `text=` (the section as written), stamped by `scripts/guide_anchor.py`, never by the
+  agent. A section with neither changed stays byte for byte, so a re-run's diff shows only real changes; a changed
+  specification is rewritten without asking; only a hand edit asks, and when no one can answer it is kept and reported
+  with both ways out — the same rule as drift in the coverage agent. Comparing with a rewrite from the previous
+  specification (`git show`) was rejected for the same reason as comparing with a fresh one, and a `spec=` hash alone
+  cannot see a hand edit.
+- **The plan waits for a yes when someone can answer.** A new guide or a changed set of chapters is shown first and
+  written after the confirmation; when no one can answer (a pipeline, a host without a way to ask, a confirmation in
+  advance), the plan is written as shown and opens the report — the rule `/entity-model` already follows for its
+  clarifying questions.
 - **Release notes from the specifications, not the commits.** The maintainers' `scripts/release-notes.sh` turns commit
   subjects into release notes for developers; business readers want what they can do now. A use case that reached
   `Done` since the baseline tag is new; one `Done` at both points whose scenario, flows, rules, or postconditions

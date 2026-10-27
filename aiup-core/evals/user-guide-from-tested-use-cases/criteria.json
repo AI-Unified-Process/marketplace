@@ -9,7 +9,7 @@
     },
     {
       "name": "Only Tested and Done use cases",
-      "description": "organizer.md has a section for UC-001 and participant.md sections for UC-002 and UC-004, each a ## heading phrased as a task and directly followed by the anchor comment <!-- UC-XXX --> on the next line; no section or anchor exists for UC-003, UC-005, or UC-006, and the agent reports these three as skipped with their status (Implemented, Draft, Approved)",
+      "description": "organizer.md has a section for UC-001 and participant.md sections for UC-002 and UC-004, each a ## heading phrased as a task and directly followed by the anchor comment on the next line, <!-- UC-XXX spec=... text=... --> with both hashes stamped; no section or anchor exists for UC-003, UC-005, or UC-006, and the agent reports these three as skipped with their status (Implemented, Draft, Approved)",
       "max_score": 20
     },
     {

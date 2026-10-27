@@ -1,0 +1,1 @@
+{ "description": "Update the user guide when one anchored section's specification changed and another section was edited by hand: rewrite the first, keep the hand edit and report it with both ways out, and leave the unchanged section byte for byte", "include": ["./inputs"] }

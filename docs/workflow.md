@@ -425,8 +425,10 @@ for those people; none of them changes a specification, except that closing an a
   specification (`/use-case-spec`) — and leaves the choice to you.
 - **User guide.** `/user-guide` writes `docs/user_guide/` from the use cases at `Tested` or `Done`: one chapter per
   primary actor (per module in a split project), one task section per use case in the second person and the
-  glossary's terms. Each section it writes carries a `<!-- UC-XXX -->` anchor; sections without one are the team's
-  and survive every re-run. It never invents screens or labels the specification does not name.
+  glossary's terms. Each section it writes carries a `<!-- UC-XXX spec=… text=… -->` anchor; sections without one
+  are the team's and survive every re-run. The two hashes let a re-run leave unchanged sections alone, rewrite the
+  ones whose use case changed, and ask before overwriting one edited by hand. It never invents screens or labels the
+  specification does not name.
 - **Release notes.** `/release-notes` compares the use cases at a Git tag with the working tree and adds a version to
   `docs/release-notes.md`: use cases that reached `Done` (new), accepted use cases whose behaviour changed, use cases
   that became `Obsolete` (removed), and requirements that reached `Verified`. The content comes from the

@@ -84,8 +84,9 @@ folder containing this SKILL.md).
 ## Writing a Task Section
 
 One `##` section per use case, headed by the use case's goal as a task the reader wants done ("Register for a
-workshop"), directly followed by the anchor comment `<!-- UC-XXX -->`. The anchor is how a re-run finds the section;
-keep it on the line after the heading.
+workshop"), directly followed by the anchor comment `<!-- UC-XXX spec=… text=… -->`. The anchor is how a re-run finds
+the section; keep it on the line after the heading. Write it as `<!-- UC-XXX -->` and let the script stamp the two
+hashes (see "Sections the Team Owns"); never type or edit a hash yourself.
 
 | Part of the section | Written from                                                   | How                                                      |
 |---------------------|----------------------------------------------------------------|----------------------------------------------------------|
@@ -117,23 +118,50 @@ Rules:
 The guide is derived, but the team may add to it: a section on logging in, a screenshot, a hint from support. A
 section without an anchor comment belongs to the team. On every run:
 
-- Rewrite each anchored section from its use case. Keep the team's sections, unchanged and at their place relative
-  to the anchored sections around them.
+- Keep the team's sections, unchanged and at their place relative to the anchored sections around them.
 - Remove an anchored section whose use case is now `Obsolete`, gone, or below the status the run covers, and name it
   in the report.
-- Text the team added inside an anchored section is overwritten. When an anchored section differs from what the
-  specification gives — someone edited it by hand — show the difference and ask whether the change belongs in the
-  specification (`/use-case-spec UC-XXX`) or in a section of its own, before overwriting.
+- Decide what to do with every other anchored section from its state, never by comparing it with a rewrite of your
+  own: you write in your own words, so a fresh rewrite always differs a little. The anchor records two hashes — `spec`
+  of the use case the section was written from (without its `**Status:**` line, so `Tested` → `Done` is no change)
+  and `text` of the section as the skill wrote it. The script `scripts/guide_anchor.py` (relative to the folder
+  containing this SKILL.md) compares them with the files as they are now:
+
+  ```bash
+  python3 <skill folder>/scripts/guide_anchor.py check docs/user_guide
+  ```
+
+  | State                 | Meaning                                         | Do                                                    |
+  |-----------------------|-------------------------------------------------|-------------------------------------------------------|
+  | `unchanged`           | neither the use case nor the section changed    | leave the section as it is, byte for byte             |
+  | `spec-changed`        | the use case changed, the section did not       | rewrite the section from the use case                 |
+  | `edited`              | someone edited the section by hand              | ask (below)                                           |
+  | `edited+spec-changed` | both                                            | ask (below), naming the specification change as well  |
+  | `unstamped`           | an anchor without hashes, written before 3.8.0  | rewrite the section and report the anchor as upgraded |
+
+  For a section edited by hand, show the difference and ask whether the change belongs in the specification
+  (`/use-case-spec UC-XXX`, after which the section is rewritten from it) or in a section of its own (move the added
+  text into a section without an anchor directly after it, then rewrite the anchored section) — or should be dropped.
+  When no one can answer, leave the section as it is, hashes included, and list it in the report with the difference
+  and both ways out; never choose one yourself.
+- After writing a section, stamp its anchor: `python3 <skill folder>/scripts/guide_anchor.py stamp
+  docs/user_guide/<chapter>.md UC-XXX [UC-YYY …]`, with the use cases whose sections you wrote in that chapter. Never
+  stamp a section you left as it was: that would record a hand edit as the skill's own text.
 
 ## Workflow
 
 1. **Read** the inputs. Report the use cases the run skips because of their status, grouped by status.
-2. **Plan** the chapters and the tasks in each, and show the plan when the guide does not exist yet or the chapters
-   change (an actor or module added or removed).
-3. **Write** the chapters and `README.md`.
-4. **Report**: the files written, the task sections added, updated, and removed, the team's sections kept, and the
-   gaps — steps the reader cannot follow from the specification (a missing message, an unnamed choice, a flow that
-   ends without saying what the reader sees), each as `UC-XXX step 4` or `UC-XXX A2` with one sentence. Hand the gaps
+2. **Check** the existing guide with `guide_anchor.py check` and decide per anchored section (see "Sections the Team
+   Owns").
+3. **Plan** the chapters and the tasks in each. When the guide does not exist yet or the chapters change (an actor or
+   module added or removed), show the plan and wait for the user's confirmation before writing. When no one can
+   answer — a pipeline run, a host without a way to ask, or the user said not to ask or confirmed in advance — write
+   the plan as shown and put it at the top of the report.
+4. **Write** the chapters and `README.md`, and stamp the anchors of the sections you wrote.
+5. **Report**: the files written, the task sections added, updated, left unchanged, and removed, the sections edited
+   by hand with the answer or, unanswered, the difference and both ways out, the team's sections kept, and the gaps
+   — steps the reader cannot follow from the specification (a missing message, an unnamed choice, a flow that ends
+   without saying what the reader sees), each as `UC-XXX step 4` or `UC-XXX A2` with one sentence. Hand the gaps
    off to `/use-case-spec UC-XXX`, or to `/open-questions` when nobody can answer them now; do not record them
    yourself.
 
@@ -145,4 +173,6 @@ section without an anchor comment belongs to the team. On every run:
 - Describe a use case that is `Draft`, `Reviewed`, or `Obsolete`, or one below `Tested` without `all`.
 - Read the code to fill a gap in the specification.
 - Delete or rewrite a section without an anchor comment.
+- Overwrite a section edited by hand without an answer, rewrite a section whose state is `unchanged`, or write or
+  change a hash in an anchor by hand.
 - Use a word from the glossary's Avoid column, or cite flow and rule ids in the prose.

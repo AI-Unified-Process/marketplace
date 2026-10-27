@@ -119,6 +119,17 @@ jobs:
           # layer-skill and agent fixtures of the scenarios must be copies of the real files
           scripts/sync-eval-fixtures.sh --check
           python3 aiup-core/skills/spec-review/scripts/spec_lint.py --self-test
+          python3 aiup-core/skills/user-guide/scripts/guide_anchor.py --self-test
+          # the user-guide scenarios seed one anchored section per state; their rubrics quote the hashes
+          for scenario in keeps-team-sections hand-edit-vs-spec-change; do
+            (cd "aiup-core/evals/user-guide-$scenario/inputs" \
+              && python3 ../../../skills/user-guide/scripts/guide_anchor.py check | awk '{print $2, $3}' \
+              > "$RUNNER_TEMP/states-$scenario.txt")
+          done
+          printf 'UC-001 unchanged\nUC-002 spec-changed\nUC-004 unchanged\n' \
+            | diff - "$RUNNER_TEMP/states-keeps-team-sections.txt"
+          printf 'UC-001 unchanged\nUC-002 spec-changed\nUC-004 edited\n' \
+            | diff - "$RUNNER_TEMP/states-hand-edit-vs-spec-change.txt"
           # spec-review-lint-and-semantic seeds defects on purpose: the lint must fail on it
           if python3 aiup-core/skills/spec-review/scripts/spec_lint.py \
               --docs aiup-core/evals/spec-review-lint-and-semantic/docs > /dev/null; then

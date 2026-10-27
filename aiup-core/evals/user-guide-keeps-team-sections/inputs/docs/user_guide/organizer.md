@@ -3,7 +3,7 @@
 This chapter is for organizers, who create workshops and keep them up to date.
 
 ## Create or change a workshop
-<!-- UC-001 -->
+<!-- UC-001 spec=970b3e0826fc text=27d69b10c379 -->
 
 Create a workshop so that participants can register for it, or change a planned one when its details change.
 

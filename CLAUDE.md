@@ -296,7 +296,10 @@ Why: [`docs/design/business-process.md`](docs/design/business-process.md).
   sets `**Status:** Done`, and only on a use case at `Tested` whose rows all passed and that no blocking question
   holds, after the user confirms. No other skill sets `Done`.
 - `/user-guide` covers `Tested` and `Done` (`all` adds `Approved` and `Implemented`); a section it writes carries a
-  `<!-- UC-XXX -->` anchor, and a section without one belongs to the team and is kept.
+  `<!-- UC-XXX spec=… text=… -->` anchor, and a section without one belongs to the team and is kept. The hashes are
+  stamped by `scripts/guide_anchor.py`, never by the agent: an unchanged section stays byte for byte, a changed
+  specification is rewritten, and only a hand edit asks (unanswered: kept and reported). The plan waits for a yes
+  unless no one can answer.
 - `/release-notes` reads the use cases at a Git ref with `git show`, matches them by id, and never takes content from
   commit messages.
 - The templates `chapter.md`, `protocol.md`, and `release.md` are not copyright-stamped.

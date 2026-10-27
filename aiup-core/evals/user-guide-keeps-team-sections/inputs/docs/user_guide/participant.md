@@ -3,7 +3,7 @@
 This chapter is for participants, who register for workshops and attend them.
 
 ## Register for a workshop
-<!-- UC-002 -->
+<!-- UC-002 spec=500260f28103 text=952ee9c95fc4 -->
 
 Reserve a place in an upcoming workshop so that you can attend it.
 
@@ -34,7 +34,7 @@ use your company email. External participants keep using the email link they rec
 ![The start page with the Sign in with Microsoft button](images/sign-in.png)
 
 ## Cancel your registration
-<!-- UC-004 -->
+<!-- UC-004 spec=83679fa93111 text=37f3dd041d93 -->
 
 Give back your place in a workshop when you can no longer attend, so that another participant can take it.
 

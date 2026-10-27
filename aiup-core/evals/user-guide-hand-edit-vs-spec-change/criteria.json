@@ -1,0 +1,36 @@
+{
+  "context": "Tests how /user-guide tells a hand edit from a specification change by the spec= and text= hashes in its anchor comments (scripts/guide_anchor.py of the skill). The guide was written and stamped from the specifications of the first release. Since then: UC-002 changed (registration deadline 24 → 48 hours in A2 and BR-002, and a new success postcondition: a confirmation email with the workshop's title and start time), while its guide section is untouched — state spec-changed. The support team edited the UC-004 section by hand, appending to its paragraph about the 24-hour cancellation deadline: 'If you cannot attend anyway, write to workshops-support@example.com so that we can give your place to someone else.' UC-004's specification did not change — state edited. UC-001 changed neither way — state unchanged. participant.md also holds a team section without an anchor ('## Signing in with your company account') between UC-002 and UC-004, and organizer.md ends with the team section '## Getting help'. Nobody can answer questions in this run. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Changed specification rewritten",
+      "description": "The UC-002 section in participant.md states the 48-hour registration deadline wherever it mentions the deadline (no '24 hours' left in it), its result mentions the confirmation email with the workshop's title and start time, and its anchor on the line after the heading reads <!-- UC-002 spec=... text=... --> with both hashes different from spec=500260f28103 text=952ee9c95fc4",
+      "max_score": 20
+    },
+    {
+      "name": "Hand edit kept",
+      "description": "The UC-004 section in participant.md is byte-identical to before, including the support team's sentence with workshops-support@example.com and its anchor <!-- UC-004 spec=83679fa93111 text=37f3dd041d93 -->; the agent neither overwrote the hand edit nor stamped new hashes over it",
+      "max_score": 25
+    },
+    {
+      "name": "Hand edit reported with both ways out",
+      "description": "The agent's report names the UC-004 section as edited by hand, shows or quotes what differs (the sentence about writing to support), and names both ways out without choosing one for the product owner: put the change into the specification with /use-case-spec UC-004, or move it into a section of its own without an anchor",
+      "max_score": 20
+    },
+    {
+      "name": "Unchanged section left alone",
+      "description": "The UC-001 section in organizer.md is byte-identical to before, including its anchor <!-- UC-001 spec=970b3e0826fc text=27d69b10c379 -->",
+      "max_score": 15
+    },
+    {
+      "name": "Team sections kept",
+      "description": "'## Signing in with your company account' in participant.md is byte-identical and still stands between the UC-002 and UC-004 sections; '## Getting help' in organizer.md is byte-identical and still the last section",
+      "max_score": 10
+    },
+    {
+      "name": "No specification changed",
+      "description": "Every file under docs/use_cases/, docs/use_cases.puml, docs/glossary.md, docs/requirements.md, and docs/entity_model.md is unchanged, and docs/open-questions.md was not created",
+      "max_score": 10
+    }
+  ]
+}

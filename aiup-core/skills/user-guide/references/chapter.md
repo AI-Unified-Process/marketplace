@@ -3,7 +3,7 @@
 [One sentence: who this chapter is for and what they do with the system.]
 
 ## [Task, from the use case's goal: "Register for a workshop"]
-<!-- UC-XXX -->
+<!-- UC-XXX spec=[stamped by guide_anchor.py] text=[stamped by guide_anchor.py] -->
 
 [Why and when you do this, from the goal and the trigger.]
 
