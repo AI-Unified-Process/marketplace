@@ -4,12 +4,13 @@ Part of the AI Unified Process — https://unifiedprocess.ai
 Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 -->
 
-# Navigator
+# Next step
 
 `aiup-core` has many skills across the four phases, and each one is consistent on its own. A new user still has a
 hard time knowing which command comes next: the stack file, decision rights, open questions, ADRs, markers, and the
 Transition skills all made the path longer (#46). `/next` reads the project state and names the next command with
-its reason.
+its reason. (It has nothing to do with the AI Unified Process Navigator, the IDE plugin that links tests to use case
+specifications.)
 
 - **A mode of `spec_lint.py`, not a new parser.** `spec_lint.py` already reads every artifact the decision needs:
   requirements, the diagram, use case and test case statuses, open questions, ADRs, and the lint findings after the
@@ -18,7 +19,7 @@ its reason.
   by glob like the other sibling scripts), and the latest Git tag with the use cases at that tag. The skill is thin,
   like `/spec-review`: it picks the construction commands, runs the script, and presents the result.
 - **The script orders, not the agent.** The same state gives the same next step on every run. An agent that ranks
-  the steps itself would give a different answer to the same question, and a navigator that is not reliable is not
+  the steps itself would give a different answer to the same question, and a guide that is not reliable is not
   used.
 - **Earlier phase first; in Construction, the use case closest to `Done` first.** Missing requirements, a missing
   entity model or diagram, and uncovered functional requirements come before any construction step, because every

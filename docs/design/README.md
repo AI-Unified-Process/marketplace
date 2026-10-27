@@ -13,7 +13,7 @@ in the repository's `CLAUDE.md`, and a change to a rule is made there and here t
 |-------------------------------------------------------|--------------------------------------------------------------------------------|
 | [Layered construction](layered-construction.md)       | The stack file, layer discovery, the integration layer, E2E scope, and markers |
 | [Spec review](spec-review.md)                         | The deterministic lint, the semantic review, and why the review converges      |
-| [Navigator](next.md)                                  | Why `/next` is a mode of the spec lint and how it orders the steps             |
+| [Next step](next.md)                                  | Why `/next` is a mode of the spec lint and how it orders the steps             |
 | [Open questions](open-questions.md)                   | The log of specification gaps, who writes what, and blocking questions         |
 | [Architecture decisions](architecture-decisions.md)   | ADRs linked to NFRs and constraints, statuses, and lint                        |
 | [Decision rights](decision-rights.md)                 | What the agent decides alone, asks about first, or never does                  |

@@ -31,7 +31,7 @@ marketplace/
 │       ├── business-process/
 │       ├── test-case/
 │       ├── spec-review/
-│       ├── next/                 # read-only navigator: spec_lint.py --next, the next command and why
+│       ├── next/                 # read-only: spec_lint.py --next, the next command and why
 │       ├── open-questions/       # docs/open-questions.md: the log of specification gaps
 │       ├── architecture-decision/ # docs/architecture/decisions/ADR-*.md, each linked to an NFR or constraint
 │       ├── stack/                # writes docs/architecture/stack.md (layer → skill)
@@ -244,7 +244,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
-#### Navigator
+#### Next step
 
 - `/next` is a thin skill on `spec_lint.py --next`; the script, not the agent, orders the steps. A new signal is added
   to `next_step()`, the table "How the Steps Are Ordered" of the skill, and the self-test together.

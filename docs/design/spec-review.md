@@ -26,7 +26,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
   ADR → its requirements) count only from a changed element; otherwise one change would reach the whole catalog.
   `/spec-review impact` adds the untraced, advisory part and the hand-offs, so change impact analysis needs no skill
   and no parser of its own. `--next` prints the project state and the next command for `/next`; see
-  [Navigator](next.md).
+  [Next step](next.md).
 - **Part B, the SKILL.md with `references/review-checklist.md`** — the agent's semantic review (contradictions,
   reworded duplicates, wrong level, completeness, testability, ambiguity, entity-model consistency, trigger and
   preconditions, actors, missing NFR and constraint references). Its findings are
