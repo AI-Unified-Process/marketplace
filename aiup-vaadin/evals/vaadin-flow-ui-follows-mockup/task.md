@@ -1,0 +1,32 @@
+# Build the Vaadin Flow View for "Register Guest" (UC-020)
+
+## Problem Description
+
+A hotel application combines layer plugins: Flyway, jOOQ, Spring Boot services, and a Vaadin Flow 25.1 UI. The
+layers are recorded in `docs/architecture/stack.md`. The use case is specified at
+`docs/use_cases/UC-020-register-guest.md`, and the service layer for it is already finished:
+
+```text
+Handover from spring-service (UC-020)
+- GuestService.list(int offset, int limit): List<Guest>; count(): int  — src/main/java/com/example/hotel/guest/GuestService.java
+- GuestService.register(GuestRegistration): Guest  — @Valid input; BR-001 and BR-002 enforced
+  - throws EmailAlreadyRegisteredException ("Email already registered") for A1
+  - throws IllegalArgumentException ("The guest must be at least 18 years old") for BR-002
+- Guest(long id, String firstName, String lastName, String email, LocalDate dateOfBirth) — record
+- GuestRegistration(firstName, lastName, email, dateOfBirth) — record with Jakarta Bean Validation annotations
+```
+
+The application layout `com.example.hotel.base.ui.MainLayout` builds its side navigation from `@Menu` entries.
+No view exists for UC-020 yet. The team sketched the screen in `docs/mockups/uc-020-guests.md`, which the use case
+links on its `**Mockup:**` line.
+
+## Output Specification
+
+Implement only the UI layer of UC-020 with Vaadin Flow, as `/use-case-implement` would delegate it to the UI layer
+skill. Put the view in `src/main/java/com/example/hotel/guest/ui/`. Update the Markers table in
+`docs/architecture/stack.md` for this layer. Do not write tests, do not change the service or repository, and do not
+compile or run anything. Nobody is available to answer questions during this run. Finish with the Handover block of
+the UI layer.
+
+This session's conversation is not kept. Append every message you write to the user, word for word and in order, to
+`session-log.md` in the root of the working directory; that log is not part of the project.

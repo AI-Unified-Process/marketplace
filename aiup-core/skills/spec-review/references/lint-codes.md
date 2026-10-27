@@ -49,6 +49,7 @@ errors.
 | WARN     | `ADR_UNLINKED`          | A `Proposed` or `Accepted` ADR whose `**Requirements:**` line links no NFR or C (an FR alone does not count): a decision is justified by a quality or a constraint | `/requirements`, then `/architecture-decision` |
 | WARN     | `ADR_STALE`             | A `Proposed` or `Accepted` ADR links a `Rejected` or `Deferred` requirement; or an ADR supersedes one that is not `Superseded`, or the two do not name each other in `**Supersedes:**` and `**Superseded by:**` | `/architecture-decision` |
 | WARN     | `ADR_INVALID`           | An ADR without a status, with a status other than Proposed, Accepted, Superseded, Deprecated, or Rejected, without a date, or `Superseded` without the ADR that replaced it | `/architecture-decision` |
+| WARN     | `MOCKUP_MISSING_FILE`   | A relative link on a use case's `**Mockup:**` line points to a file that does not exist; URLs are not checked, and a use case without a mockup is never reported | `/use-case-spec`    |
 | WARN     | `BR_DUPLICATE`          | Two use cases carry the same rule text; keep it in one and cite it as `UC-xxx BR-yyy`          | `/use-case-spec`    |
 | WARN     | `WEAK_WORD`             | A vague or optional word ("fast", "appropriate", "etc.", "and/or", "should", "ggf.", …)        | the owning skill    |
 | WARN     | `GLOSSARY_AVOIDED_TERM` | A synonym that `glossary.md` lists in its Avoid column (in `requirements.md` only in the prose columns, not in ID, Priority, Status, Category, or Source) | the owning skill    |
@@ -67,7 +68,7 @@ through unchanged: `ERROR` means the document does not parse (`TITLE_MISSING`, `
 `STATUS_INVALID`, `FLOW_INCOMPLETE`, `UNEXPECTED_CONTENT`), and `WARN` means a rule of the use-case-spec skill is
 broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_REF`, `FLOW_TERMINATION`,
 `POSTCONDITIONS_EMPTY`, `RULE_LABEL_MISSING`, `RULE_NUMBERING`, `TECHNICAL_TERM`, `UC_TRIGGER_EMPTY`,
-`UC_TRIGGER_STEP_REF`, `UC_TRIGGER_IS_PRECONDITION`, …). Fix them with `/use-case-spec`.
+`UC_TRIGGER_STEP_REF`, `UC_TRIGGER_IS_PRECONDITION`, `MOCKUP_NO_LINK`, …). Fix them with `/use-case-spec`.
 
 ## Options
 

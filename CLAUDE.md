@@ -303,6 +303,17 @@ Why: [`docs/design/business-process.md`](docs/design/business-process.md).
 
 Why: [`docs/design/transition.md`](docs/design/transition.md).
 
+#### Mockups
+
+- A use case may link mockups on an optional `**Mockup:**` line (same label in German): comma-separated Markdown
+  links to a Figma file, an image, or a Markdown sketch. `/use-case-spec` never asks for one.
+- Only the UI layer skills read it; the rule lives once, in section "Mockups" of `/use-case-implement`.
+- The mockup decides the layout, the specification everything else. A disagreement is built the specification's way
+  and recorded as a non-blocking open question.
+- A missing line is never reported; `MOCKUP_NO_LINK` and `MOCKUP_MISSING_FILE` stay WARN, and URLs are not checked.
+
+Why: [`docs/design/mockups.md`](docs/design/mockups.md).
+
 ### Layer plugins (Java)
 
 | Plugin             | Layer             | Skills                                                                                  |

@@ -1,0 +1,6 @@
+{
+  "description": "vaadin-flow-ui: layout from the use case's mockup, behaviour from the specification",
+  "include": [
+    "./inputs"
+  ]
+}

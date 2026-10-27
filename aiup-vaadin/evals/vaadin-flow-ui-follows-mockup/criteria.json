@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether vaadin-flow-ui reads the use case's **Mockup:** line (docs/mockups/uc-020-guests.md) and takes the layout from it while the specification stays authoritative: the form fields and grid columns follow the mockup's order, the Phone field the mockup shows but neither the use case nor the entity model backs is not built, the button keeps the specification's label \"Register\" instead of the mockup's \"Save guest\", each disagreement is recorded in docs/open-questions.md as a non-blocking question, and the Handover names what was followed and left out. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Form fields in the mockup's order",
+      "description": "The registration form adds its fields in the order Email, Last name, First name, Date of birth (e.g. the order of add(...) on the FormLayout or the order the fields are declared and added), not the order of the specification's step 3 (first name, last name, email, date of birth)",
+      "max_score": 13
+    },
+    {
+      "name": "Grid columns in the mockup's order",
+      "description": "The grid's columns are, left to right, Last Name, First Name, Email, and it shows no other data column",
+      "max_score": 12
+    },
+    {
+      "name": "Form above the grid",
+      "description": "The view adds the registration form before the grid, as the mockup places it, with the button after the fields",
+      "max_score": 6
+    },
+    {
+      "name": "Phone field not built",
+      "description": "No Phone field, phone property, or phone column exists anywhere in the view or any other created or changed file; GuestRegistration and Guest are unchanged",
+      "max_score": 14
+    },
+    {
+      "name": "Specification's button label",
+      "description": "The button that submits the form is labelled exactly \"Register\" (step 3 of the use case), not \"Save guest\" from the mockup",
+      "max_score": 11
+    },
+    {
+      "name": "Behaviour from the specification",
+      "description": "The view calls GuestService (never GuestRepository or jOOQ), shows \"Guest registered\" after a successful registration, catches EmailAlreadyRegisteredException to show \"Email already registered\", and marks the date-of-birth validator with // UC-020 BR-002:",
+      "max_score": 10
+    },
+    {
+      "name": "Disagreements recorded as non-blocking questions",
+      "description": "docs/open-questions.md is created (from the open-questions format: ## OQ-XXX: sections with **Element:**, **Raised by:**, **Blocking:**, **Status:** lines) with at least one question about the Phone field and one about the button label (or one question covering both), each on UC-020 or one of its steps, raised by vaadin-flow-ui, **Blocking:** No, **Status:** Open",
+      "max_score": 14
+    },
+    {
+      "name": "Specification and mockup left alone",
+      "description": "docs/use_cases/UC-020-register-guest.md and docs/mockups/uc-020-guests.md are unchanged; apart from docs/open-questions.md and the UI rows of the Markers table in docs/architecture/stack.md, nothing under docs/ changes",
+      "max_score": 10
+    },
+    {
+      "name": "Handover names the mockup",
+      "description": "The answer ends with a 'Handover from vaadin-flow-ui (UC-020)' block that has a line on the mockup: that docs/mockups/uc-020-guests.md was followed and that the Phone field was not built (naming the open question id)",
+      "max_score": 10
+    }
+  ]
+}

@@ -64,6 +64,8 @@ skeleton every layer skill of this marketplace uses, so the orchestrators find w
    inherits the inputs, the status check, the answers to the specification gaps, and the reconcile rules, and does
    not repeat them. Run directly, it reads the same inputs and applies the same rules. Either way, it takes
    decisions by the decision rights of `/use-case-implement` and lists the ones it took alone under **Decisions**.
+   A UI build skill also reads the use case's `**Mockup:**` links as section "Mockups" of `/use-case-implement`
+   defines, and names what it followed and left out in a `Mockup:` line of its Handover.
 4. **The technology sections** — how to build or test the layer, including where the `// UC-XXX BR-YYY:` marker of a
    business rule goes in this layer.
 5. **Markers** — the rows the skill keeps in the Markers table of the stack file.
@@ -71,7 +73,7 @@ skeleton every layer skill of this marketplace uses, so the orchestrators find w
    catalog row is reachable from the skill itself.
 
 Do not copy the shared rules of the orchestrators into the skill — specification gaps, decision rights, business
-rule markers, reconciling an existing implementation, "When a Test Fails", "Which Layer Tests What". Refer to them by slash
+rule markers, mockups, reconciling an existing implementation, "When a Test Fails", "Which Layer Tests What". Refer to them by slash
 command; a copy drifts.
 
 ### Markers

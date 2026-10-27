@@ -61,6 +61,7 @@ LANGUAGES = {
         "uc_trigger_aliases": ["**Trigger:**"],
         "trigger_aliases": ["**Trigger:**"],
         "layers_aliases": ["**Layers:**"],
+        "mockup_aliases": ["**Mockup:**"],
         "rule_prefix": "BR",
     },
     "de": {
@@ -92,6 +93,8 @@ LANGUAGES = {
         "trigger_aliases": ["**Auslöser:**", "**Trigger:**"],
         # and the English "Layers" label, which the skills cite
         "layers_aliases": ["**Schichten:**", "**Layers:**"],
+        # "Entwurf" is a status value, so the mockup line keeps its label
+        "mockup_aliases": ["**Mockup:**"],
         "rule_prefix": "GR",
     },
 }
@@ -120,6 +123,11 @@ UC_ID_GRAMMAR = re.compile(r"[SB]?UC-[A-Za-z0-9_-]+")
 # The entry layers a use case is offered through (optional **Layers:** line);
 # the same tokens in every language. Migration and persistence are implied.
 LAYER_VALUES = ["UI", "API", "Service"]
+
+# The mockups of a use case (optional **Mockup:** line): Markdown links to a
+# Figma file, an image, or a Markdown sketch; bare URLs are tolerated.
+MOCKUP_LINK = re.compile(r"\[[^\]]*\]\(\s*<?([^)\s>]+)>?[^)]*\)")
+BARE_URL = re.compile(r"https?://[^\s,)>]+")
 
 STEP_REFERENCE = re.compile(r"\((?:step|schritt)\s*\d", re.IGNORECASE)
 FLOW_TERMINATION = re.compile(
@@ -321,6 +329,12 @@ def parse_overview(doc, lines, index):
                          if line.startswith(a))
             overview["layers"] = line[len(alias):].strip()
             overview["layers_line"] = index + 1
+            index += 1
+        elif any(line.startswith(a) for a in lang["mockup_aliases"]):
+            alias = next(a for a in lang["mockup_aliases"]
+                         if line.startswith(a))
+            overview["mockup"] = line[len(alias):].strip()
+            overview["mockup_line"] = index + 1
             index += 1
         elif any(line.startswith(a) for a in lang["uc_trigger_aliases"]):
             alias = next(a for a in lang["uc_trigger_aliases"]
@@ -589,6 +603,14 @@ def parse_document(text):
     return doc
 
 
+def mockup_targets(value):
+    """The link targets of a **Mockup:** line value, in order."""
+    targets = MOCKUP_LINK.findall(value)
+    if not targets:
+        targets = BARE_URL.findall(value)
+    return targets
+
+
 def check_contract(doc, path):
     """Skill-contract checks beyond what Studio's parser enforces (WARN)."""
     lang = LANGUAGES[doc.language]
@@ -677,6 +699,21 @@ def check_contract(doc, path):
             doc.add(layers_line, WARN, "LAYERS_INVALID",
                     "Service means no actor reaches the use case through a "
                     "UI or an API; it is not combined with them: " + layers)
+
+    # The mockup line is optional; when present it links at least one mockup.
+    mockup = doc.overview.get("mockup")
+    if mockup is not None:
+        mockup_line = doc.overview.get("mockup_line", 0)
+        if mockup.startswith("[") and mockup.endswith("]") \
+                and "](" not in mockup:
+            doc.add(mockup_line, WARN, "MOCKUP_NO_LINK",
+                    "the mockup line still holds the template placeholder; "
+                    "link the mockups or omit the line")
+        elif not mockup_targets(mockup):
+            doc.add(mockup_line, WARN, "MOCKUP_NO_LINK",
+                    "the mockup line links no mockup; write each as a "
+                    "Markdown link, e.g. [List view](../mockups/list.png), "
+                    "or omit the line")
 
     if not doc.main_scenario and not doc.main_scenario_placeholder \
             and "main_scenario" in doc.sections_seen:
@@ -965,6 +1002,33 @@ def self_test():
         failures.append("layers placeholder: expected one LAYERS_INVALID "
                         "naming UI, API, Service, got "
                         + str([p.message for p in doc.problems]))
+
+    figma = "https://www.figma.com/design/abc123/Reservations?node-id=1-2"
+    for line, targets, codes in (
+            ("**Mockup:** [Figma](" + figma + "), [Edit dialog]"
+             "(../mockups/uc-001-edit.png)",
+             [figma, "../mockups/uc-001-edit.png"], []),
+            ("**Mockup:** <" + figma + ">", [figma], []),
+            ("**Mockup:** see the whiteboard", [], ["MOCKUP_NO_LINK"]),
+            ("**Mockup:** [Links to the mockups of this use case; omit this "
+             "line when there is none]", [], ["MOCKUP_NO_LINK"])):
+        doc = parse_document(VALID_EN.replace(
+            "**Layers:** UI", "**Layers:** UI  \n" + line))
+        check_contract(doc, "UC-001-create-reservation.md")
+        found = sorted(p.code for p in doc.problems)
+        got = mockup_targets(doc.overview.get("mockup", ""))
+        if found != codes or got != targets:
+            failures.append("mockup " + line + ": expected " + str(codes)
+                            + " " + str(targets) + ", got " + str(found)
+                            + " " + str(got))
+
+    doc = parse_document(VALID_DE_TOLERANT.replace(
+        "**Schichten:** UI", "**Schichten:** UI  \n**Mockup:** "
+        "[Skizze](../mockups/uc-013a.md)"))
+    check_contract(doc, "UC-013a-mitteilung-erfassen.md")
+    if doc.overview.get("mockup") != "[Skizze](../mockups/uc-013a.md)":
+        failures.append("valid-de: **Mockup:** label not accepted")
+    expect("valid-de-mockup", doc.problems, [], forbidden_severity=WARN)
 
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")

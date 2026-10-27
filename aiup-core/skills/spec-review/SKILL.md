@@ -137,7 +137,7 @@ Turn lint findings and semantic `warning` findings into the command that fixes t
 the user says yes. Do not offer a command for an `info` finding — list it in the report and leave it there unless the
 user asks to fix it; polishing the wording of a ready use case is not a reason for another round.
 
-- a use case (flows, rules, wording, level) → `/use-case-spec UC-XXX`
+- a use case (flows, rules, wording, level, a mockup link to a missing file) → `/use-case-spec UC-XXX`
 - a use case missing from, or extra in, the diagram → `/use-case-diagram`
 - requirements, uncovered FRs, requirement statuses, glossary terms and synonyms → `/requirements`
 - data that does not match the entity model → `/entity-model`

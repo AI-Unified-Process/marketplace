@@ -30,7 +30,8 @@ check is exact and gives the same result on every run:
            architecture decision that links no NFR or constraint, links a
            rejected or deferred one, or has no valid status or date, or a
            rule of the use-case-spec skill that validate_use_case.py reports
-           as broken.
+           as broken, or a mockup a use case links to a file that does
+           not exist.
 - INFO   = worth knowing, never a failure: e.g. an NFR or constraint no
            use case links, which is fine when it applies system-wide.
 
@@ -144,6 +145,7 @@ import os
 import re
 import sys
 import tempfile
+import urllib.parse
 
 ERROR = "ERROR"
 WARN = "WARN"
@@ -202,6 +204,10 @@ PRIMARY_ACTOR_FIELDS = ("**Primary Actor:**", "**Primary Actors:**",
                         "**Primärer Akteur:**", "**Primäre Akteure:**")
 SECONDARY_ACTOR_FIELDS = ("**Secondary Actors:**", "**Secondary Actor:**",
                           "**Sekundäre Akteure:**", "**Sekundärer Akteur:**")
+MOCKUP_FIELDS = ("**Mockup:**",)
+# A Markdown link target; a target with a scheme (https:, mailto:) is no file
+MARKDOWN_TARGET = re.compile(r"\]\(\s*<?([^)\s>]+)>?[^)]*\)")
+URL_SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
 NO_ACTOR = ("", "-", "—", "none", "n a", "keine", "keiner")
 STATUS_FIELD = "**Status:**"
 RULES_HEADINGS = ("## Business Rules", "## Geschäftsregeln")
@@ -366,6 +372,7 @@ class Spec:
         self.rules = {}          # rule id -> {"line", "name", "text"}
         self.rule_order = []
         self.status_line = 1
+        self.mockups = []        # (line, link target)
         self.steps = set()       # step numbers of the main success scenario
         self.flows = set()       # alternative flow ids (A1, A2, ...)
         in_rules = in_main = in_flows = False
@@ -395,6 +402,10 @@ class Spec:
                     name = re.sub(r"\([^)]*\)", " ", name).strip(" *_`")
                     if normalize(name) not in NO_ACTOR:
                         self.actors.append((number, name, kind))
+            value = field_value(line, MOCKUP_FIELDS)
+            if value is not None:
+                self.mockups += [(number, target) for target
+                                 in MARKDOWN_TARGET.findall(value)]
             value = field_value(line, REQUIREMENTS_FIELDS)
             if value is not None:
                 self.requirements += [(number, rid)
@@ -1419,6 +1430,25 @@ def requirement_prose(lines):
     return result
 
 
+def check_mockups(project, specs):
+    # A use case without a mockup is fine; a link to a missing file is not.
+    for uid, spec in specs.items():
+        for number, target in spec.mockups:
+            if URL_SCHEME.match(target) or target.startswith("#"):
+                continue
+            rel = urllib.parse.unquote(re.split(r"[#?]", target)[0])
+            if not rel:
+                continue
+            if rel.startswith("/"):
+                path = os.path.join(os.path.dirname(
+                    os.path.abspath(project.docs)), rel.lstrip("/"))
+            else:
+                path = os.path.join(os.path.dirname(spec.path), rel)
+            if not os.path.exists(path):
+                project.add(WARN, "MOCKUP_MISSING_FILE", spec.path, number,
+                            uid, "the mockup " + target + " does not exist")
+
+
 def check_wording(project, specs, glossary):
     """Weak words and avoided glossary synonyms in the prose artifacts."""
     avoided = [(term, synonym, word_pattern(synonym, plural=True))
@@ -1463,6 +1493,7 @@ def lint(docs, validator, bpmn):
     check_bpmn(project, specs, diagram, bpmn)
     entities = check_entities(project)
     glossary = load_glossary(project)
+    check_mockups(project, specs)
     check_wording(project, specs, glossary)
     check_open_questions(project, specs, diagram, requirements, entities,
                          glossary)
@@ -2865,6 +2896,23 @@ def self_test():
         cov = filter_trace(matrix, "UC-002")["coverage"]
         if cov["active"] != 1 or cov["stages"][2]["stopped"] != ["FR-002"]:
             failures.append("coverage: --only UC-002 wrong, got " + str(cov))
+
+    with tempfile.TemporaryDirectory() as root:
+        values = dict(CLEAN)
+        values["mockups/uc-001-form.png"] = ""
+        values["use_cases/UC-001-create-guest.md"] = CLEAN[
+            "use_cases/UC-001-create-guest.md"].replace(
+            "**Requirements:**", "**Mockup:** [Form](../mockups/uc-001-form."
+            "png#top), [Figma](https://www.figma.com/design/abc/Guests), "
+            "[Dialog](../mockups/uc-001-dialog.md)  \n**Requirements:**")
+        write_fixture(root, values)
+        found = [(f.code, f.element, f.message)
+                 for f in lint(root, validator, bpmn) if f.severity != INFO]
+        if len(found) != 1 or found[0][:2] != ("MOCKUP_MISSING_FILE",
+                                               "UC-001") \
+                or "uc-001-dialog.md" not in found[0][2]:
+            failures.append("mockups: expected one MOCKUP_MISSING_FILE for "
+                            "uc-001-dialog.md, got " + str(found))
 
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, {"use_cases.puml": ACTOR_DIAGRAM})

@@ -41,6 +41,7 @@ this order on save):
 
 **Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
 **Layers:** UI                                      (optional)
+**Mockup:** [List view](../mockups/uc-001-list.png)  (optional)
 
 ## Preconditions
 
@@ -103,6 +104,7 @@ and empty files are English) and preserved on save.
 | Status               | `**Status:**`                 | `**Status:**` (same)    |
 | Requirements         | `**Requirements:**`           | `**Anforderungen:**`    |
 | Layers               | `**Layers:**`                 | `**Schichten:**` (reads `**Layers:**` too) |
+| Mockup               | `**Mockup:**`                 | `**Mockup:**` (same)    |
 | Preconditions        | `## Preconditions`            | `## Vorbedingungen`     |
 | Main scenario        | `## Main Success Scenario`    | `## Hauptablauf`        |
 | Alternative flows    | `## Alternative Flows`        | `## Alternativabläufe`  |
@@ -135,7 +137,7 @@ Status values (either language is readable in any document):
    on save.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
-   Secondary Actors, Trigger, Requirements and Layers are optional. Primary
+   Secondary Actors, Trigger, Requirements, Layers and Mockup are optional. Primary
    Actor holds one role or a comma-separated list of roles; the label
    stays singular (`**Primary Actor:**`, `**Primärer Akteur:**`) in
    both cases.
@@ -217,6 +219,17 @@ The `/use-case-spec` skill additionally requires:
   `LAYERS_EMPTY`) on any other value, which is usually a technology
   (`REST`, `Vaadin`) the stack file maps instead, and
   (`LAYERS_DUPLICATE`) on a layer named twice.
+
+- A `**Mockup:**` line is optional, and a use case without one is never
+  reported. When present it holds one or more comma-separated Markdown
+  links to the use case's mockups or wireframes — a Figma link, an image,
+  or a Markdown sketch, e.g.
+  `[List view](../mockups/uc-001-list.png), [Figma](https://www.figma.com/design/…)`;
+  bare URLs are tolerated. The
+  label is the same in German, because `Entwurf` is a status value. The
+  validator warns (`MOCKUP_NO_LINK`) when the line links nothing or still
+  holds the template placeholder; `/spec-review` warns
+  (`MOCKUP_MISSING_FILE`) when a relative link points to no file.
 
 - All five template sections and both postcondition subsections exist.
 - The use case id matches `[SB]?UC-[A-Za-z0-9_-]+` and the filename

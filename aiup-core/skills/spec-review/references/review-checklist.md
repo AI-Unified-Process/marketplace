@@ -84,6 +84,9 @@ A subfunction the diagram draws as an `<<include>>` from several use cases is in
   in `**Trigger:**`, or its last step and the success postconditions do not achieve what the Overview `**Goal:**`
   promises (the goal says "books a room", the scenario ends when the availability is shown)
 
+A use case without a `**Mockup:**` line is not incomplete: the line is optional, and the mockup is layout input for
+the UI layer skills, never part of the specification this checklist reviews.
+
 Severity: `warning`.
 
 ## 5. Testability

@@ -199,7 +199,11 @@ layer test skills; in a layered project the Markers table of `docs/architecture/
 file, so the markers of a project are always the markers of the layers it actually uses, and `/use-case-coverage` reads
 them from there. A use case offered through only some entry points names them in the optional `**Layers:**` line of its
 Overview (`UI`, `API`, or `Service` alone); `/use-case-implement` and `/use-case-test` then build and test only those layers, and
-`/use-case-coverage` reports no gap for the layers it leaves out.
+`/use-case-coverage` reports no gap for the layers it leaves out. A use case may also link its mockups or wireframes
+in the optional `**Mockup:**` line (a Figma link, an image, or a Markdown sketch under `docs/`): the UI layer skills take
+the layout from them, and the specification stays authoritative for behaviour, rules, and messages. The mockup is no
+traceability link; a use case without one is never reported, and `/spec-review` warns only about a link to a missing
+file.
 
 Inside a test that carries its use case id, a rule is named by its bare id (`businessRules = {"BR-003"}`,
 `it('BR-003: …')`), because the use case qualifies it.

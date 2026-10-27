@@ -39,6 +39,13 @@ variants are in `format-spec.md` next to this file; this file says what goes int
   application that also exposes a public API is `**Layers:** UI`. Name entry points only, never a technology
   (`Vaadin`, `REST`); the project's stack file maps them onto its layer skills, and `/use-case-implement`
   builds only the layers the line names.
+- **Mockup**, directly after it, only when the team has a mockup or wireframe of the use case's screens: one or
+  more comma-separated Markdown links — a Figma link, an image, or a Markdown sketch, kept under `docs/` (for
+  example `docs/mockups/`), e.g. `**Mockup:** [List view](../mockups/uc-001-list.png), [Edit dialog](https://www.figma.com/design/…)`.
+  The label is `**Mockup:**` in German too. The UI layer skills take the layout from it; the specification stays
+  authoritative for behaviour, rules, and messages, so never move a step, a rule, or a message into the mockup, and
+  never describe the layout in the steps because a mockup exists. Keep an existing line when you update a use case;
+  add one only when the user names a mockup, and never ask for one.
 
 ## Failure postconditions
 

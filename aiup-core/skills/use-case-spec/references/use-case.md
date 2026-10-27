@@ -11,7 +11,8 @@
 **Status:** Draft | Reviewed | Approved | Implemented | Tested | Done | Obsolete  
 
 **Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)  
-**Layers:** [UI, API, or Service — the entry layers that offer this use case; omit this line when every entry layer of the project offers it]
+**Layers:** [UI, API, or Service — the entry layers that offer this use case; omit this line when every entry layer of the project offers it]  
+**Mockup:** [Links to the mockups or wireframes of this use case — a Figma link, an image, or a Markdown sketch under docs/; omit this line when there is none]
 
 ## Preconditions
 
