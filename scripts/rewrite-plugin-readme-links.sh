@@ -18,17 +18,31 @@ if [ ! -f "$readme" ]; then
   exit 1
 fi
 
-# Keep sibling-package links inside the Tessl registry. This must run before the
-# generic parent-relative rewrite below.
-REGISTRY_BASE="$registry_base" perl -pi -e 's{\]\(\.\./(aiup-[a-z0-9-]+)/?\)}{"](" . $ENV{REGISTRY_BASE} . "/$1)"}ge' "$readme"
+# A link inside a code span or a fenced block is an example, not a link, and stays as written. Sibling-package
+# links stay inside the Tessl registry; that rewrite must run before the generic parent-relative one.
+REGISTRY_BASE="$registry_base" BASE="$repository_url" REF="$git_ref" perl -pi -e '
+  if (/^\s*```/) { $fenced = !$fenced; next }
+  next if $fenced;
+  my @parts = split /(`[^`]*`)/;
+  for (@parts) {
+    next if /^`/;
+    s{\]\(\.\./(aiup-[a-z0-9-]+)/?\)}{"](" . $ENV{REGISTRY_BASE} . "/$1)"}ge;
+    s{\]\(\.\./([^)]+)\)}{
+      my $path = $1;
+      my $kind = ($path =~ m{\.md(?:#|$)}) ? "blob" : "tree";
+      "]($ENV{BASE}/$kind/$ENV{REF}/$path)"
+    }ge;
+  }
+  $_ = join "", @parts;
+' "$readme"
 
-BASE="$repository_url" REF="$git_ref" perl -pi -e 's{\]\(\.\./([^)]+)\)}{
-  my $path = $1;
-  my $kind = ($path =~ m{\.md(?:#|$)}) ? "blob" : "tree";
-  "]($ENV{BASE}/$kind/$ENV{REF}/$path)"
-}ge' "$readme"
-
-if grep -q '](\.\./' "$readme"; then
+if perl -ne '
+  if (/^\s*```/) { $fenced = !$fenced; next }
+  next if $fenced;
+  s/`[^`]*`//g;
+  $found = 1 if m{\]\(\.\./};
+  END { exit($found ? 0 : 1) }
+' "$readme"; then
   echo "ERROR: unrewritten parent-relative link in $readme" >&2
   exit 1
 fi

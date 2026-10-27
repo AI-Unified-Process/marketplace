@@ -137,6 +137,16 @@ by a test case, and verified), the traceability matrix from requirement to use c
 and the lint findings. `/spec-review report UC-001` narrows it to one id. Open the file in a browser; the ids link to
 the specification files.
 
+When you are not sure which command comes next, ask:
+
+```text
+/next
+```
+
+It reads `docs/` (and the last Git tag) and names the next command with its reason: a missing document, a blocking
+question, a use case waiting for review, implementation, tests, acceptance, the user guide, or the release notes.
+It never runs the command itself.
+
 ## 5. Implement and test
 
 Once a use case specification exists, continue with construction. With layer plugins, record the stack once and

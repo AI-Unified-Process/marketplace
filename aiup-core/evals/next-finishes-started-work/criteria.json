@@ -1,0 +1,41 @@
+{
+  "context": "Tests /next on the library specifications of spec-review-impact-changed-rule plus a stack file for a REST service (Flyway, JPA, Spring Boot, Spring MVC REST, no UI, no E2E layer). UC-001 Register Member and UC-004 Send Reminder are Approved, UC-002 Lend Book and UC-003 Return Book are Implemented, TC-001 is Reviewed, OQ-001 is open and not blocking, and the spec lint is clean. spec_lint.py --next prints a state table (4 use cases: Approved 2, Implemented 2; 1 test case Reviewed; 1 open question, 0 blocking; 0 errors, 0 warnings), 'Next: /use-case-test UC-002 — UC-002 is Implemented; then /use-case-coverage UC-002 (also UC-003)' and 'Then: /use-case-implement UC-001 — UC-001 is Approved (also UC-004)'; the only further step is the advisory /architecture-decision for C-001. The skill presents the script's order (the use case closest to Done first), never runs the next command, and writes no file. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Nothing written or run",
+      "description": "No file under docs/ is modified, created, renamed, or deleted (no **Status:** line changes), no code or test file is created anywhere, and no skill such as /use-case-test or /use-case-implement is run",
+      "max_score": 25
+    },
+    {
+      "name": "Next step is testing UC-002",
+      "description": "The answer names /use-case-test UC-002 as the next command, with the reason that UC-002 is Implemented",
+      "max_score": 20
+    },
+    {
+      "name": "Started work before new work",
+      "description": "The answer puts testing the Implemented use cases (UC-002, UC-003) before implementing the Approved ones (UC-001, UC-004); it does not name /use-case-implement as the first step",
+      "max_score": 15
+    },
+    {
+      "name": "Second step named",
+      "description": "The answer names /use-case-implement UC-001 (UC-001 is Approved) as the step after it, or mentions it with UC-004 as the following work",
+      "max_score": 10
+    },
+    {
+      "name": "Coverage audit mentioned",
+      "description": "The answer says that /use-case-coverage UC-002 follows the tests of UC-002",
+      "max_score": 10
+    },
+    {
+      "name": "State summarized",
+      "description": "The answer shows the project state: use cases per status (2 Approved, 2 Implemented), the test case, the open question that does not block, and a clean spec lint",
+      "max_score": 10
+    },
+    {
+      "name": "No invented steps",
+      "description": "The answer does not present steps the project does not need as next steps: no /stack (the stack file exists), no /test-case-implement (TC-001 is Reviewed and there is no E2E layer), no /acceptance-protocol or /release-notes (no use case is Tested or Done)",
+      "max_score": 10
+    }
+  ]
+}

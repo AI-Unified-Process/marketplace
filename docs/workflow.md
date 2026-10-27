@@ -18,7 +18,7 @@ Inception        Elaboration                                Construction        
 /requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
                                  ↘ /business-process        /test-case     → automate the journey            /user-guide
                                    (optional)                                                                /release-notes
-                 /spec-review at any point
+                 /spec-review at any point, /next names the next step
 ```
 
 `aiup-core` owns the stack-independent steps. Construction comes in two forms:
@@ -453,6 +453,7 @@ for those people; none of them changes a specification, except that closing an a
 | [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                 |
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |
+| [`/next`](../aiup-core/skills/next/SKILL.md)                               | The project state and the next command with its reason (read-only)      |
 | [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md)           | `docs/open-questions.md`: record, list, answer, and withdraw questions  |
 | [`/architecture-decision`](../aiup-core/skills/architecture-decision/SKILL.md) | ADRs linked to the NFRs and constraints they serve                  |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md)       | AI Unified Process baseline recovered from an existing codebase         |

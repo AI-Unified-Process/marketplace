@@ -24,6 +24,7 @@ reviewable files under `docs/`.
 | Construction | [`/use-case-spec`](skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                      |
 | Construction | [`/test-case`](skills/test-case/SKILL.md)                     | Executable journeys across specified use cases or BPMN process paths         |
 | Any          | [`/spec-review`](skills/spec-review/SKILL.md)                 | Deterministic lint and advisory review of the specification quality          |
+| Any          | [`/next`](skills/next/SKILL.md)                               | Read-only: the project state and the next command with its reason            |
 | Any          | [`/open-questions`](skills/open-questions/SKILL.md)           | `docs/open-questions.md`: the questions the specification does not answer yet |
 | Any          | [`/architecture-decision`](skills/architecture-decision/SKILL.md) | Architecture decision records (`ADR-XXX`), each linked to the NFRs and constraints it serves |
 | Any          | [`/reverse-engineer`](skills/reverse-engineer/SKILL.md)       | Entity and use case documentation recovered from existing code               |
