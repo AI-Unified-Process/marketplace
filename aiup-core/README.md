@@ -135,9 +135,7 @@ document the implementation layouts they support.
 
 ## MCP servers
 
-| Server     | Purpose                                                          |
-|------------|------------------------------------------------------------------|
-| `context7` | Current language, framework, and library documentation on demand |
+None. The layer and stack plugins bring the documentation servers their technologies need.
 
 ## Related documentation
 

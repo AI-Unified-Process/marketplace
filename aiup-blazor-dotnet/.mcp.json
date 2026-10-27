@@ -2,9 +2,9 @@
   "mcpServers": {
     "MicrosoftLearn": {
       "type": "http",
-      "url": "https://mcp.context7.com/mcp"
+      "url": "https://learn.microsoft.com/api/mcp"
     },
-    "bUnitDocs": {
+    "context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp"
     },

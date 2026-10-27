@@ -222,7 +222,7 @@ has a test helper for driving these controls, use it rather than reimplementing 
 - Query priority guidance: https://testing-library.com/docs/queries/about#priority
 - `user-event`: https://testing-library.com/docs/user-event/intro
 - Vitest documentation: https://vitest.dev/guide/
-- If `aiup-core` is installed, its context7 MCP server covers React, Vitest and Testing Library
+- The plugin's context7 MCP server covers React, Vitest and Testing Library
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for
   `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
   are all you need) to configure the optional servers

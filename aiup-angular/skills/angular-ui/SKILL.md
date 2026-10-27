@@ -333,5 +333,4 @@ coverage audit.
 - Signals: https://angular.dev/guide/signals
 - Reactive forms: https://angular.dev/guide/forms/reactive-forms
 - HttpClient: https://angular.dev/guide/http
-- If `aiup-core` is installed, its context7 MCP server resolves current Angular and RxJS documentation; this plugin
-  needs no MCP server of its own.
+- The plugin's context7 MCP server resolves current Angular and RxJS documentation.

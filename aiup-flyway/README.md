@@ -77,7 +77,9 @@ See the marketplace [installation guides](../docs/installation/) for other agent
 
 ## MCP servers
 
-None. Flyway's documentation is reachable through `aiup-core`'s `context7` server.
+| Server     | Purpose                                 |
+|------------|-----------------------------------------|
+| `context7` | Current Flyway documentation on demand |
 
 ## License
 

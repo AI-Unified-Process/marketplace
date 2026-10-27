@@ -178,5 +178,4 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Component testing scenarios: https://angular.dev/guide/testing/components-scenarios
 - HTTP testing: https://angular.dev/guide/http/testing
 - Vitest: https://vitest.dev/guide/
-- If `aiup-core` is installed, its context7 MCP server resolves current Angular, RxJS, and Vitest documentation; this
-  plugin needs no MCP server of its own.
+- The plugin's context7 MCP server resolves current Angular, RxJS, and Vitest documentation.

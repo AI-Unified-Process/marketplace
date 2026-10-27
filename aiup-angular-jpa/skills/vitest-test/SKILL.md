@@ -321,7 +321,7 @@ all is the user's call.
 - Component testing scenarios: https://angular.dev/guide/testing/components-scenarios
 - `HttpClientTestingModule`/`HttpTestingController`: https://angular.dev/guide/http/testing
 - Vitest documentation: https://vitest.dev/guide/
-- If `aiup-core` is installed, its context7 MCP server covers RxJS/Vitest docs —
+- The plugin's context7 MCP server covers RxJS/Vitest docs —
   see the plugin's `rules/mcp-servers.md` (locate it with a glob for
 `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
 are all you need)

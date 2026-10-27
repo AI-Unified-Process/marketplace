@@ -16,6 +16,7 @@ hard-requires them.
 
 | Server      | Type  | URL / command                  | Used by                                       |
 |-------------|-------|--------------------------------|-----------------------------------------------|
+| context7    | http  | `https://mcp.context7.com/mcp` | `implement`, `vitest-test` (frontend docs)    |
 | JavaDocs    | http  | `https://www.javadocs.dev/mcp` | `implement`, `spring-boot-test`               |
 | playwright  | stdio | `npx @playwright/mcp@latest`   | `playwright-test` (running browser tests)     |
 
@@ -27,6 +28,10 @@ alongside them):
 ```json
 {
   "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
     "JavaDocs": {
       "type": "http",
       "url": "https://www.javadocs.dev/mcp"
@@ -45,14 +50,11 @@ alongside them):
 For other agents (Cursor, Gemini, Codex, Copilot), add the same servers to that
 agent's MCP configuration file.
 
-## Frontend docs already covered by `aiup-core`
+## Frontend docs through context7
 
-`aiup-core`'s `.mcp.json` wires up **context7** (`https://mcp.context7.com/mcp`), a
-general library-documentation server. Because it resolves docs for any npm/JS package on
-demand, it already covers Angular, RxJS, and Vitest — the libraries the `implement` and
-`vitest-test` skills rely on for the frontend. If you have `aiup-core` installed (a
-prerequisite for this plugin — see the top-level README), you get frontend doc lookups
-for free without configuring anything extra here.
+**context7** is a general library-documentation server. Because it resolves docs for any
+npm/JS package on demand, it covers Angular, RxJS, and Vitest — the libraries the
+`implement` and `vitest-test` skills rely on for the frontend.
 
 ## Note for Tessl-installed users
 

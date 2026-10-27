@@ -313,7 +313,7 @@ inside a commit labelled "add tests".
 - Vitest documentation: https://vitest.dev/guide/
 - Testcontainers for Node: https://node.testcontainers.org
 - Supertest: https://github.com/ladjs/supertest
-- If `aiup-core` is installed, its context7 MCP server covers Vitest, Supertest and Testcontainers
+- The plugin's context7 MCP server covers Vitest, Supertest and Testcontainers
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for
   `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
   are all you need) to configure the optional servers

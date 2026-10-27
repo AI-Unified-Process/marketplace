@@ -117,7 +117,7 @@ project when it is missing and use it as `[UseCase("UC-001", Scenario = "A2: Inv
 | Server           | Purpose                                                       |
 |------------------|---------------------------------------------------------------|
 | `MicrosoftLearn` | Current .NET, Blazor, and Entity Framework Core documentation |
-| `bUnitDocs`      | bUnit component-testing documentation                         |
+| `context7`       | bUnit component-testing documentation                         |
 | `playwright`     | Browser automation                                            |
 
 See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.

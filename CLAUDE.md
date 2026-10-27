@@ -17,7 +17,7 @@ marketplace/
 ├── aiup-core/                    # Stack-agnostic core methodology
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
-│   ├── .mcp.json                 # context7 (Claude Code format)
+│   ├── .mcp.json                 # no servers (Claude Code format)
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
 │   ├── agents/                   # Sub-agents (Claude Code)
@@ -63,7 +63,7 @@ marketplace/
 ├── aiup-angular-jpa/             # Angular + JPA technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
-│   ├── .mcp.json                 # JavaDocs, Playwright
+│   ├── .mcp.json                 # context7, JavaDocs, Playwright
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
 │   ├── agents/                   # Sub-agents (Claude Code)
@@ -78,7 +78,7 @@ marketplace/
 ├── aiup-blazor-dotnet/           # C# + Blazor .NET 10 technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
-│   ├── .mcp.json                 # MicrosoftLearn, bUnitDocs, Playwright
+│   ├── .mcp.json                 # MicrosoftLearn, context7, Playwright
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)
@@ -90,7 +90,7 @@ marketplace/
 ├── aiup-nestjs-nextjs/           # NestJS + Drizzle / Next.js technology stack plugin
 │   ├── .claude-plugin/
 │   │   └── plugin.json           # Claude Code manifest
-│   ├── .mcp.json                 # Playwright
+│   ├── .mcp.json                 # context7, Playwright
 │   ├── plugin.json               # Agent Plugins manifest (agent-plugins.org)
 │   ├── mcp.json                  # Agent Plugins MCP config
 │   └── skills/                   # All workflow steps as skills (slash commands)

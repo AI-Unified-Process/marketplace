@@ -3,9 +3,9 @@
   "mcpServers": {
     "MicrosoftLearn": {
       "type": "streamable-http",
-      "url": "https://mcp.context7.com/mcp"
+      "url": "https://learn.microsoft.com/api/mcp"
     },
-    "bUnitDocs": {
+    "context7": {
       "type": "streamable-http",
       "url": "https://mcp.context7.com/mcp"
     },

@@ -71,7 +71,9 @@ agents.
 
 ## MCP servers
 
-None of its own. Current Angular, RxJS, and Vitest documentation comes from `aiup-core`'s `context7` server.
+| Server     | Purpose                                                   |
+|------------|-----------------------------------------------------------|
+| `context7` | Current Angular, RxJS, and Vitest documentation on demand |
 
 ## Related documentation
 

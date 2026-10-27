@@ -156,10 +156,11 @@ than prescribe exact names.
 
 | Server       | Purpose                                                            |
 |--------------|--------------------------------------------------------------------|
+| `context7`   | Angular, RxJS, Vitest, and other npm package documentation         |
 | `JavaDocs`   | Spring, Hibernate, RestAssured, Testcontainers, and classpath APIs |
 | `playwright` | Browser automation                                                 |
 
-General npm package documentation is available through `aiup-core`'s `context7` server. See
+See
 [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 
 ## Related documentation

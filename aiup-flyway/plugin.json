@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-flyway",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "AI Unified Process migration layer - Flyway schema migrations from the entity model",
   "author": {
     "name": "Simon Martinelli",

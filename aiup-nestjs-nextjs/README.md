@@ -118,12 +118,12 @@ components are supported when the existing project establishes those conventions
 
 ## MCP servers
 
-| Server       | Purpose            |
-|--------------|--------------------|
-| `playwright` | Browser automation |
+| Server       | Purpose                                                                                        |
+|--------------|------------------------------------------------------------------------------------------------|
+| `context7`   | NestJS, Drizzle, Next.js, React, Vitest, Supertest, and Testcontainers documentation on demand |
+| `playwright` | Browser automation                                                                             |
 
-NestJS, Drizzle, Next.js, React, Vitest, Supertest, and Testcontainers documentation is available through
-`aiup-core`'s `context7` server. See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
+See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.
 
 ## Related documentation
 

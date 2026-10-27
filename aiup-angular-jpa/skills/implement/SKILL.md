@@ -548,7 +548,7 @@ all is the user's call.
 ## Resources
 
 - If configured, use the JavaDocs MCP server for Spring/Hibernate API documentation (`https://www.javadocs.dev/mcp`)
-- If `aiup-core` is installed, its context7 MCP server covers RxJS and other frontend library docs
+- The plugin's context7 MCP server covers RxJS and other frontend library docs
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for
   `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
   are all you need) to configure these optional servers

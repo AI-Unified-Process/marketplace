@@ -30,12 +30,6 @@ Add this to your project's `.mcp.json` (the Tessl `tessl mcp start` bridge can s
 
 For other agents (Cursor, Gemini, Codex, Copilot), add the same server to that agent's MCP configuration file.
 
-## Library docs already covered by `aiup-core`
-
-`aiup-core`'s `.mcp.json` wires up **context7** (`https://mcp.context7.com/mcp`), a general library-documentation
-server that also resolves the Spring Boot, Spring Framework, and Testcontainers reference documentation. With
-`aiup-core` installed (a prerequisite for this plugin) you get those lookups without configuring anything here.
-
 ## Note for Tessl-installed users
 
 Tessl ships it with the plugin: `tessl install` reads the plugin's bundled `.mcp.json` and writes it into the MCP

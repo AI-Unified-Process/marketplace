@@ -69,6 +69,7 @@ Do not combine layer plugins with a combined stack plugin (`aiup-angular-jpa`) i
 
 | Server       | Purpose                                                          |
 |--------------|------------------------------------------------------------------|
+| `context7`   | Current `@playwright/test` documentation on demand               |
 | `playwright` | Browser automation for exploring the running application and debugging locators |
 
 See [`rules/mcp-servers.md`](rules/mcp-servers.md) for setup details.

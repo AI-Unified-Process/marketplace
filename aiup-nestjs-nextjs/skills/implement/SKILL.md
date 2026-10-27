@@ -266,7 +266,7 @@ route indirection, the route file is a thin wrapper that renders the view compon
 - NestJS documentation: https://docs.nestjs.com
 - Drizzle ORM documentation: https://orm.drizzle.team/docs/overview
 - Next.js App Router documentation: https://nextjs.org/docs/app
-- If `aiup-core` is installed, its context7 MCP server covers NestJS, Drizzle, Next.js and React
+- The plugin's context7 MCP server covers NestJS, Drizzle, Next.js and React
   documentation lookups
 - [`references/worked-example.md`](references/worked-example.md) — read and write use case, backend
   and frontend

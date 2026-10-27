@@ -222,7 +222,7 @@ run migrations against a shared database as part of authoring one.
 - Drizzle ORM documentation: https://orm.drizzle.team/docs/overview
 - Drizzle Kit migrations: https://orm.drizzle.team/docs/kit-overview
 - PostgreSQL column types: https://www.postgresql.org/docs/current/datatype.html
-- If `aiup-core` is installed, its context7 MCP server covers Drizzle and drizzle-kit docs
+- The plugin's context7 MCP server covers Drizzle and drizzle-kit docs
 - See the plugin's `rules/mcp-servers.md` (locate it with a glob for
   `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill
   are all you need) to configure the optional servers
