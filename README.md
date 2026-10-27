@@ -70,7 +70,8 @@ tests run in process against the real database, so the layers below need no test
 (that API still gets its own contract tests when the use case is offered through it) — and `/use-case-coverage UC-001`
 audits the result. A use case offered through only some entry
 points (an administration screen without an API) says so in its `**Layers:**` line, and only those layers are built
-and tested.
+and tested. Optional `**Mockup:**` and `**API:**` lines link the screen designs the UI layer takes its layout from
+and the operations of an API contract agreed with a partner system, which the API layer builds as written.
 
 | Plugin                                  | Layer                 | Skills                                                                                       |
 |-----------------------------------------|-----------------------|----------------------------------------------------------------------------------------------|

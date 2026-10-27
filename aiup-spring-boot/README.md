@@ -21,7 +21,7 @@ of your project. `/stack` records which plugin builds which layer in `docs/archi
 |---------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | Client  | [`/spring-client`](skills/spring-client/SKILL.md)               | Outbound port and adapter per external system, from its OpenAPI or AsyncAPI contract: `RestClient`/`@HttpExchange` or a Kafka/AMQP producer, error mapping to domain exceptions |
 | Service | [`/spring-service`](skills/spring-service/SKILL.md)             | `@Service` methods, `@Transactional` boundaries, business rules with markers, domain exceptions, Bean Validation |
-| API     | [`/spring-rest`](skills/spring-rest/SKILL.md)                   | `@RestController` endpoints, request/response DTO records, Problem Details, status codes, paging |
+| API     | [`/spring-rest`](skills/spring-rest/SKILL.md)                   | `@RestController` endpoints, request/response DTO records, Problem Details, status codes, paging; an agreed OpenAPI operation built as written |
 | Client  | [`/spring-client-test`](skills/spring-client-test/SKILL.md)     | `<System>ClientTest`: the adapter against a stub of the contract, every flow the system causes; `<System>ClientFake` for the tests above |
 | Service | [`/spring-service-test`](skills/spring-service-test/SKILL.md)   | `UC001<Name>ServiceTest`: every business rule allowed and rejected, against a real database or a fake port |
 | API     | [`/spring-rest-test`](skills/spring-rest-test/SKILL.md)         | `UC001<Name>ApiTest`: statuses, JSON contract, Problem Details bodies, through the full stack |
@@ -39,6 +39,13 @@ An external system the use case calls — a payment provider, a channel manager 
 Actors line names such a system, before the service, and hands over the port the service calls. No test reaches the
 system: `/spring-client-test` stubs the contract and writes a fake of the port, which the service, API, and UI tests
 put in place of the adapter.
+
+The other direction — an external system that calls us — is the use case's primary actor and reaches it through
+the API layer. When its team has agreed an OpenAPI contract with yours, the use case links the operation on its
+`**API:**` line (`[registerGuest](../api/booking-portal.yaml#registerGuest)`). In a contract-first project
+`/spring-rest` builds that operation exactly as written — path, property names, statuses, error responses — instead
+of choosing them, and `/spring-rest-test` takes its expected values from it. Where contract and specification
+disagree, neither skill decides: the gap goes to `docs/open-questions.md`.
 
 ## Combinations
 

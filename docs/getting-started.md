@@ -155,7 +155,9 @@ or none), which `/stack` reads but never changes. Record why a technology was ch
 `/architecture-decision`: each decision record in `docs/architecture/decisions/` links the non-functional
 requirements and constraints it serves, and `/stack` and `/use-case-implement` follow the accepted ones. A use
 case offered through only some entry points names them in its `**Layers:**` line (`UI`, `API`, or `Service`), and the next two commands build and
-test only those layers.
+test only those layers. A use case may also link its mockups on a `**Mockup:**` line, which the UI layer takes the
+layout from, and, when a partner system calls it, the operations of the agreed API contract on an `**API:**` line,
+which the API layer builds as written.
 `/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
 tests from the integration layer up: starting at the entry layer the use case is offered through, the first layer
 whose tests run in process against the real database (the Browserless tests of a Vaadin Flow UI, the service tests
