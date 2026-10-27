@@ -36,7 +36,8 @@ step that **hands off** — they never run the agent themselves. The four test s
 `/hilla-test`), so the audit runs once, after the tests exist. This is deliberate: every
 audit re-reads the specification and the code base and takes minutes, and running it inside `/implement`, again
 inside the test skill, and once more in `/coverage-check` turned a two-minute construction round into thirty. One
-explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested`. A new
+explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested` — or, for a
+test case, `Automated`: the agent suggests a test case only its own statuses, never `Implemented` or `Tested` (#54). A new
 construction skill needs the same hand-off section; do not add an in-skill audit back.
 
 The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack

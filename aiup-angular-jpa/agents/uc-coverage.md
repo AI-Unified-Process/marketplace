@@ -251,13 +251,20 @@ Report rules:
   (`/implement UC-XXX`, `/spring-boot-test UC-XXX`, `/vitest-test UC-XXX`, `/playwright-test TC-XXX`, …). A code sketch is
   at most a few lines — writing the fix is the caller's job, not yours.
 - When everything is covered, say so in one line and keep the matrix as the proof.
-- Suggest the next `**Status:**` value using the specification's own vocabulary — `Approved`,
-  `Implemented` (implementation complete), `Tested` (implementation and tests complete and the
-  caller confirmed the suite passes) — always as a suggestion. Never suggest `Done`: acceptance is not
+- Suggest the next `**Status:**` value using the specification's own vocabulary, always as a suggestion.
+  For a use case: `Approved`, `Implemented` (implementation complete), `Tested` (implementation and
+  tests complete and the caller confirmed the suite passes). Never suggest `Done`: acceptance is not
   visible in code, so a use case at `Tested` goes on with `/acceptance-protocol`. Never suggest `Tested`
   while a blocking question of the **Open questions** section is `Open` or `Answered`;
   name it as the reason, with `/open-questions answer OQ-XXX` or, when it is answered, the skill
   that puts the answer into the specification (`/use-case-spec UC-XXX`, `/requirements`).
+- For a test case the vocabulary is the test case's own: `Approved`, or `Automated` once every Flow
+  row, Validation item, and postcondition has a step in the journey test. `Automated` says the journey
+  is automated, not that it passes — a journey that fails against the test case points at a use case it
+  chains — so it needs no confirmed run. Never suggest `Automated` while a blocking question is `Open`
+  or `Answered`, for the same reason and with the same commands (`/test-case TC-XXX` puts an answer
+  into the test case). Never suggest a use case status (`Implemented`, `Tested`, `Done`) for a test
+  case; `Draft`, `Reviewed`, and `Obsolete` are the author's decision, not the audit's.
 - List the questions of Step 1 under **Open questions** — id, element, blocking, status, the
   question — or leave the section out when there are none.
 - Name the files you read at the end when the caller asked for `both` or for a review, so the audit

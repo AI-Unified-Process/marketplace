@@ -254,7 +254,7 @@ are all you need) to configure this optional server.
 Do **not** run the `uc-coverage` sub-agent from this skill, and do not audit the tests against the
 specification yourself. The audit is a separate, explicit step that belongs to
 `/coverage-check`: it judges implementation and tests together in
-one matrix, and it is the only audit behind a justified `**Status:** Tested`.
+one matrix, and it is the only audit behind a justified `**Status:** Tested` (for a test case, `Automated`).
 
 Finish instead by:
 

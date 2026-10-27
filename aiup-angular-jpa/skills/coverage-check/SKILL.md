@@ -110,8 +110,9 @@ with a verdict, say so underneath it and leave the row alone.
   is what sends `/spec-review` and `/coverage-check` round in circles.
 - Do not close gaps yourself, and do not close one "quickly because it is only one line". A
   one-line fix from the auditor is still an unreviewed change to a verdict you have just issued.
-- The agent cannot run builds or tests. Before repeating any `Tested` suggestion, ask whether the
-  suite passes.
+- The agent cannot run builds or tests. Before repeating a `Tested` suggestion for a use case, ask
+  whether the suite passes. A test case's `Automated` says the journey is automated, not that it
+  passes; pass it on without asking, and never claim the journey was run.
 - Pass the `### Suggested status` on as a suggestion, and name the line that would change. Do not
   edit the specification's `**Status:**` line as part of this report.
 - Open questions are not yours to close: offer `/open-questions answer OQ-XXX` for an `Open` one
@@ -171,8 +172,8 @@ thirty audits**:
 2. **Publish that table first.** It already answers the common question — which use cases have
    nothing behind them — at zero audit cost.
 3. **Then rank and cap.** Full audits go only to the suspicious rows: the status claims
-   `Implemented` or `Tested` but a marker is missing, or the status is `Approved` while markers
-   exist (a status lagging behind the code). Default cap: **five full audits per invocation**, run
+   `Implemented`, `Tested`, or (for a test case) `Automated` but a marker is missing, or the status
+   is `Approved` while markers exist (a status lagging behind the code). Default cap: **five full audits per invocation**, run
    one at a time.
 4. **Ask before exceeding the cap, naming the number** — "30 use cases, 7 look suspicious. Audit
    those 7 now, or name the ones you want?" Never silently run 30.

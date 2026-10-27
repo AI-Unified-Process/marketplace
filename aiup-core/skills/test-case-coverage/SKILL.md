@@ -5,7 +5,7 @@ description: >
   document and reports a coverage matrix: which Flow rows, Validation items, and postconditions have a test step and
   code behind them, which are still open, and which test steps have drifted away from the test case. Use when the
   user asks to "check coverage of TC-001", "is TC-001 completely automated", "audit the journey", "show me the
-  coverage matrix for the test case", "what is still missing for TC-001", or "can I set TC-001 to Tested". This is
+  coverage matrix for the test case", "what is still missing for TC-001", or "can I set TC-001 to Automated". This is
   specification coverage, not line coverage. It reports only — it writes no code, no tests, and no files. For
   projects that combine layer plugins and record them in docs/architecture/stack.md; aiup-vaadin-jooq and
   aiup-angular-jpa bring their own /coverage-check TC-XXX. A use case (UC-XXX) is /use-case-coverage. When the
@@ -83,8 +83,9 @@ With no id: if the conversation has just been working on a specific `TC-*`, prop
 - Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the test case
   (`/test-case TC-XXX` updates the journey) or the application (`/use-case-implement UC-YYY`) — and offer only the
   command that matches the answer. Never pick a side yourself.
-- Offer the commands; run one only if the user says yes. Before repeating a `Tested` suggestion, ask whether the
-  journey test passes — the agent cannot run it. Do not edit the test case's `**Status:**` line.
+- Offer the commands; run one only if the user says yes. Pass an `Automated` suggestion on as a suggestion: it says
+  the journey is automated, not that it passes, and the agent cannot run it — never claim it was run. Do not edit
+  the test case's `**Status:**` line.
 
 ## DO NOT
 
