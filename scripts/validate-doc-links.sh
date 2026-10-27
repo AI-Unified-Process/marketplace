@@ -26,7 +26,9 @@ while IFS= read -r file; do
     if [ ! -e "$(dirname "$file")/$path" ]; then
       error "$file:$line_number: broken relative link: $target"
     fi
-  done < <(perl -ne 'while (/\[[^\]]*\]\(([^)]+)\)/g) { print "$.", "\0", $1, "\0" }' "$file")
+  # A link inside a code span or a fenced block is an example, not a link.
+  done < <(perl -ne 'if (/^\s*```/) { $fenced = !$fenced; next } next if $fenced; s/`[^`]*`//g;
+                     while (/\[[^\]]*\]\(([^)]+)\)/g) { print "$.", "\0", $1, "\0" }' "$file")
 done < <(find docs -type f -name '*.md' -print | sort; printf '%s\n' README.md aiup-*/README.md)
 
 [ "$fail" -eq 0 ]
