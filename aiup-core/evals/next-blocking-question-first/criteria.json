@@ -1,0 +1,36 @@
+{
+  "context": "Tests /next on the library specifications of next-finishes-started-work, with one change: OQ-001 (UC-004 BR-001, does the reminder go out on Sundays?) is blocking and Open. UC-001 and UC-004 are Approved, UC-002 and UC-003 Implemented. spec_lint.py --next prints a state table (1 open question, 1 blocking; the lint reports OQ_BLOCKING as a warning for UC-004), 'Next: /open-questions answer OQ-001 — blocking question OQ-001 (UC-004 BR-001) has no answer yet; the person who decides it answers it' and 'Then: /use-case-test UC-002 — UC-002 is Implemented; then /use-case-coverage UC-002 (also UC-003)'. The skill says that a person, not the agent, answers the question, never runs the next command, and writes no file. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Nothing written or run",
+      "description": "No file under docs/ is modified, created, renamed, or deleted: in particular docs/open-questions.md is unchanged (OQ-001 stays Open, no **Answer:** line) and no **Status:** line changes; no skill such as /open-questions or /use-case-test is run",
+      "max_score": 25
+    },
+    {
+      "name": "Blocking question is the next step",
+      "description": "The answer names answering OQ-001 (/open-questions answer OQ-001) as the next step, and says that the question blocks UC-004 BR-001 or UC-004",
+      "max_score": 20
+    },
+    {
+      "name": "A person answers it",
+      "description": "The answer says that a person (the product owner, the library, or whoever decides the business rule) has to answer OQ-001, and the agent does not answer it itself or propose an answer as decided (for example 'send it on Saturday')",
+      "max_score": 20
+    },
+    {
+      "name": "Second step named",
+      "description": "The answer names /use-case-test UC-002 (UC-002 is Implemented) as the step after the question",
+      "max_score": 15
+    },
+    {
+      "name": "State summarized",
+      "description": "The answer shows the project state: use cases per status (2 Approved, 2 Implemented) and one open question that is blocking",
+      "max_score": 10
+    },
+    {
+      "name": "UC-004 not offered for implementation first",
+      "description": "The answer does not recommend implementing UC-004 before OQ-001 is answered",
+      "max_score": 10
+    }
+  ]
+}

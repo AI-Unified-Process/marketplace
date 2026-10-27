@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_BP-001" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI">
+  <bpmn:collaboration id="Collaboration_BP-001">
+    <bpmn:participant id="Participant_Library" name="City Library" processRef="BP-001" />
+  </bpmn:collaboration>
+  <bpmn:process id="BP-001" name="Loan Cycle" isExecutable="false">
+    <bpmn:documentation>Goal: A lent copy comes back to the library, with a reminder before it is due and a late fee when it is late.
+Trigger: A member brings a copy to the counter to borrow it.
+Requirements: FR-002, FR-003, FR-004
+Status: Reviewed</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_BP-001">
+      <bpmn:lane id="Lane_Librarian" name="Librarian">
+        <bpmn:flowNodeRef>StartEvent_CopyAtCounter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_LendBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_ReminderDue</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_SendReminder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ReturnBook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_CopyBack</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_CopyAtCounter" name="Copy brought to the counter" />
+    <bpmn:userTask id="Activity_LendBook" name="UC-002 Lend Book" />
+    <bpmn:intermediateCatchEvent id="Event_ReminderDue" name="3 days before the due date">
+      <bpmn:timerEventDefinition id="TimerEventDefinition_ReminderDue" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="Activity_SendReminder" name="UC-004 Send Reminder" />
+    <bpmn:userTask id="Activity_ReturnBook" name="UC-003 Return Book" />
+    <bpmn:endEvent id="EndEvent_CopyBack" name="Copy back in the library" />
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_CopyAtCounter" targetRef="Activity_LendBook" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_LendBook" targetRef="Event_ReminderDue" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Event_ReminderDue" targetRef="Activity_SendReminder" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_SendReminder" targetRef="Activity_ReturnBook" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_ReturnBook" targetRef="EndEvent_CopyBack" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_BP-001">
+      <bpmndi:BPMNShape id="Participant_Library_di" bpmnElement="Participant_Library" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="978" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Librarian_di" bpmnElement="Lane_Librarian" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="948" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_CopyAtCounter_di" bpmnElement="StartEvent_CopyAtCounter">
+        <dc:Bounds x="302" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_LendBook_di" bpmnElement="Activity_LendBook">
+        <dc:Bounds x="420" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReminderDue_di" bpmnElement="Event_ReminderDue">
+        <dc:Bounds x="602" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SendReminder_di" bpmnElement="Activity_SendReminder">
+        <dc:Bounds x="720" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReturnBook_di" bpmnElement="Activity_ReturnBook">
+        <dc:Bounds x="870" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_CopyBack_di" bpmnElement="EndEvent_CopyBack">
+        <dc:Bounds x="1052" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="338" y="140" />
+        <di:waypoint x="420" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="520" y="140" />
+        <di:waypoint x="602" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="638" y="140" />
+        <di:waypoint x="720" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="820" y="140" />
+        <di:waypoint x="870" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="970" y="140" />
+        <di:waypoint x="1052" y="140" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

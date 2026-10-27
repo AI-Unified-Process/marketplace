@@ -1,0 +1,1 @@
+{ "description": "Navigator with a blocking open question: the next step is the answer to OQ-001, which a person gives; the agent does not answer it, does not change the question log or the use case, and names the test of UC-002 as the step after it", "include": ["./inputs"] }

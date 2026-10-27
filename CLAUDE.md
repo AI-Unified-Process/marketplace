@@ -31,6 +31,7 @@ marketplace/
 │       ├── business-process/
 │       ├── test-case/
 │       ├── spec-review/
+│       ├── next/                 # read-only navigator: spec_lint.py --next, the next command and why
 │       ├── open-questions/       # docs/open-questions.md: the log of specification gaps
 │       ├── architecture-decision/ # docs/architecture/decisions/ADR-*.md, each linked to an NFR or constraint
 │       ├── stack/                # writes docs/architecture/stack.md (layer → skill)
@@ -218,6 +219,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/use-case-spec`       | Write detailed use case specifications                               |
 | Construction | `/test-case`           | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
 | Any          | `/spec-review`         | Lint and review the specification artifacts against each other       |
+| Any          | `/next`                | Name the next command from the project state (read-only)             |
 | Any          | `/open-questions`      | Record, list, answer, and withdraw questions in docs/open-questions.md |
 | Any          | `/architecture-decision` | Record, supersede, and list ADRs, each linked to an NFR or constraint |
 | Any          | `/reverse-engineer`    | Recover use case diagram, use case specs, and entity model from code |
@@ -241,6 +243,19 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - Business rules stay numbered per use case; there is no syntax for entity references in use cases.
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
+
+#### Navigator
+
+- `/next` is a thin skill on `spec_lint.py --next`; the script, not the agent, orders the steps. A new signal is added
+  to `next_step()`, the table "How the Steps Are Ordered" of the skill, and the self-test together.
+- Order: earlier phase first; in Construction, blocking questions and lint errors first, then the use case closest to
+  `Done`. The ADR row is advice and comes last.
+- Read-only: it never runs the next command, writes no file, and never changes the Git state. The Studio never runs it
+  (`LEFT_OUT`).
+- Combined stack plugins pass `--stack-plugin`; their commands replace the layer plugins' ones in the `CONSTRUCTION`
+  table of the script.
+
+Why: [`docs/design/next.md`](docs/design/next.md).
 
 #### Open questions
 

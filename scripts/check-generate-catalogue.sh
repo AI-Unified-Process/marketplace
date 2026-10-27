@@ -16,13 +16,13 @@ import glob, os, re, sys
 
 WORKFLOW = ".github/workflows/aiup-generate.yml"
 SCRIPT = "pipelines/aiup-generate.sh"
-# Skills the Studio never runs: read-only audits (a run that changes nothing has no result to propose), the question
-# log (recording and answering need a person; spec_lint.py --report gives the overview), the architecture decisions
-# (a decision needs a person), the Transition skills (acceptance needs people, release notes a Git baseline, and
-# the user guide follows them as a release step, not a specification change), and the legacy Karibu test skill,
-# superseded by browserless-test.
+# Skills the Studio never runs: read-only audits and the navigator (a run that changes nothing has no result to
+# propose), the question log (recording and answering need a person; spec_lint.py --report gives the overview), the
+# architecture decisions (a decision needs a person), the Transition skills (acceptance needs people, release notes a
+# Git baseline, and the user guide follows them as a release step, not a specification change), and the legacy
+# Karibu test skill, superseded by browserless-test.
 LEFT_OUT = {
-    "aiup-core/spec-review", "aiup-core/use-case-coverage", "aiup-core/test-case-coverage",
+    "aiup-core/spec-review", "aiup-core/next", "aiup-core/use-case-coverage", "aiup-core/test-case-coverage",
     "aiup-core/open-questions", "aiup-core/architecture-decision",
     "aiup-core/user-guide", "aiup-core/acceptance-protocol", "aiup-core/release-notes",
     "aiup-vaadin-jooq/coverage-check", "aiup-angular-jpa/coverage-check", "aiup-vaadin-jooq/karibu-test",

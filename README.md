@@ -38,7 +38,7 @@ Inception        Elaboration                                Construction        
 /requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
                                  ↘ /business-process        /test-case     → automate the journey            /user-guide
                                    (optional)                                                                /release-notes
-                 /spec-review at any point
+                 /spec-review at any point, /next names the next step
 ```
 
 `aiup-core` owns the stack-independent path from vision to specifications. Construction continues either with
@@ -112,8 +112,8 @@ off to it rather than running it themselves, so a construction round stays fast.
 access together in one slice, which horizontal layer plugins would split apart.
 
 `aiup-core` itself ships `/requirements`, `/entity-model`, `/use-case-diagram`, `/use-case-spec`, `/business-process`,
-`/test-case`, `/spec-review`, `/open-questions`, `/architecture-decision`, `/reverse-engineer`, for the Transition phase
-`/user-guide`, `/acceptance-protocol`, and `/release-notes`, and, for layer plugins, `/stack`,
+`/test-case`, `/spec-review`, `/next`, `/open-questions`, `/architecture-decision`, `/reverse-engineer`, for the
+Transition phase `/user-guide`, `/acceptance-protocol`, and `/release-notes`, and, for layer plugins, `/stack`,
 `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, and `/test-case-coverage`.
 
 Use only `aiup-core` when working with another implementation stack. The methodology ends at a documented boundary,

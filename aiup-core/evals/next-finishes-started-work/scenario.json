@@ -1,0 +1,1 @@
+{ "description": "Navigator on a library project built with layer plugins: two use cases Implemented, two Approved; the next step tests UC-002 before any new use case is implemented, the agent names the command with its reason, runs nothing, and writes no file", "include": ["./inputs"] }
