@@ -57,7 +57,10 @@ actor without a row is a person or a role. Without a Client layer the section is
 ## API contract
 
 <!-- Only when the project has an API layer: style (REST/JSON), base path, error format (e.g. RFC 9457 Problem
-Details), how DTOs are named, whether an OpenAPI document is generated. Delete the section otherwise. -->
+Details), how DTOs are named, whether an OpenAPI document is generated, and whether the project is contract-first
+(the OpenAPI or AsyncAPI files agreed with the clients live under docs/, e.g. docs/api/, and a use case's **API:**
+line links its operation there) or code-first (the document is generated from the code and is output, never input).
+Delete the section otherwise. -->
 
 ## Commands
 

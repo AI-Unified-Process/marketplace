@@ -1,0 +1,93 @@
+openapi: 3.1.0
+info:
+  title: Hotel Partner API for the Booking Portal
+  version: 1.0.0
+  description: Agreed with the Booking Portal team on 2026-09-15. Changes need their sign-off.
+paths:
+  /partner/v2/guest-registrations:
+    post:
+      operationId: registerGuest
+      summary: Registers a guest for an upcoming stay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestRegistration'
+      responses:
+        '201':
+          description: The guest is registered
+          headers:
+            Location:
+              description: The URI of the registered guest
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredGuest'
+        '400':
+          description: The request is malformed or a required field is missing or invalid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: The email address is already registered for another guest
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /partner/v2/availability:
+    get:
+      operationId: queryAvailability
+      summary: Lists the free rooms for a period
+      responses:
+        '200':
+          description: The free rooms
+components:
+  schemas:
+    GuestRegistration:
+      type: object
+      required: [givenName, familyName, emailAddress, dateOfBirth, arrivalDate]
+      properties:
+        givenName:
+          type: string
+          maxLength: 100
+        familyName:
+          type: string
+          maxLength: 100
+        emailAddress:
+          type: string
+          format: email
+          maxLength: 255
+        dateOfBirth:
+          type: string
+          format: date
+        arrivalDate:
+          type: string
+          format: date
+    RegisteredGuest:
+      type: object
+      required: [guestId, givenName, familyName, emailAddress]
+      properties:
+        guestId:
+          type: integer
+          format: int64
+        givenName:
+          type: string
+        familyName:
+          type: string
+        emailAddress:
+          type: string
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string

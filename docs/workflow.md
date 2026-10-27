@@ -207,7 +207,11 @@ Overview (`UI`, `API`, or `Service` alone); `/use-case-implement` and `/use-case
 in the optional `**Mockup:**` line (a Figma link, an image, or a Markdown sketch under `docs/`): the UI layer skills take
 the layout from them, and the specification stays authoritative for behaviour, rules, and messages. The mockup is no
 traceability link; a use case without one is never reported, and `/spec-review` warns only about a link to a missing
-file.
+file. A use case offered through the API layer may link the operations of the API contract its client agreed with the
+team in the optional `**API:**` line (`[createBooking](../api/booking.yaml#createBooking)`, an OpenAPI `operationId`
+or an AsyncAPI channel). In a contract-first project the API layer skills build and test the operation as the
+contract says; the specification keeps the flows, rules, and messages, and a disagreement between the two becomes an
+open question. `/spec-review` warns when a link does not resolve, never when the line is missing.
 
 Inside a test that carries its use case id, a rule is named by its bare id (`businessRules = {"BR-003"}`,
 `it('BR-003: …')`), because the use case qualifies it.
@@ -335,7 +339,8 @@ reference but does not. The coverage audit treats each linked NFR and constraint
 `/use-case-implement` draws it in three sections, which its layer skills and `/use-case-test` follow:
 
 - **The agent decides alone** — internal structure and naming within the glossary, UI layout, labels and column
-  order within the project's conventions, endpoint paths and DTO shapes within the API contract, test data and the
+  order within the project's conventions, endpoint paths and DTO shapes within the API contract (never for an operation the use case's `**API:**` line
+  links), test data and the
   structure of the tests. The report lists these choices under **Decisions**, so a reviewer checks them quickly.
 - **The agent asks first** — gaps, ambiguity, and contradictions in the specification; validation values, limits,
   defaults, and user-visible messages with business meaning that it does not state; changes to the data model beyond

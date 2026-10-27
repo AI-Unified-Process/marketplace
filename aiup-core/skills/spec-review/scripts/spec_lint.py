@@ -31,7 +31,8 @@ check is exact and gives the same result on every run:
            rejected or deferred one, or has no valid status or date, or a
            rule of the use-case-spec skill that validate_use_case.py reports
            as broken, or a mockup a use case links to a file that does
-           not exist.
+           not exist, or an API operation a use case links that its
+           contract file does not define.
 - INFO   = worth knowing, never a failure: e.g. an NFR or constraint no
            use case links, which is fine when it applies system-wide.
 
@@ -205,6 +206,7 @@ PRIMARY_ACTOR_FIELDS = ("**Primary Actor:**", "**Primary Actors:**",
 SECONDARY_ACTOR_FIELDS = ("**Secondary Actors:**", "**Secondary Actor:**",
                           "**Sekundäre Akteure:**", "**Sekundärer Akteur:**")
 MOCKUP_FIELDS = ("**Mockup:**",)
+API_FIELDS = ("**API:**",)
 # A Markdown link target; a target with a scheme (https:, mailto:) is no file
 MARKDOWN_TARGET = re.compile(r"\]\(\s*<?([^)\s>]+)>?[^)]*\)")
 URL_SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
@@ -373,6 +375,7 @@ class Spec:
         self.rule_order = []
         self.status_line = 1
         self.mockups = []        # (line, link target)
+        self.apis = []           # (line, link target)
         self.steps = set()       # step numbers of the main success scenario
         self.flows = set()       # alternative flow ids (A1, A2, ...)
         in_rules = in_main = in_flows = False
@@ -406,6 +409,10 @@ class Spec:
             if value is not None:
                 self.mockups += [(number, target) for target
                                  in MARKDOWN_TARGET.findall(value)]
+            value = field_value(line, API_FIELDS)
+            if value is not None:
+                self.apis += [(number, target) for target
+                              in MARKDOWN_TARGET.findall(value)]
             value = field_value(line, REQUIREMENTS_FIELDS)
             if value is not None:
                 self.requirements += [(number, rid)
@@ -1430,23 +1437,63 @@ def requirement_prose(lines):
     return result
 
 
+def linked_file(project, spec, target):
+    """The local file a link of a use case points to; None for a URL."""
+    if URL_SCHEME.match(target) or target.startswith("#"):
+        return None
+    rel = urllib.parse.unquote(re.split(r"[#?]", target)[0])
+    if not rel:
+        return None
+    if rel.startswith("/"):
+        return os.path.join(os.path.dirname(
+            os.path.abspath(project.docs)), rel.lstrip("/"))
+    return os.path.join(os.path.dirname(spec.path), rel)
+
+
 def check_mockups(project, specs):
     # A use case without a mockup is fine; a link to a missing file is not.
     for uid, spec in specs.items():
         for number, target in spec.mockups:
-            if URL_SCHEME.match(target) or target.startswith("#"):
-                continue
-            rel = urllib.parse.unquote(re.split(r"[#?]", target)[0])
-            if not rel:
-                continue
-            if rel.startswith("/"):
-                path = os.path.join(os.path.dirname(
-                    os.path.abspath(project.docs)), rel.lstrip("/"))
-            else:
-                path = os.path.join(os.path.dirname(spec.path), rel)
-            if not os.path.exists(path):
+            path = linked_file(project, spec, target)
+            if path and not os.path.exists(path):
                 project.add(WARN, "MOCKUP_MISSING_FILE", spec.path, number,
                             uid, "the mockup " + target + " does not exist")
+
+
+def defines_operation(text, name):
+    """Whether an OpenAPI or AsyncAPI document (YAML or JSON) names the
+    operation: as an operationId, or as a key (an AsyncAPI channel or
+    operation). A text search, no parser: the lint uses the standard
+    library only."""
+    quoted = r"""['"]?""" + re.escape(name) + r"""['"]?"""
+    return re.search(r"""['"]?operationId['"]?\s*:\s*""" + quoted
+                     + r"(?![\w.-])", text) is not None \
+        or re.search(r"^\s*" + quoted + r"\s*:", text,
+                     re.MULTILINE) is not None \
+        or re.search(r'"' + re.escape(name) + r'"\s*:', text) is not None
+
+
+def check_api_contracts(project, specs):
+    # A use case without an API line is fine; an operation that does not
+    # resolve in its contract is not. URLs are not fetched.
+    for uid, spec in specs.items():
+        for number, target in spec.apis:
+            path = linked_file(project, spec, target)
+            if path is None:
+                continue
+            if not os.path.isfile(path):
+                project.add(WARN, "API_UNRESOLVED", spec.path, number, uid,
+                            "the API contract " + target + " does not exist")
+                continue
+            name = urllib.parse.unquote(target.partition("#")[2])
+            if not name:
+                continue  # validate_use_case.py reports API_NO_LINK
+            with open(path, encoding="utf-8", errors="replace") as handle:
+                text = handle.read()
+            if not defines_operation(text, name):
+                project.add(WARN, "API_UNRESOLVED", spec.path, number, uid,
+                            "the API contract " + target.partition("#")[0]
+                            + " defines no operation or channel " + name)
 
 
 def check_wording(project, specs, glossary):
@@ -1494,6 +1541,7 @@ def lint(docs, validator, bpmn):
     entities = check_entities(project)
     glossary = load_glossary(project)
     check_mockups(project, specs)
+    check_api_contracts(project, specs)
     check_wording(project, specs, glossary)
     check_open_questions(project, specs, diagram, requirements, entities,
                          glossary)
@@ -2913,6 +2961,36 @@ def self_test():
                 or "uc-001-dialog.md" not in found[0][2]:
             failures.append("mockups: expected one MOCKUP_MISSING_FILE for "
                             "uc-001-dialog.md, got " + str(found))
+
+    with tempfile.TemporaryDirectory() as root:
+        values = dict(CLEAN)
+        values["api/booking.yaml"] = (
+            "openapi: 3.1.0\npaths:\n  /bookings:\n    post:\n"
+            "      operationId: createBooking\n")
+        values["api/booking.json"] = (
+            '{"paths": {"/bookings": {"get": {"operationId": "listBookings"'
+            '}}}}\n')
+        values["api/booking.asyncapi.yaml"] = (
+            "asyncapi: 3.0.0\nchannels:\n  bookingCancelled:\n"
+            "    address: booking/cancelled\n")
+        values["use_cases/UC-001-create-guest.md"] = CLEAN[
+            "use_cases/UC-001-create-guest.md"].replace(
+            "**Requirements:**", "**API:** [create](../api/booking.yaml"
+            "#createBooking), [list](../api/booking.json#listBookings), "
+            "[cancelled](../api/booking.asyncapi.yaml#bookingCancelled), "
+            "[delete](../api/booking.yaml#deleteBooking), "
+            "[partner](../api/partner.yaml#notify), "
+            "[remote](https://api.example.com/openapi.yaml#createBooking)"
+            "  \n**Requirements:**")
+        write_fixture(root, values)
+        found = sorted((f.code, f.element, f.message)
+                       for f in lint(root, validator, bpmn)
+                       if f.severity != INFO)
+        if [f[:2] for f in found] != [("API_UNRESOLVED", "UC-001")] * 2 \
+                or "deleteBooking" not in found[0][2] + found[1][2] \
+                or "partner.yaml" not in found[0][2] + found[1][2]:
+            failures.append("api: expected API_UNRESOLVED for deleteBooking "
+                            "and partner.yaml, got " + str(found))
 
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, {"use_cases.puml": ACTOR_DIAGRAM})

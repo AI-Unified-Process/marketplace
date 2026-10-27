@@ -135,10 +135,11 @@ in the implementation, not the specification.
 6. Write the Overview section — `Use Case ID`, primary actors, secondary actors, goal, trigger, and a `Status` from
    the status values of [references/format-spec.md](references/format-spec.md), then the Requirements line and,
    when the use case is not offered through every entry point, the Layers line, then the Mockup line when the user
-   named a mockup or the document already has one. Read
+   named a mockup or the document already has one, then the API line when the user named the operation of an agreed
+   API contract or the document already has one. Read
    [references/overview-and-postconditions.md](references/overview-and-postconditions.md) first: it defines who
    is a primary or secondary actor, what makes a trigger an event rather than a precondition, how the
-   Requirements line links the catalog, which values the Layers line takes, and what the Mockup line holds.
+   Requirements line links the catalog, which values the Layers line takes, and what the Mockup and API lines hold.
 7. Define preconditions — verifiable facts that must be true before the use case starts. They are
    states the system has already established (often by another use case), never events or actor
    actions, and the use case does not check them again. **A precondition must not describe a

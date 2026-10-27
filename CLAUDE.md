@@ -324,6 +324,19 @@ Why: [`docs/design/transition.md`](docs/design/transition.md).
 
 Why: [`docs/design/mockups.md`](docs/design/mockups.md).
 
+#### API contracts
+
+- A use case offered through the API layer may link its operations on an optional `**API:**` line (same label in
+  German): Markdown links to an OpenAPI or AsyncAPI file with the `operationId` or channel as fragment.
+  `/use-case-spec` never asks for one.
+- Only the API layer skills read it; the rule lives once, in section "API Contract" of `/use-case-implement`.
+- Binding, unlike a mockup: the operation is built as written and drops out of the decision rights. A disagreement
+  with the specification decides nothing and becomes an open question. A code-first project's generated document is
+  no input. AsyncAPI is accepted, not built (no inbound listener skill).
+- A missing line is never reported; `API_NO_LINK` and `API_UNRESOLVED` stay WARN, and URLs are not checked.
+
+Why: [`docs/design/api-contracts.md`](docs/design/api-contracts.md).
+
 ### Layer plugins (Java)
 
 | Plugin             | Layer             | Skills                                                                                  |

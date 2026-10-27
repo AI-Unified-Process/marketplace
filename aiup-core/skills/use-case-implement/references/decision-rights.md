@@ -12,7 +12,8 @@ there, not remove one. A decision no rule names is asked first.
 
 - Internal structure and naming of the code it writes, within the glossary's terms
 - UI layout, labels, and column order, within the project's conventions
-- Endpoint paths and DTO shapes, within the API contract of `docs/architecture/stack.md`
+- Endpoint paths and DTO shapes, within the API contract of `docs/architecture/stack.md`, except for an operation
+  the use case's `**API:**` line links, which is built as its contract says
 - Test data and the structure of the tests
 
 ## The agent asks first

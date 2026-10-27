@@ -42,6 +42,7 @@ this order on save):
 **Requirements:** [FR-001, NFR-004, C-003](../requirements.md)   (optional)
 **Layers:** UI                                      (optional)
 **Mockup:** [List view](../mockups/uc-001-list.png)  (optional)
+**API:** [createBooking](../api/booking.yaml#createBooking)  (optional)
 
 ## Preconditions
 
@@ -105,6 +106,7 @@ and empty files are English) and preserved on save.
 | Requirements         | `**Requirements:**`           | `**Anforderungen:**`    |
 | Layers               | `**Layers:**`                 | `**Schichten:**` (reads `**Layers:**` too) |
 | Mockup               | `**Mockup:**`                 | `**Mockup:**` (same)    |
+| API                  | `**API:**`                    | `**API:**` (same)       |
 | Preconditions        | `## Preconditions`            | `## Vorbedingungen`     |
 | Main scenario        | `## Main Success Scenario`    | `## Hauptablauf`        |
 | Alternative flows    | `## Alternative Flows`        | `## Alternativabläufe`  |
@@ -137,7 +139,7 @@ Status values (either language is readable in any document):
    on save.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
-   Secondary Actors, Trigger, Requirements, Layers and Mockup are optional. Primary
+   Secondary Actors, Trigger, Requirements, Layers, Mockup and API are optional. Primary
    Actor holds one role or a comma-separated list of roles; the label
    stays singular (`**Primary Actor:**`, `**Primärer Akteur:**`) in
    both cases.
@@ -230,6 +232,17 @@ The `/use-case-spec` skill additionally requires:
   validator warns (`MOCKUP_NO_LINK`) when the line links nothing or still
   holds the template placeholder; `/spec-review` warns
   (`MOCKUP_MISSING_FILE`) when a relative link points to no file.
+
+- An `**API:**` line is optional, and a use case without one is never
+  reported. When present it holds one or more comma-separated Markdown
+  links to the operations of the agreed API contract the use case is
+  offered through, each with the operation as fragment — an OpenAPI
+  `operationId`, or an AsyncAPI channel or operation, e.g.
+  `[createBooking](../api/booking.yaml#createBooking)`. The label is the
+  same in German. The validator warns (`API_NO_LINK`) when the line links
+  nothing, a link names no operation, or the line still holds the
+  template placeholder; `/spec-review` warns (`API_UNRESOLVED`) when a
+  relative link points to no file or the file has no such operation.
 
 - All five template sections and both postcondition subsections exist.
 - The use case id matches `[SB]?UC-[A-Za-z0-9_-]+` and the filename

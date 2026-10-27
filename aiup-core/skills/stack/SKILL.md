@@ -158,7 +158,9 @@ report that it is no longer read.
    (`docs/use_cases/**/UC-*.md`) that are not actors of the use case diagram's people, the existing clients in the
    code (an adapter calling another host, a producer to another team's topic), and the OpenAPI and AsyncAPI files
    that are not the project's own API (`docs/api/external/`, a provider's file elsewhere under `docs/`). They are
-   candidates, not rows.
+   candidates, not rows. **Contract-first or code-first:** with an API layer, the project's own OpenAPI or AsyncAPI
+   files under `docs/` (`docs/api/`, outside `docs/api/external/`) and `**API:**` lines in the use cases point to
+   contract-first; springdoc in the build without such files points to code-first.
 3. **Ask what cannot be detected**, in one round, before writing. A new project needs a technology per layer; ask
    with the layers as questions and the discovered skills (and, for a layer none covers, the catalog's plugins) as
    options, and offer `–` for a layer the project does not need. Ask about a layer even in an existing project when
@@ -169,7 +171,9 @@ report that it is no longer read.
    either — name it as the reason. With candidates for external systems, ask in the same round which of them our
    system calls, under the name the use cases use, and where each one's contract is; a candidate the user does not
    confirm is a person or a role and gets no row. A confirmed system without a contract gets `–` in the Contract
-   column. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
+   column. With an API layer and an API contract section still to write, ask in the same round whether the
+   project is contract-first or code-first when step 2 found no evidence for either, and where the contract files
+   live. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
    not a question either; name the document. The decision rights are not a question: without
    `docs/architecture/decision-rights.md`, `/use-case-implement` uses its defaults, and the report says so (step 7).
 4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular) needs an
@@ -194,8 +198,8 @@ report that it is no longer read.
      `Test cases only`, from step 3. Keep an existing line unless the user asks to change it; without an E2E layer,
      drop the line;
    - when the section is missing or still the template's placeholder (see the table above): the Module layout and,
-     with an API layer, the API contract. Record what the project does; for a new project record what the user
-     chose. Without an API layer, drop the template's API contract section, as its comment says. Leave a section
+     with an API layer, the API contract, including contract-first or code-first and, contract-first, where the
+     contract files live. Record what the project does; for a new project record what the user chose. Without an API layer, drop the template's API contract section, as its comment says. Leave a section
      out rather than inventing a convention;
    - when the section is missing or still the template's placeholder: the Commands table, from the build tool in
      use (`./mvnw verify`, `./mvnw test`, `npx playwright test`);

@@ -1,0 +1,6 @@
+{
+  "description": "Implement the REST API layer of a use case whose primary actor is a partner system, building the operation its **API:** line links in the agreed OpenAPI contract",
+  "include": [
+    "./inputs"
+  ]
+}

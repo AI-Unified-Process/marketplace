@@ -179,6 +179,14 @@ through the fake of the port — one without the other is `Partial`. A service t
 does not list, is drift: name both fixes — `/stack` maps the system, or `/use-case-spec` corrects the actor — and
 recommend neither. A test that calls the real system is a finding for Gaps.
 
+**API contract.** A use case with an `**API:**` line links the operations of an agreed OpenAPI or AsyncAPI
+contract; the stack file's `## API contract` section says whether the project is contract-first (a code-first
+project's generated document is no input — skip this check). Read each linked operation. An endpoint of the use case
+whose method, path, property names, or statuses differ from the operation is drift: name both fixes —
+`/use-case-implement` builds the operation as written, or the contract is renegotiated with its client — and
+recommend neither. An alternative flow that rejects the request with no documented response is a gap in the
+specification, not the code; report it under Gaps with the open question it should carry.
+
 **Journey itinerary.** When an E2E marker names the use cases a journey walks (Vaadin's
 `@TestCase(id = "TC-XXX", useCases = {…})`), compare that list with the use cases the Flow table's
 Use Case column links. A use case in one and not the other is drift, in either direction; a journey

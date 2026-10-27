@@ -17,6 +17,7 @@ in the repository's `CLAUDE.md`, and a change to a rule is made there and here t
 | [Architecture decisions](architecture-decisions.md)   | ADRs linked to NFRs and constraints, statuses, and lint                        |
 | [Decision rights](decision-rights.md)                 | What the agent decides alone, asks about first, or never does                  |
 | [Mockups](mockups.md)                                 | The optional mockup line and why the specification wins over it                |
+| [API contracts](api-contracts.md)                     | The optional API line and why the agreed contract binds the API layer          |
 | [Modules in the diagrams](modules.md)                 | Splitting the use case diagram and the entity model by module                  |
 | [Business process](business-process.md)               | BPMN models, BP ids, and the layout script                                     |
 | [Transition](transition.md)                           | User guide, acceptance protocol, release notes, and who sets `Done`            |

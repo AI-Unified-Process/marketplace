@@ -85,7 +85,9 @@ A subfunction the diagram draws as an `<<include>>` from several use cases is in
   promises (the goal says "books a room", the scenario ends when the availability is shown)
 
 A use case without a `**Mockup:**` line is not incomplete: the line is optional, and the mockup is layout input for
-the UI layer skills, never part of the specification this checklist reviews.
+the UI layer skills, never part of the specification this checklist reviews. The same holds for a use case without
+an `**API:**` line: the agreed API contract is input for the API layer skills, and field names, paths, and status
+codes belong in the contract, not in the steps.
 
 Severity: `warning`.
 

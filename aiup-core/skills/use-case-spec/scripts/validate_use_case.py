@@ -62,6 +62,7 @@ LANGUAGES = {
         "trigger_aliases": ["**Trigger:**"],
         "layers_aliases": ["**Layers:**"],
         "mockup_aliases": ["**Mockup:**"],
+        "api_aliases": ["**API:**"],
         "rule_prefix": "BR",
     },
     "de": {
@@ -95,6 +96,7 @@ LANGUAGES = {
         "layers_aliases": ["**Schichten:**", "**Layers:**"],
         # "Entwurf" is a status value, so the mockup line keeps its label
         "mockup_aliases": ["**Mockup:**"],
+        "api_aliases": ["**API:**"],
         "rule_prefix": "GR",
     },
 }
@@ -128,6 +130,9 @@ LAYER_VALUES = ["UI", "API", "Service"]
 # Figma file, an image, or a Markdown sketch; bare URLs are tolerated.
 MOCKUP_LINK = re.compile(r"\[[^\]]*\]\(\s*<?([^)\s>]+)>?[^)]*\)")
 BARE_URL = re.compile(r"https?://[^\s,)>]+")
+# The API operations of a use case (optional **API:** line) are links of the
+# same form whose fragment names the operation: an OpenAPI operationId, or an
+# AsyncAPI channel or operation, e.g. ../api/booking.yaml#createBooking.
 
 STEP_REFERENCE = re.compile(r"\((?:step|schritt)\s*\d", re.IGNORECASE)
 FLOW_TERMINATION = re.compile(
@@ -335,6 +340,12 @@ def parse_overview(doc, lines, index):
                          if line.startswith(a))
             overview["mockup"] = line[len(alias):].strip()
             overview["mockup_line"] = index + 1
+            index += 1
+        elif any(line.startswith(a) for a in lang["api_aliases"]):
+            alias = next(a for a in lang["api_aliases"]
+                         if line.startswith(a))
+            overview["api"] = line[len(alias):].strip()
+            overview["api_line"] = index + 1
             index += 1
         elif any(line.startswith(a) for a in lang["uc_trigger_aliases"]):
             alias = next(a for a in lang["uc_trigger_aliases"]
@@ -611,6 +622,11 @@ def mockup_targets(value):
     return targets
 
 
+def api_targets(value):
+    """The link targets of an **API:** line value, in order."""
+    return mockup_targets(value)
+
+
 def check_contract(doc, path):
     """Skill-contract checks beyond what Studio's parser enforces (WARN)."""
     lang = LANGUAGES[doc.language]
@@ -714,6 +730,30 @@ def check_contract(doc, path):
                     "the mockup line links no mockup; write each as a "
                     "Markdown link, e.g. [List view](../mockups/list.png), "
                     "or omit the line")
+
+    # The API line is optional; when present each link names an operation.
+    api = doc.overview.get("api")
+    if api is not None:
+        api_line = doc.overview.get("api_line", 0)
+        targets = api_targets(api)
+        if api.startswith("[") and api.endswith("]") and "](" not in api:
+            doc.add(api_line, WARN, "API_NO_LINK",
+                    "the API line still holds the template placeholder; "
+                    "link the operations or omit the line")
+        elif not targets:
+            doc.add(api_line, WARN, "API_NO_LINK",
+                    "the API line links no operation; write each as a "
+                    "Markdown link to the contract with the operation as "
+                    "fragment, e.g. [createBooking](../api/booking.yaml"
+                    "#createBooking), or omit the line")
+        else:
+            for target in targets:
+                if "#" not in target or not target.split("#", 1)[1]:
+                    doc.add(api_line, WARN, "API_NO_LINK",
+                            "the API link " + target + " names no "
+                            "operation; add the operationId or the AsyncAPI "
+                            "channel as fragment, e.g. booking.yaml"
+                            "#createBooking")
 
     if not doc.main_scenario and not doc.main_scenario_placeholder \
             and "main_scenario" in doc.sections_seen:
@@ -1029,6 +1069,39 @@ def self_test():
     if doc.overview.get("mockup") != "[Skizze](../mockups/uc-013a.md)":
         failures.append("valid-de: **Mockup:** label not accepted")
     expect("valid-de-mockup", doc.problems, [], forbidden_severity=WARN)
+
+    for line, targets, codes in (
+            ("**API:** [createBooking](../api/booking.yaml#createBooking), "
+             "[booking/cancelled](../api/booking.asyncapi.yaml"
+             "#bookingCancelled)",
+             ["../api/booking.yaml#createBooking",
+              "../api/booking.asyncapi.yaml#bookingCancelled"], []),
+            ("**API:** [Booking API](../api/booking.yaml)",
+             ["../api/booking.yaml"], ["API_NO_LINK"]),
+            ("**API:** createBooking in the partner contract", [],
+             ["API_NO_LINK"]),
+            ("**API:** [Links to the operations of the agreed API contract "
+             "this use case is offered through — the contract file with the "
+             "operationId or AsyncAPI channel as fragment; omit this line "
+             "when there is none]", [], ["API_NO_LINK"])):
+        doc = parse_document(VALID_EN.replace(
+            "**Layers:** UI", "**Layers:** API  \n" + line))
+        check_contract(doc, "UC-001-create-reservation.md")
+        found = sorted(p.code for p in doc.problems)
+        got = api_targets(doc.overview.get("api", ""))
+        if found != codes or got != targets:
+            failures.append("api " + line + ": expected " + str(codes)
+                            + " " + str(targets) + ", got " + str(found)
+                            + " " + str(got))
+
+    doc = parse_document(VALID_DE_TOLERANT.replace(
+        "**Schichten:** UI", "**Schichten:** API  \n**API:** "
+        "[buchungAnlegen](../api/buchung.yaml#buchungAnlegen)"))
+    check_contract(doc, "UC-013a-mitteilung-erfassen.md")
+    if doc.overview.get("api") != \
+            "[buchungAnlegen](../api/buchung.yaml#buchungAnlegen)":
+        failures.append("valid-de: **API:** label not accepted")
+    expect("valid-de-api", doc.problems, [], forbidden_severity=WARN)
 
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")

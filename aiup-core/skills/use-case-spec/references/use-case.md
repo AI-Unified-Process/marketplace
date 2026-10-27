@@ -12,7 +12,8 @@
 
 **Requirements:** [FR-XXX, NFR-XXX, C-XXX](../requirements.md)  
 **Layers:** [UI, API, or Service — the entry layers that offer this use case; omit this line when every entry layer of the project offers it]  
-**Mockup:** [Links to the mockups or wireframes of this use case — a Figma link, an image, or a Markdown sketch under docs/; omit this line when there is none]
+**Mockup:** [Links to the mockups or wireframes of this use case — a Figma link, an image, or a Markdown sketch under docs/; omit this line when there is none]  
+**API:** [Links to the operations of the agreed API contract this use case is offered through — the contract file with the operationId or AsyncAPI channel as fragment; omit this line when there is none]
 
 ## Preconditions
 

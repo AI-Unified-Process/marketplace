@@ -46,6 +46,16 @@ variants are in `format-spec.md` next to this file; this file says what goes int
   authoritative for behaviour, rules, and messages, so never move a step, a rule, or a message into the mockup, and
   never describe the layout in the steps because a mockup exists. Keep an existing line when you update a use case;
   add one only when the user names a mockup, and never ask for one.
+- **API**, directly after it, only when the use case is offered through the API layer and its client — usually the
+  external system that is the primary actor — has agreed an API contract with the team: one or more comma-separated
+  Markdown links to the contract file, each with the operation as fragment — an OpenAPI `operationId`, or an
+  AsyncAPI channel or operation — kept under `docs/` (for example `docs/api/`), e.g.
+  `**API:** [createBooking](../api/booking.yaml#createBooking)`. The label is `**API:**` in German too. In a
+  contract-first project the API layer skills build the operation as the contract says; the use case stays as it
+  is: its steps describe the messages in business terms ("The Channel Manager submits a booking request …"), the
+  flows and business rules stay in the specification, and field-level detail stays in the contract — never copy
+  paths, field names, or status codes into the steps. Keep an existing line when you update a use case; add one
+  only when the user names the contract, and never ask for one.
 
 ## Failure postconditions
 

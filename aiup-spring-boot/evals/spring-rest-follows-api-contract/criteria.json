@@ -1,0 +1,56 @@
+{
+  "context": "Tests whether /spring-rest builds the operation UC-001 links on its **API:** line (docs/api/booking-portal.yaml#registerGuest) exactly as the agreed contract says, instead of the project's defaults: path /partner/v2/guest-registrations (not /api/v1/guests), the contract's property names (givenName, familyName, emailAddress, dateOfBirth, arrivalDate; guestId in the response), 201 with Location, 400 and 409 as documented. A2 (guest too young) rejects the request but the contract documents no response for it, so the agent must decide nothing for that flow: record a blocking open question in docs/open-questions.md and leave the flow's mapping out rather than inventing a status. The other operation of the file (queryAvailability) is not linked and must not be built. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Path and method from the operation",
+      "description": "The register endpoint is POST /partner/v2/guest-registrations as the contract says; there is no /api/v1/guests endpoint and no other path for this use case",
+      "max_score": 14
+    },
+    {
+      "name": "Request property names from the contract",
+      "description": "The request DTO's JSON properties are givenName, familyName, emailAddress, dateOfBirth, and arrivalDate (record components or @JsonProperty), mapped onto RegisterGuest's firstName, lastName, email, birthDate, arrivalDate",
+      "max_score": 12
+    },
+    {
+      "name": "Response property names from the contract",
+      "description": "The 201 response body carries guestId, givenName, familyName, and emailAddress under these names, with a Location header; the controller never returns Guest directly",
+      "max_score": 10
+    },
+    {
+      "name": "Constraints from the contract schema",
+      "description": "The request record is @Valid and carries the contract's required fields and limits as Bean Validation constraints (@NotBlank/@NotNull, @Size max 100/100/255, @Email)",
+      "max_score": 7
+    },
+    {
+      "name": "Documented statuses",
+      "description": "EmailAlreadyRegisteredException (A1) maps to 409 and invalid input to 400, both as application/problem+json Problem Details whose detail is the exception message",
+      "max_score": 10
+    },
+    {
+      "name": "No invented status for A2",
+      "description": "The agent does not present a status for A2 (GuestTooYoungException) as part of the agreed contract: it either adds no specific mapping for it, or states explicitly that the mapping is left out or provisional because the contract documents no response; it never claims 409 or 422 for A2 is what the contract says",
+      "max_score": 12
+    },
+    {
+      "name": "Blocking open question for A2",
+      "description": "docs/open-questions.md exists with a section on UC-001 A2 (or BR-003) saying the contract documents no response for the rejection, raised by spring-rest, with Blocking: Yes and Status: Open; the contract and the use case are not edited",
+      "max_score": 12
+    },
+    {
+      "name": "Unlinked operation not built",
+      "description": "No endpoint for queryAvailability or /partner/v2/availability is created",
+      "max_score": 6
+    },
+    {
+      "name": "No generator or springdoc added",
+      "description": "No springdoc, openapi-generator, or other new dependency is added to the build",
+      "max_score": 5
+    },
+    {
+      "name": "Handover names the contract",
+      "description": "The response ends with a 'Handover from spring-rest (UC-001)' block that lists the endpoint with its JSON fields and statuses and a Contract: line naming docs/api/booking-portal.yaml#registerGuest as followed and A2 as not built (with the open question)",
+      "max_score": 12
+    }
+  ]
+}
