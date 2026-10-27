@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-vaadin",
   "description": "AI Unified Process UI layer with Vaadin - Flow and Hilla views, Browserless and Vitest view tests, and Playwright end-to-end tests",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "rules": "rules",
   "author": {
     "name": "Simon Martinelli",

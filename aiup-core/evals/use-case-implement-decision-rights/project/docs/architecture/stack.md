@@ -1,11 +1,9 @@
 # Stack
 
-**Question:** How is the code organized, built, and tested?  
-**Artifacts:** this document  
-**Notation:** Markdown  
-**For the agent:** read before writing code. The Layers table says which layer skill builds and tests each
-technical layer: `/use-case-implement` runs the Skill column bottom-up, `/use-case-test` runs the Test skill column from the
-integration layer up, and `/use-case-coverage` searches for the markers in the last table.
+**For the agent:** read before writing code. This file is the AI Unified Process record of the technical layers,
+independent of how the team documents its architecture. The Layers table says which layer skill builds and tests
+each technical layer: `/use-case-implement` runs the Skill column bottom-up, `/use-case-test` runs the Test skill
+column from the integration layer up, and `/use-case-coverage` searches for the markers in the last table.
 
 **Last updated:** 2026-10-02
 
@@ -28,8 +26,9 @@ integration layer up, and `/use-case-coverage` searches for the markers in the l
 | Service                  | Service   | `spring-service-test` |
 
 A layer the project does not have is marked `–` in every column (a UI layer in a REST service). The Integration
-layer table has a row per entry layer of the project: a use case is tested in the first row its `**Layers:**` line
-names, or in the first row when it has no such line. That layer's tests run in process against the real database
+layer table keeps only the rows of the entry layers the project has — a REST service drops the UI row — and its
+Test skill column names what the Layers table names for that layer (`–` while the skill is not installed). A use
+case is tested in the first row its `**Layers:**` line names, or in the first row when it has no such line. That layer's tests run in process against the real database
 and exercise every layer below it, so `/use-case-test` runs its test skill and the ones above it and writes no tests
 of their own for the layers below unless a run names them (`/use-case-test UC-001 persistence`).
 
@@ -71,5 +70,5 @@ reference and corrects them. Do not edit the rows by hand; rerun the layer skill
 | API   | spring-rest | Code | `UC-XXX` in the Javadoc of the `@RestController` handler method that realizes a step or an alternative flow |
 | API   | spring-rest | Code | `// UC-XXX BR-YYY:` directly above a request DTO constraint that repeats a rule the service enforces        |
 | API   | spring-rest | Name | `<Entity>Controller` classes annotated `@RestController`; `<Entity>Request` / `<Entity>Response` records     |
-| API   | spring-rest-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"})` on every API test method     |
+| API   | spring-rest-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"}, requirements = {"NFR-XXX"})` on every API test method     |
 | API   | spring-rest-test | Name | `UC<id><Name>ApiTest`, or `UC<id><Name>ApiIT` for live-server tests run by Failsafe                |

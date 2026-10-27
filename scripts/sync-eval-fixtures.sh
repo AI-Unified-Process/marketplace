@@ -8,6 +8,10 @@
 # there to catch (#47). A layer-skill folder is replaced by aiup-*/skills/<skill>/ as a whole; an agent file by the
 # file of the same name in the scenario's own plugin's agents/, else in aiup-core/agents/.
 #
+# The seeded docs/architecture/stack.md of a scenario is project content, but its header, explanations, E2E scope
+# line, and marker rows follow the stack template and the layer skills; scripts/sync_eval_stack_files.py keeps those
+# parts current (#58). Every rubric (criteria.json) must total 100 points; that is checked, not fixed.
+#
 # Usage: scripts/sync-eval-fixtures.sh [--check]
 #   --check  report every fixture that differs and exit 1, change nothing (CI)
 #   (none)   rewrite the fixtures from the real files
@@ -78,6 +82,22 @@ for fixture in aiup-*/evals/*/agents/*.md; do
   fi
   sync_file "$fixture" "$source"
 done
+
+if [[ $mode == check ]]; then
+  python3 scripts/sync_eval_stack_files.py --check || drift=1
+else
+  python3 scripts/sync_eval_stack_files.py || drift=1
+fi
+
+python3 - <<'EOF' || missing=1
+import glob, json, sys
+totals = [(f, sum(c["max_score"] for c in json.load(open(f))["checklist"]))
+          for f in sorted(glob.glob("aiup-*/evals/*/criteria.json"))]
+bad = [(f, total) for f, total in totals if total != 100]
+for f, total in bad:
+    print(f"ERROR: {f}: the rubric totals {total} points, not 100", file=sys.stderr)
+sys.exit(1 if bad else 0)
+EOF
 
 if (( missing )); then
   exit 1

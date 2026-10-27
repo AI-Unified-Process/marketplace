@@ -24,6 +24,7 @@ import org.vaadin.addons.dramafinder.element.EmailFieldElement;
 import org.vaadin.addons.dramafinder.element.IntegerFieldElement;
 import org.vaadin.addons.dramafinder.element.TextFieldElement;
 
+import com.example.workshops.usecase.TestCase;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 
 /**
@@ -31,6 +32,7 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
  * (UC-001), a participant registers for it (UC-002), and the organizer lists the participants (UC-003).
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestCase(id = "TC-001", useCases = {"UC-001", "UC-002", "UC-003"})
 class TC001FirstRegistrationIT extends AbstractBasePlaywrightIT {
 
     private static final String TITLE = "Clean Architecture Basics";

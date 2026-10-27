@@ -21,6 +21,14 @@ as for the score (#47).
   So the scenarios graded contracts that no longer existed. The fixtures are now exact copies.
   `scripts/sync-eval-fixtures.sh` writes them, and its `--check` fails CI when a skill changes without its copies.
   Real copies make each run longer and use more tokens. The registry should measure what users install.
+- **Seeded stack files follow the template.** A scenario's `docs/architecture/stack.md` is project content, but it
+  aged the same way: an old header, no `**E2E scope:**` line, marker rows from older markers references (#58).
+  `scripts/sync_eval_stack_files.py`, run by `sync-eval-fixtures.sh`, keeps the parts the template and the layer
+  skills dictate. A missing E2E scope becomes `Use cases and test cases`, how the skills read a file without the
+  line, so no scenario changes behaviour. A skill's rows are refreshed only where the file already has them, because
+  a layer-skill scenario may expect the skill to add them. The rows of the skill a scenario is named after are left
+  alone, because that scenario may seed them outdated on purpose.
+- **Every rubric totals 100 points.** The check fails CI otherwise, so the scores stay comparable.
 - **One end-to-end chain per typical stack.** The rules that hold the layered design together live between skills:
   the Handover, the integration layer lookup, the E2E scope, the BR markers, and the `**Layers:**` line. A scenario
   for a single skill cannot break them. `use-case-implement-chain-vaadin-flow-jooq` and
