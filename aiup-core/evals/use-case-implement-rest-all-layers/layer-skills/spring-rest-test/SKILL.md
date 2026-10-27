@@ -51,7 +51,7 @@ out.
   scenario, every alternative flow's status and `detail`, and the field errors. "Which Layer Tests What" of
   `/use-case-test` decides the rest.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -60,7 +60,7 @@ and "Which Layer Tests What" and does not repeat them.
 
 Run directly, the same rules apply:
 
-- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` for the test data,
+- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data,
   and `docs/architecture/stack.md` for the API contract, the module layout, and the test commands.
 - Take every expected value — a status the API contract fixes, a message, a field value — from the specification,
   the API contract, or the test data, never from what the code returns.
@@ -110,7 +110,8 @@ say so in the report.
 
 Annotate every test method with `@UseCase`: `id` the `**Use Case ID:**`, `scenario` `Main Success Scenario` (the
 default) or the alternative flow heading, `businessRules` the bare rule ids whose rejection the test shows reaching
-the caller.
+the caller, `requirements` the `NFR-XXX` and `C-XXX` ids of the `**Requirements:**` line whose limit the test asserts
+at the API (a required role, a maximum payload, a response format) — never an `FR-*` id.
 
 **Bootstrap.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
 when it is there — the service and persistence test skills create the same one. Create it only when it is missing,
@@ -128,8 +129,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 ## What to Test
 
@@ -152,12 +158,19 @@ public @interface UseCase {
   rejected flows need (the guest whose email is already registered) come from the repeatable Flyway test migration
   of the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence and service
   test skills write; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test
-  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed. The file lives in the test resources of the module
-  that holds the test: in a hexagonal reactor each test module has its own `db/migration` test folder. This holds for both conventions. A test creates through the API only the row whose creation it
+  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed; use
+  repeatable `R__` migrations only, since a versioned test migration would collide with the next production version.
+  The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test module
+  has its own `db/migration` test folder. This holds for both conventions. A test creates through the API only the row whose creation it
   tests. Never autowire a repository to arrange data; a read-only check of a side effect the response does not
   expose is fine. A rule that needs a competing change (a stale version, a row inserted after the client read the
   resource) follows "Which Layer Tests What" of `/use-case-test`: the test arranges that row through the repository
-  after the read and before the write.
+  after the read and before the write. A flow whose trigger the shared test data rules out (an empty list; "Which Layer
+  Tests What" of `/use-case-test`) depends on the convention. With MockMvc or MockMvcTester the request runs in the
+  test's thread: the test method is annotated `@Transactional`, deletes the rows, and sends the request; the service
+  joins the test transaction and the rollback restores the shared test data. With a live server the application
+  runs in threads and connections of its own, so the delete never reaches it: report the flow as a unit this layer
+  cannot reach, so `/use-case-test` runs `/spring-service-test` for it.
 - **Cleanup**: remove only the rows the test created; never delete all data.
 - Assert on the response body, the DTO actually sent over the wire — not on an entity.
 

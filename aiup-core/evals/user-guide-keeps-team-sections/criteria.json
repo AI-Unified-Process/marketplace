@@ -1,0 +1,36 @@
+{
+  "context": "Tests /user-guide updating an existing guide. docs/user_guide/participant.md holds the anchored sections for UC-002 (Register for a workshop) and UC-004 (Cancel your registration) and, between them, a section the support team wrote by hand without an anchor comment: '## Signing in with your company account', which names a button and links a screenshot the specifications do not mention. docs/user_guide/organizer.md holds the anchored section for UC-001 and a team section '## Getting help' at its end. Since the guide was written, UC-002 changed: the registration deadline (A2 trigger and BR-002) went from 24 to 48 hours, and a success postcondition was added: the participant receives a confirmation email with the workshop's title and start time. UC-001 and UC-004 did not change; UC-004's cancellation deadline is still 24 hours. The product owner explained the change and confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Changed section rewritten",
+      "description": "In participant.md, the section headed for registering for a workshop still carries <!-- UC-002 --> on the line after its heading, states the 48-hour registration deadline wherever it mentions the deadline (no '24 hours' left in that section), and its result mentions the confirmation email with the workshop's title and start time",
+      "max_score": 25
+    },
+    {
+      "name": "Team section between anchored sections kept",
+      "description": "The section '## Signing in with your company account' in participant.md is byte-identical to before, including the **Sign in with Microsoft** button and the image line, and it still stands between the UC-002 and the UC-004 sections",
+      "max_score": 25
+    },
+    {
+      "name": "Second team section kept",
+      "description": "The section '## Getting help' in organizer.md is byte-identical to before and still the last section of the chapter",
+      "max_score": 10
+    },
+    {
+      "name": "Unchanged use cases stay as they were",
+      "description": "The UC-001 section in organizer.md and the UC-004 section in participant.md keep their anchors and say the same as before — in particular the 24-hour cancellation deadline of UC-004 is not changed to 48 hours — and README.md still lists the same two chapters and terms",
+      "max_score": 15
+    },
+    {
+      "name": "Report",
+      "description": "The agent reports the files written, the UC-002 section as updated, and the team sections it kept ('Signing in with your company account', and 'Getting help' when organizer.md was part of the run)",
+      "max_score": 15
+    },
+    {
+      "name": "No specification changed",
+      "description": "Every file under docs/use_cases/, docs/use_cases.puml, docs/glossary.md, docs/requirements.md, and docs/entity_model.md is unchanged, and docs/open-questions.md was not created",
+      "max_score": 10
+    }
+  ]
+}

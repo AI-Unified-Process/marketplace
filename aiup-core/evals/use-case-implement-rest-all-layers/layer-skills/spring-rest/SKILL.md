@@ -44,7 +44,7 @@ in and leave the value out.
 - **Produces** the endpoints a client calls: method, path, request and response JSON, status codes per flow, and the
   error body — what a client-side UI skill such as `/angular-ui` builds its models on.
 - **Never touches** the service and persistence code, the UI, the tests, or anything under `docs/` other than the
-  Markers table of `docs/architecture/stack.md`.
+  Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -54,13 +54,19 @@ for reconciling an existing implementation; it does not repeat the status check 
 Run directly, apply the same rules yourself — `/use-case-implement` describes them:
 
 - Read the use case and check its `**Status:**` line; read only the `FR-*`, `NFR-*`, and `C-*` rows its
-  `**Requirements:**` line links, `docs/entity_model.md`, `docs/glossary.md` and the ADRs when present, and
+  `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
-  questions**. Never edit a test or a file under `docs/` other than the Markers table.
+  questions**. Never edit a test or a file under `docs/` other than the Markers table and new sections of
+  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the endpoints already exist, reconcile them with the specification in place instead of adding a second
   controller.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
+
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
 
 ## API Contract
 
@@ -363,6 +369,8 @@ UC-XXX` when the API is the top layer. Never run the coverage audit.
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Spring MVC annotated controllers: https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html
 - Error responses and `ProblemDetail`: https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html
 - RFC 9457 Problem Details for HTTP APIs: https://www.rfc-editor.org/rfc/rfc9457

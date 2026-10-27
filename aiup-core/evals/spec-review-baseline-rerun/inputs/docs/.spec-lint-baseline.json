@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "fingerprint": "11601eac5ad120485676289a8c5808e55af88338",
+      "code": "FR_UNCOVERED",
+      "path": "requirements.md",
+      "element": "FR-003",
+      "message": "functional requirement FR-003 is not referenced by any use case"
+    },
+    {
+      "fingerprint": "98c2a8adf8bcaff8f8f05594edfa519ff2f22d80",
+      "code": "FR_UNCOVERED",
+      "path": "requirements.md",
+      "element": "FR-004",
+      "message": "functional requirement FR-004 is not referenced by any use case"
+    },
+    {
+      "fingerprint": "37b44303be84dd42aec319ce05b8504213a03395",
+      "code": "WEAK_WORD",
+      "path": "requirements.md",
+      "element": "NFR-001",
+      "message": "weak word 'fast': make it measurable, definite, or remove it"
+    },
+    {
+      "fingerprint": "b0da55581f83b574035d40a20c514868b91d9623",
+      "code": "SPEC_MISSING",
+      "path": "use_cases.puml",
+      "element": "UC-003",
+      "message": "use case UC-003 is in the diagram but has no specification docs/use_cases/UC-003-*.md"
+    },
+    {
+      "fingerprint": "53b6386cacdbdc30252d5c107786fa0f7dbd05a7",
+      "code": "GLOSSARY_AVOIDED_TERM",
+      "path": "use_cases/UC-001-register-member.md",
+      "element": "UC-001",
+      "message": "'Customer' is a synonym the glossary says to avoid; use 'Member'"
+    },
+    {
+      "fingerprint": "41ea546a875d12b38ba81e60c4af199ccfee87ac",
+      "code": "DANGLING_REF",
+      "path": "use_cases/UC-002-lend-book.md",
+      "element": "UC-002",
+      "message": "requirement FR-009 is not in requirements.md"
+    },
+    {
+      "fingerprint": "db17f510496d98e0592b456d5c3bbfcd861813a3",
+      "code": "GLOSSARY_AVOIDED_TERM",
+      "path": "use_cases/UC-002-lend-book.md",
+      "element": "UC-002",
+      "message": "'Item' is a synonym the glossary says to avoid; use 'Copy'"
+    }
+  ]
+}

@@ -12,7 +12,8 @@ and the team wants it implemented now.
 
 ## Output Specification
 
-Implement UC-002 in the code base and finish with a short report of what was done and what comes next. There is no
+Implement UC-002 in the code base and finish with a short report of what was done and what comes next. This is an
+unattended run: nobody can answer a question, so do not wait for answers. There is no
 database, Docker, or Maven repository in this environment, so the build cannot be run; say so rather than claiming
 that it passed.
 

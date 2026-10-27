@@ -1,0 +1,12 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Employee" as employee
+
+rectangle "Canteen" {
+    usecase "UC-001\nOrder Lunch" as UC001
+}
+
+employee --> UC001
+
+@enduml

@@ -1,0 +1,56 @@
+{
+  "context": "Tests the whole construction chain for UC-001 Order Lunch (**Layers:** API; BR-001 portions, BR-002 one lunch order per employee and day, BR-003 'An employee pays the price of the dish; apprentices pay the reduced price.'; A1 Dish Sold Out, A2 Lunch Already Ordered, A3 Dish Not on Today's Menu) in a flat Spring Boot REST service whose stack file records Flyway, JPA, Spring service, Spring MVC REST, no UI, no E2E, and the API as the integration layer. BR-003 holds the planted specification gap: neither the entity model nor the glossary defines an apprentice or the reduced price, so nothing tells the code who is an apprentice or what they pay. In this unattended run /use-case-implement must record the gap as a blocking Open question in a new docs/open-questions.md and leave the reduced price out instead of inventing an attribute or a discount; /use-case-test must test UC-001 in spring-rest-test only, leaving out the test for the element the blocking question is about; /use-case-coverage must report BR-003 as not realized with the question listed. The project starts with the dish table (V001), Application, ClockConfig, application.properties, and TestcontainersConfiguration; the real layer skills are installed in .claude/skills and the coverage agent in .claude/agents. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Gap recorded as a blocking question",
+      "description": "docs/open-questions.md exists, starts with the template's '# Open Questions' heading and intro, and holds a section '## OQ-001: <question>' about who counts as an apprentice and/or what the reduced price is, with **Element:** UC-001 BR-003, **Raised by:** /use-case-implement (or the layer skill that found it) and an ISO date, **Blocking:** Yes, and **Status:** Open, a body that names what the specification leaves open (no attribute or glossary term for apprentices, no amount or rule for the reduced price), and no **Answer:** line",
+      "max_score": 14
+    },
+    {
+      "name": "Reduced price not guessed",
+      "description": "No production code or migration decides who is an apprentice or computes a reduced price: no apprentice column, entity field, request field, or parameter, no discount factor, percentage, or reduced-price constant or configuration property; the price recorded on a lunch order is the dish's price",
+      "max_score": 14
+    },
+    {
+      "name": "Migration with the BR-002 marker",
+      "description": "A new migration numbered after V001 (V002__…sql, named after the table) creates lunch_order with a lunch_order_seq sequence default on id, a foreign key to dish, employee_number VARCHAR(6), lunch_date, price DECIMAL(6, 2), ordered_at NOT NULL, and a UNIQUE (employee_number, lunch_date) constraint with a `-- UC-001 BR-002:` comment on the line directly above it; V001 is unchanged",
+      "max_score": 8
+    },
+    {
+      "name": "JPA persistence with markers",
+      "description": "@Entity classes named after the entity model (Dish, LunchOrder) map the existing columns; Spring Data repositories (DishRepository / LunchOrderRepository or …JpaRepository) provide a count… method of the orders of a dish with a `// UC-001 BR-001:` comment directly above it and an exists… method for an employee number and a lunch date with a `// UC-001 BR-002:` comment directly above it; no repository method carries @Transactional",
+      "max_score": 10
+    },
+    {
+      "name": "Service with the rules and the transaction",
+      "description": "A @Service enforces BR-001 and BR-002 in guard clauses, each with its `// UC-001 BR-00n:` comment directly above, inside a method annotated @Transactional; it throws one domain exception per rejection whose message is the specification's text ('<dish name> is sold out.', 'You have already ordered a lunch for today.', 'This dish is not on today's menu.'), takes today's date from the injected Clock, writes with saveAndFlush and translates a DataIntegrityViolationException of the BR-002 constraint into the A2 exception, and returns records rather than @Entity objects to the controller",
+      "max_score": 11
+    },
+    {
+      "name": "Controller with an error mapping per flow",
+      "description": "A @RestController under /api offers today's menu (GET) and placing an order (POST → 201 Created with a Location header), with a UC-001 Javadoc line on each handler, a @Valid request record with a six-digit constraint on the employee number, and no repository, @Transactional, or business decision; one @RestControllerAdvice maps each domain exception to an RFC 9457 ProblemDetail whose detail is the specification's message — A1 and A2 409, A3 404 or 409 — and invalid input to 400 with an errors entry per field",
+      "max_score": 11
+    },
+    {
+      "name": "API tests as the integration layer",
+      "description": "spring-rest-test writes UC001OrderLunchApiTest with MockMvcTester (@SpringBootTest, @AutoConfigureMockMvc, the TestcontainersConfiguration or a @ServiceConnection container) and test data in src/test/resources/db/migration/R__uc001_order_lunch.sql; every method carries @UseCase(id = \"UC-001\", …) with scenario values matching the headings; it covers the main success scenario (201, the response fields, the order read back through the API or the database), A1, A2, and A3 with status and full detail, BR-001 (last portion vs. sold out) and BR-002 (first vs. second order of the day) each with an allowed and a rejected request, and a 400 for an invalid employee number; no test asserts an apprentice or reduced price",
+      "max_score": 12
+    },
+    {
+      "name": "No UI, E2E, or lower-layer tests",
+      "description": "No view, front-end file, Playwright or other E2E test exists, and jpa-persistence-test and spring-service-test are not run: no UC001…RepositoryTest or UC001…ServiceTest class is written",
+      "max_score": 5
+    },
+    {
+      "name": "Coverage verdict consistent",
+      "description": "session-log.md holds the coverage audit after one line naming UC-001 and mode both: a matrix with a row per step, A1–A3, BR-001–BR-003, the precondition, and the postconditions; BR-003 is not Covered (Missing or Partial, the reduced price absent); OQ-001 is listed under Open questions as blocking and Open; the missing UI and E2E layers and the persistence and service tests are not reported as gaps; the suggested status is neither Implemented nor Tested (Approved stays, BR-003 and OQ-001 named as the reason) and never Done",
+      "max_score": 10
+    },
+    {
+      "name": "Reports, status, and documents",
+      "description": "UC-001's **Status:** line still reads Approved; no specification, requirement, glossary, or entity model file changes, and docs/architecture/stack.md changes only in its Markers table (the All row kept, the rows of the skills that ran added); the implementation report ends with an Open questions list naming OQ-001 UC-001 BR-003 as left out and hands off to /use-case-spec UC-001 and `Next: /use-case-test UC-001`; the test report lists the BR-003 test as left out because of the blocking question and ends with `Next: /use-case-coverage UC-001`",
+      "max_score": 5
+    }
+  ]
+}

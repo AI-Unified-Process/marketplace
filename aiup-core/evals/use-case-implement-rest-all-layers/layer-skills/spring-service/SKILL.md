@@ -44,8 +44,9 @@ in and leave the value out.
   they return. In a project without a persistence skill run, the existing repositories.
 - **Produces** the public service methods the layer above calls — a `@RestController`, a Vaadin Flow view, or a Hilla
   `@BrowserCallable` endpoint — with their input records, return types, and the exceptions they throw.
-- **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints,
-  the tests, or anything under `docs/` other than the Markers table of `docs/architecture/stack.md`.
+- **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints, the
+  tests, or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
+  `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -55,12 +56,18 @@ for reconciling an existing implementation; it does not repeat the status check 
 Run directly, apply the same rules yourself — `/use-case-implement` describes them:
 
 - Read the use case and check its `**Status:**` line; read only the `FR-*`, `NFR-*`, and `C-*` rows its
-  `**Requirements:**` line links, `docs/entity_model.md`, `docs/glossary.md` and the ADRs when present, and
+  `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
-  questions**. Never edit a test or a file under `docs/` other than the Markers table.
+  questions**. Never edit a test or a file under `docs/` other than the Markers table and new sections of
+  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the service already exists, reconcile it with the specification in place instead of writing a second one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
+
+Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —
+`docs/architecture/decision-rights.md`, or its defaults: ask before a decision they reserve for asking (a new
+library or dependency included), never take one they forbid, and list the decisions you took alone under
+**Decisions** in your report.
 
 ## Module Layout
 
@@ -199,6 +206,12 @@ Every business rule the use case lists is enforced in the service, whatever the 
 database constraint, a form validator, or an API check is a second line, never the only one, because every other
 client of the service bypasses it.
 
+A rule that decides only which rows a read returns or in which order — a search match, a filter, a sort, a value
+the query computes — is enforced by the query condition of the persistence layer, which carries its marker. The
+service passes the read through and repeats no marker above a method that only delegates; a marker there points
+`/use-case-coverage` at code that enforces nothing. A rule that rejects a command or guards a write is enforced
+here, always.
+
 ### Business Rule Markers
 
 Put the marker `// UC-XXX BR-YYY: <rule in one line>` directly above the guard clause or the service method that
@@ -333,7 +346,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    transaction boundary, a guard clause with its marker per business rule, a domain exception per rejection, and
    `list`/`count` for a list that grows without bound.
 6. Compile the module (in a hexagonal project, `domain` then `business`) and fix the errors in the code you wrote.
-7. Check that every business rule of the use case has its `UC-XXX BR-YYY` marker in the service.
+7. Check that every business rule the service enforces has its `UC-XXX BR-YYY` marker in the service; a rule that
+   only shapes a read has it in the persistence layer (see [Business Rules](#business-rules)).
 8. Update the Markers rows — see [Markers](#markers).
 9. Report the files created or changed, the **Open questions**, and end with the Handover.
 
@@ -361,6 +375,8 @@ skill), or `/use-case-test UC-XXX` when the service is the top layer. Never run 
 
 ## Resources
 
+- [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
+  discover it.
 - Spring Framework transaction management: https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative.html
 - Spring method validation: https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html#validation-beanvalidation-spring-method
 - Jakarta Validation constraints: https://jakarta.ee/specifications/bean-validation/

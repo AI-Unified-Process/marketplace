@@ -1,0 +1,1 @@
+{ "description": "Spec review on a project with a lint baseline: report the suppressed count, the stale baseline entry, and the one new finding, keep lint and semantic findings apart, and neither refresh the baseline nor edit the documents", "include": ["./inputs"] }

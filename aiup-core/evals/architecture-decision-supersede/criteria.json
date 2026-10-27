@@ -1,0 +1,46 @@
+{
+  "context": "Tests /architecture-decision ADR-002 supersede on a library project whose requirements hold NFR-002 (first page of a catalog search within 1 second for 500,000 titles) and C-001 (PostgreSQL 16 with Flyway), and whose ADR folder holds ADR-001 (Flyway, Accepted), ADR-002 (catalog search with ILIKE, Accepted, Requirements NFR-002 and C-001), ADR-003 (Elasticsearch, Rejected), and ADR-004 (city SSO, Proposed). The architect asks to supersede ADR-002 with PostgreSQL full-text search and has confirmed the decision and the change. The new ADR takes the highest id plus one — ADR-005, since ids are never reused, also not after a rejection — links an NFR or constraint, and names ADR-002 in Supersedes; the only lines of ADR-002 the skill changes are Status, Date, and Superseded by. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "New ADR with the next free id",
+      "description": "A new file docs/architecture/decisions/ADR-005-<slug>.md exists with a heading '# ADR-005: <the full-text search decision>'; no file ADR-003 or ADR-004 is overwritten or added under another name, and there is exactly one new ADR file",
+      "max_score": 15
+    },
+    {
+      "name": "New ADR content",
+      "description": "ADR-005 has **Status:** Accepted, **Date:** 2026-10-27, and Context, Decision, and Consequences sections; the Decision names the generated tsvector column over title and author, the GIN index, and websearch_to_tsquery, and the Context names the load test result (3 to 4 seconds at 500,000 titles) against NFR-002",
+      "max_score": 15
+    },
+    {
+      "name": "Linked to the NFR it serves",
+      "description": "ADR-005's **Requirements:** line links NFR-002 (C-001 may follow); it links no id that is not in docs/requirements.md and not an FR alone",
+      "max_score": 15
+    },
+    {
+      "name": "Supersedes line",
+      "description": "ADR-005 has **Supersedes:** ADR-002",
+      "max_score": 10
+    },
+    {
+      "name": "ADR-002 marked superseded",
+      "description": "ADR-002 reads **Status:** Superseded, **Date:** 2026-10-27, and has a **Superseded by:** ADR-005 line",
+      "max_score": 15
+    },
+    {
+      "name": "ADR-002 otherwise unchanged",
+      "description": "Apart from the Status and Date lines and the added Superseded by line, ADR-002 is identical to before: its heading, Requirements line, Context, Decision, and Consequences are not reworded, extended, or reformatted",
+      "max_score": 15
+    },
+    {
+      "name": "Other files unchanged",
+      "description": "ADR-001, ADR-003 (still Rejected), ADR-004 (still Proposed), and docs/requirements.md are unchanged",
+      "max_score": 5
+    },
+    {
+      "name": "Nothing invented",
+      "description": "ADR-005 states no measurement or force that neither the architect's message nor the documents give — for example no response time measured after the switch, no benchmark figures other than 3 to 4 seconds at 500,000 titles, and no requirement the documents do not hold",
+      "max_score": 10
+    }
+  ]
+}

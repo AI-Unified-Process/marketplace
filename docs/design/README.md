@@ -21,3 +21,4 @@ in the repository's `CLAUDE.md`, and a change to a rule is made there and here t
 | [Business process](business-process.md)               | BPMN models, BP ids, and the layout script                                     |
 | [Transition](transition.md)                           | User guide, acceptance protocol, release notes, and who sets `Done`            |
 | [Coverage sub-agent](coverage-agent.md)               | The read-only coverage auditor and its front door                              |
+| [Eval scenarios](evals.md)                            | What the scenarios cover, real layer-skill fixtures, and the end-to-end chain  |

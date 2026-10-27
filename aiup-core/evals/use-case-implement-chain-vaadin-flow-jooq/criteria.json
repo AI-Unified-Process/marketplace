@@ -1,0 +1,61 @@
+{
+  "context": "Tests the whole construction chain for UC-001 Assign Garden Plot (**Layers:** UI, BR-001 one gardener per plot and season, BR-002 at most two plots per gardener and season, BR-003 closed plots are not offered, A1 Plot Already Assigned, A2 Gardener Holds Two Plots, linked NFR-001 note at most 200 characters) in a flat Spring Boot project whose stack file records Flyway, jOOQ, Spring service, Vaadin Flow, no API layer, the UI as the integration layer, and E2E with vaadin-e2e-test under the scope 'Use cases and test cases'. The project starts with the plot and gardener tables (V001, V002), Application, ClockConfig, and TestcontainersConfiguration; the real layer skills are installed in .claude/skills and the coverage agent in .claude/agents. The agent should run /use-case-implement (flyway-schema → jooq-persistence → spring-service → vaadin-flow-ui), then /use-case-test (vaadin-flow-ui-test, then vaadin-e2e-test; no persistence or service tests), then /use-case-coverage, leave UC-001's **Status:** line alone, and grade on the files left behind. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Opening lines of both orchestrators",
+      "description": "Before the first build layer, the agent states in one line the layers that run (flyway-schema → jooq-persistence → spring-service → vaadin-flow-ui) and that there is no API layer; before the first test skill, it states that vaadin-flow-ui-test runs as the integration layer from the UI row of the Integration layer table and vaadin-e2e-test after it, and that the persistence and service layers get no tests of their own",
+      "max_score": 6
+    },
+    {
+      "name": "Migration with the BR-001 marker",
+      "description": "A new migration numbered after the existing ones (V003__…sql, named after the table, not after the use case) creates plot_assignment with a plot_assignment_seq sequence default on id, foreign keys to plot and gardener, season, note VARCHAR(200), assigned_at NOT NULL, and a UNIQUE (plot_id, season) constraint with a `-- UC-001 BR-001:` comment on the line directly above it; V001 and V002 are unchanged",
+      "max_score": 10
+    },
+    {
+      "name": "jOOQ repositories",
+      "description": "The persistence code consists of @Repository classes with a constructor-injected DSLContext and generated table classes (com.example.garden.db), projecting into records with Records.mapping (no fetchInto(SomeDto.class)); no repository carries @Transactional or calls ctx.transaction(...); the query that lists the plots for the assignment excludes closed plots with a `// UC-001 BR-003:` comment directly above that condition",
+      "max_score": 10
+    },
+    {
+      "name": "Service with the rules and the transaction",
+      "description": "A @Service enforces BR-001 and BR-002 in guard clauses, each with a `// UC-001 BR-001:` or `// UC-001 BR-002:` comment directly above it, inside a method annotated @Transactional (a class-level @Transactional(readOnly = true) is fine); it throws one domain exception per rejection whose message is the specification's text ('Plot <plot number> is already assigned for <season>.', '<first name> <last name> already holds two plots in <season>.'), takes the season from the injected Clock, translates a DuplicateKeyException or DataIntegrityViolationException of the BR-001 constraint into the A1 exception, and imports no Vaadin or web type",
+      "max_score": 12
+    },
+    {
+      "name": "Vaadin Flow view on the service",
+      "description": "A @Route view named after the use case (e.g. AssignGardenPlotView) with the class Javadoc `UC-001 Assign Garden Plot`, injecting only service classes — no repository, DSLContext, generated jOOQ record, or @Transactional in any view — that shows the success message and the A1 and A2 messages verbatim, catching the specific domain exceptions; no @RestController, request or response DTO, or other API code exists for UC-001",
+      "max_score": 10
+    },
+    {
+      "name": "Integration-layer Browserless tests",
+      "description": "A class UC001AssignGardenPlotTest extends SpringBrowserlessTest (with @SpringBootTest and @Import(TestcontainersConfiguration.class)) and drives the view against the real service and database: the main success scenario with the postcondition read back from the database, A1 and A2 with their full messages, and BR-001, BR-002, and BR-003 each with an allowed and a rejected case; every method carries @UseCase(id = \"UC-001\", …) with scenario values matching the headings ('A1: Plot Already Assigned', 'A2: Gardener Holds Two Plots'), and the note-length test carries requirements = {\"NFR-001\"}; the UseCase annotation (id, scenario, businessRules, requirements) is created once in src/test/java/com/example/garden/usecase/UseCase.java and the test data in src/test/resources/db/migration/R__uc001_assign_garden_plot.sql",
+      "max_score": 12
+    },
+    {
+      "name": "No tests below the integration layer",
+      "description": "jooq-persistence-test and spring-service-test are not run: no UC001…RepositoryTest or UC001…ServiceTest class (or any other repository or service test class) is written, and no API test exists",
+      "max_score": 8
+    },
+    {
+      "name": "E2E test per the E2E scope",
+      "description": "A class UC001AssignGardenPlotIT extends AbstractBasePlaywrightIT with @SpringBootTest(webEnvironment = RANDOM_PORT) and the TestcontainersConfiguration import, carries @DisplayName(\"UC-001: Assign Garden Plot\") and @Nested classes with @DisplayName for the main success scenario, 'A1: Plot Already Assigned', and 'A2: Gardener Holds Two Plots', locates components with Drama Finder elements (no raw page.locator CSS or XPath), and does not repeat every rule's allowed and rejected boundary",
+      "max_score": 10
+    },
+    {
+      "name": "Specification and status untouched",
+      "description": "UC-001's **Status:** line still reads Approved; no file under docs/ changes except the Markers table of docs/architecture/stack.md, which keeps the All row and gains the rows of flyway-schema, jooq-persistence, spring-service, vaadin-flow-ui, vaadin-flow-ui-test, and vaadin-e2e-test, and new sections of docs/open-questions.md",
+      "max_score": 8
+    },
+    {
+      "name": "Handover blocks and hand-offs",
+      "description": "session-log.md contains a Handover block of each build layer ('Handover from flyway-schema (UC-001)', jooq-persistence, spring-service, vaadin-flow-ui), the implementation report ends with `Next: /use-case-test UC-001`, and the test report ends with `Next: /use-case-coverage UC-001`",
+      "max_score": 4
+    },
+    {
+      "name": "Coverage report without false gaps",
+      "description": "session-log.md holds the coverage audit after 'Auditing UC-001, mode both.' (or equivalent one line): a matrix with a row for Steps 1–5, A1, A2, BR-001–BR-003, the precondition, the success and failure postconditions, and NFR-001; it does not report the absent API layer, the missing persistence or service tests, or the missing Markers rows of jooq-persistence-test and spring-service-test as gaps; it suggests the next status only as a suggestion, does not suggest Tested without the suite having passed and never Done, and claims no build or test run",
+      "max_score": 10
+    }
+  ]
+}

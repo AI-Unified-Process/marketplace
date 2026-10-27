@@ -10,5 +10,5 @@ The rows this skill keeps in the Markers table of the stack file (`docs/architec
 
 | Layer | Skill           | Kind | Marker to grep for                                                                                  |
 |-------|-----------------|------|-----------------------------------------------------------------------------------------------------|
-| UI    | angular-ui-test | Test | `describe('UC-XXX: <Use Case Name>'`; `it('A<n>: …'` / `it('BR-YYY: …'` per scenario and rule       |
+| UI    | angular-ui-test | Test | `describe('UC-XXX: <Use Case Name>'`; `it('A<n>: …'` / `it('BR-YYY: …'` / `it('NFR-XXX: …'` per scenario, rule, and asserted NFR or constraint       |
 | UI    | angular-ui-test | Name | `UC-XXX-<slug>.spec.ts`, colocated with the Angular page or service under test                       |

@@ -1,0 +1,31 @@
+{
+  "context": "Tests /acceptance-protocol close on docs/acceptance/release-1.0.md when nobody confirms. All three use cases are Tested. UC-001 has only passed rows and no blocking question, so it is the one use case ready for Done. UC-002 has only passed rows, but OQ-002 on UC-002 BR-002 is a blocking question that is still Open. UC-003 has a failed row (A1: an empty table instead of the message 'No one has registered yet.'). The product owner asked which use cases can go to Done but gave no confirmation, and nobody can answer in the session. The skill proposes the result and asks the user to confirm; it sets a status to Done and closes the protocol only after confirmation, so here it must propose, ask, and stop without changing any file. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Proposal table",
+      "description": "The agent presents the result per use case — status now, rows passed of rows, blocking questions, proposal — proposing UC-001 for Done, UC-002 to stay because of OQ-002 (blocking, Open), and UC-003 to stay because of the failed A1 row",
+      "max_score": 20
+    },
+    {
+      "name": "Confirmation asked, no status set",
+      "description": "The agent asks the user to confirm UC-001 for Done and stops: all three use case files still read **Status:** Tested, and UC-001 is not set to Done on the strength of the request alone",
+      "max_score": 35
+    },
+    {
+      "name": "Protocol left open",
+      "description": "docs/acceptance/release-1.0.md is unchanged: **Status:** Open, no **Closed:** or **Accepted:** line, and no result, tester, date, or remark changed",
+      "max_score": 20
+    },
+    {
+      "name": "Both fixes named for the failure",
+      "description": "For the failed UC-003 A1 row the agent names both possibilities without choosing one: the system is wrong (fix with /use-case-implement or the stack's /implement, plus a test via /use-case-test), or the stakeholder wants something other than the specification (change via /use-case-spec UC-003)",
+      "max_score": 15
+    },
+    {
+      "name": "Nothing else changed",
+      "description": "docs/open-questions.md (OQ-002 still Open), docs/test_cases/TC-001-run-a-workshop.md including its Status, and docs/requirements.md are unchanged",
+      "max_score": 10
+    }
+  ]
+}

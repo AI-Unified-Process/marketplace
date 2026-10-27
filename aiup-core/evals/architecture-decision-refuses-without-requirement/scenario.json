@@ -1,0 +1,1 @@
+{ "description": "Refuse to record a decision whose reason is a real quality that no NFR or constraint states yet, without linking the FR the user points to or stretching an unrelated NFR, and hand the quality to /requirements", "include": ["./inputs"] }

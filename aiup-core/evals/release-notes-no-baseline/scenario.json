@@ -1,0 +1,1 @@
+{ "description": "Release notes without a baseline: the repository has no tag and no ref is given, so the agent says so, asks whether this is the first release or which ref to compare with, and writes nothing", "include": ["./inputs"] }

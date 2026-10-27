@@ -1,0 +1,51 @@
+{
+  "context": "Tests /spec-review impact on a library project where the change is UC-002 BR-002 Loan Period (due date 28 days after the loan date), which the user describes only in words. spec_lint.py --docs docs --impact \"UC-002 BR-002\" prints UC-002 (direct, states the rule), UC-003 and UC-004 (direct, each cites UC-002 BR-002 in its BR-001), BP-001 Loan Cycle and TC-001 (indirect, through UC-002), FR-002 and NFR-001 (indirect, realized by UC-002), each with its trace; then OQ-001 (Open, on UC-004 BR-001) and the gap that UC-004 is in no test case. Three documents state the same loan period without a link, which the script cannot see: UC-001 BR-002 (the membership card says 'each for four weeks'), the glossary term Loan period ('four weeks from the loan date'), and LOAN.due_date in the entity model ('loan_date + 28 days'). UC-002 and UC-003 are Implemented. The skill shows the traced output verbatim, lists the untraced mentions separately as possibly affected, orders the hand-offs from the source outward, adds the implementation, test, and coverage steps for the implemented use cases, and runs and edits nothing. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Documents untouched",
+      "description": "No file under docs/ is modified, created, renamed, or deleted — no rule changed to 21 days, no docs/spec-report.html, no new open question",
+      "max_score": 15
+    },
+    {
+      "name": "Change resolved and traced",
+      "description": "The agent identifies the change as UC-002 BR-002 and shows the traced impact of spec_lint.py --impact, listing UC-002, UC-003, UC-004, BP-001, and TC-001 as affected",
+      "max_score": 15
+    },
+    {
+      "name": "Trace behind each hit",
+      "description": "Each traced element carries its impact (direct or indirect) and the reason or trace that explains it — e.g. UC-003 and UC-004 cite UC-002 BR-002; BP-001 has an activity for UC-002; TC-001 chains UC-002",
+      "max_score": 10
+    },
+    {
+      "name": "Open question and gap reported",
+      "description": "The answer names OQ-001 on UC-004 BR-001 as an open question on an affected element, and the gap that UC-004 is in no test case",
+      "max_score": 10
+    },
+    {
+      "name": "Untraced use case rule found",
+      "description": "UC-001 BR-002 (docs/use_cases/UC-001-register-member.md, the membership card's 'four weeks') is reported as possibly affected, with file, line, and element id",
+      "max_score": 15
+    },
+    {
+      "name": "Untraced glossary and entity model found",
+      "description": "The glossary term Loan period ('four weeks from the loan date') and the entity model's LOAN.due_date rule ('loan_date + 28 days') are reported as possibly affected",
+      "max_score": 10
+    },
+    {
+      "name": "Traced and possibly affected kept apart",
+      "description": "The untraced mentions are listed in their own part as possibly affected, not merged into the traced table and not presented as certain",
+      "max_score": 10
+    },
+    {
+      "name": "Hand-offs in order",
+      "description": "The next steps start with /use-case-spec UC-002 for the rule itself, then the use cases that cite it (/use-case-spec UC-003 and UC-004), and include /test-case TC-001, whose step 2 expects a due date 28 days after the loan",
+      "max_score": 10
+    },
+    {
+      "name": "Implemented use cases rebuilt and re-verified, nothing run",
+      "description": "For UC-002 and UC-003, which are Implemented, the next steps add /use-case-implement, /use-case-test, and /use-case-coverage; the agent offers the steps and runs none of them",
+      "max_score": 5
+    }
+  ]
+}

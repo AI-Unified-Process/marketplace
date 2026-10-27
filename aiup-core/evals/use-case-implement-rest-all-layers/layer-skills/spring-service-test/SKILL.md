@@ -49,7 +49,7 @@ out.
   queries with logic of their own — filters, joins, projections, paging — because `/use-case-test` runs no persistence
   tests below it.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -58,7 +58,7 @@ and "Which Layer Tests What" and does not repeat them.
 
 Run directly, the same rules apply:
 
-- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` for the test data,
+- Read the use case, the requirements its `**Requirements:**` line links, `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data,
   and `docs/architecture/stack.md` for the module layout and the test commands.
 - Take every expected value — a message, a count, a status, a calculated value — from the specification or the test
   data, never from what the code returns.
@@ -103,7 +103,9 @@ Guest" — in the package of the service under test.
 Annotate every test method with `@UseCase`, its scenario, and the business rules it covers. The values match the
 headings of the specification: `id` the `**Use Case ID:**`, `scenario` `Main Success Scenario` (the default) or the
 alternative flow heading (`A1: Email Already Registered`), `businessRules` the bare rule ids (`BR-002`) of the same
-use case.
+use case, `requirements` the `NFR-XXX` and `C-XXX` ids of its `**Requirements:**` line whose limit the test asserts
+(a maximum length, a required role, a mandatory external system) — never an `FR-*` id and never a system-wide NFR no
+test can observe.
 
 **Bootstrap.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
 when it is there — the persistence and API test skills create the same one. Create it only when it is missing, in
@@ -120,8 +122,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 In a hexagonal project whose tests live in more than one module, a test-source annotation is not visible across
 modules: every module that holds use case tests gets its own copy in its own `src/test/java`. The plugin resolves
@@ -147,14 +154,20 @@ the annotation by short name, so the copies do not conflict.
   report, not a reason to compute the expectation at runtime.
 - **Transactions**: do not annotate the test class `@Transactional`. A rolled-back test transaction hides the
   service's own boundary, lazy-loading errors, and after-commit events. Remove the rows the test created in
-  `@AfterEach`; never delete all data.
+  `@AfterEach`; never delete all data. The one exception is the test method of a flow the shared test data rules
+  out (see Test data).
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected cases need (the guest whose email is already registered) come from the repeatable Flyway test migration of
   the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence test skill
-  writes; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test
-  resources too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed. The file lives in the test resources of the module that holds the
-  test: in a hexagonal reactor each test module has its own `db/migration` test folder. A test creates through the service only the row whose creation it tests, never the fixture. Take the
-  values from the specification's examples and the entity model.
+  writes; extend it when it exists. Flyway's default location `classpath:db/migration` covers the test resources
+  too, so no `@TestPropertySource`, profile, or `src/test/resources/application.properties` is needed; use
+  repeatable `R__` migrations only, since a versioned test migration would collide with the next production version.
+  The file lives in the test resources of the module that holds the test: in a hexagonal reactor each test module
+  has its own `db/migration` test folder. A test creates through the service only the row whose creation it tests,
+  never the fixture. Take the values from the specification's examples and the entity model. A flow whose trigger
+  the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) deletes the rows in a
+  test method annotated `@Transactional` and then calls the service, which joins the test transaction and sees the
+  empty table; the rollback restores the shared test data. Only a reading method may be tested this way.
 
 ## Integration Style
 
@@ -209,7 +222,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Weaken, delete, or disable an assertion whose expected value the specification states.
 - Take an expected value from running the code.
 - Mock the repository, port, or service under test with `@MockitoBean` in an integration test.
-- Annotate the test class `@Transactional`, or delete all rows in cleanup.
+- Annotate the test class `@Transactional`, or delete all rows in cleanup. Only the test method of a flow the
+  shared test data rules out carries `@Transactional`.
 - Test HTTP status codes or JSON here — that is `/spring-rest-test`.
 - Test the same rule again in a second class; one class per use case.
 - Write a test that asserts only that no exception is thrown, or that a result `isNotNull()`, where the

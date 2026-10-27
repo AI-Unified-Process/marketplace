@@ -1,0 +1,41 @@
+{
+  "context": "Tests /user-guide on a workshop registration with six use cases at mixed statuses: UC-001 Manage Workshops (Organizer) is Done, UC-002 Register for Workshop and UC-004 Cancel Registration (both Participant) are Tested, UC-003 List Participants is Implemented, UC-005 Send Reminder is Draft, UC-006 Export Participant List is Approved. Only Tested and Done use cases belong in the guide, so it describes UC-001, UC-002, and UC-004. The glossary says 'Registration' and lists 'Booking' and 'Sign-up' in its Avoid column; step 3 of UC-004 says 'cancel the booking' anyway. The specifications name no screen, button, or menu; UC-002 and UC-004 state their messages word for word, except UC-004 A1 (cancellation deadline passed), which says the system rejects the cancellation but not what the participant sees. The product owner confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "One chapter per primary actor",
+      "description": "docs/user_guide/ holds README.md, organizer.md, and participant.md, and no other chapter; README.md names the chapters with one line each on who it is for",
+      "max_score": 15
+    },
+    {
+      "name": "Only Tested and Done use cases",
+      "description": "organizer.md has a section for UC-001 and participant.md sections for UC-002 and UC-004, each a ## heading phrased as a task and directly followed by the anchor comment <!-- UC-XXX --> on the next line; no section or anchor exists for UC-003, UC-005, or UC-006, and the agent reports these three as skipped with their status (Implemented, Draft, Approved)",
+      "max_score": 20
+    },
+    {
+      "name": "Reader's view, no ids in prose",
+      "description": "The task sections address the reader in the second person and present tense (\"Enter your name and email\", \"You see ...\"), with numbered steps; flow and rule ids (A1, BR-001) and use case ids appear nowhere in the prose, only in the anchor comments",
+      "max_score": 15
+    },
+    {
+      "name": "Glossary terms",
+      "description": "The guide uses the glossary's terms: the cancellation section speaks of the registration, not the booking, and no word from the Avoid column (Course, Event, Attendee, Booking, Sign-up, Admin, Free seats) appears in it; README.md has a ## Terms section with the glossary's Term and Definition columns and without the Avoid column",
+      "max_score": 10
+    },
+    {
+      "name": "Nothing the specification does not name",
+      "description": "The guide names no button label, menu path, screen or page name, keyboard shortcut, or field order that the specifications do not state; every quoted message is one of the texts the specifications give word for word, and the section for UC-004 invents no message text for the case where the cancellation deadline has passed",
+      "max_score": 20
+    },
+    {
+      "name": "Gap reported and handed off",
+      "description": "The agent's report names UC-004 A1 as a gap (the specification does not say what the participant sees when the cancellation is rejected) and hands it off to /use-case-spec UC-004 or /open-questions, without recording it itself",
+      "max_score": 10
+    },
+    {
+      "name": "No specification changed",
+      "description": "Every file under docs/use_cases/, docs/use_cases.puml, docs/glossary.md, docs/requirements.md, and docs/entity_model.md is unchanged (UC-004 still says 'booking'), and docs/open-questions.md was not created",
+      "max_score": 10
+    }
+  ]
+}

@@ -43,8 +43,8 @@ name the file it lives in and leave the value out.
   migrations, and the existing tests of this use case.
 - **Produces:** `UC<id><Name>RepositoryTest` classes, the Flyway test data migration their data needs (a repeatable
   migration in `src/test/resources/db/migration`), and the `UseCase` annotation when the project has none.
-- **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than
-  the Markers table of `docs/architecture/stack.md`.
+- **Never touches:** production code, main migrations, tests of other layers, and anything under `docs/` other than the
+  Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -85,7 +85,7 @@ to the integration layer's tests; do not write them again here.
 ## Test Class Naming and `@UseCase` Annotation
 
 Repository tests are **use case tests**. Each test class verifies the data access of exactly one use case from the
-use case specification (`docs/use_cases/UC-XXX-*.md`).
+use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 ### Class naming
 
@@ -125,8 +125,13 @@ public @interface UseCase {
     String scenario() default "Main Success Scenario";
 
     String[] businessRules() default {};
+
+    String[] requirements() default {};
 }
 ```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it.
 
 ### Usage on test methods
 
@@ -138,6 +143,11 @@ values must match headings in the corresponding `UC-XXX-*.md` spec:
 | `id`            | `**Use Case ID:** UC-XXX`                  | (required)                |
 | `scenario`      | `## Main Success Scenario` or `### A1: …`  | `"Main Success Scenario"` |
 | `businessRules` | `### BR-XXX` headings inside the same UC   | `{}`                      |
+| `requirements`  | `NFR-XXX` / `C-XXX` on `**Requirements:**` | `{}`                      |
+
+`requirements` names the `NFR-XXX` and `C-XXX` ids of the use case's `**Requirements:**` line whose limit the test
+asserts — a maximum length, a required role, a mandatory external system. Never an `FR-*` id (the use case realizes
+its FRs as a whole) and never a system-wide NFR no test can observe.
 
 ```java
 @Test
@@ -169,7 +179,7 @@ passes on H2 proves nothing about PostgreSQL.
   own no transaction boundary.
 
 With `@SpringBootTest`, do not add `@Transactional` to the test; remove in `@AfterEach` only the rows the test
-created.
+created. The one exception is the test method of a flow the shared test data rules out (see Test Data Strategy).
 
 ## Location
 
@@ -209,6 +219,10 @@ first; otherwise use one repeatable migration per use case:
   out-of-stock product for `BR-001`), so a missing condition makes a test fail.
 - Write the expected values into the test from the test data and the specification. Reuse test data another use case
   already inserts when it fits; change it only together with the tests that depend on it.
+- A flow whose trigger the shared test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`)
+  deletes the rows in a test method annotated `@Transactional` (with `@JooqTest`, every test already is) and then
+  calls the repository; the repository joins the test transaction, sees the empty table, and the rollback restores
+  the shared test data. Only a read may be tested this way.
 - Scope every assertion to the rows the test owns: give them an id range or a name prefix (`UC010 …`) the tests
   own, filter on that value where the query takes a filter, and narrow other results with `filteredOn` before
   `containsExactly`. Never assert a count or an exact list over a whole table — another use case's rows are in it.

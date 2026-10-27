@@ -10,5 +10,5 @@ The rows this skill keeps in the Markers table of the stack file (`docs/architec
 
 | Layer | Skill               | Kind | Marker to grep for                                                                                          |
 |-------|---------------------|------|-------------------------------------------------------------------------------------------------------------|
-| UI    | vaadin-flow-ui-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"})` on every Browserless test method     |
-| UI    | vaadin-flow-ui-test | Name | `UC<id><Name>Test`, e.g. `UC001ManagePersonsTest`, extending `SpringBrowserlessTest`                       |
+| UI    | vaadin-flow-ui-test | Test | `@UseCase(id = "UC-XXX", scenario = "…", businessRules = {"BR-YYY"}, requirements = {"NFR-XXX"})` on every Browserless test method     |
+| UI    | vaadin-flow-ui-test | Name | `UC<id><Name>Test`, e.g. `UC001ManagePersonsTest`, extending `SpringBrowserlessTest` or the project's subclass of it |

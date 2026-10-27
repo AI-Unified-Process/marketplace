@@ -116,6 +116,8 @@ jobs:
 
       - name: Check spec linter and eval fixtures
         run: |
+          # layer-skill and agent fixtures of the scenarios must be copies of the real files
+          scripts/sync-eval-fixtures.sh --check
           python3 aiup-core/skills/spec-review/scripts/spec_lint.py --self-test
           # spec-review-lint-and-semantic seeds defects on purpose: the lint must fail on it
           if python3 aiup-core/skills/spec-review/scripts/spec_lint.py \

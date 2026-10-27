@@ -1,0 +1,20 @@
+{
+  "description": "Read-only coverage audit of a fully covered use case that a blocking open question still holds back from Tested",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    },
+    "agents": {
+      "type": "directory",
+      "path": "./agents",
+      "installPath": ".claude/agents"
+    }
+  }
+}

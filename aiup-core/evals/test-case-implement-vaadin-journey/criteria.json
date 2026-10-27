@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether /test-case-implement automates TC-001 in a Vaadin Flow + jOOQ project whose stack file names vaadin-e2e-test (shipped in .claude/skills) in the E2E row. The skill runs the E2E test skill with the journey: one class TC001FirstRegistrationIT, annotated @TestCase(id = \"TC-001\", useCases = {\"UC-001\", \"UC-002\", \"UC-003\"}), with one @Test walking the whole Flow table and a // Step <n>: comment per row. The project has UseCase.java but no TestCase annotation, so the skill creates it next to UseCase.java in src/test/java. The workshop list has a Participants button for the selected workshop (UC-003 step 1); the registration view is reached at the route 'register'; the organizer logs in as organizer/organizer through the login view. The session may have no Docker or browser, so the test may not run. No production code and no document under docs/ other than the Markers table of docs/architecture/stack.md (already complete) and new sections of docs/open-questions.md may change. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "One journey class",
+      "description": "Exactly one new test class, TC001FirstRegistrationIT, under src/test/java (e.g. com/example/workshops/e2e), extending Drama Finder's AbstractBasePlaywrightIT; no per-use-case test class (UC*IT, UC*Test) is written",
+      "max_score": 15
+    },
+    {
+      "name": "@TestCase itinerary",
+      "description": "The class carries @TestCase(id = \"TC-001\", useCases = {\"UC-001\", \"UC-002\", \"UC-003\"}) in that order, and the TestCase annotation with id and useCases is created in src/test/java/com/example/workshops/usecase/TestCase.java, not in src/main/java",
+      "max_score": 10
+    },
+    {
+      "name": "One test walks the Flow",
+      "description": "A single @Test method with @DisplayName starting 'TC-001: ' runs the six Flow rows in order, each marked with a '// Step <n>: <name>' comment named after its Flow row (Step 1: Create workshop … Step 6: Verify participant)",
+      "max_score": 15
+    },
+    {
+      "name": "Expected values from the test case",
+      "description": "The test enters the Flow's test data (Clean Architecture Basics, 2027-03-15 09:00, capacity 2, Ada Keller, ada.keller@example.com) and asserts the full message 'You are registered for Clean Architecture Basics.', Ada Keller with her email in the participant list, Validation 1 (1 free place), and Validation 2 (1 registration)",
+      "max_score": 15
+    },
+    {
+      "name": "Cleanup per the postconditions",
+      "description": "An @AfterEach removes only the data the test created, the registration before the workshop, and tolerates a test that failed midway",
+      "max_score": 10
+    },
+    {
+      "name": "Setup per the E2E skill",
+      "description": "The class uses @SpringBootTest(webEnvironment = RANDOM_PORT) with @LocalServerPort, imports TestcontainersConfiguration, returns 'workshops' (the route of the first Flow step) from getView(), and logs in as the organizer before the journey",
+      "max_score": 10
+    },
+    {
+      "name": "No production code or documents changed",
+      "description": "No file under src/main is created or changed, and no file under docs/ changes except the Markers table of docs/architecture/stack.md and new sections of docs/open-questions.md; TC-001's **Status:** line still reads Approved",
+      "max_score": 15
+    },
+    {
+      "name": "Honest report and hand-off",
+      "description": "The report names the test written and the command it ran (the End-to-end tests command of the stack file) with its result, or says that the test could not be run — it never claims the test passes without a run; the agent runs no coverage audit and ends with 'Next: /test-case-coverage TC-001' (or the 'tests wip' variant when the test is unfinished)",
+      "max_score": 10
+    }
+  ]
+}

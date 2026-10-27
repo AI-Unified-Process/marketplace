@@ -1,0 +1,12 @@
+@startuml Use Cases Overview
+left to right direction
+
+actor "Garden Coordinator" as coordinator
+
+rectangle "Community Garden" {
+    usecase "UC-001\nAssign Garden Plot" as UC001
+}
+
+coordinator --> UC001
+
+@enduml

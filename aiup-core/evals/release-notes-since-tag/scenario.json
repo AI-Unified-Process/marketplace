@@ -1,0 +1,1 @@
+{ "description": "Write the business release notes since the latest tag from the use cases at the tag and now, matched by id: new, changed, removed, requirements verified — never from the commit messages", "include": ["./inputs"] }

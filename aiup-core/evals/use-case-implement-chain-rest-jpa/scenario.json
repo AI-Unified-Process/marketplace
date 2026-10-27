@@ -1,0 +1,20 @@
+{
+  "description": "Whole construction chain for an API-only use case in a REST + JPA project without a UI, with a specification gap in one business rule: /use-case-implement, /use-case-test, and /use-case-coverage across the real layer skills",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    },
+    "agents": {
+      "type": "directory",
+      "path": "./agents",
+      "installPath": ".claude/agents"
+    }
+  }
+}

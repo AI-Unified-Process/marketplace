@@ -1,0 +1,51 @@
+{
+  "context": "Tests whether /use-case-coverage audits UC-002 read-only through the uc-coverage-layered agent (shipped in .claude/agents) in a Vaadin Flow + jOOQ project, and keeps an Open blocking question from being waved through. Every unit of UC-002 is implemented and tested: UC002RegisterForWorkshopTest covers the main success scenario, A1–A3, both cases of BR-001, BR-002 (Spring Boot Day 24.5 hours ahead is accepted, Kotlin Kickoff 22 hours ahead is rejected), and BR-003, the failure postcondition, and NFR-001. But docs/open-questions.md holds OQ-002 on UC-002 BR-002 (calendar hours or business hours?), Blocking: Yes, Status: Open. The agent's rule: a unit a question is about is judged against what the specification says, the question is listed under Open questions, and Tested is never suggested while a blocking question is Open or Answered. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Resolved arguments stated",
+      "description": "Before the audit, the agent states the resolved arguments in one line, e.g. 'Auditing UC-002, mode both.'",
+      "max_score": 5
+    },
+    {
+      "name": "Delegated to the auditor",
+      "description": "The agent hands the audit to the uc-coverage-layered sub-agent with only the id and mode (e.g. 'UC-002 both'), without a list of files, a mention of OQ-002, or the findings it expects — or, when it cannot run a sub-agent, reads agents/uc-coverage-layered.md and follows its checklist itself",
+      "max_score": 10
+    },
+    {
+      "name": "No file changed",
+      "description": "No file is created, modified, or deleted — not the code, not the tests, not UC-002 and its **Status:** line, and not docs/open-questions.md (OQ-002 is neither answered nor resolved, and no new question is added)",
+      "max_score": 15
+    },
+    {
+      "name": "Open question listed",
+      "description": "The report lists OQ-002 under an Open questions section (or equivalent) with its element UC-002 BR-002, that it is blocking, its status Open, and the question",
+      "max_score": 15
+    },
+    {
+      "name": "Tested withheld because of OQ-002",
+      "description": "The suggested status is not Tested: the report says that UC-002 cannot go to Tested while the blocking question OQ-002 is Open and names it as the reason, and it does not suggest Done",
+      "max_score": 20
+    },
+    {
+      "name": "BR-002 judged against the specification",
+      "description": "BR-002 and A2 are judged against the 24 hours the specification states: the agent does not call the 24-hour guard in RegistrationService wrong, does not ask for business-hours logic, and does not choose one of OQ-002's readings itself",
+      "max_score": 10
+    },
+    {
+      "name": "Complete matrix without invented gaps",
+      "description": "The matrix has one row per unit — Steps 1–5, A1–A3, BR-001–BR-003, the precondition, both success postconditions, the failure postcondition, and NFR-001 — with Implementation and Test evidence; covered rows cite a file and line, and no unit is reported Partial or Missing on a general doubt the specification does not support",
+      "max_score": 10
+    },
+    {
+      "name": "Question handed off, nothing run",
+      "description": "The agent offers /open-questions answer OQ-002 (and names no gap-closing /use-case-implement or /use-case-test command for units that are covered), runs no command itself, and does not answer the question on the product owner's behalf",
+      "max_score": 10
+    },
+    {
+      "name": "No test run claimed",
+      "description": "The agent does not claim that the test suite was run or passes; before any later Tested suggestion it leaves the run to the user or asks whether the suite passes",
+      "max_score": 5
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether /test-case-coverage audits the journey TC-001 read-only through the uc-coverage-layered agent (shipped in .claude/agents) in a Vaadin Flow + jOOQ project with a vaadin-e2e-test E2E layer and E2E scope 'Test cases only', and reports a complete journey as complete. TC001FirstRegistrationIT carries @TestCase(id = \"TC-001\", useCases = {\"UC-001\", \"UC-002\", \"UC-003\"}), matching the Flow's Use Case column, and walks all six Flow rows in one test with a // Step <n>: comment each; Validation 1 (1 free place) and Validation 2 ('1 registration, 1 free place') are asserted; the @AfterEach cleanup deletes the registration before the workshop, as Postcondition 2 says, and the foreign key in V2__create_registration.sql enforces that order. There are no gaps and no drift; the Participants button in WorkshopView realizes UC-003 step 1 and the login view and SecurityConfig are infrastructure. TC-001's Status is Approved. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Resolved arguments stated",
+      "description": "Before the audit, the agent states the resolved arguments in one line, e.g. 'Auditing TC-001, mode both.'",
+      "max_score": 5
+    },
+    {
+      "name": "Delegated to the auditor",
+      "description": "The agent hands the audit to the uc-coverage-layered sub-agent with only the id and mode (e.g. 'TC-001 both'), without a list of files or expected findings — or, when it cannot run a sub-agent, reads agents/uc-coverage-layered.md and follows its checklist itself",
+      "max_score": 10
+    },
+    {
+      "name": "No file changed",
+      "description": "No file is created, modified, or deleted — not the journey test, not the views, not TC-001 and its **Status:** line",
+      "max_score": 15
+    },
+    {
+      "name": "Journey units in the matrix",
+      "description": "The matrix has one row per Flow row (Steps 1–6, verification rows included), per Validation item (1 and 2), and per Postcondition (2) of TC-001 — the units of a test case, not the main success scenario steps and business rules of the chained use cases",
+      "max_score": 15
+    },
+    {
+      "name": "Every row covered with evidence",
+      "description": "Every Flow row, both Validation items, and both Postconditions are reported as covered, each with a file and line in TC001FirstRegistrationIT.java (and, where an implementation column is shown, in the view, service, or migration)",
+      "max_score": 15
+    },
+    {
+      "name": "No invented gaps or drift",
+      "description": "The report names no gap or drift that is not there: no missing use case browser test (the E2E scope is Test cases only), no itinerary mismatch, no drift for the Participants button, the login view, or SecurityConfig, and no Partial verdict on a general doubt; it says in one line that the journey is fully covered",
+      "max_score": 15
+    },
+    {
+      "name": "Status left to the user",
+      "description": "The report suggests the next **Status:** value of TC-001 (e.g. Automated) only as a suggestion, does not edit the status line, and does not claim that the journey test was run or passes — it leaves the run to the user or asks whether it passes",
+      "max_score": 15
+    },
+    {
+      "name": "No gap commands, nothing run",
+      "description": "With nothing to close, the agent offers no /test-case-implement or /use-case-implement command as a fix, suggests no further audit run, and runs no command itself",
+      "max_score": 10
+    }
+  ]
+}

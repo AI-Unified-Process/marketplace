@@ -1,0 +1,1 @@
+{ "description": "Supersede an accepted ADR on request: a new ADR with the next free id after a rejected and a proposed one, Supersedes and its NFR on the Requirements line, and the old ADR changed only in Status, Date, and Superseded by", "include": ["./inputs"] }

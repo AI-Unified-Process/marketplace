@@ -1,0 +1,1 @@
+{ "description": "Write the user guide from the use cases that are Tested or Done: one chapter per primary actor, anchored task sections in the second person and the glossary's terms, nothing the specification does not name, and the gaps reported", "include": ["./inputs"] }

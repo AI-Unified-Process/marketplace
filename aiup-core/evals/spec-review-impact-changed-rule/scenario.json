@@ -1,0 +1,1 @@
+{ "description": "Change impact analysis of a changed business rule: the traced impact from spec_lint.py --impact verbatim, the untraced mentions of the same rule kept apart as possibly affected, and the hand-offs in order, without editing anything", "include": ["./inputs"] }

@@ -1,0 +1,51 @@
+{
+  "context": "Tests /spec-review on the library specifications of spec-review-lint-and-semantic with a lint baseline, docs/.spec-lint-baseline.json, written by spec_lint.py --update-baseline before the latest edit. It accepted seven findings: SPEC_MISSING UC-003, FR_UNCOVERED FR-003 and FR-004, WEAK_WORD 'fast' in NFR-001, GLOSSARY_AVOIDED_TERM 'Customer' in UC-001 and 'Item' in UC-002, and DANGLING_REF FR-009 in UC-002. Since then UC-002's Requirements line was changed from FR-002, FR-009 to FR-002, FR-005, and FR-005 does not exist either. spec_lint.py now prints one ERROR DANGLING_REF [UC-002] for FR-005 (docs/use_cases/UC-002-lend-book.md:11), INFO REQ_UNCOVERED for NFR-001 and C-001, INFO BASELINE_STALE for the FR-009 entry, and '1 error(s), 0 warning(s), 3 info(s), 6 suppressed by baseline', exit code 1. The semantic findings of the original scenario are still there (UC-001 BR-003 14 days against UC-002 BR-002 28 days, the duplicated loan limit, UI detail in UC-002 step 5, no alternative flow for step 4). The skill keeps lint and semantic findings apart, never refreshes the baseline unless the user explicitly asks to accept the current findings, and edits nothing under docs/. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Documents and baseline untouched",
+      "description": "No file under docs/ is modified, created, renamed, or deleted; in particular docs/.spec-lint-baseline.json is byte-identical (spec_lint.py --update-baseline was not run, and FR-005 or the FR-009 entry was not accepted into it), no **Status:** line changes, and no FR-005 is added to docs/requirements.md",
+      "max_score": 20
+    },
+    {
+      "name": "New finding reported as the build failure",
+      "description": "The report states that UC-002 (docs/use_cases/UC-002-lend-book.md, line 11) references FR-005, which is not in docs/requirements.md, as a certain ERROR finding, and identifies it as the finding that fails the build",
+      "max_score": 15
+    },
+    {
+      "name": "Stale baseline entry reported",
+      "description": "The report states the BASELINE_STALE finding: the baseline entry for the dangling reference to FR-009 in UC-002 no longer matches any finding",
+      "max_score": 10
+    },
+    {
+      "name": "Suppressed count reported",
+      "description": "The report states that the baseline suppressed 6 findings",
+      "max_score": 10
+    },
+    {
+      "name": "Accepted findings not passed off as new",
+      "description": "The report does not present the six suppressed findings (UC-003 without specification, FR-003 and FR-004 uncovered, 'fast' in NFR-001, 'Customer' and 'Item') as new findings or as what fails the build; mentioning them as accepted by the baseline is fine",
+      "max_score": 10
+    },
+    {
+      "name": "Certain versus advisory separated",
+      "description": "The lint findings and the semantic findings are in separate parts of the report, and no semantic finding is labelled an error or blocking",
+      "max_score": 10
+    },
+    {
+      "name": "Semantic review done",
+      "description": "The advisory part reports that UC-001 BR-003 (14-day loan period) contradicts UC-002 BR-002 (due date 28 days after the loan date), naming both rules with file and line",
+      "max_score": 10
+    },
+    {
+      "name": "Verdict",
+      "description": "The report says UC-001 and UC-002 are not ready for Approved, because the lint fails (an error, exit code 1) and semantic warnings are open",
+      "max_score": 5
+    },
+    {
+      "name": "Fix offered, baseline left to the team",
+      "description": "The agent turns the new error into the command that fixes it — /use-case-spec UC-002 to correct the Requirements line, or /requirements to add FR-005 — and runs neither; if it mentions spec_lint.py --update-baseline, it presents it as the team's own decision to accept the current findings, not as something it ran or will run",
+      "max_score": 10
+    }
+  ]
+}

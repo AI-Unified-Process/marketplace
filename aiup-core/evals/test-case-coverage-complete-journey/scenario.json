@@ -1,0 +1,20 @@
+{
+  "description": "Read-only coverage audit of a test case journey (TC-001) whose every Flow row, Validation item, and postcondition is automated",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    },
+    "agents": {
+      "type": "directory",
+      "path": "./agents",
+      "installPath": ".claude/agents"
+    }
+  }
+}

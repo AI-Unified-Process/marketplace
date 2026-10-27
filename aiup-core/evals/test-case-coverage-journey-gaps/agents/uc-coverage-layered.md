@@ -43,7 +43,7 @@ that mode you report the same matrix, but you phrase the open units as remaining
 specification order rather than as defects, and you skip the drift section — scaffolding that is
 still being built is not drift.
 
-If no id is given, list the specifications under `docs/use_cases/` and ask which one to audit.
+If no id is given, list the specifications under `docs/use_cases/` (module subfolders included) and ask which one to audit.
 Never audit "everything" unless the caller explicitly asks for a sweep. The `/use-case-coverage` skill
 of `aiup-core` is the usual entry point and handles that triage before it delegates to you.
 
@@ -51,12 +51,17 @@ of `aiup-core` is the usual entry point and handles that triage before it delega
 
 Read the specification first and completely, before you look at any code:
 
-- Use cases: `docs/use_cases/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
+- Use cases: `docs/use_cases/**/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
 - Test cases: `docs/test_cases/TC-XXX-*.md`.
-- Read `docs/entity_model.md` when the specification's data requirements matter for the audit.
+- Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) when the specification's data requirements matter for the audit.
 - Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
   `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The `FR-*` rows help
   where a step is ambiguous; the linked `NFR-*` and `C-*` rows become coverage units (Step 2).
+- Read `docs/open-questions.md` when it exists, and take the questions that are `Open` or
+  `Answered` on the artifact: those whose `**Element:**` names the use case (for a test case, one
+  of the use cases its Flow links), and those on a requirement its `**Requirements:**` line links.
+  They are no coverage units: a unit a question is about is judged against what the specification
+  says, and an `Answered` question's answer is not the specification until it is written there.
 
 If the specification does not exist, stop and report that. Never audit against a specification you
 reconstructed from the code — that would confirm whatever the code happens to do.
@@ -130,8 +135,8 @@ When the stack file does not exist, say so at the top of the report, audit with 
 markers and the domain vocabulary alone, and name `/stack` as the step that makes the next
 audit precise.
 
-When the stack file has no Integration layer table (or only the single `**Integration layer:**`
-line of an earlier version), say so at the top of the report and name `/stack` as the step that
+When the stack file has no Integration layer table (or only the one-line
+`**Integration layer:** <layer>` of an earlier version, with no table under the label), say so at the top of the report and name `/stack` as the step that
 writes it. Do not derive the layer yourself: judge the test
 evidence of every layer, and state that the audit could not tell which layer integrates.
 
@@ -139,12 +144,13 @@ When the Markers table has no row for a layer the Layers table lists, report tha
 traceability gap of the layer skill, not of the use case — except for a test skill that has not run
 yet, which leaves no rows and is not a gap: a test skill below the integration layer, which
 `/use-case-test` does not run (a second entry layer excepted, see below), and the test skill of an entry layer that no use case is offered
-through yet (every specification under `docs/use_cases/` has a `**Layers:**` line that leaves it
+through yet (every specification under `docs/use_cases/`, module subfolders included, has a `**Layers:**` line that leaves it
 out).
 
 Units are not multiplied per layer: each unit gets one row, with the evidence from whichever layers
 realize it. A business rule belongs in the service layer (and possibly also in the persistence or UI
-layer); a client-side UI that enforces a rule the service does not is `Partial`, because any other
+layer) — in a project whose Layers table marks Service `–`, in the view or form and the persistence
+layer; a client-side UI that enforces a rule the service does not is `Partial`, because any other
 client of the API bypasses it. Test evidence may come from any layer: a rule whose allowed and
 rejected cases a Browserless or API test asserts is covered without a service or repository test,
 and a missing persistence or service test is not a gap when the integration layer's tests exercise
@@ -153,6 +159,24 @@ both of which the use case is offered through — is the exception: it tests its
 main success scenario through its entry point, every alternative flow's response or message, the
 input validation mapping), and a missing contract test there is a gap of that layer, also when the
 integration layer's tests cover the units.
+
+**E2E scope.** The `**E2E scope:**` line under the Integration layer table decides whether a use case
+needs a browser test. `Use cases and test cases`, or no line: a use case offered through the UI
+without an E2E test of its main success scenario is a gap of the E2E layer; an alternative flow the shared test
+data rules out (an empty list) has no browser test by design and is covered by the integration layer. `Test cases only`: a
+missing use case browser test is no gap and the E2E rows of the Markers table need no `UC-*` match;
+an existing one still counts as evidence. A test case (TC-*) needs its journey test under either
+value.
+
+**Journey itinerary.** When an E2E marker names the use cases a journey walks (Vaadin's
+`@TestCase(id = "TC-XXX", useCases = {…})`), compare that list with the use cases the Flow table's
+Use Case column links. A use case in one and not the other is drift, in either direction; a journey
+test whose E2E row prescribes such a marker and lacks it is a traceability gap.
+
+**Requirement markers.** A test that names an `NFR-XXX` or `C-XXX` in its marker (`requirements = {"NFR-002"}`
+in `@UseCase`, `it('NFR-002: …')`) is the id evidence for that unit; like a business rule marker it counts only
+when the test asserts the limit. An id there that the use case's `**Requirements:**` line does not link is drift,
+and an `FR-*` id there is a traceability gap, because a use case realizes its FRs as a whole.
 
 **Domain vocabulary** — an implementation written before those conventions existed still counts.
 Derive the likely names from the specification (the view or page the actor works in, the entity and
@@ -258,6 +282,10 @@ Implementation 8/11 · Tests 6/11 · Spec: docs/use_cases/UC-001-register-person
    UC-001 describes. Wanted → the specification needs a flow (`/use-case-spec UC-001`); not wanted → remove it
    (`/use-case-implement UC-001`). The user decides which.
 
+### Open questions
+
+- OQ-004 (UC-001 step 4, blocking, Open): Customer without an email address?
+
 ### Suggested status
 
 `Approved` is still correct — one implementation gap remains. `Implemented` becomes justified once
@@ -281,7 +309,13 @@ Report rules:
 - When everything is covered, say so in one line and keep the matrix as the proof.
 - Suggest the next `**Status:**` value using the specification's own vocabulary — `Approved`,
   `Implemented` (implementation complete), `Tested` (implementation and tests complete and the
-  caller confirmed the suite passes), `Done` — and always as a suggestion.
+  caller confirmed the suite passes) — always as a suggestion. Never suggest `Done`: acceptance is not
+  visible in code, so a use case at `Tested` goes on with `/acceptance-protocol`. Never suggest `Tested`
+  while a blocking question of the **Open questions** section is `Open` or `Answered`;
+  name it as the reason, with `/open-questions answer OQ-XXX` or, when it is answered, the skill
+  that puts the answer into the specification (`/use-case-spec UC-XXX`, `/requirements`).
+- List the questions of Step 1 under **Open questions** — id, element, blocking, status, the
+  question — or leave the section out when there are none.
 - Name the files you read at the end when the caller asked for `both` or for a review, so the audit
   can be checked.
 
@@ -292,6 +326,8 @@ Report rules:
 - Do not write the missing implementation or the missing tests, not even "as an illustration" in
   the report.
 - Do not claim to have run a build or a test suite.
+- Do not record, answer, or resolve an open question; list it. A gap you find is a finding of
+  your report, not a new section of `docs/open-questions.md`.
 - Do not mark a unit `Covered` without a `file:line`, and do not soften a verdict because the
   caller has just finished writing the code.
 - Do not re-litigate the specification's format or wording — `validate_use_case.py` in the

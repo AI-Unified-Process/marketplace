@@ -7,7 +7,8 @@ in a Vaadin Flow web application; a partner portal calls the same system over a 
 the AI Unified Process and builds its code with layer plugins. The specifications are under `docs/`.
 
 The use case UC-002 Register for Workshop (`docs/use_cases/UC-002-register-for-workshop.md`) is implemented in the
-views and in the REST API, but it has no tests yet. The team wants them written now.
+views and in the REST API, but it has no tests yet. The team wants them written now. There are no API tests in the project yet; for
+them the team has chosen MockMvcTester against the full stack with a Testcontainers database.
 
 ## Output Specification
 

@@ -1,0 +1,31 @@
+{
+  "context": "Tests /release-notes 2.1.0 without a baseline. restore_history.py is environment setup: the .git folder, the docs/ files, and the four commits it creates, and the removal of history/, are not changes by the agent. The repository has no tag, and the product owner names no ref to compare with. One commit is titled 'chore: release 2.0.0' (2026-06-30), which tempts the agent to take it as the baseline from the commit history; the skill takes the baseline only from a tag or a ref the user gives, and never takes content from commit messages. Without a baseline the skill says so and asks whether this is the first release (then every use case at Done is new) or which ref to compare with. The product owner reads the answer later, so asking and stopping is the expected outcome. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No baseline named",
+      "description": "The agent tells the user that the repository has no tag and no ref was given, so there is no baseline to compare the use cases with",
+      "max_score": 25
+    },
+    {
+      "name": "Both options asked",
+      "description": "The agent asks the user to choose: either 2.1.0 is treated as the first release, in which case every use case at Done counts as new, or the user names the ref (tag, branch, or commit) to compare with, for example as '/release-notes 2.1.0 since <ref>'",
+      "max_score": 25
+    },
+    {
+      "name": "No baseline guessed",
+      "description": "The agent does not choose a baseline on its own: it neither uses the commit 'chore: release 2.0.0' nor the first commit nor a date as the baseline to produce notes; at most it mentions such a commit as a ref the user could name",
+      "max_score": 20
+    },
+    {
+      "name": "Nothing written",
+      "description": "docs/release-notes.md does not exist, and every file under docs/ is unchanged",
+      "max_score": 20
+    },
+    {
+      "name": "Git state untouched",
+      "description": "No tag was created (git tag lists nothing), no commit was made after restore_history.py ran, and no branch switch or stash happened",
+      "max_score": 10
+    }
+  ]
+}

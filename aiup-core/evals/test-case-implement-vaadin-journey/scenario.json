@@ -1,0 +1,15 @@
+{
+  "description": "Automate a test case journey in a Vaadin Flow project as one TC<id><Name>IT class with a step comment per Flow row",
+  "fixtures": {
+    "project": {
+      "type": "directory",
+      "path": "./project",
+      "installPath": "."
+    },
+    "layer-skills": {
+      "type": "directory",
+      "path": "./layer-skills",
+      "installPath": ".claude/skills"
+    }
+  }
+}

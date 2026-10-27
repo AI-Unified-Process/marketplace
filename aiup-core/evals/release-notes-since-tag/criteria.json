@@ -1,0 +1,46 @@
+{
+  "context": "Tests /release-notes 1.1.0 against the tag v1.0.0. restore_history.py is environment setup: the .git folder, the docs/ files, the seven commits, and the tag it creates, and the removal of history/, are not changes by the agent. At v1.0.0 (2026-09-14): UC-001 Manage Workshops, UC-002 Register for Workshop, and UC-005 Print Attendance Sheet are Done, UC-003 List Participants is Tested, UC-004 Cancel Registration is Approved, UC-006 does not exist; FR-004 (cancel a registration) is not Verified. Since then: UC-001's file was renamed to UC-001-plan-workshops.md with only a comma added (no difference to the actor; a path-based match would wrongly see a new use case); UC-002 changed its registration deadline from 24 to 12 hours before the workshop starts and is Done again; UC-003 reached Done; UC-004 is Tested, not Done; UC-005 is Obsolete; UC-006 Export Participant List is new and Done, realizing the same FR-005 as UC-005; FR-006 (waiting list) was added as Deferred. One commit message claims 'participants can cancel their bookings online and join a waiting list when a workshop is fully booked' — the specifications say neither is available to users, and 'Booking' is in the glossary's Avoid column. Expected notes: New UC-003 and UC-006; Changed UC-002; Removed UC-005; Requirements verified FR-004 only (UC-004 is Tested, which derives Verified; FR-003, FR-005, and NFR-001 were already Verified at the tag; FR-006 is Deferred). The product owner confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "File, version, and baseline",
+      "description": "docs/release-notes.md starts with the title '# Release Notes' and has one section for version 1.1.0 that names the baseline v1.0.0 and its date 2026-09-14",
+      "max_score": 10
+    },
+    {
+      "name": "New use cases",
+      "description": "The New section lists List Participants (UC-003) and Export Participant List (UC-006) and nothing else — neither UC-001 (only its file was renamed) nor UC-004 (Tested, not Done); each bullet has the use case name in bold, what the actor can do, and the id in parentheses at the end",
+      "max_score": 20
+    },
+    {
+      "name": "Changed use case",
+      "description": "The Changed section lists Register for Workshop (UC-002) with the difference the participant notices: registration now closes 12 hours before the workshop starts instead of 24; UC-001 does not appear in Changed",
+      "max_score": 15
+    },
+    {
+      "name": "Removed use case",
+      "description": "The Removed section lists Print Attendance Sheet (UC-005) as no longer available",
+      "max_score": 10
+    },
+    {
+      "name": "Requirements verified",
+      "description": "The Requirements verified table lists FR-004 with its text and no other requirement — not FR-006 (Deferred), and not FR-003, FR-005, or NFR-001, which were already Verified at v1.0.0",
+      "max_score": 10
+    },
+    {
+      "name": "Nothing from the commit messages",
+      "description": "The notes mention no waiting list and nothing else that only a commit message says; they use 'registration', never 'booking' or another word from the glossary's Avoid column, and cite no flow or rule ids (A2, BR-002) in the prose",
+      "max_score": 15
+    },
+    {
+      "name": "Report outside the notes",
+      "description": "The agent reports the counts per section and tells the user, outside the notes, that UC-004 is Tested and goes to acceptance next with /acceptance-protocol",
+      "max_score": 10
+    },
+    {
+      "name": "Git state and specifications untouched",
+      "description": "No commit, tag, branch switch, or stash was made after restore_history.py ran (HEAD is still the commit 'docs: release 1.1 acceptance round', v1.0.0 the only tag), and every file under docs/ other than docs/release-notes.md is unchanged",
+      "max_score": 10
+    }
+  ]
+}

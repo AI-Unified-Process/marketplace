@@ -1,0 +1,31 @@
+{
+  "context": "Tests /architecture-decision on a library project whose requirements hold FR-001 to FR-004, NFR-001 (counter availability, 99.5 % during opening hours), NFR-002 (catalog search within 1 second), C-001 (PostgreSQL 16 with Flyway), and C-002 (city single sign-on), with ADR-001 to ADR-004 in docs/architecture/decisions/. The lead developer asks for an ADR on a Caffeine cache of a member's current loans, giving a real quality as the reason — the lend screen must open instantly at the counter — and pointing to FR-002. No NFR or constraint states the response time of the lend screen: NFR-002 is about the catalog search and NFR-001 about availability, and an FR alone is no reason for an architecture decision. The skill then writes nothing, never adds a requirement itself, never leaves the Requirements line empty, and hands off to /requirements with the user's wording, to run /architecture-decision again afterwards. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No ADR written",
+      "description": "No new file exists under docs/architecture/decisions/ (no ADR-005, also not as Proposed or with an empty, FR-only, or placeholder **Requirements:** line), and ADR-001 to ADR-004 are unchanged — no cache text added to any of them",
+      "max_score": 25
+    },
+    {
+      "name": "Requirements and other docs unchanged",
+      "description": "docs/requirements.md is unchanged — no NFR for the lend screen is added by the agent — and no other file under docs/ is created or changed",
+      "max_score": 15
+    },
+    {
+      "name": "FR-002 alone refused as the reason",
+      "description": "The agent tells T. Huber that FR-002 is a functional requirement and on its own does not justify an architecture decision, so it cannot be the only link",
+      "max_score": 20
+    },
+    {
+      "name": "No unrelated NFR stretched",
+      "description": "The agent does not present NFR-002 (catalog search) or NFR-001 (availability) as the requirement the cache serves, and states that no NFR or constraint in docs/requirements.md covers how fast the lend screen opens",
+      "max_score": 15
+    },
+    {
+      "name": "Hand-off to /requirements with the user's wording",
+      "description": "The agent names /requirements as the step that first adds the quality as an NFR, citing T. Huber's reason (the lend screen opening instantly when the member card is scanned) as the wording to start from, and says to run /architecture-decision again once the NFR exists",
+      "max_score": 25
+    }
+  ]
+}
