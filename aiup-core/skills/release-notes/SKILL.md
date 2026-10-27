@@ -3,7 +3,8 @@ name: release-notes
 description: >
   Writes the business release notes of a version into docs/release-notes.md from the specifications, not from commit
   messages: which use cases reached Done since a Git tag (new), which accepted use cases changed their scenario,
-  flows, or rules (changed), which became Obsolete (removed), and which requirements reached Verified, each told in
+  flows, or rules (changed), which became Obsolete (removed), and which requirements were delivered (every use case
+  that realizes them Done), each told in
   the glossary's terms for the people who use the system. Compares the use case files at the tag with the working
   tree; the newest version goes on top. Use when the user asks to "write the release notes", "what is new in this
   release", "what changed since v1.3.0", "prepare the release announcement", "which features were accepted since
@@ -46,7 +47,8 @@ quoting the text itself.
 1. **The baseline.** The ref after `since`, else the latest tag reachable from `HEAD` (`git describe --tags
    --abbrev=0`). Name it and its date in the notes. Without a Git repository, or without a tag and no `since`, there
    is no baseline: say so and ask whether this is the first release (then every use case at `Done` is new) or which
-   ref to compare with.
+   ref to compare with. Write nothing until the user answers; when no one can answer, stop after the question. Never
+   pick a baseline yourself — not a commit whose message reads like a release, not the first commit, not a date.
 2. **Use cases then.** Every `docs/use_cases/**/UC-*.md` at the baseline: list them with `git ls-tree -r --name-only
    <ref> docs/use_cases` and read each with `git show <ref>:<path>`. Match them with the files now by the
    `**Use Case ID:**`, never by path — a file may have moved into a module folder or been renamed.
@@ -56,7 +58,10 @@ quoting the text itself.
 5. **Glossary** — `docs/glossary.md`: its terms, never a word from its Avoid column.
 6. **Earlier notes** — `docs/release-notes.md` when it exists.
 
-Use Git only to read the specification files at the baseline. The commit history is not a source of content.
+Use Git to read the specification files at the baseline and, for the report only, to find when a use case was set to
+`Done`: `git log --format='%H %as' --follow -- <path>` lists the commits of its file, and `git show <commit>:<path>`
+reads each version's `**Status:**`. Never read the commit messages; the content comes only from the specification
+files.
 
 ## What Goes into the Notes
 
@@ -65,11 +70,11 @@ Use Git only to read the specification files at the baseline. The commit history
 | New                  | it is `Done` now and was not `Done` at the baseline (or did not exist)            | its goal, and in one or two sentences what the actor can do |
 | Changed              | it is `Done` now and was `Done` at the baseline, and its main success scenario, alternative flows, business rules, or postconditions differ | the difference, as the actor notices it: a new option, a changed limit, a step less |
 | Removed              | it is `Obsolete` now and was `Done` at the baseline                               | what is no longer possible, and the use case that replaces it when the specification names one |
-| Requirements verified | (requirements) `Verified` now and not at the baseline                            | the requirement's id and text      |
+| Requirements delivered | (requirements) at least one non-obsolete use case links it, every one of them is `Done` now, and that was not so at the baseline | the requirement's id and text      |
 
-Statuses count in English and German (`Done`/`Abgeschlossen`, `Obsolete`/`Obsolet`). A requirement's status is
-derived as `docs/workflow.md` defines it — `Verified` when every non-obsolete use case that links it is `Tested` or
-`Done` — at the baseline and now; a requirement that is `Deferred` or `Rejected` in either catalog is not listed.
+Statuses count in English and German (`Done`/`Abgeschlossen`, `Obsolete`/`Obsolet`). Delivered is stricter than the
+`Verified` that `docs/workflow.md` derives: `Verified` also counts use cases at `Tested`, which are not accepted and
+not part of the release. A requirement that is `Deferred` or `Rejected` in either catalog is not listed.
 
 Changes that are not a difference to the actor do not count: wording, formatting, a typo, the status line, links,
 the requirements line. When in doubt, show the change to the user and ask.
@@ -81,8 +86,10 @@ Tell the user, without putting it into the notes:
 - use cases that were `Done` at the baseline and are now below `Done` — changed and not accepted again; their old
   behaviour may still be what users get, or not, and the user decides how to word that;
 - use cases that are `Tested` now — accepted next, with `/acceptance-protocol`;
-- use cases `Done` now whose specification changed since they were set to `Done` — check with the team whether the
-  change was accepted too.
+- requirements that are `Verified` now but not delivered — a use case that links them is `Tested`, not yet accepted;
+- use cases `Done` now whose specification changed since they were set to `Done` — find the commit that set it with
+  `git log` (see Inputs), compare that version with the file now by the rule of Changed, and check with the team
+  whether the change was accepted too.
 
 ## Writing
 
@@ -107,6 +114,7 @@ in the Notes, but in the Report".
 
 - Take content from commit messages, issues, pull requests, or the code.
 - Edit a specification, the requirements, the glossary, or an earlier version's notes.
-- List a use case that is not `Done` as new or changed, or a requirement that is `Deferred` or `Rejected`.
+- List a use case that is not `Done` as new or changed, or a requirement that is `Deferred` or `Rejected` or that a
+  use case below `Done` links.
 - Cite flow or rule ids in the prose, or use a word from the glossary's Avoid column.
 - Change the Git state: no tag, commit, checkout, or stash.

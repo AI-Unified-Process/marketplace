@@ -16,7 +16,7 @@ Since [v1.3.0] ([2026-09-14]).
 
 - **[Use case name]** — [What is no longer possible, and what replaces it.] (UC-XXX)
 
-### Requirements verified
+### Requirements delivered
 
 | ID     | Requirement                     |
 |--------|---------------------------------|

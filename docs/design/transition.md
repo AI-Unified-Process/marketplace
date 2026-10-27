@@ -47,7 +47,14 @@ every use case. Transition adds three skills that read them.
   subjects into release notes for developers; business readers want what they can do now. A use case that reached
   `Done` since the baseline tag is new; one `Done` at both points whose scenario, flows, rules, or postconditions
   differ is changed; one that became `Obsolete` is removed. Use cases are matched by id, not path, so a move into a
-  module folder is no change. Git is used only to read the specifications at the baseline.
+  module folder is no change. Git reads the specifications at the baseline and, for the report, `git log` finds the
+  commit that set a use case to `Done`; commit messages are never read.
+- **Requirements delivered, not verified.** The workflow's `Verified` also counts use cases at `Tested`, which are
+  neither accepted nor shipped, so the notes list a requirement only when every use case that links it is `Done`; a
+  requirement that is `Verified` but not delivered goes to the report (#53).
+- **No baseline, no notes.** Without a tag and without `since`, the skill asks whether this is the first release or
+  which ref to compare with, and writes nothing until the user answers. A commit whose message reads like a release is
+  not a baseline: taking one would take content from the commit history.
 - **The Studio runs none of them** (`LEFT_OUT`): acceptance needs people, release notes need a Git baseline the
   Studio's subject id cannot express, and the user guide is a release step rather than a result of a specification
   change.

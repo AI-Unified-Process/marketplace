@@ -1,5 +1,5 @@
 {
-  "context": "Tests /release-notes 1.1.0 against the tag v1.0.0. restore_history.py is environment setup: the .git folder, the docs/ files, the seven commits, and the tag it creates, and the removal of history/, are not changes by the agent. At v1.0.0 (2026-09-14): UC-001 Manage Workshops, UC-002 Register for Workshop, and UC-005 Print Attendance Sheet are Done, UC-003 List Participants is Tested, UC-004 Cancel Registration is Approved, UC-006 does not exist; FR-004 (cancel a registration) is not Verified. Since then: UC-001's file was renamed to UC-001-plan-workshops.md with only a comma added (no difference to the actor; a path-based match would wrongly see a new use case); UC-002 changed its registration deadline from 24 to 12 hours before the workshop starts and is Done again; UC-003 reached Done; UC-004 is Tested, not Done; UC-005 is Obsolete; UC-006 Export Participant List is new and Done, realizing the same FR-005 as UC-005; FR-006 (waiting list) was added as Deferred. One commit message claims 'participants can cancel their bookings online and join a waiting list when a workshop is fully booked' — the specifications say neither is available to users, and 'Booking' is in the glossary's Avoid column. Expected notes: New UC-003 and UC-006; Changed UC-002; Removed UC-005; Requirements verified FR-004 only (UC-004 is Tested, which derives Verified; FR-003, FR-005, and NFR-001 were already Verified at the tag; FR-006 is Deferred). The product owner confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests /release-notes 1.1.0 against the tag v1.0.0. restore_history.py is environment setup: the .git folder, the docs/ files, the seven commits, and the tag it creates, and the removal of history/, are not changes by the agent. At v1.0.0 (2026-09-14): UC-001 Manage Workshops, UC-002 Register for Workshop, and UC-005 Print Attendance Sheet are Done, UC-003 List Participants is Tested, UC-004 Cancel Registration is Approved, UC-006 does not exist; FR-004 (cancel a registration) is not Verified. Since then: UC-001's file was renamed to UC-001-plan-workshops.md with only a comma added (no difference to the actor; a path-based match would wrongly see a new use case); UC-002 changed its registration deadline from 24 to 12 hours before the workshop starts and is Done again; UC-003 reached Done; UC-004 is Tested, not Done; UC-005 is Obsolete; UC-006 Export Participant List is new and Done, realizing the same FR-005 as UC-005; FR-006 (waiting list) was added as Deferred. One commit message claims 'participants can cancel their bookings online and join a waiting list when a workshop is fully booked' — the specifications say neither is available to users, and 'Booking' is in the glossary's Avoid column. Expected notes: New UC-003 and UC-006; Changed UC-002; Removed UC-005; Requirements delivered FR-003 only (its only use case UC-003 went from Tested to Done; FR-004 is Verified but not delivered, because UC-004 is only Tested; FR-001, FR-002, NFR-001, and FR-005 were already delivered at the tag — FR-005 is now realized by UC-006 alone, as UC-005 is Obsolete; FR-006 is Deferred). The product owner confirmed in advance whatever the agent proposes. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -23,8 +23,8 @@
       "max_score": 10
     },
     {
-      "name": "Requirements verified",
-      "description": "The Requirements verified table lists FR-004 with its text and no other requirement — not FR-006 (Deferred), and not FR-003, FR-005, or NFR-001, which were already Verified at v1.0.0",
+      "name": "Requirements delivered",
+      "description": "The Requirements delivered table lists FR-003 with its text and no other requirement — not FR-004 (its use case UC-004 is only Tested), not FR-006 (Deferred), and not FR-001, FR-002, FR-005, or NFR-001, which were already delivered at v1.0.0",
       "max_score": 10
     },
     {
@@ -34,7 +34,7 @@
     },
     {
       "name": "Report outside the notes",
-      "description": "The agent reports the counts per section and tells the user, outside the notes, that UC-004 is Tested and goes to acceptance next with /acceptance-protocol",
+      "description": "The agent reports the counts per section and tells the user, outside the notes, that UC-004 is Tested and goes to acceptance next with /acceptance-protocol, and that FR-004 is Verified but not delivered until UC-004 is accepted",
       "max_score": 10
     },
     {

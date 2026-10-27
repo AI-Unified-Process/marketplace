@@ -431,8 +431,8 @@ for those people; none of them changes a specification, except that closing an a
   specification does not name.
 - **Release notes.** `/release-notes` compares the use cases at a Git tag with the working tree and adds a version to
   `docs/release-notes.md`: use cases that reached `Done` (new), accepted use cases whose behaviour changed, use cases
-  that became `Obsolete` (removed), and requirements that reached `Verified`. The content comes from the
-  specifications, never from commit messages.
+  that became `Obsolete` (removed), and requirements whose use cases are all `Done` (delivered). The content comes
+  from the specifications, never from commit messages.
 
 ## Core skills
 

@@ -301,7 +301,8 @@ Why: [`docs/design/business-process.md`](docs/design/business-process.md).
   specification is rewritten, and only a hand edit asks (unanswered: kept and reported). The plan waits for a yes
   unless no one can answer.
 - `/release-notes` reads the use cases at a Git ref with `git show`, matches them by id, and never takes content from
-  commit messages.
+  commit messages. It lists a requirement only when every use case that links it is `Done`, and without a baseline it
+  asks and writes nothing.
 - The templates `chapter.md`, `protocol.md`, and `release.md` are not copyright-stamped.
 
 Why: [`docs/design/transition.md`](docs/design/transition.md).
