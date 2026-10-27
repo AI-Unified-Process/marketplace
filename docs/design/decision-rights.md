@@ -12,7 +12,9 @@ explicit and a team can move it.
 
 - **Defaults and template in one file.** `skills/use-case-implement/references/decision-rights.md` is both the
   defaults and the template `/stack` copies to `docs/architecture/decision-rights.md` on request; it is not
-  copyright-stamped. The section "Decision Rights" of `/use-case-implement` owns how the rules apply; the layer
+  copyright-stamped. `/stack` never asks whether to create the file: the defaults apply without it, so the question
+  has no answer to wait for, and an unanswered question stalled unattended runs (#56). Its report names the defaults
+  instead. The section "Decision Rights" of `/use-case-implement` owns how the rules apply; the layer
   skills, `/use-case-test`, and `/test-case-implement` refer to it and must not copy it.
 - **The project file replaces the first two sections; "never" only grows.** A rule of the defaults' "never"
   section applies whatever the project file says, and the skill reports a project file that moved one. The file
