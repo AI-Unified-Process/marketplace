@@ -24,6 +24,19 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 Create a test case document in `docs/test_cases/` for the use cases named in $ARGUMENTS — or, when $ARGUMENTS names a BPMN business process model, one test case per path through that process. A test case describes **one end-to-end user journey** that chains several use cases across views, carrying state from step to step (data created in step 1 is used in step 3). It is the authority that end-to-end test skills automate — `/test-case-implement TC-001` with layer plugins, `/playwright-test TC-001` with a combined stack plugin, reads this document and turns each Flow row into a test step, so precision here directly becomes test code.
 
+## Use case tests and test cases
+
+Use cases are normally **disjoint**: no step belongs to two use cases, and a test case does not need use cases that overlap. Use cases are connected through **data and state**: the postcondition of one use case fulfills the precondition of the next (an order created in UC-010 is the order approved in UC-011). That connection is what a test case tests.
+
+| | Use case test (`/use-case-test UC-XXX`) | Test case (`TC-XXX`) |
+|---|---|---|
+| Scope | One use case | Several use cases in business order |
+| Precondition | Set up directly with seeded test data | Created by the earlier steps of the journey |
+| Covers | Main success scenario, alternative flows, business rules | The hand-over between use cases and the end state |
+| Finds | A rule that is implemented wrong | A state left by one use case that the next one cannot handle |
+
+A test case is triggered by a **business flow**, never by an overlap of use cases: a path through a BPMN business process (process mode), or a sequence of use cases where the postcondition of one is the precondition of the next (use case mode). Use cases that do not hand over state to each other do not form a journey; their use case tests are enough.
+
 ## Inputs
 
 $ARGUMENTS selects one of two modes. Text after the arguments that says where the project keeps its artifacts (e.g. "The BPMN process models live under `docs/processes/`") replaces the default folders named in this skill.

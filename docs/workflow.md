@@ -125,7 +125,10 @@ BP-XXX process  ──→  path  ──→  TC-XXX (chains several use cases)  �
 The chain starts at the requirements catalog. Requirements engineering is the first discipline that produces
 traceable requirements (in German-speaking projects often the *Lastenheft*); a vision document, when there is one,
 is prose without identifiers and is not linked. Test cases are not derived from business rules but from business
-processes: one test case per path through a BPMN process model.
+processes: one test case per path through a BPMN process model. Use cases are normally disjoint: no step belongs to
+two use cases. They are connected through data, because the postcondition of one use case fulfills the precondition
+of the next. A use case test sets up its precondition with seeded test data and checks one use case in isolation; a
+test case creates that state with the earlier steps of the journey and checks the hand-over between the use cases.
 
 ### Identifiers
 
