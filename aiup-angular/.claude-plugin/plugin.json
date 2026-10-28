@@ -1,7 +1,8 @@
 {
   "name": "aiup-angular",
+  "displayName": "AI Unified Process Angular",
   "description": "AI Unified Process UI layer for Angular - standalone components, signals, HttpClient services, Vitest component tests",
-  "version": "3.4.2",
+  "version": "3.4.3",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

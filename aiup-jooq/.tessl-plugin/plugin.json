@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-jooq",
   "description": "AI Unified Process persistence layer - jOOQ repositories, projections, and repository tests",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "rules": "rules",
   "author": {
     "name": "Simon Martinelli",
