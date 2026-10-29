@@ -1,10 +1,10 @@
 {
-  "context": "Tests /open-questions on a docs/open-questions.md that holds OQ-001 (Resolved, on UC-001) and OQ-002 (Open, blocking, on UC-002 BR-002). The product owner P. Meier asks to record a question on UC-002 BR-003 (not blocking), to record a question on UC-002 step 7 — UC-002 has only five steps — to record an answer to OQ-002, and to list what is still open for UC-002. The agent records the first, refuses the second because the element does not exist, records the answer verbatim without resolving the question or changing the specification, and lists the questions. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests /open-questions on a docs/open_questions.md that holds OQ-001 (Resolved, on UC-001) and OQ-002 (Open, blocking, on UC-002 BR-002). The product owner P. Meier asks to record a question on UC-002 BR-003 (not blocking), to record a question on UC-002 step 7 — UC-002 has only five steps — to record an answer to OQ-002, and to list what is still open for UC-002. The agent records the first, refuses the second because the element does not exist, records the answer verbatim without resolving the question or changing the specification, and lists the questions. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "New question recorded",
-      "description": "docs/open-questions.md ends with a new section '## OQ-003: <the question about registering a colleague>' with the lines **Element:** UC-002 BR-003, **Raised by:** P. Meier, 2026-10-27, **Blocking:** No, and **Status:** Open",
+      "description": "docs/open_questions.md ends with a new section '## OQ-003: <the question about registering a colleague>' with the lines **Element:** UC-002 BR-003, **Raised by:** P. Meier, 2026-10-27, **Blocking:** No, and **Status:** Open",
       "max_score": 20
     },
     {
@@ -19,7 +19,7 @@
     },
     {
       "name": "Not resolved, specification unchanged",
-      "description": "OQ-002 is not set to Resolved and has no **Resolved in:** line; no file under docs/ other than docs/open-questions.md is changed — UC-002's BR-002 still reads 24 hours as before — and OQ-001 is unchanged",
+      "description": "OQ-002 is not set to Resolved and has no **Resolved in:** line; no file under docs/ other than docs/open_questions.md is changed — UC-002's BR-002 still reads 24 hours as before — and OQ-001 is unchanged",
       "max_score": 20
     },
     {

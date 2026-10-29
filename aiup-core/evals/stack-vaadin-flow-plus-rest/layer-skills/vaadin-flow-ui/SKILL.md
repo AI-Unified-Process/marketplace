@@ -49,7 +49,7 @@ the file it lives in and leave the value out.
 - **Produces** the `@Route` views, their forms and dialogs, and the menu entry — everything the actor sees.
 - **Never touches** the service, persistence, or migration layer, jOOQ or JPA types, tests, or anything under `docs/`
   other than this skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of
-  `docs/open-questions.md`. When the view needs a method the layer below does not offer, stop and report it as a gap of
+  `docs/open_questions.md`. When the view needs a method the layer below does not offer, stop and report it as a gap of
   that layer; do not bypass a service to reach a repository, query the database from the view, or add the method
   yourself.
 
@@ -63,7 +63,7 @@ Run directly, read the same inputs `/use-case-implement` reads — the use case 
 the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
 `docs/architecture/stack.md` — and apply the same rules: never close a specification gap with an assumption (ask, or
 leave that part out and list it under **Open questions**), never edit a test or a file under `docs/` other than the
-Markers table and new sections of `docs/open-questions.md` (record every gap there as `/use-case-implement` defines it),
+Markers table and new sections of `docs/open_questions.md` (record every gap there as `/use-case-implement` defines it),
 reconcile an existing view instead of building a second one. Implement this layer only and say that `/use-case-implement
 UC-XXX` runs all layers.
 
@@ -75,7 +75,7 @@ library or dependency included), never take one they forbid, and list the decisi
 Either way, when the use case has a `**Mockup:**` line, read its mockups and take the layout from them as
 `/use-case-implement` defines in its section "Mockups": the mockup decides where fields, columns, and actions sit,
 the specification decides which exist, the rules, and the messages. A disagreement is built the specification's way
-and recorded in `docs/open-questions.md` as a non-blocking question raised by this skill.
+and recorded in `docs/open_questions.md` as a non-blocking question raised by this skill.
 
 ## Without a Service Layer
 
@@ -202,7 +202,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Paraphrase a message the specification words; use it verbatim
 - Use `--lumo-*` CSS properties in an Aura project or vice versa — check the active theme first
 - Create tests, or edit tests or anything under `docs/` other than this skill's Markers rows and new sections of
-  `docs/open-questions.md`
+  `docs/open_questions.md`
 
 ## Workflow
 

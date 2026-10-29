@@ -2,7 +2,7 @@
   "name": "aiup-vaadin-jooq",
   "displayName": "AI Unified Process Vaadin + jOOQ",
   "description": "Deprecated — use the layer plugins. AI Unified Process for the Vaadin/jOOQ stack - migrations, implementation, tests",
-  "version": "2.24.4",
+  "version": "2.25.0",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

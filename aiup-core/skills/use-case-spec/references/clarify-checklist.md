@@ -57,7 +57,7 @@ Name the element the question is about (`UC-004 step 5`, `UC-004 BR-002`) so the
 Into the specification itself — the step, the alternative flow, the business rule, the postcondition, or the
 `**Requirements:**` line it affects. Never add a questions-and-answers section to the use case; the file follows the
 template, and the history of the decisions lives in version control. A question nobody answers now goes into
-`docs/open-questions.md`, never into the document. A new domain term goes into the glossary (see `/requirements`); a new
+`docs/open_questions.md`, never into the document. A new domain term goes into the glossary (see `/requirements`); a new
 requirement is a hand-off to `/requirements`.
 
 ## Report

@@ -42,7 +42,7 @@ file it lives in and leave the value out.
   API's DTOs, which the mocked responses must match.
 - **Produces** `UC-XXX-<slug>.spec.ts` files colocated with the page or service they test.
 - **Never touches** production code, tests of other layers, or anything under `docs/` except the Markers table of
-  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`. No real HTTP call leaves a test.
+  `docs/architecture/stack.md` and new sections of `docs/open_questions.md`. No real HTTP call leaves a test.
 
 ## Run Directly or from /use-case-test
 

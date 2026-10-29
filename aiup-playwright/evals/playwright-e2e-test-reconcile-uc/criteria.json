@@ -39,7 +39,7 @@
     },
     {
       "name": "Markers table maintained",
-      "description": "docs/architecture/stack.md gains the playwright-e2e-test rows of the skill's markers reference (describe/tag, test.step per Flow row, file naming); the All row is unchanged; no other file under docs/ is edited (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "docs/architecture/stack.md gains the playwright-e2e-test rows of the skill's markers reference (describe/tag, test.step per Flow row, file naming); the All row is unchanged; no other file under docs/ is edited (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 8
     },
     {

@@ -24,7 +24,7 @@
     },
     {
       "name": "Nothing else changed",
-      "description": "docs/open-questions.md (OQ-002 still Open), docs/test_cases/TC-001-run-a-workshop.md including its Status, and docs/requirements.md are unchanged",
+      "description": "docs/open_questions.md (OQ-002 still Open), docs/test_cases/TC-001-run-a-workshop.md including its Status, and docs/requirements.md are unchanged",
       "max_score": 10
     }
   ]

@@ -39,7 +39,7 @@
     },
     {
       "name": "No tests, no docs changed",
-      "description": "No test class is created or changed, no file under docs/ is changed except the Markers table of docs/architecture/stack.md, UC-002's **Status:** line still reads Approved, and the answer ends with a hand-off to /use-case-test UC-002 (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "No test class is created or changed, no file under docs/ is changed except the Markers table of docs/architecture/stack.md, UC-002's **Status:** line still reads Approved, and the answer ends with a hand-off to /use-case-test UC-002 (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 10
     }
   ]

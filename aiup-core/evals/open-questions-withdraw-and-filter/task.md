@@ -3,7 +3,7 @@
 ## Problem/Feature Description
 
 A training company specifies its workshop registration with the AI Unified Process. The specifications are under
-`docs/`, and the questions the specifications do not answer yet are collected in `docs/open-questions.md`.
+`docs/`, and the questions the specifications do not answer yet are collected in `docs/open_questions.md`.
 
 The product owner, P. Meier, wants UC-002 Register for Workshop ready for implementation and sends this message:
 
@@ -14,7 +14,7 @@ The product owner, P. Meier, wants UC-002 Register for Workshop ready for implem
 
 ## Output Specification
 
-Update `docs/open-questions.md` as the product owner asks, and answer with the questions that still block UC-002.
+Update `docs/open_questions.md` as the product owner asks, and answer with the questions that still block UC-002.
 Today is 2026-10-27. Nobody can answer follow-up questions in this session.
 
 This session's conversation is not kept. Append every message you write to the user, word for word and in order, to

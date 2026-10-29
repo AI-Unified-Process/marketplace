@@ -2,7 +2,7 @@
   "name": "aiup-angular-jpa",
   "displayName": "AI Unified Process Angular + JPA",
   "description": "Deprecated — use the layer plugins. AI Unified Process for the Angular/JPA stack - migrations, implementation, tests",
-  "version": "0.11.4",
+  "version": "0.12.0",
   "author": {
     "name": "Marc Affolter",
     "email": "marc_affolter@outlook.com",

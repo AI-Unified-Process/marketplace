@@ -5,7 +5,7 @@ description: >
   docs/architecture/stack.md bottom-up — migration, persistence, client, service, API, UI, limited to the entry
   layers its **Layers:** line names — after checking the specification's status, reading exactly the requirements the use case
   links. Owns the shared rules: no assumptions for specification gaps
-  (recorded in docs/open-questions.md), decision rights, UC-XXX BR-YYY markers, no edits to tests or docs. Use when
+  (recorded in docs/open_questions.md), decision rights, UC-XXX BR-YYY markers, no edits to tests or docs. Use when
   the user asks to "implement UC-001", "build this use case", "implement the use case end to end", "implement only the
   API layer of UC-001", or mentions implementing a use case in a project that combines layer plugins (aiup-flyway,
   aiup-jooq, aiup-jpa, aiup-spring-boot, aiup-vaadin, aiup-angular). For a project that uses a combined stack plugin
@@ -81,7 +81,7 @@ neither the entity model nor the glossary defines.
 - Check the `**Status:**` line first. A `Draft` or `Reviewed` use case is not yet approved for implementation: say
   so and ask the user whether to go ahead or to run `/spec-review UC-XXX` first. Do not implement an `Obsolete` use
   case. Never change the status line.
-- Then read `docs/open-questions.md` when it exists, and take the questions that are `Open` or `Answered` on this use
+- Then read `docs/open_questions.md` when it exists, and take the questions that are `Open` or `Answered` on this use
   case: those whose `**Element:**` names it, and those on a requirement its `**Requirements:**` line links. A
   **blocking** one means the use case is not ready: list them and ask whether to go ahead without the elements they
   are about, or to get them answered first (`/open-questions answer OQ-XXX`, then `/use-case-spec UC-XXX`). When no
@@ -92,7 +92,7 @@ neither the entity model nor the glossary defines.
   chooses is implemented and still recorded, so the answer reaches the specification and does not live in the code
   alone. Collect the gaps of all layers before the first layer runs, so the user answers once. A gap an `Open` or
   `Answered` question already asks is not asked again; name the question instead.
-- **Record every new gap in `docs/open-questions.md`**, one section each, in the format of `/open-questions` — locate
+- **Record every new gap in `docs/open_questions.md`**, one section each, in the format of `/open-questions` — locate
   it with a glob for `**/*open-questions/SKILL.md` (the folder may carry a host prefix such as
   `tessl__open-questions`), section "The File"; when the file is missing, create it from that skill's
   `references/open-questions.md`. **Raised by** is the skill that found the gap (`/use-case-implement`, or the layer
@@ -101,7 +101,7 @@ neither the entity model nor the glossary defines.
   (`git config user.name`) as **Answered by**; it is `**Blocking:** No`, because the code now follows it.
 - Never edit an existing test or a file under `docs/` — a specification, test case, requirement, the entity model,
   the glossary. The exceptions are the Markers table of `docs/architecture/stack.md`, which the layer skills
-  maintain, and new sections appended to `docs/open-questions.md`; never change a section that is already there.
+  maintain, and new sections appended to `docs/open_questions.md`; never change a section that is already there.
   The tests and the specifications are the oracle for your code: a test that fails against it, or a specification
   that looks wrong, goes into the report and the **Open questions** list, never into an edit that makes the two
   agree.
@@ -137,7 +137,7 @@ A use case without the line is built as before, and its UI layout is decided as 
     text;
   - a step, field, or message the specification requires and the mockup lacks is built, placed where it fits the
     mockup's layout.
-  Record each disagreement as a gap in `docs/open-questions.md` (see the bullet "Record every new gap" above):
+  Record each disagreement as a gap in `docs/open_questions.md` (see the bullet "Record every new gap" above):
   **Element** the use case step or rule nearest to it, or the use case itself; **Raised by** the UI layer skill;
   `**Blocking:** No`, `**Status:** Open`, because the UI follows the specification and only the layout is in
   question. Do not ask about it in the round before the first layer, and never edit the mockup or the specification
@@ -167,7 +167,7 @@ before. Unlike a mockup, the contract is binding: a partner system has already b
   defaults differ; the decision rights' "endpoint paths and DTO shapes" do not apply to that operation.
 - **The specification decides the behaviour:** the steps, the alternative flows, the business rules, the
   validations, and every message. Where the two disagree, decide nothing; record each disagreement as a gap in
-  `docs/open-questions.md` (see the bullet "Record every new gap" above), **Raised by** the API layer skill:
+  `docs/open_questions.md` (see the bullet "Record every new gap" above), **Raised by** the API layer skill:
   - a required request or response field that neither the use case nor the entity model supplies — the operation
     is left out, `**Blocking:** Yes`;
   - an alternative flow that rejects the request for which the contract documents no response — that flow's
@@ -198,7 +198,7 @@ SKILL.md). Both have the same three sections: *The agent decides alone*, *The ag
 - **Asks first** — handle it as a gap (see "Gaps in the Specification"): ask in the one round before the first
   layer, or leave the part out. A question about an element of the specification — a step, flow, rule,
   requirement (a constraint `C-*`, the Rationale of a requirement), glossary term, or entity — is recorded in
-  `docs/open-questions.md`. A question about the architecture — a new library or dependency, a deviation from an
+  `docs/open_questions.md`. A question about the architecture — a new library or dependency, a deviation from an
   ADR, the retry, timeout, or fallback policy of an external system — has no element there: ask it, and when no one can answer, leave the part out and list the question under
   **Open questions** in the report, without an `OQ-` id. Never add a dependency or deviate from an ADR unasked.
 - **Never** — do not take the decision, also when a request implies it; report what would have to change and who
@@ -286,7 +286,7 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 ## Workflow
 
 1. Read the use case specification from `docs/use_cases/` (module subfolders included; also check `docs/use-cases/`) and check its `**Status:**`
-   line and its open questions in `docs/open-questions.md` — see "Gaps in the Specification" above.
+   line and its open questions in `docs/open_questions.md` — see "Gaps in the Specification" above.
 2. Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`, `NFR-*`, and
    `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional requirements explain the intent where
    a step is terse; every linked NFR and constraint is a limit the implementation must honour (a maximum, a response
@@ -308,7 +308,7 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 6. Check existing code for patterns and conventions in every layer, and determine whether the use case is already
    implemented — if so, follow "If an Implementation Already Exists" above.
 7. Collect the gaps of the specification and the decisions the decision rights reserve for asking, ask the user
-   about them in one round, and record the gaps in `docs/open-questions.md`.
+   about them in one round, and record the gaps in `docs/open_questions.md`.
 8. Run the layer skills bottom-up, skipping every layer marked `–`, every entry layer the `**Layers:**` line leaves
    out, and every layer the arguments exclude:
    1. **Migration** — only when the use case needs an entity without a table, or one whose table lags behind the
@@ -354,7 +354,7 @@ Finish by:
 - Create tests — `/use-case-test` runs the layer test skills.
 - Take a decision the decision rights reserve for asking, or one they say you never take — see "Decision Rights".
 - Edit existing tests or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new
-  sections of `docs/open-questions.md` — see "Gaps in the Specification".
+  sections of `docs/open_questions.md` — see "Gaps in the Specification".
 - Skip a build layer the Layers table lists because the use case "looks simple"; a layer with nothing to do for
   this use case says so in its Handover. Only the `**Layers:**` line, the arguments, and — for the Client layer — the
   Secondary Actors line leave a layer out. The E2E

@@ -48,7 +48,7 @@ in and leave the value out.
   `@BrowserCallable` endpoint — with their input records, return types, and the exceptions they throw.
 - **Never touches** the persistence code (queries, entities, migrations), the controllers, views, and endpoints, the
   tests, or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
-  `docs/open-questions.md`.
+  `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -62,7 +62,7 @@ Run directly, apply the same rules yourself — `/use-case-implement` describes 
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
   questions**. Never edit a test or a file under `docs/` other than the Markers table and new sections of
-  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
+  `docs/open_questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the service already exists, reconcile it with the specification in place instead of writing a second one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
 

@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-playwright",
   "description": "AI Unified Process end-to-end layer - Playwright browser tests for use cases and test case journeys of any web UI",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "rules": "rules",
   "author": {
     "name": "Simon Martinelli",

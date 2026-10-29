@@ -58,7 +58,7 @@ Name the element the question is about (`NFR-002`, `C-006 Source`, glossary term
 
 Into the catalog and the glossary themselves — the user story, the NFR threshold, the Priority, the Source column, a new
 row, or a glossary row with its Avoid synonyms. Never add a questions-and-answers section to either document; the
-history of the decisions lives in version control. A question nobody answers now goes into `docs/open-questions.md`,
+history of the decisions lives in version control. A question nobody answers now goes into `docs/open_questions.md`,
 never into the document.
 
 ## Report

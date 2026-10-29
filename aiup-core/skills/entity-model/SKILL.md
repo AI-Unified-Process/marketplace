@@ -210,7 +210,7 @@ module's folder under `docs/use_cases/`. Keep that structure when you update the
    section. Decide everything else with the best default and report it as an assumption (step 7). When no one can answer
    — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for every
    question and report it as an assumption as well. Never ask about SQL types, indexes, or other implementation choices.
-   For the questions of `docs/open-questions.md` on entities (`Entity: BOOK`, `Entity: BOOK.isbn`), follow the section
+   For the questions of `docs/open_questions.md` on entities (`Entity: BOOK`, `Entity: BOOK.isbn`), follow the section
    "In the Clarify Step of a Specification Skill" of `/open-questions` — locate it with a glob for
    `**/*open-questions/SKILL.md`; the folder may carry a host prefix such as `tessl__open-questions`.
 3. Use TodoWrite to create a task for each entity

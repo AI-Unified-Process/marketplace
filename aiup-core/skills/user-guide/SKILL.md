@@ -167,7 +167,7 @@ section without an anchor comment belongs to the team. On every run:
 
 ## DO NOT
 
-- Edit a specification, the glossary, the diagram, or `docs/open-questions.md` — hand off to `/use-case-spec`,
+- Edit a specification, the glossary, the diagram, or `docs/open_questions.md` — hand off to `/use-case-spec`,
   `/requirements`, `/use-case-diagram`, or `/open-questions`.
 - Invent screens, labels, menu paths, messages, or behaviour the specification does not state.
 - Describe a use case that is `Draft`, `Reviewed`, or `Obsolete`, or one below `Tested` without `all`.

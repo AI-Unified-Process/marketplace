@@ -80,7 +80,7 @@ means not run yet. A `Fail` and a `Blocked` need a remark.
    case at `Tested` that none of those test cases covers. Name what was left out and why (a test case with a use case
    still at `Implemented`, a draft test case).
 2. **Check readiness.** For each use case in the round, name the reasons it cannot reach `Done` in this round: a
-   status below `Tested`, or a blocking question in `docs/open-questions.md` that is `Open` or `Answered` (on the use
+   status below `Tested`, or a blocking question in `docs/open_questions.md` that is `Open` or `Answered` (on the use
    case, one of its steps, flows, or rules, or a requirement it links). Include the item anyway when the user named
    it; the readiness list goes into the report.
 3. **Check the test cases.** A Flow row without an observable expected result, or a test case whose use case is
@@ -103,7 +103,7 @@ their remarks.
 
 ## Closing a Round
 
-1. **Read** the protocol, each use case of the round, and `docs/open-questions.md`.
+1. **Read** the protocol, each use case of the round, and `docs/open_questions.md`.
 2. **Evaluate each use case of the round.** It is ready for `Done` when all of these hold:
    - its `**Status:**` is `Tested` (German `Getestet`) — a use case below it is not accepted, whatever the rows say;
    - every row that belongs to it is `Pass`: in its own section, and the rows of every test case section whose
@@ -136,4 +136,4 @@ backwards.
   a test case's status at all.
 - Invent, complete, or correct a result, a tester, or a date; or write into a `Closed` protocol.
 - Decide whether a failure is a defect or a change request.
-- Edit `docs/open-questions.md` — hand off to `/open-questions`.
+- Edit `docs/open_questions.md` — hand off to `/open-questions`.

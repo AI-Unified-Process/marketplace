@@ -54,7 +54,7 @@
     },
     {
       "name": "Production code untouched",
-      "description": "No file under src/main is created or modified, and no file under docs/ other than the Markers table of docs/architecture/stack.md (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "No file under src/main is created or modified, and no file under docs/ other than the Markers table of docs/architecture/stack.md (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 9
     },
     {

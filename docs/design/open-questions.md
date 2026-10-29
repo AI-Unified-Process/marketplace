@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Open questions
 
-`docs/open-questions.md` (#41) is the persistent log of specification gaps: one `## OQ-XXX: <question>` section per
+`docs/open_questions.md` (#41) is the persistent log of specification gaps: one `## OQ-XXX: <question>` section per
 question with `**Element:**`, `**Raised by:**`, `**Blocking:**`, and `**Status:**` lines (`Open` → `Answered` →
 `Resolved`, or `Withdrawn`). It supersedes the part of #29 that rejected a central status file, because it is a log
 of questions, not a second maturity record: the `**Status:**` line of the use case stays the truth, and a question

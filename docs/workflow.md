@@ -58,7 +58,7 @@ of files under `docs/`, not a specific coding agent.
 | `docs/processes/BP-*.bpmn`         | `/business-process` or business analysts | `/test-case` (one test case per path)                                                                        |
 | `docs/test_cases/TC-*.md`          | `/test-case`                             | End-to-end journey tests, `/test-case-implement`, `/test-case-coverage`                                      |
 | `docs/architecture/stack.md`       | `/stack`; layer skills (Markers)         | `/use-case-implement`, `/use-case-test`, `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage` |
-| `docs/open-questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
+| `docs/open_questions.md`           | `/open-questions`, skills, people        | `/use-case-spec`, `/requirements`, `/entity-model` resolve them; `/spec-review`, coverage audits             |
 | `docs/architecture/decisions/ADR-*.md` | `/architecture-decision`, the team       | `/stack`, `/use-case-implement`, and the layer skills follow the `Accepted` ones; `/spec-review`             |
 | `docs/architecture/decision-rights.md` | The team; `/stack` creates it on request | `/use-case-implement`, `/use-case-test`, and the layer skills; optional, the defaults apply without it   |
 | `docs/user_guide/*.md`             | `/user-guide`; the team adds sections    | The people who use the system                                                                                |
@@ -105,7 +105,7 @@ it chose without asking as an assumption. `/requirements` and `/entity-model` do
 scope, quality thresholds, conflicts) and for the entity model (cardinality, optionality, identity, cross-attribute
 rules).
 The `/implement` and `/use-case-implement` skills act on this: they ask before implementing a use case that is not yet `Approved`, and they
-record each gap in the specification as an open question in `docs/open-questions.md` — naming the step, flow, or
+record each gap in the specification as an open question in `docs/open_questions.md` — naming the step, flow, or
 rule — instead of closing it with an assumption. The answer goes into the specification through `/use-case-spec`,
 not into the code alone. The defaults the clarifying skills choose without asking are recorded there too, so a
 product owner confirms or corrects them later (see [Open questions](#open-questions)).
@@ -142,7 +142,7 @@ test case creates that state with the earlier steps of the journey and checks th
 | `A<n>`    | Alternative flow, `### A<n>:` inside one use case                                       | Its use case  | `UC-XXX A<n>`      |
 | `TC-XXX`  | Test case, `docs/test_cases/TC-XXX-*.md`                                                | Project       | `TC-XXX`           |
 | `BP-XXX`  | Business process, `docs/processes/BP-XXX-*.bpmn`; also the `id` of its `<bpmn:process>` | Project       | `BP-XXX`           |
-| `OQ-XXX`  | Open question, `## OQ-XXX:` section of `docs/open-questions.md`                         | Project       | `OQ-XXX`           |
+| `OQ-XXX`  | Open question, `## OQ-XXX:` section of `docs/open_questions.md`                         | Project       | `OQ-XXX`           |
 | `ADR-XXX` | Architecture decision record, `docs/architecture/decisions/ADR-XXX-*.md`                | Project       | `ADR-XXX`          |
 
 German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
@@ -256,7 +256,7 @@ It reaches `Done` only through `/acceptance-protocol close` (see [Transition](#t
 ### Open questions
 
 A gap in the specification is answered in the specification. Until it is, it is a question in
-`docs/open-questions.md`, one `## OQ-XXX:` section per question, so it survives the session that found it and a
+`docs/open_questions.md`, one `## OQ-XXX:` section per question, so it survives the session that found it and a
 product owner answers every question in one place. The format is owned by
 [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md); people may edit the file by hand in the same form:
 
@@ -348,7 +348,7 @@ reference but does not. The coverage audit treats each linked NFR and constraint
 - **The agent asks first** — gaps, ambiguity, and contradictions in the specification; validation values, limits,
   defaults, and user-visible messages with business meaning that it does not state; changes to the data model beyond
   the entity model; a deviation from a constraint or the Rationale of a requirement (each recorded in
-  `docs/open-questions.md`); and a new library or dependency or a deviation from an accepted ADR, which have no
+  `docs/open_questions.md`); and a new library or dependency or a deviation from an accepted ADR, which have no
   element of the specification and are asked and reported only.
 - **The agent never** changes a specification, requirement, ADR, or the glossary on its own, changes an existing test
   to make it pass, or sets a status line.
@@ -457,7 +457,7 @@ for those people; none of them changes a specification, except that closing an a
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |
 | [`/next`](../aiup-core/skills/next/SKILL.md)                               | The project state and the next command with its reason (read-only)      |
-| [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md)           | `docs/open-questions.md`: record, list, answer, and withdraw questions  |
+| [`/open-questions`](../aiup-core/skills/open-questions/SKILL.md)           | `docs/open_questions.md`: record, list, answer, and withdraw questions  |
 | [`/architecture-decision`](../aiup-core/skills/architecture-decision/SKILL.md) | ADRs linked to the NFRs and constraints they serve                  |
 | [`/reverse-engineer`](../aiup-core/skills/reverse-engineer/SKILL.md)       | AI Unified Process baseline recovered from an existing codebase         |
 | [`/stack`](../aiup-core/skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skills of a layered stack       |

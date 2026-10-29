@@ -90,7 +90,7 @@ and **Superseded by**.
 1. **Read** `docs/requirements.md` (the NFR and constraint tables), every ADR, `docs/architecture/stack.md`, and
    `docs/architecture/decision-rights.md` when they exist.
 2. **Check that it is a decision.** A question about the specification — a step, rule, requirement, glossary term,
-   or entity — belongs in `docs/open-questions.md` (`/open-questions`); a choice the decision rights let the agent
+   or entity — belongs in `docs/open_questions.md` (`/open-questions`); a choice the decision rights let the agent
    take alone (a name, a private method) needs no ADR. Say so and stop.
 3. **Find the requirements it serves.** Propose the `NFR-` and `C-` rows the decision answers to, and say why for
    each. When none fits, or only an `FR-` does, ask the user which quality or constraint drives the decision. When

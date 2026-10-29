@@ -39,10 +39,10 @@ check is exact and gives the same result on every run:
 Artifacts (each check runs only when its artifacts exist):
 
     requirements.md  use_cases.puml  use_cases/UC-*.md  test_cases/TC-*.md
-    processes/*.bpmn  entity_model.md  glossary.md  open-questions.md
+    processes/*.bpmn  entity_model.md  glossary.md  open_questions.md
     **/decisions/ADR-*.md  (also **/adr/ and **/adrs/)
 
-open-questions.md holds one '## OQ-XXX: <question>' section per question,
+open_questions.md holds one '## OQ-XXX: <question>' section per question,
 with **Element:**, **Raised by:**, **Blocking:**, and **Status:** lines, as
 the open-questions skill defines it. A blocking question that is Open or
 Answered blocks the use case its element names, and every use case that
@@ -239,7 +239,7 @@ OBSOLETE = ("obsolete", "obsolet")
 INACTIVE_REQUIREMENT = ("rejected", "deferred", "abgelehnt", "zurückgestellt")
 MAIN_HEADINGS = ("## Main Success Scenario", "## Hauptablauf")
 FLOWS_HEADINGS = ("## Alternative Flows", "## Alternativabläufe")
-OQ_NAME = "open-questions.md"
+OQ_NAME = "open_questions.md"
 OQ_STATUSES = ("Open", "Answered", "Resolved", "Withdrawn")
 OQ_ACTIVE = ("Open", "Answered")
 OQ_REQUIRED = ("Element", "Raised by", "Blocking", "Status")
@@ -1117,7 +1117,7 @@ def load_glossary(project):
 
 
 def read_open_questions(project):
-    """The sections of open-questions.md as dicts, in file order.
+    """The sections of open_questions.md as dicts, in file order.
 
     Each has "id", "line", "question", "fields" ({label: (line, value)}),
     and "body" (the lines that are no field line)."""
@@ -2641,7 +2641,7 @@ def render_report(matrix, findings, suppressed, docs):
         out.append("<h2>Open Questions</h2>")
         out.append(table(
             ["ID", "Element", "Question", "Blocking", "Status", "Raised by"],
-            [[link("open-questions.md", q["id"]), esc(q["element"]),
+            [[link("open_questions.md", q["id"]), esc(q["element"]),
               esc(q["question"]),
               '<span class="badge s-err">Yes</span>'
               if normalize(q["blocking"]) in ("yes", "ja")
@@ -2873,7 +2873,7 @@ clerk --> UC002
 """,
     # Resolved and Withdrawn questions are history: their elements may point
     # to nothing, and a resolved blocking question blocks nothing.
-    "open-questions.md": """\
+    "open_questions.md": """\
 # Open Questions
 
 Questions about the specification that the specification does not answer yet.
@@ -2962,7 +2962,7 @@ BROKEN.update({
         'name="UC-001 Create Guest"', 'name="UC-003 Cancel Room"'),
     "processes/legacy.bpmn": CLEAN[
         "processes/BP-001-hotel-stay.bpmn"].replace('"BP-001"', '"p"'),
-    "open-questions.md": """\
+    "open_questions.md": """\
 # Open Questions
 
 ## OQ-001: Deposit for guests under eighteen?
@@ -3713,7 +3713,7 @@ def self_test():
                         "repository")
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, CLEAN)
-        os.remove(os.path.join(root, "open-questions.md"))
+        os.remove(os.path.join(root, "open_questions.md"))
         got = next_commands(root, validator, bpmn, anchors)
         if got[:1] != ["/stack"]:
             failures.append("next: Approved without stack file should lead "
@@ -3755,7 +3755,7 @@ def self_test():
         if got[:2] != ["/use-case-test UC-001", "/test-case-implement TC-001"]:
             failures.append("next: journey not offered, got " + str(got))
 
-        write_fixture(root, {"open-questions.md": "# Open Questions\n\n"
+        write_fixture(root, {"open_questions.md": "# Open Questions\n\n"
                              "## OQ-001: Which data does a guest need?\n\n"
                              "**Element:** UC-001 step 2\n**Raised by:** "
                              "/use-case-spec\n**Blocking:** Yes\n**Status:**"
@@ -3764,7 +3764,7 @@ def self_test():
         if got[:1] != ["/use-case-spec UC-001"]:
             failures.append("next: answered blocking question should lead "
                             "to /use-case-spec UC-001, got " + str(got))
-        os.remove(os.path.join(root, "open-questions.md"))
+        os.remove(os.path.join(root, "open_questions.md"))
 
         status(uc1, "Tested")
         status(uc2, "Done")

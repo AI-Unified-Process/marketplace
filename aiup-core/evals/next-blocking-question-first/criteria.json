@@ -4,7 +4,7 @@
   "checklist": [
     {
       "name": "Nothing written or run",
-      "description": "No file under docs/ is modified, created, renamed, or deleted: in particular docs/open-questions.md is unchanged (OQ-001 stays Open, no **Answer:** line) and no **Status:** line changes; no skill such as /open-questions or /use-case-test is run",
+      "description": "No file under docs/ is modified, created, renamed, or deleted: in particular docs/open_questions.md is unchanged (OQ-001 stays Open, no **Answer:** line) and no **Status:** line changes; no skill such as /open-questions or /use-case-test is run",
       "max_score": 25
     },
     {

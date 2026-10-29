@@ -1,5 +1,5 @@
 {
-  "context": "Tests /open-questions on a docs/open-questions.md with six questions: OQ-001 (Resolved, blocking, UC-001 step 3), OQ-002 (Open, blocking, UC-002 BR-002), OQ-003 (Answered, blocking, NFR-001 — a requirement UC-002's **Requirements:** line links), OQ-004 (Open, not blocking, UC-002 step 3, with an **Assumed:** line), OQ-005 (Open, blocking, UC-003 step 2), and OQ-006 (Open, blocking, UC-002 A2), which asks the same as OQ-002. The product owner P. Meier asks to withdraw OQ-006 as a duplicate of OQ-002 and to list the questions that still block UC-002. The skill withdraws by adding a **Withdrawn:** line with the reason after the body and setting **Status:** Withdrawn; it never deletes a section or changes an id. A use case filter lists the questions on the use case and on the requirements it links; only Open or Answered blocking questions block. The expected list is OQ-002 (Open) then OQ-003 (Answered). The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests /open-questions on a docs/open_questions.md with six questions: OQ-001 (Resolved, blocking, UC-001 step 3), OQ-002 (Open, blocking, UC-002 BR-002), OQ-003 (Answered, blocking, NFR-001 — a requirement UC-002's **Requirements:** line links), OQ-004 (Open, not blocking, UC-002 step 3, with an **Assumed:** line), OQ-005 (Open, blocking, UC-003 step 2), and OQ-006 (Open, blocking, UC-002 A2), which asks the same as OQ-002. The product owner P. Meier asks to withdraw OQ-006 as a duplicate of OQ-002 and to list the questions that still block UC-002. The skill withdraws by adding a **Withdrawn:** line with the reason after the body and setting **Status:** Withdrawn; it never deletes a section or changes an id. A use case filter lists the questions on the use case and on the requirements it links; only Open or Answered blocking questions block. The expected list is OQ-002 (Open) then OQ-003 (Answered). The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -9,12 +9,12 @@
     },
     {
       "name": "Nothing deleted or renumbered",
-      "description": "All six sections OQ-001 to OQ-006 are still in docs/open-questions.md under their original ids and in their original order; no section is added; OQ-006 keeps its heading, Element, Raised by, Blocking, and body",
+      "description": "All six sections OQ-001 to OQ-006 are still in docs/open_questions.md under their original ids and in their original order; no section is added; OQ-006 keeps its heading, Element, Raised by, Blocking, and body",
       "max_score": 20
     },
     {
       "name": "Other questions and files untouched",
-      "description": "OQ-001 to OQ-005 are unchanged — in particular OQ-002 gets no answer and OQ-003 is not set to Resolved — and no file under docs/ other than docs/open-questions.md is changed",
+      "description": "OQ-001 to OQ-005 are unchanged — in particular OQ-002 gets no answer and OQ-003 is not set to Resolved — and no file under docs/ other than docs/open_questions.md is changed",
       "max_score": 15
     },
     {

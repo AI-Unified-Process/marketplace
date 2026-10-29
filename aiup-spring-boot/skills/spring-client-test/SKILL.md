@@ -47,7 +47,7 @@ password, API key, token, connection string, private key, `.env` entry — into 
 - **Does not test** the business rules or the use case's flows through the service — the integration layer does,
   with the fake in place of the adapter.
 - **Never touches** production code, the contract files, or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-test
 

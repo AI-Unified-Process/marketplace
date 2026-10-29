@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /use-case-implement handles specification gaps in a run nobody can answer: docs/open-questions.md holds a blocking Open question OQ-002 on UC-002 BR-002 (registration deadline), and UC-002 BR-004 limits the registrations per participant without stating the number. The agent must leave out only the elements those two are about, implement the rest of UC-002 across the layers, and record BR-004 as a new section OQ-003 in docs/open-questions.md in the format of /open-questions (Element, Raised by, Blocking, Status lines; readings in the body), without changing the existing sections or any specification. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether /use-case-implement handles specification gaps in a run nobody can answer: docs/open_questions.md holds a blocking Open question OQ-002 on UC-002 BR-002 (registration deadline), and UC-002 BR-004 limits the registrations per participant without stating the number. The agent must leave out only the elements those two are about, implement the rest of UC-002 across the layers, and record BR-004 as a new section OQ-003 in docs/open_questions.md in the format of /open-questions (Element, Raised by, Blocking, Status lines; readings in the body), without changing the existing sections or any specification. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -19,7 +19,7 @@
     },
     {
       "name": "Gap recorded as a section",
-      "description": "docs/open-questions.md ends with a new section headed '## OQ-003: <question>' about the number of registrations a participant may hold, with the lines **Element:** UC-002 BR-004, **Raised by:** /use-case-implement (or the service layer skill) and an ISO date, **Blocking:** Yes, and **Status:** Open, and a body naming at least two readings or what the specification leaves open",
+      "description": "docs/open_questions.md ends with a new section headed '## OQ-003: <question>' about the number of registrations a participant may hold, with the lines **Element:** UC-002 BR-004, **Raised by:** /use-case-implement (or the service layer skill) and an ISO date, **Blocking:** Yes, and **Status:** Open, and a body naming at least two readings or what the specification leaves open",
       "max_score": 20
     },
     {

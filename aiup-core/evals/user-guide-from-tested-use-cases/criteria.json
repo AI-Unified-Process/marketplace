@@ -34,7 +34,7 @@
     },
     {
       "name": "No specification changed",
-      "description": "Every file under docs/use_cases/, docs/use_cases.puml, docs/glossary.md, docs/requirements.md, and docs/entity_model.md is unchanged (UC-004 still says 'booking'), and docs/open-questions.md was not created",
+      "description": "Every file under docs/use_cases/, docs/use_cases.puml, docs/glossary.md, docs/requirements.md, and docs/entity_model.md is unchanged (UC-004 still says 'booking'), and docs/open_questions.md was not created",
       "max_score": 10
     }
   ]

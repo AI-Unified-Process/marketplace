@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether vaadin-flow-ui reads the use case's **Mockup:** line (docs/mockups/uc-020-guests.md) and takes the layout from it while the specification stays authoritative: the form fields and grid columns follow the mockup's order, the Phone field the mockup shows but neither the use case nor the entity model backs is not built, the button keeps the specification's label \"Register\" instead of the mockup's \"Save guest\", each disagreement is recorded in docs/open-questions.md as a non-blocking question, and the Handover names what was followed and left out. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether vaadin-flow-ui reads the use case's **Mockup:** line (docs/mockups/uc-020-guests.md) and takes the layout from it while the specification stays authoritative: the form fields and grid columns follow the mockup's order, the Phone field the mockup shows but neither the use case nor the entity model backs is not built, the button keeps the specification's label \"Register\" instead of the mockup's \"Save guest\", each disagreement is recorded in docs/open_questions.md as a non-blocking question, and the Handover names what was followed and left out. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -34,12 +34,12 @@
     },
     {
       "name": "Disagreements recorded as non-blocking questions",
-      "description": "docs/open-questions.md is created (from the open-questions format: ## OQ-XXX: sections with **Element:**, **Raised by:**, **Blocking:**, **Status:** lines) with at least one question about the Phone field and one about the button label (or one question covering both), each on UC-020 or one of its steps, raised by vaadin-flow-ui, **Blocking:** No, **Status:** Open",
+      "description": "docs/open_questions.md is created (from the open-questions format: ## OQ-XXX: sections with **Element:**, **Raised by:**, **Blocking:**, **Status:** lines) with at least one question about the Phone field and one about the button label (or one question covering both), each on UC-020 or one of its steps, raised by vaadin-flow-ui, **Blocking:** No, **Status:** Open",
       "max_score": 14
     },
     {
       "name": "Specification and mockup left alone",
-      "description": "docs/use_cases/UC-020-register-guest.md and docs/mockups/uc-020-guests.md are unchanged; apart from docs/open-questions.md and the UI rows of the Markers table in docs/architecture/stack.md, nothing under docs/ changes",
+      "description": "docs/use_cases/UC-020-register-guest.md and docs/mockups/uc-020-guests.md are unchanged; apart from docs/open_questions.md and the UI rows of the Markers table in docs/architecture/stack.md, nothing under docs/ changes",
       "max_score": 10
     },
     {

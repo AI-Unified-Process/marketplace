@@ -54,7 +54,7 @@ implementation exists, **reconcile it with the specification instead of building
 ## DO NOT
 
 - Create test classes (use dedicated testing skills instead)
-- Edit existing tests or anything under `docs/` other than new sections of `docs/open-questions.md` — see "Gaps in the Specification"
+- Edit existing tests or anything under `docs/` other than new sections of `docs/open_questions.md` — see "Gaps in the Specification"
 - Use `fetchInto(SomeDto.class)` for projected queries — use `Records.mapping(SomeDto::new)` instead
 - Hand-write TypeScript clients or REST controllers — Hilla generates the TypeScript client from
   the `@BrowserCallable` class
@@ -88,7 +88,7 @@ a validation rule, a term that neither the entity model nor the glossary defines
 - Check the `**Status:**` line first. A `Draft` or `Reviewed` use case is not yet approved for
   implementation: say so and ask the user whether to go ahead or to run `/spec-review UC-XXX` first.
   Do not implement an `Obsolete` use case. Never change the status line.
-- Then read `docs/open-questions.md` when it exists, and take the questions that are `Open` or
+- Then read `docs/open_questions.md` when it exists, and take the questions that are `Open` or
   `Answered` on this use case: those whose `**Element:**` names it, and those on a requirement its
   `**Requirements:**` line links. A **blocking** one means the use case is not ready: list them and
   ask whether to go ahead without the elements they are about, or to get them answered first
@@ -101,7 +101,7 @@ a validation rule, a term that neither the entity model nor the glossary defines
   A reading the user chooses is implemented and still recorded, so the answer reaches the
   specification and does not live in the code alone. A gap an `Open` or `Answered` question
   already asks is not asked again; name the question instead.
-- **Record every new gap in `docs/open-questions.md`**, one section each, in the format of
+- **Record every new gap in `docs/open_questions.md`**, one section each, in the format of
   `/open-questions` from `aiup-core` — locate it with a glob for `**/*open-questions/SKILL.md` (the
   folder may carry a host prefix such as `tessl__open-questions`), section "The File"; when the
   file is missing, create it from that skill's `references/open-questions.md`. **Raised by** is
@@ -111,7 +111,7 @@ a validation rule, a term that neither the entity model nor the glossary defines
   `**Blocking:** No`, because the code now follows it.
 - Never edit an existing test or a file under `docs/` — a specification, test case, requirement,
   the entity model, the glossary. The only exception is new sections appended to
-  `docs/open-questions.md`; never change a section that is already there. The tests and the
+  `docs/open_questions.md`; never change a section that is already there. The tests and the
   specifications are the oracle for your code: a test that fails against it, or a specification
   that looks wrong, goes into the report and the **Open questions** list, never into an edit that
   makes the two agree.

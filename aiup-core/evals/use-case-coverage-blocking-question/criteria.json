@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /use-case-coverage audits UC-002 read-only through the uc-coverage-layered agent (shipped in .claude/agents) in a Vaadin Flow + jOOQ project, and keeps an Open blocking question from being waved through. Every unit of UC-002 is implemented and tested: UC002RegisterForWorkshopTest covers the main success scenario, A1–A3, both cases of BR-001, BR-002 (Spring Boot Day 24.5 hours ahead is accepted, Kotlin Kickoff 22 hours ahead is rejected), and BR-003, the failure postcondition, and NFR-001. But docs/open-questions.md holds OQ-002 on UC-002 BR-002 (calendar hours or business hours?), Blocking: Yes, Status: Open. The agent's rule: a unit a question is about is judged against what the specification says, the question is listed under Open questions, and Tested is never suggested while a blocking question is Open or Answered. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether /use-case-coverage audits UC-002 read-only through the uc-coverage-layered agent (shipped in .claude/agents) in a Vaadin Flow + jOOQ project, and keeps an Open blocking question from being waved through. Every unit of UC-002 is implemented and tested: UC002RegisterForWorkshopTest covers the main success scenario, A1–A3, both cases of BR-001, BR-002 (Spring Boot Day 24.5 hours ahead is accepted, Kotlin Kickoff 22 hours ahead is rejected), and BR-003, the failure postcondition, and NFR-001. But docs/open_questions.md holds OQ-002 on UC-002 BR-002 (calendar hours or business hours?), Blocking: Yes, Status: Open. The agent's rule: a unit a question is about is judged against what the specification says, the question is listed under Open questions, and Tested is never suggested while a blocking question is Open or Answered. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "name": "No file changed",
-      "description": "No file is created, modified, or deleted — not the code, not the tests, not UC-002 and its **Status:** line, and not docs/open-questions.md (OQ-002 is neither answered nor resolved, and no new question is added)",
+      "description": "No file is created, modified, or deleted — not the code, not the tests, not UC-002 and its **Status:** line, and not docs/open_questions.md (OQ-002 is neither answered nor resolved, and no new question is added)",
       "max_score": 15
     },
     {

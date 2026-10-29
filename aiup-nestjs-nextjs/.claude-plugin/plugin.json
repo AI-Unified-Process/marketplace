@@ -2,7 +2,7 @@
   "name": "aiup-nestjs-nextjs",
   "displayName": "AI Unified Process NestJS + Next.js",
   "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "author": {
     "name": "Swift Ugandan",
     "email": "swiftugandan@gmail.com",

@@ -185,7 +185,7 @@ docs/
 │   └── UC-001-*.md                   # /use-case-spec
 ├── test_cases/
 │   └── TC-001-*.md                   # /test-case
-├── open-questions.md                 # /open-questions and the skills that find a gap (created with the first question)
+├── open_questions.md                 # /open-questions and the skills that find a gap (created with the first question)
 ├── user_guide/                       # /user-guide: one chapter per actor, from the accepted use cases
 ├── acceptance/
 │   └── release-1.4.md                # /acceptance-protocol: one protocol per acceptance round

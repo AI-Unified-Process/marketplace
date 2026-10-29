@@ -57,7 +57,7 @@ Read the specification first and completely, before you look at any code:
 - Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
   `NFR-*`, and `C-*` rows of `docs/requirements.md`, not the whole catalog. The `FR-*` rows help
   where a step is ambiguous; the linked `NFR-*` and `C-*` rows become coverage units (Step 2).
-- Read `docs/open-questions.md` when it exists, and take the questions that are `Open` or
+- Read `docs/open_questions.md` when it exists, and take the questions that are `Open` or
   `Answered` on the artifact: those whose `**Element:**` names the use case (for a test case, one
   of the use cases its Flow links), and those on a requirement its `**Requirements:**` line links.
   They are no coverage units: a unit a question is about is judged against what the specification
@@ -353,7 +353,7 @@ Report rules:
   the report.
 - Do not claim to have run a build or a test suite.
 - Do not record, answer, or resolve an open question; list it. A gap you find is a finding of
-  your report, not a new section of `docs/open-questions.md`.
+  your report, not a new section of `docs/open_questions.md`.
 - Do not mark a unit `Covered` without a `file:line`, and do not soften a verdict because the
   caller has just finished writing the code.
 - Do not re-litigate the specification's format or wording — `validate_use_case.py` in the

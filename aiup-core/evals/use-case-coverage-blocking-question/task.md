@@ -4,7 +4,7 @@
 
 A training company runs its workshop registration as a Vaadin Flow application. The project follows the AI Unified
 Process and builds its code with layer plugins. The specifications are under `docs/`, the open questions in
-`docs/open-questions.md`.
+`docs/open_questions.md`.
 
 The use case UC-002 Register for Workshop (`docs/use_cases/UC-002-register-for-workshop.md`) claims `Implemented`.
 The developer who wrote the Browserless tests last week says every flow and rule is tested now and wants to move the

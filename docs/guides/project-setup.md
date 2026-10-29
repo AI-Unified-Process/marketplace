@@ -25,7 +25,7 @@ your-project/
 │   ├── test_cases/
 │   │   ├── TC-001-*.md
 │   │   └── ...
-│   ├── open-questions.md
+│   ├── open_questions.md
 │   └── architecture/
 │       ├── stack.md
 │       └── decisions/

@@ -44,7 +44,7 @@
     },
     {
       "name": "Markers table maintained",
-      "description": "docs/architecture/stack.md gains the three playwright-e2e-test rows of the skill's markers reference (describe with the @UC-XXX/@TC-XXX tag on every test, one test.step('Step <n>: …' with its // Step comment per Flow row, and the UC-/TC-XXX-<slug>.spec.ts naming in the E2E folder); the All row is unchanged; no other file under docs/ is edited (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "docs/architecture/stack.md gains the three playwright-e2e-test rows of the skill's markers reference (describe with the @UC-XXX/@TC-XXX tag on every test, one test.step('Step <n>: …' with its // Step comment per Flow row, and the UC-/TC-XXX-<slug>.spec.ts naming in the E2E folder); the All row is unchanged; no other file under docs/ is edited (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 9
     },
     {

@@ -81,7 +81,7 @@ from here follows this section; it is not repeated in the layer skills.
 
 An expected value a test needs that the specification does not give — a message it does not state, a limit without a
 number, a rejection without an outcome — is a gap, not a value to read off the code. Handle it as `/use-case-implement`
-defines in its section "Gaps in the Specification": take the `Open` and `Answered` questions of `docs/open-questions.md`
+defines in its section "Gaps in the Specification": take the `Open` and `Answered` questions of `docs/open_questions.md`
 on this use case first, ask the user or leave the test out, and record every new gap there in the format of
 `/open-questions`, with the test skill that found it as **Raised by**. A test for an element a blocking question is
 about is left out and listed in the report. Every test skill run from here follows this section.
@@ -184,6 +184,6 @@ Finish by:
 
 - Change production code to make a test pass; report the disagreement instead.
 - Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the test skills
-  maintain, and new sections of `docs/open-questions.md` — see "Gaps in the Specification".
+  maintain, and new sections of `docs/open_questions.md` — see "Gaps in the Specification".
 - Weaken, delete, or disable an assertion whose expected value the specification states.
 - Claim a suite passes without having run it.

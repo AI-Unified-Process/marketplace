@@ -1,5 +1,5 @@
 {
-  "description": "A use case with a blocking open question and an unspecified limit is implemented in a run nobody can answer: the blocked rule and the gap are left out, the gap is recorded in docs/open-questions.md",
+  "description": "A use case with a blocking open question and an unspecified limit is implemented in a run nobody can answer: the blocked rule and the gap are left out, the gap is recorded in docs/open_questions.md",
   "fixtures": {
     "project": {
       "type": "directory",

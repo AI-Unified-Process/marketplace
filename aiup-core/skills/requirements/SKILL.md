@@ -139,7 +139,7 @@ Every requirement must pass these checks before finalizing:
    threshold, propose a number. Write the answers into the rows and glossary terms they affect, never into a questions
    section. Decide everything else with the best default and report it as an assumption (step 12). When no one can
    answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for
-   every question and report it as an assumption as well. For the questions of `docs/open-questions.md` on requirements
+   every question and report it as an assumption as well. For the questions of `docs/open_questions.md` on requirements
    and glossary terms (`FR-`, `NFR-`, `C-`, `Glossary:`), follow the section "In the Clarify Step of a Specification
    Skill" of `/open-questions` — locate it with a glob for `**/*open-questions/SKILL.md`; the folder may carry a host
    prefix such as `tessl__open-questions`.

@@ -2,7 +2,7 @@
   "name": "aiup-blazor-dotnet",
   "displayName": "AI Unified Process Blazor .NET",
   "description": "AI Unified Process for the C# / Blazor .NET 10 stack - migrations, implementation, tests",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "author": {
     "name": "Carl J. Mosca",
     "email": "carljmosca@gmail.com",

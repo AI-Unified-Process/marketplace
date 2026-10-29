@@ -50,7 +50,7 @@ generated code, or your summary; name the file it lives in and leave the value o
   exceptions, the adapter that implements it, its configuration properties, and the Handover the service layer
   builds on.
 - **Never touches** the service, persistence, API, and UI code, the tests, the contract files, or anything under
-  `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
+  `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
   It never writes the External systems table; `/stack` owns it.
 
 A secondary actor that is a person or a role, not a system, is no business of this skill. A system that calls *us* —
@@ -69,7 +69,7 @@ Run directly, apply the same rules yourself — `/use-case-implement` describes 
   `docs/architecture/stack.md`.
 - Never close a gap in the specification with an assumption: ask, or leave that part out and list it under **Open
   questions**. Never edit a test or a file under `docs/` other than the Markers table and new sections of
-  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
+  `docs/open_questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When a client for the system already exists, extend and reconcile it in place instead of writing a second one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
 
@@ -104,7 +104,7 @@ for the actor. Neither overrules the other:
 - **The operation.** Find the OpenAPI operation or AsyncAPI channel a step needs by what it does; when several fit,
   or none does, that is a question — ask, or record it, and build nothing for that call.
 - **The data.** Every field the contract requires must come from the use case, the entity model, or a value the
-  contract fixes. A required field none of them supplies is a gap: record it in `docs/open-questions.md` and leave
+  contract fixes. A required field none of them supplies is a gap: record it in `docs/open_questions.md` and leave
   the call out. Never fill it with a made-up constant.
 - **The outcomes.** Each alternative flow the external system causes — the provider rejects, does not answer in
   time, is unavailable — maps to the responses the contract documents for it. A documented response the

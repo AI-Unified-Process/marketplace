@@ -44,12 +44,12 @@
     },
     {
       "name": "Undocumented 409 reported as a gap",
-      "description": "The agent reports that the contract's 409 duplicate_reference response has no alternative flow in the specification (in docs/open-questions.md or the Open questions of its report) and does not invent a message or flow for it",
+      "description": "The agent reports that the contract's 409 duplicate_reference response has no alternative flow in the specification (in docs/open_questions.md or the Open questions of its report) and does not invent a message or flow for it",
       "max_score": 7
     },
     {
       "name": "Scope and markers",
-      "description": "No service, controller, or test class is written; nothing under docs/ changes except the Markers table of docs/architecture/stack.md (and new sections of docs/open-questions.md), which gains the three spring-client rows (two Code rows and one Name row) while the existing rows stay unchanged",
+      "description": "No service, controller, or test class is written; nothing under docs/ changes except the Markers table of docs/architecture/stack.md (and new sections of docs/open_questions.md), which gains the three spring-client rows (two Code rows and one Name row) while the existing rows stay unchanged",
       "max_score": 8
     },
     {

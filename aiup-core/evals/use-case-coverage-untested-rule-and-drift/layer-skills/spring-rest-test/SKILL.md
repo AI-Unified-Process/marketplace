@@ -51,7 +51,7 @@ out.
   scenario, every alternative flow's status and `detail`, and the field errors. "Which Layer Tests What" of
   `/use-case-test` decides the rest.
 - **Never touches** production code or anything under `docs/` other than the Markers table of
-  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-test
 
@@ -243,7 +243,7 @@ happens when it disagrees with the specification. For each linked OpenAPI operat
   format, and for each rejecting flow the status and error response the contract documents for it.
 - **Every rejecting alternative flow needs a documented response.** A flow the contract documents no response for is
   a gap between contract and specification: write no assertion for an invented status; append it to
-  `docs/open-questions.md` as `/use-case-implement` defines in "API Contract" (unless an open section already holds
+  `docs/open_questions.md` as `/use-case-implement` defines in "API Contract" (unless an open section already holds
   it), and list it in the report.
 - An AsyncAPI channel or operation is not tested here; no layer skill builds the listener.
 

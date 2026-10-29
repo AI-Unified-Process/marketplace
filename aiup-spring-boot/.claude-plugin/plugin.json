@@ -2,7 +2,7 @@
   "name": "aiup-spring-boot",
   "displayName": "AI Unified Process Spring Boot",
   "description": "AI Unified Process Spring Boot layers - service, REST API, and external system client implementation and tests",
-  "version": "3.4.2",
+  "version": "3.5.0",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

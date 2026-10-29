@@ -43,7 +43,7 @@ the file it lives in and leave the value out.
 - **Produces** the routed page, its components, the HTTP service and models, and the route — what the E2E layer
   drives in the browser and what `/angular-ui-test` tests.
 - **Never touches** the API, service, persistence, or migration layers, tests, or anything under `docs/` except the
-  Markers table of `docs/architecture/stack.md` and new sections of `docs/open-questions.md`. When the API lacks an
+  Markers table of `docs/architecture/stack.md` and new sections of `docs/open_questions.md`. When the API lacks an
   endpoint or a field the UI needs, do not work around it in the client — report it as a contract gap for the API layer.
 
 ## Run Directly or from /use-case-implement
@@ -59,7 +59,7 @@ Run directly, apply the same rules yourself:
   `docs/architecture/stack.md` (its UI row and Location, and the API contract section).
 - Never close a specification gap with an assumption: ask the user or leave that part out, and end with an **Open
   questions** list. Never edit a test or a file under `docs/` other than the Markers table and new sections of
-  `docs/open-questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
+  `docs/open_questions.md`; record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - When the page already exists, reconcile it with the specification in place instead of building a second one.
 - Implement this layer only. `/use-case-implement UC-XXX` runs all layers bottom-up.
 
@@ -71,7 +71,7 @@ library or dependency included), never take one they forbid, and list the decisi
 Either way, when the use case has a `**Mockup:**` line, read its mockups and take the layout from them as
 `/use-case-implement` defines in its section "Mockups": the mockup decides where fields, columns, and actions sit,
 the specification decides which exist, the rules, and the messages. A disagreement is built the specification's way
-and recorded in `docs/open-questions.md` as a non-blocking question raised by this skill.
+and recorded in `docs/open_questions.md` as a non-blocking question raised by this skill.
 
 ## Angular Conventions
 
@@ -285,7 +285,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Enforce a business rule only in the client — the service layer is the enforcer.
 - Create test files — `/angular-ui-test` follows.
 - Edit tests or anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
-  `docs/open-questions.md`.
+  `docs/open_questions.md`.
 
 ## Workflow
 

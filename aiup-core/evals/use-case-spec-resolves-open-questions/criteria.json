@@ -19,7 +19,7 @@
     },
     {
       "name": "Use case stays a use case",
-      "description": "UC-002 has no questions, answers, or open-questions section, keeps its template structure (Overview, Preconditions, Main Success Scenario, Alternative Flows, Postconditions, Business Rules) and its **Status:** line unchanged; OQ-001 and every other file under docs/ except UC-002 and docs/open-questions.md are unchanged (a glossary term for business day may be added)",
+      "description": "UC-002 has no questions, answers, or open-questions section, keeps its template structure (Overview, Preconditions, Main Success Scenario, Alternative Flows, Postconditions, Business Rules) and its **Status:** line unchanged; OQ-001 and every other file under docs/ except UC-002 and docs/open_questions.md are unchanged (a glossary term for business day may be added)",
       "max_score": 15
     },
     {

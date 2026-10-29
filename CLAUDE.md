@@ -32,7 +32,7 @@ marketplace/
 │       ├── test-case/
 │       ├── spec-review/
 │       ├── next/                 # read-only: spec_lint.py --next, the next command and why
-│       ├── open-questions/       # docs/open-questions.md: the log of specification gaps
+│       ├── open-questions/       # docs/open_questions.md: the log of specification gaps
 │       ├── architecture-decision/ # docs/architecture/decisions/ADR-*.md, each linked to an NFR or constraint
 │       ├── stack/                # writes docs/architecture/stack.md (layer → skill)
 │       ├── use-case-implement/   # runs the layer skills bottom-up
@@ -220,7 +220,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 | Construction | `/test-case`           | Write end-to-end test cases (TC-*) from use cases or a BPMN process  |
 | Any          | `/spec-review`         | Lint and review the specification artifacts against each other       |
 | Any          | `/next`                | Name the next command from the project state (read-only)             |
-| Any          | `/open-questions`      | Record, list, answer, and withdraw questions in docs/open-questions.md |
+| Any          | `/open-questions`      | Record, list, answer, and withdraw questions in docs/open_questions.md |
 | Any          | `/architecture-decision` | Record, supersede, and list ADRs, each linked to an NFR or constraint |
 | Any          | `/reverse-engineer`    | Recover use case diagram, use case specs, and entity model from code |
 | Construction | `/stack`               | Record the layer plugins of a layered stack in the stack file        |
@@ -259,7 +259,7 @@ Why: [`docs/design/next.md`](docs/design/next.md).
 
 #### Open questions
 
-- `/open-questions` owns the format of `docs/open-questions.md`; every other skill refers to it by glob. The file is
+- `/open-questions` owns the format of `docs/open_questions.md`; every other skill refers to it by glob. The file is
   created lazily, never empty.
 - Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve or
   withdraw; `/spec-review` and the coverage agents only read.
@@ -286,7 +286,7 @@ Why: [`docs/design/architecture-decisions.md`](docs/design/architecture-decision
   copyright-stamped). Only the section "Decision Rights" of `/use-case-implement` says how they apply; other skills
   refer to it.
 - A project file replaces the first two sections; the "never" section only grows.
-- Only specification questions go to `docs/open-questions.md`.
+- Only specification questions go to `docs/open_questions.md`.
 - The combined stack plugins keep their own `/implement` rules.
 
 Why: [`docs/design/decision-rights.md`](docs/design/decision-rights.md).

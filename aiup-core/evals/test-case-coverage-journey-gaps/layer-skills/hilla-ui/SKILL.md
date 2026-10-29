@@ -47,7 +47,7 @@ the file it lives in and leave the value out.
   view with its form, grid, dialogs, and notifications.
 - **Never touches** the service, persistence, or migration layer, jOOQ or JPA types, tests, or anything under `docs/`
   other than this skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of
-  `docs/open-questions.md`. When the view needs a service method or a field that does not exist, stop and report it as a
+  `docs/open_questions.md`. When the view needs a service method or a field that does not exist, stop and report it as a
   gap of the service layer instead of reaching into a repository.
 
 ## Run Directly or from /use-case-implement
@@ -60,7 +60,7 @@ Run directly, read the same inputs `/use-case-implement` reads — the use case 
 the module files `docs/entity_model/*.md` it links), `docs/glossary.md` and the ADRs when present, and
 `docs/architecture/stack.md` — and apply the same rules: never close a specification gap with an assumption (ask, or
 leave that part out and list it under **Open questions**), never edit a test or a file under `docs/` other than the
-Markers table and new sections of `docs/open-questions.md` (record every gap there as `/use-case-implement` defines it),
+Markers table and new sections of `docs/open_questions.md` (record every gap there as `/use-case-implement` defines it),
 reconcile an existing view and endpoint instead of building second ones. Implement this layer only and say that
 `/use-case-implement UC-XXX` runs all layers.
 
@@ -72,7 +72,7 @@ library or dependency included), never take one they forbid, and list the decisi
 Either way, when the use case has a `**Mockup:**` line, read its mockups and take the layout from them as
 `/use-case-implement` defines in its section "Mockups": the mockup decides where fields, columns, and actions sit,
 the specification decides which exist, the rules, and the messages. A disagreement is built the specification's way
-and recorded in `docs/open-questions.md` as a non-blocking question raised by this skill.
+and recorded in `docs/open_questions.md` as a non-blocking question raised by this skill.
 
 ## The Endpoint
 
@@ -151,7 +151,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Hand-write TypeScript clients, call `fetch`, or create a REST controller for the view
 - Paraphrase a message the specification words; use it verbatim
 - Create tests, or edit tests or anything under `docs/` other than this skill's Markers rows and new sections of
-  `docs/open-questions.md`
+  `docs/open_questions.md`
 
 ## Workflow
 

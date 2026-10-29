@@ -125,7 +125,7 @@ in the implementation, not the specification.
    section. Decide everything else with the best default and report it as an assumption (step 16). When no one can
    answer — a pipeline run, a host without a way to ask, or the user said not to ask — take the recommended option for
    every question and report it as an assumption as well. Never ask about implementation choices; they do not belong in
-   a use case. For the questions of `docs/open-questions.md` on the use case — resolving the answered ones, asking the
+   a use case. For the questions of `docs/open_questions.md` on the use case — resolving the answered ones, asking the
    open ones, recording your assumptions, withdrawing the ones that no longer apply — follow the section "In the Clarify
    Step of a Specification Skill" of `/open-questions` — locate it with a glob for `**/*open-questions/SKILL.md`; the
    folder may carry a host prefix such as `tessl__open-questions`. It is the only file under `docs/` besides the

@@ -2,7 +2,7 @@
   "name": "aiup-jpa",
   "displayName": "AI Unified Process JPA",
   "description": "AI Unified Process persistence layer with Spring Data JPA - entities, repositories, and repository tests",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

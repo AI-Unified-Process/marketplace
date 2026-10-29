@@ -56,7 +56,7 @@ location and nature, never by quoting the text itself.
 ## DO NOT
 
 - Edit, create, rename, or delete any file under `docs/` — not a specification, not the glossary, not the
-  `**Status:**` line, not `docs/open-questions.md`, and not the baseline file `docs/.spec-lint-baseline.json`. The
+  `**Status:**` line, not `docs/open_questions.md`, and not the baseline file `docs/.spec-lint-baseline.json`. The
   one exception is the generated page `docs/spec-report.html`, written only by `/spec-review report`
 - Record a semantic finding as an open question; an ambiguity is a finding of this report, and the user records it
   with `/open-questions` when nobody can settle it now
@@ -84,7 +84,7 @@ location and nature, never by quoting the text itself.
 3. **Do the semantic review** with [references/review-checklist.md](references/review-checklist.md). Read the
    documents in scope, plus what they depend on: the use cases a rule or a test case refers to, `requirements.md`,
    `entity_model.md` (with the module files under `entity_model/` it links), `glossary.md`, and the `Open` and
-   `Answered` questions of `open-questions.md` and the ADRs (`ADR-*.md` under a `decisions/`, `adr/`, or `adrs/` folder) when present. For a single use case, also read the business rules of the
+   `Answered` questions of `open_questions.md` and the ADRs (`ADR-*.md` under a `decisions/`, `adr/`, or `adrs/` folder) when present. For a single use case, also read the business rules of the
    other use cases, because contradictions and duplicates live across files. An ambiguity an open question already
    asks is no new finding; name the question instead.
    Skip a checklist item whose finding the lint already reported for the same element.
@@ -126,7 +126,7 @@ moves to Approved?>
 - Say plainly that Part B is not deterministic: a second run can phrase or rank findings differently.
 - When a checklist item found nothing, do not list it. When nothing at all was found, say so in one line.
 - **Ready for Approved** is `yes` when the lint exits 0, no semantic `warning` is open, and no blocking question of
-  `docs/open-questions.md` on the use cases in scope is `Open` or `Answered`; a warning the user has declined or
+  `docs/open_questions.md` on the use cases in scope is `Open` or `Answered`; a warning the user has declined or
   accepted in this conversation is no longer open, a blocking question is not — it needs an answer in the specification.
   `info` findings never make it `no`. This is the review's end point: once it says `yes`, say so plainly and do not look
   for more to improve.
@@ -192,7 +192,7 @@ python3 scripts/spec_lint.py --docs docs --trace --only FR-014  # one FR-, UC-, 
 
 It prints two tables: requirement (with its status, followed by the status its use cases make it when the two differ) →
 use case (with its status) → business rules → test cases, and test case → process → use cases. When
-`docs/open-questions.md` holds `Open` or `Answered` questions, an **Open Questions** table lists them, blocking first;
+`docs/open_questions.md` holds `Open` or `Answered` questions, an **Open Questions** table lists them, blocking first;
 `--only UC-XXX` keeps the questions on that use case and on the requirements it links. When the project has ADRs, an
 **Architecture Decisions → Requirements** table lists each with its status, the requirements it links, and the ADR
 that superseded it; `--only NFR-002` keeps the ADRs that link it. A requirement no use case links

@@ -34,7 +34,7 @@
     },
     {
       "name": "No tests, no documents",
-      "description": "No test class or test resource is written, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md; the **Status:** line of UC-002 still reads Approved (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "No test class or test resource is written, and no file under docs/ is changed except the Markers table of docs/architecture/stack.md; the **Status:** line of UC-002 still reads Approved (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 10
     },
     {

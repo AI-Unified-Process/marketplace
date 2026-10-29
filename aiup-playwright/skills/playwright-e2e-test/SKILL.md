@@ -44,7 +44,7 @@ test; take a login from an environment variable or the project's existing auth s
 - **Produces** `UC-XXX-<slug>.spec.ts` or `TC-XXX-<slug>.spec.ts` in the E2E test folder, the test data migration
   of the use case when its preconditions are not seeded yet, and the Playwright setup when the project has none yet.
 - **Never touches** production code, tests of other layers, or anything under `docs/` except the Markers table of
-  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-test
 

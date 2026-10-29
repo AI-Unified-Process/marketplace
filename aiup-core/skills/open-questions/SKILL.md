@@ -1,12 +1,12 @@
 ---
 name: open-questions
 description: >
-  Keeps the log of open questions about the specification in docs/open-questions.md: records a question on a use
+  Keeps the log of open questions about the specification in docs/open_questions.md: records a question on a use
   case step, alternative flow, business rule, requirement, glossary term, or entity with the next OQ-XXX id, lists
   the questions filtered by use case, status, or blocking, records a person's answer, and withdraws a question that
   no longer applies. Owns the format every other skill appends in. Use when the user asks to "record an open
   question", "add a question for the product owner", "list the open questions", "which questions block UC-003",
-  "answer OQ-002", "withdraw OQ-004", or mentions open questions, specification gaps, or docs/open-questions.md.
+  "answer OQ-002", "withdraw OQ-004", or mentions open questions, specification gaps, or docs/open_questions.md.
   It never resolves a question: putting the answer into the specification is /use-case-spec, /requirements, or
   /entity-model.
 ---
@@ -21,7 +21,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 ## Instructions
 
-Record, list, answer, or withdraw questions about the specification in `docs/open-questions.md` for $ARGUMENTS.
+Record, list, answer, or withdraw questions about the specification in `docs/open_questions.md` for $ARGUMENTS.
 
 A gap in the specification — a step, flow, or rule that allows more than one reasonable reading, or behaviour no
 specification states — is answered in the specification, never in the code or in a chat. Until it is, the question
@@ -46,7 +46,7 @@ When the arguments do not match, ask which action the user wants.
 
 ## The File
 
-`docs/open-questions.md` holds every question of the project, also in a project split by module: the element names
+`docs/open_questions.md` holds every question of the project, also in a project split by module: the element names
 the module, and a product owner wants one place to read. Nobody creates the file ahead of time. A missing file means
 there are no open questions, for every reader. Whoever records the first question creates it from the template
 [references/open-questions.md](references/open-questions.md) (the path is relative to the folder containing this
@@ -126,7 +126,7 @@ coverage audit does not suggest `Tested`. A question on a glossary term or an en
 
 ## Recording a Question
 
-1. Read `docs/open-questions.md` when it exists.
+1. Read `docs/open_questions.md` when it exists.
 2. Check that the element exists: the use case specification under `docs/use_cases/` (module subfolders included)
    with the named step, flow, or rule; the requirement row in `docs/requirements.md`; the term in
    `docs/glossary.md`; the entity section (and attribute row) in `docs/entity_model.md` or its module files. When it
@@ -212,5 +212,5 @@ Ask for the reason when the arguments hold none, add the `**Withdrawn:**` line a
   changing the specification, which is `/use-case-spec`, `/requirements`, or `/entity-model`.
 - Answer a question yourself, or record an answer the user did not give.
 - Delete a section, change its id, or rewrite the question or the answer of another person.
-- Create `docs/open-questions.md` without a question to record.
+- Create `docs/open_questions.md` without a question to record.
 - Record a question about scope, priority, budget, or a deadline; those belong in the team's issue tracker.

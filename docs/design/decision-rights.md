@@ -19,7 +19,7 @@ explicit and a team can move it.
 - **The project file replaces the first two sections; "never" only grows.** A rule of the defaults' "never"
   section applies whatever the project file says, and the skill reports a project file that moved one. The file
   sorts decisions; it grants nothing outside the task. A decision no rule names is asked first.
-- **Only specification questions go to `docs/open-questions.md`.** A new library or dependency and a deviation from
+- **Only specification questions go to `docs/open_questions.md`.** A new library or dependency and a deviation from
   an ADR are asked first too, but they have no element of the specification, so they are asked and listed in the
   report's **Open questions** without an `OQ-` id. Adding an `Architecture:` element form was rejected: the answer
   lands in an ADR or the build, never in the specification, so the question could never be `Resolved`.

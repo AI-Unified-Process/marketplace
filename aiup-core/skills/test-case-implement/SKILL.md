@@ -103,7 +103,7 @@ Finish by:
 - Change production code to make a step pass; report the disagreement instead.
 - Write tests for a single use case here; that is `/use-case-test UC-XXX`.
 - Edit anything under `docs/` other than the Markers table of `docs/architecture/stack.md`, which the E2E test
-  skill maintains, and new sections of `docs/open-questions.md` for the gaps of the use cases the journey runs
+  skill maintains, and new sections of `docs/open_questions.md` for the gaps of the use cases the journey runs
   through, recorded as `/use-case-test` defines in "Gaps in the Specification".
 - Weaken, delete, or disable an assertion whose expected value the test case states.
 - Claim the test passes without having run it.

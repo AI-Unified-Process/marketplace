@@ -44,7 +44,7 @@
     },
     {
       "name": "Specification and status untouched",
-      "description": "UC-001's **Status:** line still reads Approved; no file under docs/ changes except the Markers table of docs/architecture/stack.md, which keeps the All row and gains the rows of flyway-schema, jooq-persistence, spring-service, vaadin-flow-ui, vaadin-flow-ui-test, and vaadin-e2e-test, and new sections of docs/open-questions.md",
+      "description": "UC-001's **Status:** line still reads Approved; no file under docs/ changes except the Markers table of docs/architecture/stack.md, which keeps the All row and gains the rows of flyway-schema, jooq-persistence, spring-service, vaadin-flow-ui, vaadin-flow-ui-test, and vaadin-e2e-test, and new sections of docs/open_questions.md",
       "max_score": 8
     },
     {

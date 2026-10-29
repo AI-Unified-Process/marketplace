@@ -45,7 +45,7 @@ the API layer. When its team has agreed an OpenAPI contract with yours, the use 
 `**API:**` line (`[registerGuest](../api/booking-portal.yaml#registerGuest)`). In a contract-first project
 `/spring-rest` builds that operation exactly as written — path, property names, statuses, error responses — instead
 of choosing them, and `/spring-rest-test` takes its expected values from it. Where contract and specification
-disagree, neither skill decides: the gap goes to `docs/open-questions.md`.
+disagree, neither skill decides: the gap goes to `docs/open_questions.md`.
 
 ## Combinations
 

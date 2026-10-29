@@ -59,7 +59,7 @@ Name the element the question is about (`RESERVATION.check_out`, `GUEST ||--o{ R
 
 Into the entity model itself — the relationship line of the ER diagram, the Validation Rules cell, or a bullet under
 `#### Constraints`. Never add a questions-and-answers section to the document; the history of the decisions lives in
-version control. A question nobody answers now goes into `docs/open-questions.md`, never into the document. A new domain
+version control. A question nobody answers now goes into `docs/open_questions.md`, never into the document. A new domain
 term goes into the glossary and a new requirement into the catalog — both hand-offs to `/requirements`.
 
 ## Report

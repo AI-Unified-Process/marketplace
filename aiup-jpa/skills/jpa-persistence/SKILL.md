@@ -45,7 +45,7 @@ in and leave the value out.
   adapter, with the query methods and projections the use case needs — listed in the [Handover](#handover).
 - **Never touches** another layer (services, transaction boundaries outside Transactions below, controllers, DTOs of the
   API, views), tests, migrations, or anything under `docs/` other than this skill's rows of the Markers table in
-  `docs/architecture/stack.md` and new sections of `docs/open-questions.md`.
+  `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -58,7 +58,7 @@ the rules of "If an Implementation Already Exists". Do not repeat them; implemen
   and `C-*` rows its `**Requirements:**` line links, the entity model, the glossary and ADRs when present, and
   `docs/architecture/stack.md`.
 - Never close a specification gap with an assumption — ask, or leave that part out and list it under **Open questions**.
-  Never edit a test or a file under `docs/` other than the Markers table and new sections of `docs/open-questions.md`;
+  Never edit a test or a file under `docs/` other than the Markers table and new sections of `docs/open_questions.md`;
   record every gap there as `/use-case-implement` defines it in "Gaps in the Specification".
 - Reconcile an existing implementation instead of building a parallel one.
 - Implement this layer only, and say that `/use-case-implement UC-XXX` runs all layers.
@@ -309,7 +309,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
   service layer.
 - Create tests — `/jpa-persistence-test` writes them, run by `/use-case-test`.
 - Edit anything under `docs/` other than this skill's rows of the Markers table and new sections of
-  `docs/open-questions.md`.
+  `docs/open_questions.md`.
 
 ## Workflow
 

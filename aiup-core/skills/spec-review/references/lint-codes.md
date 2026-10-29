@@ -21,7 +21,7 @@ errors.
 In a project split by module, "`use_cases.puml`" below stands for the overview and every module diagram
 `use_cases/<module>/use_cases.puml` together, and "`use_cases/UC-XXX-*.md`" for a specification in any module
 folder; entity headings are read from `entity_model.md` and every `entity_model/<module>.md`. Open questions are
-the `## OQ-XXX:` sections of `open-questions.md`, in the format of the `open-questions` skill; only `Open` and
+the `## OQ-XXX:` sections of `open_questions.md`, in the format of the `open-questions` skill; only `Open` and
 `Answered` questions are checked against the specification, because `Resolved` and `Withdrawn` ones are history.
 Architecture decisions are the files under a `decisions/`, `adr/`, or `adrs/` folder anywhere in `docs/` whose name or title carries
 `ADR-XXX`, in the format of the `architecture-decision` skill; other formats count when they have a `## Status`

@@ -24,7 +24,7 @@
     },
     {
       "name": "Nothing else changed",
-      "description": "docs/open-questions.md, docs/test_cases/TC-001-run-a-workshop.md (including its Status), docs/requirements.md, and the use case files of UC-002 and UC-003 are unchanged",
+      "description": "docs/open_questions.md, docs/test_cases/TC-001-run-a-workshop.md (including its Status), docs/requirements.md, and the use case files of UC-002 and UC-003 are unchanged",
       "max_score": 20
     }
   ]

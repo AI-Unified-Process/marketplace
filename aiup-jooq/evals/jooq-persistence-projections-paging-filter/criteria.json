@@ -39,7 +39,7 @@
     },
     {
       "name": "Markers table updated",
-      "description": "docs/architecture/stack.md gains the Persistence rows of jooq-persistence (Code and Name); the All row stays, and no other file under docs/ is edited (new sections appended to docs/open-questions.md for a gap the agent found do not count as a change)",
+      "description": "docs/architecture/stack.md gains the Persistence rows of jooq-persistence (Code and Name); the All row stays, and no other file under docs/ is edited (new sections appended to docs/open_questions.md for a gap the agent found do not count as a change)",
       "max_score": 9
     },
     {

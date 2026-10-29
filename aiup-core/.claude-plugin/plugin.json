@@ -2,7 +2,7 @@
   "name": "aiup-core",
   "displayName": "AI Unified Process Core",
   "description": "AI Unified Process core - stack-agnostic requirements, entity model, and use cases, plus the construction orchestrators for layer plugins",
-  "version": "3.11.3",
+  "version": "3.12.0",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

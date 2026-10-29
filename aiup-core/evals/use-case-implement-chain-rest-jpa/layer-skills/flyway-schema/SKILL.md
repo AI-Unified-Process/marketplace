@@ -52,7 +52,7 @@ it lives in and leave the value out.
   persistence layer builds on.
 - **Never touches:** the persistence, service, API, and UI layers, generated code, tests, test data (written by the test
   skills), and anything under `docs/` other than the Markers table of `docs/architecture/stack.md` and new sections of
-  `docs/open-questions.md`.
+  `docs/open_questions.md`.
 
 ## Run Directly or from /use-case-implement
 
@@ -64,7 +64,7 @@ Run directly, read the same inputs `/use-case-implement` lists: the use case and
 `FR-*`/`NFR-*`/`C-*` rows its `**Requirements:**` line links, the entity model, the glossary and the ADRs when they
 exist, and `docs/architecture/stack.md`. Apply the same rules: never close a specification gap with an assumption (a
 length, a nullability, or a range the entity model does not state is a question, not a default), never edit a test or a
-file under `docs/` other than new sections of `docs/open-questions.md` (record every gap there as `/use-case-implement`
+file under `docs/` other than new sections of `docs/open_questions.md` (record every gap there as `/use-case-implement`
 defines it), and build the migration layer only. Say that `/use-case-implement UC-XXX` runs all layers.
 
 Either way, take decisions by the decision rights `/use-case-implement` defines in its section "Decision Rights" —

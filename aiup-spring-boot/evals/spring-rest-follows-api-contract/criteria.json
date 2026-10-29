@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /spring-rest builds the operation UC-001 links on its **API:** line (docs/api/booking-portal.yaml#registerGuest) exactly as the agreed contract says, instead of the project's defaults: path /partner/v2/guest-registrations (not /api/v1/guests), the contract's property names (givenName, familyName, emailAddress, dateOfBirth, arrivalDate; guestId in the response), 201 with Location, 400 and 409 as documented. A2 (guest too young) rejects the request but the contract documents no response for it, so the agent must decide nothing for that flow: record a blocking open question in docs/open-questions.md and leave the flow's mapping out rather than inventing a status. The other operation of the file (queryAvailability) is not linked and must not be built. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether /spring-rest builds the operation UC-001 links on its **API:** line (docs/api/booking-portal.yaml#registerGuest) exactly as the agreed contract says, instead of the project's defaults: path /partner/v2/guest-registrations (not /api/v1/guests), the contract's property names (givenName, familyName, emailAddress, dateOfBirth, arrivalDate; guestId in the response), 201 with Location, 400 and 409 as documented. A2 (guest too young) rejects the request but the contract documents no response for it, so the agent must decide nothing for that flow: record a blocking open question in docs/open_questions.md and leave the flow's mapping out rather than inventing a status. The other operation of the file (queryAvailability) is not linked and must not be built. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -34,7 +34,7 @@
     },
     {
       "name": "Blocking open question for A2",
-      "description": "docs/open-questions.md exists with a section on UC-001 A2 (or BR-003) saying the contract documents no response for the rejection, raised by spring-rest, with Blocking: Yes and Status: Open; the contract and the use case are not edited",
+      "description": "docs/open_questions.md exists with a section on UC-001 A2 (or BR-003) saying the contract documents no response for the rejection, raised by spring-rest, with Blocking: Yes and Status: Open; the contract and the use case are not edited",
       "max_score": 12
     },
     {
