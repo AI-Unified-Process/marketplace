@@ -44,6 +44,7 @@ errors.
 | WARN     | `MODULE_MISMATCH`       | A specification that does not lie in the folder of the module whose diagram holds its use case | move the file       |
 | WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no active use case lists in `**Requirements:**`      | `/use-case-spec`    |
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
+| WARN     | `SPEC_CHANGED_AFTER_STATUS` | A use case at `Implemented`, `Tested`, or `Done` whose text, or the text of a requirement it links, changed after the commit that set its status; a new priority or status does not count. Needs Git history, and finds nothing without it | `/use-case-coverage UC-XXX` (`/coverage-check UC-XXX`); see the skill's After the Report |
 | WARN     | `OQ_BLOCKING`           | The same at `Approved` or `Implemented`: the use case should not have been approved, or the answer is still missing | `/open-questions`, `/use-case-spec` |
 | WARN     | `OQ_UNRESOLVED`         | An open question is `Answered`, but the answer is not in the specification yet               | `/use-case-spec`, `/requirements`, `/entity-model` |
 | WARN     | `ADR_UNLINKED`          | A `Proposed` or `Accepted` ADR whose `**Requirements:**` line links no NFR or C (an FR alone does not count): a decision is justified by a quality or a constraint | `/requirements`, then `/architecture-decision` |
@@ -58,7 +59,8 @@ errors.
 | INFO     | `NO_TRACEABILITY`       | No use case has a `**Requirements:**` field, so FR coverage is not checked                     | `/use-case-spec`    |
 | INFO     | `BP_NO_ID`              | A process model without a `BP-XXX` process id (e.g. drawn before `/business-process`)          | `/business-process` |
 | INFO     | `REQ_UNCOVERED`         | An NFR or C (not `Rejected` or `Deferred`) that no use case lists; fine when it applies to the whole system | `/use-case-spec` |
-| INFO     | `UC_UNUSED_BY_TC`       | Test cases exist, but none of them includes this use case                                     | `/test-case`        |
+| INFO     | `UC_NO_REQUIREMENT`     | The project uses `**Requirements:**` lines, but this active use case has none: nothing says why it exists; expected after `/reverse-engineer` until the catalog exists | `/use-case-spec` |
+| INFO     | `UC_UNUSED_BY_TC`       | Test cases exist, but none of them includes this use case; an `Obsolete` test case does not count                                     | `/test-case`        |
 | INFO     | `BASELINE_STALE`        | A baseline entry that no longer matches any finding; refresh with `--update-baseline`          | —                   |
 | INFO     | `VALIDATOR_MISSING`, `BPMN_PARSER_MISSING` | A sibling skill is not installed, so its checks were skipped                | install `aiup-core` |
 

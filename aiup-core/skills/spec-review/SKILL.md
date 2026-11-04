@@ -145,6 +145,11 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`; an `Open` one first needs an answer,
   `/open-questions answer OQ-XXX`; a malformed one (`OQ_INVALID`) → `/open-questions`
 - a test case without a use case → `/test-case`
+- a use case that changed after its status was set (`SPEC_CHANGED_AFTER_STATUS`) → `/use-case-coverage UC-XXX` (with
+  aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). When the audit finds gaps, the user sets the status back
+  and the work runs again; a status set anew and committed clears the finding. When the audit confirms the use case,
+  or the change was only wording, the user accepts this state with `--update-baseline`; the next change is reported
+  again
 - an ADR without an NFR or constraint (`ADR_UNLINKED`), linking a rejected or deferred one or out of step with the ADR
   that supersedes it (`ADR_STALE`), or without a valid status or date (`ADR_INVALID`) →
   `/architecture-decision ADR-XXX`; when the quality or constraint it serves is not in the requirements yet,
@@ -197,12 +202,14 @@ use case (with its status) → business rules → test cases, and test case → 
 **Architecture Decisions → Requirements** table lists each with its status, the requirements it links, and the ADR
 that superseded it; `--only NFR-002` keeps the ADRs that link it. A requirement no use case links
 and a use case without a `**Requirements:**` line appear with `—`. A third table, **Requirement Coverage**, answers "are
-all requirements covered": for the active requirements (Deferred and Rejected are listed as out of scope) it counts how
-many are linked to a use case, have every linking use case in a test case, and are Verified by the status of their use
-cases, and lists each requirement that misses a stage at the first stage it misses. Hand-offs: not linked →
+all requirements covered": for the active requirements (Deferred and Rejected are listed as out of scope, an NFR or
+constraint no use case links as system-wide) it counts how many are linked to a use case, have every linking use case in
+a test case, and are Verified by the status of their use cases, and lists each requirement that misses a stage at the
+first stage it misses. An `Obsolete` test case does not count. Verified is derived from a status: it says nobody has
+found a gap, not that a test run passed. Hand-offs: not linked →
 `/use-case-spec` (or `/use-case-diagram` when no use case fits); not in a test case → `/test-case`; not Verified →
-`/use-case-coverage UC-XXX` for its use cases (with aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). An
-unlinked NFR or constraint may rightly apply to the whole system; say so instead of pushing a link. `--format json`
+`/use-case-coverage UC-XXX` for its use cases (with aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). A
+system-wide NFR or constraint may rightly apply to the whole system; say so instead of pushing a link. `--format json`
 prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no findings. If the user
 wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill writes no file. Whether code
 and tests realize the use cases is `/use-case-coverage` (or `/coverage-check` in aiup-vaadin-jooq and aiup-angular-jpa),

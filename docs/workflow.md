@@ -227,7 +227,9 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
 - **Specifications:** `spec_lint.py --trace` (skill `/spec-review`) prints the matrix requirement → use case → business
   rules → test cases, and test case → process → use cases, from `docs/` alone. `--only FR-014` answers "why does
   this exist, and what realizes it" for one id. Its Requirement Coverage table answers "are all requirements
-  covered": active requirements linked to a use case, with every linking use case in a test case, and Verified.
+  covered": active requirements linked to a use case, with every linking use case in a test case, and Verified. An
+  `Obsolete` test case does not count, and an NFR or constraint no use case links is listed as system-wide, outside
+  the count.
   `/spec-review report` puts the counts, the coverage, the matrix, and the lint findings on one HTML page,
   `docs/spec-report.html`; `/spec-review report FR-014` narrows it to one id.
 - **Change impact:** `spec_lint.py --impact FR-014` (skill `/spec-review impact FR-014`) walks the same chain the
@@ -268,6 +270,11 @@ The status also decides what the skills do with a use case:
 - At `Tested`, it enters `/acceptance-protocol` and the user guide; `/user-guide` covers `Tested` and `Done`.
 - At `Done`, `/release-notes` lists it.
 
+A status holds for the text it was set on. When a use case at `Implemented` or later, or a requirement it links, is
+changed afterwards, `/spec-review` warns (`SPEC_CHANGED_AFTER_STATUS`, from the Git history) and `/next` names the
+coverage audit. No skill sets the status back: when the audit finds gaps, you do, and when it confirms the use case or
+the change was only wording, you accept that state with `spec_lint.py --update-baseline`.
+
 `/next` reads these values and names the next command for the use case closest to `Done`.
 
 ### Test case status
@@ -297,7 +304,8 @@ The use case carries the progress; a requirement's status follows it. Deferred a
 are kept by hand in `requirements.md`. Open, In Progress, Implemented, and Verified are derived from the `**Status:**`
 of the use cases that list the requirement in their `**Requirements:**` line: Verified when every one is Tested or
 Done, Implemented when every one is at least Implemented, In Progress when some are, and Open otherwise. Obsolete use
-cases do not count.
+cases do not count. Verified is derived from a status, not from a test run: the evidence is the audit that suggested
+`Tested` and your own test suite.
 
 `spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
 differ, and `/requirements` sets the stored value when it updates the catalog. When a use case moves (see

@@ -71,6 +71,10 @@ sibling use-case-spec and test-case skill folders (a host may prefix the
 folder names, e.g. tessl__use-case-spec). When a sibling is not installed,
 its checks are skipped and an INFO finding says so.
 
+With Git history, a use case at Implemented or later is compared with the
+commit that set its status: when it or a requirement it links says something
+else now, SPEC_CHANGED_AFTER_STATUS warns. Without history nothing is reported.
+
 A baseline file (default <docs>/.spec-lint-baseline.json, written with
 --update-baseline) suppresses accepted findings, so a brownfield project can
 start from its current state and only new findings fail the build. Entries
@@ -84,7 +88,9 @@ case → business rules → test cases, and test case → process → use cases,
 Markdown tables (or JSON with --format json), followed by the requirement
 coverage: how many active requirements are linked to a use case, have every
 such use case in a test case, and are Verified by their use cases' status,
-with the ids that stop at each stage. It reads docs/ only; whether code and
+with the ids that stop at each stage. An Obsolete test case does not count,
+and an NFR or constraint no use case links is listed as system-wide. It reads
+docs/ only; whether code and
 tests realize the use cases is /use-case-coverage (layer plugins) or
 /coverage-check (aiup-vaadin-jooq and aiup-angular-jpa).
 
@@ -813,6 +819,11 @@ def check_traceability(project, specs, requirements):
                     "no use case has a **Requirements:** field; functional "
                     "requirement coverage is not checked")
         return
+    for uid, spec in specs.items():
+        if not spec.requirements and not spec.obsolete:
+            project.add(INFO, "UC_NO_REQUIREMENT", spec.path, spec.id_line,
+                        uid, "use case " + uid + " links no requirement; "
+                        "nothing says why it exists")
     for rid, (number, status, _) in requirements.items():
         if rid in referenced or normalize(status) in INACTIVE_REQUIREMENT:
             continue
@@ -924,8 +935,21 @@ def test_case_id(path, lines):
     return (match.group(1) if match else path), 1
 
 
+def test_case_status(lines):
+    """The status of a test case, in English or ""."""
+    for _, line in prose_lines(lines):
+        value = field_value(line, (STATUS_FIELD,))
+        if value:
+            return status_of(value, TC_STATUS)
+    return ""
+
+
 def check_test_cases(project, specs):
-    """TC ids unique; UC links and process links resolve."""
+    """TC ids unique; UC links and process links resolve.
+
+    An Obsolete test case keeps its links checked, but no longer counts as
+    the test case of a use case.
+    """
     used = set()
     tcs = {}
     models = set(FILE_BP.match(os.path.basename(p)).group(1)
@@ -934,6 +958,7 @@ def check_test_cases(project, specs):
     for path in project.tc_paths:
         lines = read_lines(path)
         tid, tid_line = test_case_id(path, lines)
+        obsolete = test_case_status(lines) == "Obsolete"
         if tid in tcs:
             project.add(ERROR, "DUPLICATE_ID", path, tid_line, tid,
                         "test case id " + tid + " is also used by "
@@ -955,7 +980,8 @@ def check_test_cases(project, specs):
                 if not ref and not is_process:
                     continue
                 if ref:
-                    used.add(ref.group(1))
+                    if not obsolete:
+                        used.add(ref.group(1))
                     if ref.group(1) not in specs:
                         project.add(ERROR, "DANGLING_REF", path, number, tid,
                                     "use case " + ref.group(1) + " has no "
@@ -1547,6 +1573,81 @@ def check_wording(project, specs, glossary):
                                 "glossary says to avoid; use '" + term + "'")
 
 
+def requirement_texts(lines):
+    """{id: row} of requirements.md, without its value columns: a new
+    priority or status changes nothing a test verifies."""
+    rows = {}
+    for line in requirement_prose(lines):
+        match = REQ_ROW.match(line)
+        if match:
+            rows.setdefault(match.group(1), " ".join(line.split()))
+    return rows
+
+
+def specification_text(lines):
+    """The lines of a use case that say what it does: all but its status."""
+    return [line.rstrip() for line in lines if line.strip()
+            and field_value(line, (STATUS_FIELD,)) is None]
+
+
+def check_changed_after_status(project, specs):
+    """A use case at Implemented or later still says what was built.
+
+    The last commit that touched the **Status:** line is when the status was
+    set; the use case and the requirements it links are compared with that
+    commit. A status not committed yet is being set right now, so there is
+    nothing to compare. Needs Git history: without it, or in a shallow clone
+    that ends after the status was set, the check finds nothing.
+
+    The message carries a digest of the current text: a baseline entry
+    accepts this very state, and the next change is reported again.
+    """
+    built = {uid: spec for uid, spec in specs.items() if status_of(
+        spec.status, UC_STATUS) in ("Implemented", "Tested", "Done")}
+    docs = project.docs
+    if not built or git_output(docs, "rev-parse", "--git-dir") is None:
+        return
+    current = requirement_texts(read_lines(project.requirements_path)) \
+        if project.requirements_path else {}
+    catalogs = {}
+
+    def catalog_at(commit):
+        if commit not in catalogs:
+            text = git_output(docs, "show", commit + ":./requirements.md")
+            catalogs[commit] = requirement_texts(text.splitlines()) \
+                if text else {}
+        return catalogs[commit]
+
+    for uid, spec in sorted(built.items()):
+        rel = os.path.relpath(spec.path, docs).replace(os.sep, "/")
+        commit = git_output(docs, "log", "-1", "--format=%H",
+                            "-G^" + re.escape(STATUS_FIELD), "--", rel)
+        then = git_output(docs, "show", (commit or "") + ":./" + rel) \
+            if commit else None
+        if then is None:
+            continue
+        lines = then.splitlines()
+        if Spec(spec.path, lines).status != spec.status:
+            continue
+        changed = []
+        text = specification_text(spec.lines)
+        if specification_text(lines) != text:
+            changed.append("the specification")
+        before = catalog_at(commit)
+        rids = sorted({rid for _, rid in spec.requirements})
+        changed += [rid for rid in rids if rid in before and rid in current
+                    and before[rid] != current[rid]]
+        if not changed:
+            continue
+        state = "\n".join(text + [current.get(rid, "") for rid in rids])
+        project.add(WARN, "SPEC_CHANGED_AFTER_STATUS", spec.path,
+                    spec.status_line, uid, uid + " is " + spec.status
+                    + ", but " + ", ".join(changed) + " changed after that "
+                    "status was set in " + commit[:7] + "; run the coverage "
+                    "audit again (state " + hashlib.sha1(
+                        state.encode("utf-8")).hexdigest()[:8] + ")")
+
+
 def lint(docs, validator, bpmn):
     project = Project(docs)
     requirements = check_requirements(project)
@@ -1556,6 +1657,7 @@ def lint(docs, validator, bpmn):
     check_actors(project, specs)
     check_traceability(project, specs, requirements)
     check_requirement_status(project, specs, requirements)
+    check_changed_after_status(project, specs)
     check_rules(project, specs)
     check_test_cases(project, specs)
     check_bpmn(project, specs, diagram, bpmn)
@@ -1600,6 +1702,7 @@ def read_test_cases(project):
         models = [m for m in project.bpmn_paths
                   if bid and os.path.basename(m).startswith(bid + "-")]
         test_cases.append({"id": tid, "path": doc_path(project, path),
+                           "status": test_case_status(lines),
                            "process": process, "process_id": bid,
                            "process_path": doc_path(project, models[0])
                            if models else "",
@@ -1621,6 +1724,8 @@ def trace(docs):
     test_cases = read_test_cases(project)
     tcs_by_uc = {}
     for tc in test_cases:
+        if tc["status"] == "Obsolete":
+            continue
         for uid in tc["use_cases"]:
             tcs_by_uc.setdefault(uid, []).append(tc["id"])
     ucs_by_req = linking_use_cases(specs)
@@ -1701,31 +1806,36 @@ def coverage(requirements, specs, ucs_by_req, tcs_by_uc):
     case in a test case, and Verified as derived from the use cases' status
     (not the stored one, which REQ_STATUS_DRIFT checks). Each requirement
     stops at the first stage it has not reached (None when it reached all).
-    Deferred and Rejected requirements are out of scope and only listed.
+    Deferred and Rejected requirements are out of scope and only listed. So
+    is an NFR or constraint no active use case links: it may rightly apply
+    to the whole system, and no use case can ever verify it.
     """
-    stops, excluded = {}, []
+    stops, excluded, system_wide = {}, [], []
     for rid, (_, status, _) in requirements.items():
         if normalize(status) in INACTIVE_REQUIREMENT:
             excluded.append(rid)
             continue
         ucs = [specs[u] for u in ucs_by_req.get(rid, [])
                if not specs[u].obsolete]
+        if not ucs and not rid.startswith("FR-"):
+            system_wide.append(rid)
+            continue
         checks = (bool(ucs),
                   all(tcs_by_uc.get(spec.id) for spec in ucs),
                   derived_status(ucs) == "Verified")
         stops[rid] = next((stage for stage, ok in zip(COVERAGE_STAGES, checks)
                            if not ok), None)
-    return summarize_coverage(stops, excluded)
+    return summarize_coverage(stops, excluded, system_wide)
 
 
-def summarize_coverage(stops, excluded):
+def summarize_coverage(stops, excluded, system_wide):
     stages, reached = [], len(stops)
     for stage in COVERAGE_STAGES:
         gaps = [rid for rid, stop in stops.items() if stop == stage]
         reached -= len(gaps)
         stages.append({"stage": stage, "reached": reached, "stopped": gaps})
-    return {"active": len(stops), "excluded": excluded, "stages": stages,
-            "stops": stops}
+    return {"active": len(stops), "excluded": excluded,
+            "system_wide": system_wide, "stages": stages, "stops": stops}
 
 
 def filter_trace(matrix, only):
@@ -1747,7 +1857,8 @@ def filter_trace(matrix, only):
             "coverage": summarize_coverage(
                 {rid: stop for rid, stop in cov["stops"].items()
                  if rid in kept},
-                [rid for rid in cov["excluded"] if rid in kept])}
+                [rid for rid in cov["excluded"] if rid in kept],
+                [rid for rid in cov["system_wide"] if rid in kept])}
 
 
 def markdown_table(header, rows):
@@ -1782,9 +1893,9 @@ def render_trace(matrix):
     if matrix["test_cases"]:
         lines += ["", "## Test Cases → Process → Use Cases", ""]
         lines += markdown_table(
-            ["Test Case", "Process", "Use Cases"],
-            [[t["id"], t["process"] or "—", cell(t["use_cases"])]
-             for t in matrix["test_cases"]])
+            ["Test Case", "Status", "Process", "Use Cases"],
+            [[t["id"], t["status"] or "—", t["process"] or "—",
+              cell(t["use_cases"])] for t in matrix["test_cases"]])
     if matrix["open_questions"]:
         lines += ["", "## Open Questions", ""]
         lines += markdown_table(
@@ -1806,6 +1917,9 @@ def render_trace(matrix):
         if cov["excluded"]:
             lines[-1] += " Out of scope (Deferred, Rejected): " \
                 + ", ".join(cov["excluded"]) + "."
+        if cov["system_wide"]:
+            lines[-1] += " System-wide (no use case links them): " \
+                + ", ".join(cov["system_wide"]) + "."
         lines.append("")
         lines += markdown_table(
             ["Stage", "Reached", "Missing"],
@@ -1891,7 +2005,10 @@ def impact_graph(docs, bpmn):
                 # change to A may break the extension point C relies on.
                 edge(target, source, relation + "s " + target)
     for tc in test_cases:
-        node(tc["id"], "test case", "", "", os.path.join(docs, tc["path"]))
+        node(tc["id"], "test case", "", tc["status"],
+             os.path.join(docs, tc["path"]))
+        if tc["status"] == "Obsolete":
+            continue
         for uid in tc["use_cases"]:
             if uid in active:
                 edge(uid, tc["id"], "chains " + uid)
@@ -1994,7 +2111,8 @@ def impact(docs, bpmn, changed):
             gaps.append(cid + " is linked by no use case and no ADR; "
                         "nothing downstream traces to it")
     if test_cases:
-        in_tc = {uid for tc in test_cases for uid in tc["use_cases"]}
+        in_tc = {uid for tc in test_cases if tc["status"] != "Obsolete"
+                 for uid in tc["use_cases"]}
         for nid in sorted(ids):
             spec = specs.get(nid)
             if spec and not spec.obsolete and nid not in in_tc:
@@ -2109,15 +2227,6 @@ def read_stack(docs):
             if row["system"].strip("` ") not in NO_CELL:
                 stack["systems"].append(row["system"].strip("` "))
     return stack
-
-
-def tc_status(docs, tc):
-    """The status of a test case of read_test_cases, in English or ""."""
-    for _, line in prose_lines(read_lines(os.path.join(docs, tc["path"]))):
-        value = field_value(line, (STATUS_FIELD,))
-        if value:
-            return status_of(value, TC_STATUS)
-    return ""
 
 
 def has_layer(stack, layer, column):
@@ -2265,6 +2374,13 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     ids = by_status.get("Implemented", [])
     approved = by_status.get("Approved", [])
     built = plugin or stack is not None
+    changed = sorted({f.element for f in codes.get(
+        "SPEC_CHANGED_AFTER_STATUS", [])})
+    if changed and built:
+        add("Construction", (audit or tests[0]) + " " + changed[0], changed,
+            changed[0] + " changed after its status " + statuses[changed[0]]
+            + " was set; if the audit confirms it, accept the state with "
+            "--update-baseline, else set the status back")
     if (ids or approved) and not built:
         uid = (ids or approved)[0]
         add("Construction", "/stack", [], uid + " is " + statuses[uid]
@@ -2278,7 +2394,7 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     if journey and (plugin or has_layer(stack, "e2e", "test skill")):
         ready = []
         for tc in sorted(test_cases, key=lambda t: t["id"]):
-            if tc_status(docs, tc) != "Approved":
+            if tc["status"] != "Approved":
                 continue
             chained = [statuses.get(uid) in ("Implemented", "Tested", "Done")
                        for uid in tc["use_cases"]]
@@ -2387,7 +2503,7 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
         "tag": tag,
     }
     for tc in test_cases:
-        key = tc_status(docs, tc) or "Unknown"
+        key = tc["status"] or "Unknown"
         state["test_cases"][key] = state["test_cases"].get(key, 0) + 1
     if bpmn is None and project.bpmn_paths:
         state["notes"] = ["bpmn_paths.py not found; BPMN checks skipped"]
@@ -2591,6 +2707,9 @@ def render_report(matrix, findings, suppressed, docs):
         if cov["excluded"]:
             note += " Out of scope (Deferred, Rejected): " \
                 + ", ".join(cov["excluded"]) + "."
+        if cov["system_wide"]:
+            note += " System-wide (no use case links them): " \
+                + ", ".join(cov["system_wide"]) + "."
         out.append('<p class="muted">%s</p>' % esc(note))
         out.append(table(["Stage", "Reached", "", "Missing"], [
             [esc(st["stage"]), "%d / %d" % (st["reached"], cov["active"]),
@@ -2631,8 +2750,8 @@ def render_report(matrix, findings, suppressed, docs):
     if matrix["test_cases"]:
         out.append("<h2>Test Cases → Process → Use Cases</h2>")
         out.append(table(
-            ["Test Case", "Process", "Use Cases"],
-            [[link(t["path"], t["id"]),
+            ["Test Case", "Status", "Process", "Use Cases"],
+            [[link(t["path"], t["id"]), esc(t["status"] or "—"),
               link(t["process_path"], t["process"]) if t["process"]
               else '<span class="muted">—</span>', ids(t["use_cases"])]
              for t in matrix["test_cases"]]))
@@ -3574,8 +3693,13 @@ def self_test():
                             "escape the requirement title")
         cov = trace(root)["coverage"]
         got = [s["stopped"] for s in cov["stages"]]
-        if got != [["FR-004", "NFR-001"], ["FR-002"], ["FR-001"]]:
-            failures.append("coverage: broken fixture wrong, got " + str(got))
+        if got != [["FR-004"], ["FR-002"], ["FR-001"]] \
+                or cov["system_wide"] != ["NFR-001"]:
+            failures.append("coverage: broken fixture wrong, got " + str(cov))
+        if "System-wide (no use case links them): NFR-001" \
+                not in render_trace(trace(root)) \
+                or "System-wide (no use case links them): NFR-001" not in page:
+            failures.append("coverage: system-wide NFR-001 not rendered")
         unmapped = [f.path for f in found if f.code == "BPMN_UNMAPPED"]
         if any(p.endswith("BP-002-checkout.bpmn") for p in unmapped):
             failures.append("broken: UC-003 is in the diagram but its "
@@ -3810,6 +3934,135 @@ def self_test():
                                                  anchors):
                 failures.append("next: release notes written since the tag "
                                 "should not be offered again")
+
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, CLEAN)
+        uc1 = os.path.join(root, "use_cases", "UC-001-create-guest.md")
+        uc2 = os.path.join(root, "use_cases", "UC-002-reserve-room.md")
+        tc1 = os.path.join(root, "test_cases", "TC-001-reserve-room.md")
+        catalog = os.path.join(root, "requirements.md")
+
+        def edit(path, old, new):
+            with open(path, encoding="utf-8") as handle:
+                text = handle.read()
+            if old not in text:
+                failures.append("fixture: no '" + old + "' in " + path)
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(text.replace(old, new, 1))
+
+        def set_status(path, value):
+            with open(path, encoding="utf-8") as handle:
+                text = re.sub(r"\*\*Status:\*\* \w+", "**Status:** " + value,
+                              handle.read(), count=1)
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(text)
+
+        def codes_of(code):
+            return [f for f in lint(root, validator, bpmn) if f.code == code]
+
+        # An Obsolete test case keeps its links but counts for no use case.
+        edit(tc1, "**Process:**", "**Status:** Obsolete\n**Process:**")
+        matrix = trace(root)
+        if [r["test_cases"] for r in matrix["requirements"]
+                if r["requirement"] == "FR-001"] != [[]] \
+                or matrix["coverage"]["stages"][1]["stopped"] \
+                != ["FR-001", "FR-002"]:
+            failures.append("obsolete TC: still counts, got "
+                            + str(matrix["coverage"]))
+        if matrix["test_cases"][0]["status"] != "Obsolete" \
+                or "| Obsolete" not in render_trace(matrix):
+            failures.append("obsolete TC: status not in the matrix")
+        if sorted(f.element for f in codes_of("UC_UNUSED_BY_TC")) \
+                != ["UC-001", "UC-002"]:
+            failures.append("obsolete TC: UC_UNUSED_BY_TC should report "
+                            "UC-001 and UC-002")
+        edges = impact_graph(root, bpmn)[1]
+        if "TC-001" in [target for target, _, _ in edges.get("UC-001", [])]:
+            failures.append("obsolete TC: a change should not reach it")
+        edit(tc1, "**Status:** Obsolete\n", "")
+
+        # The way back up: a use case without a requirement.
+        edit(uc2, "**Requirements:** ", "**Notes:** ")
+        got = codes_of("UC_NO_REQUIREMENT")
+        if [(f.severity, f.element) for f in got] != [(INFO, "UC-002")]:
+            failures.append("UC_NO_REQUIREMENT: wrong, got " + str(got))
+        set_status(uc2, "Obsolete")
+        if codes_of("UC_NO_REQUIREMENT"):
+            failures.append("UC_NO_REQUIREMENT: an Obsolete use case needs "
+                            "no requirement")
+        set_status(uc2, "Draft")
+        edit(uc2, "**Notes:** ", "**Requirements:** ")
+
+        if shutil.which("git"):
+            set_status(uc1, "Tested")
+            git_fixture(root, "init", "-q")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "tested")
+            changed = "SPEC_CHANGED_AFTER_STATUS"
+            if codes_of(changed):
+                failures.append("changed: a committed status is the baseline")
+            row = ("| FR-001 | Create Guest  | As a clerk, I want to record "
+                   "guests so that I can reserve rooms.    | High     |")
+            edit(catalog, row, row.replace("| High ", "| Low  "))
+            set_row = codes_of(changed)
+            if set_row:
+                failures.append("changed: a new priority changes nothing a "
+                                "test verifies, got " + str(set_row))
+            edit(catalog, "I want to record guests",
+                 "I want to record adult guests")
+            got = codes_of(changed)
+            if [(f.severity, f.element) for f in got] != [(WARN, "UC-001")] \
+                    or "FR-001 changed" not in got[0].message:
+                failures.append("changed: FR-001 not reported, got "
+                                + str(got))
+            edit(uc1, "## Preconditions", "## Preconditions\n\n- A new one")
+            got = codes_of(changed)
+            if len(got) != 1 or "the specification, FR-001 changed" \
+                    not in got[0].message:
+                failures.append("changed: use case not reported, got "
+                                + str(got))
+            if "/coverage-check UC-001" not in next_commands(
+                    root, validator, bpmn, anchors, "aiup-vaadin-jooq") \
+                    or "/dotnet-test UC-001" not in next_commands(
+                        root, validator, bpmn, anchors, "aiup-blazor-dotnet"):
+                failures.append("changed: /next should name the audit, or "
+                                "the tests of a stack without one")
+
+            # A baseline accepts this state, not every later one.
+            accepted = os.path.join(root, ".spec-lint-baseline.json")
+            write_baseline(accepted, lint(root, validator, bpmn), root)
+            if "/coverage-check UC-001" in [
+                    c["command"] for c in next_step(
+                        root, validator, bpmn, anchors, "aiup-vaadin-jooq",
+                        accepted)["pending"]]:
+                failures.append("changed: an accepted state is no next step")
+            edit(uc1, "- A new one", "- Another one")
+            kept, _ = apply_baseline(lint(root, validator, bpmn),
+                                     read_baseline(accepted), root, False)
+            if changed not in {f.code for f in kept}:
+                failures.append("changed: a later change should report again")
+            os.remove(accepted)
+
+            # A status set again, committed or not, starts over.
+            set_status(uc1, "Implemented")
+            if codes_of(changed):
+                failures.append("changed: an uncommitted status is being set")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "implemented")
+            if codes_of(changed):
+                failures.append("changed: a new status should clear it")
+
+            with tempfile.TemporaryDirectory() as clone:
+                git_fixture(clone, "clone", "-q", "--depth", "1",
+                            "file://" + root, ".")
+                if [f for f in lint(clone, validator, bpmn)
+                        if f.code == changed]:
+                    failures.append("changed: a shallow clone found a "
+                                    "change that is not there")
+            edit(uc1, "- Another one", "- A third one")
+            shutil.rmtree(os.path.join(root, ".git"))
+            if codes_of(changed):
+                failures.append("changed: without Git nothing can be compared")
 
     if failures:
         for failure in failures:

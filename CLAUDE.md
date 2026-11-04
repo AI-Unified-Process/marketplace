@@ -241,6 +241,10 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
   copy of each script.
 - The skill is read-only: it writes only `docs/spec-report.html`, on `/spec-review report`.
 - Business rules stay numbered per use case; there is no syntax for entity references in use cases.
+- A link is no evidence: an `Obsolete` test case counts for nothing, and an NFR or constraint no use case links is
+  system-wide, outside the coverage count.
+- `SPEC_CHANGED_AFTER_STATUS` stays WARN, compares with the last commit touching the `**Status:**` line, finds nothing
+  without Git history, and never changes a status.
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
