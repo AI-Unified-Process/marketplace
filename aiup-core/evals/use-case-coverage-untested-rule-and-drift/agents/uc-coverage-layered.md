@@ -261,6 +261,8 @@ with no counterpart in the current specification:
 - Fields, validations, flows, or messages the specification no longer mentions — a removed
   specification line leaves code that keeps working and tests that keep passing, so nothing fails.
 - Test methods whose `scenario` or `describe` names a flow or rule that no longer exists.
+- A `UC-XXX BR-YYY` marker in code or a migration whose rule no longer exists in the specification,
+  or whose one-line text no longer says what the rule says.
 - A second view, repository, handler, or test class for the same use case (a parallel
   implementation instead of a reconciled one).
 
