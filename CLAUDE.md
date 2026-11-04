@@ -120,7 +120,7 @@ marketplace/
   owns the construction orchestrators for layer plugins: `/stack`, `/use-case-implement`, `/use-case-test`,
   `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`),
+  `aiup-playwright`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`; `aiup-spring-boot`: ≥ 3.10.0, for the API contracts),
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
   it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot`: their skills build on its service
   layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. A layer skill that reads a file of another

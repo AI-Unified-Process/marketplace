@@ -139,6 +139,19 @@ by a test case, and verified), the traceability matrix from requirement to use c
 and the lint findings. `/spec-review report UC-001` narrows it to one id. Open the file in a browser; the ids link to
 the specification files.
 
+A gap in a specification becomes a question in `docs/open_questions.md`, not an assumption in the code. The skills
+record what they could not decide, and a product owner answers everything in one place:
+
+```text
+/open-questions list
+/open-questions answer OQ-002 "255 characters"
+/use-case-spec UC-003
+```
+
+The answer counts once `/use-case-spec` has written it into the specification. `/use-case-implement` asks before it
+builds a use case that a blocking question holds, and the spec lint fails on one at `Tested` or `Done`. See
+[Open questions](workflow.md#open-questions).
+
 When you are not sure which command comes next, ask:
 
 ```text
@@ -170,7 +183,7 @@ case offered through only some entry points names them in its `**Layers:**` line
 test only those layers. A use case may also link its mockups on a `**Mockup:**` line, which the UI layer takes the
 layout from, and, when a partner system calls it, the operations of the agreed API contract on an `**API:**` line,
 which the API layer builds as written.
-`/use-case-implement` runs the layer skills bottom-up — migration, persistence, service, API, UI — and `/use-case-test` writes the
+`/use-case-implement` runs the layer skills bottom-up — migration, persistence, client, service, API, UI — and `/use-case-test` writes the
 tests from the integration layer up: starting at the entry layer the use case is offered through, the first layer
 whose tests run in process against the real database (the Browserless tests of a Vaadin Flow UI, the service tests
 behind a Hilla UI, the API tests of a REST service), so the layers below it need no tests of their own. A REST API

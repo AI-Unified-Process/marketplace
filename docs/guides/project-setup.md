@@ -37,10 +37,13 @@ your-project/
 `docs/vision.md` is maintained by the team. The other files are initially produced by AI Unified Process skills and then reviewed
 like any other project artifact. Commit them so identifiers, decisions, and generated code can be traced together.
 
-Stack-specific source and test trees are documented in the plugin READMEs:
+With layer plugins, `/stack` records the module layout in `docs/architecture/stack.md`, and
+[`aiup-spring-boot`](../../aiup-spring-boot/) describes the flat and the hexagonal multi-module layout of a Java project.
 
-- [Vaadin and jOOQ](../../aiup-vaadin-jooq/)
-- [Angular and JPA](../../aiup-angular-jpa/)
+With a combined stack plugin, its README documents the source and test trees:
+
+- [Vaadin and jOOQ](../../aiup-vaadin-jooq/) (deprecated)
+- [Angular and JPA](../../aiup-angular-jpa/) (deprecated)
 - [Blazor and .NET](../../aiup-blazor-dotnet/)
 - [NestJS and Next.js](../../aiup-nestjs-nextjs/)
 

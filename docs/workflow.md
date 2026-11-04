@@ -503,6 +503,7 @@ for those people; none of them changes a specification, except that closing an a
 | [`/requirements`](../aiup-core/skills/requirements/SKILL.md)               | Requirements catalog derived from `docs/vision.md`                      |
 | [`/entity-model`](../aiup-core/skills/entity-model/SKILL.md)               | Mermaid entity model and attribute definitions                          |
 | [`/use-case-diagram`](../aiup-core/skills/use-case-diagram/SKILL.md)       | PlantUML diagram of actors and use cases                                |
+| [`/business-process`](../aiup-core/skills/business-process/SKILL.md)       | BPMN process models that connect the use cases                          |
 | [`/use-case-spec`](../aiup-core/skills/use-case-spec/SKILL.md)             | One detailed specification per use case                                 |
 | [`/test-case`](../aiup-core/skills/test-case/SKILL.md)                     | Executable user journey across specified use cases                      |
 | [`/spec-review`](../aiup-core/skills/spec-review/SKILL.md)                 | Lint and advisory review of specifications against each other           |

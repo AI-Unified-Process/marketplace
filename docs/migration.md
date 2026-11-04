@@ -28,7 +28,7 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 
 ## 1. Replace the plugins
 
-Remove the combined plugin and install `aiup-core` 3.0.0 or later with one plugin per layer of the project. Never
+Remove the combined plugin and install `aiup-core` 3.10.0 or later with one plugin per layer of the project. Never
 keep both forms in one project: the combined plugin does not read `docs/architecture/stack.md`, and its `/implement` and
 the layer skills would build the same use case twice.
 
@@ -133,6 +133,17 @@ no construction skill reads `development.md` any more. Run `/stack` once after t
 `development.md` to `stack.md`, keeps its tables and the text the team wrote into it, changes the links to the old
 path, and asks no layer question the file already answers. The `docs/architecture/README.md` index 3.0.0 wrote stays
 as the team's document.
+
+## Coming from aiup-core 3.11
+
+`aiup-core` 3.12.0 renamed the log of specification gaps from `docs/open-questions.md` to `docs/open_questions.md`, like
+`entity_model.md` and `use_cases.puml`. The skills no longer read the old name and do not warn about it: to them a
+missing file means there are no open questions, so a blocking question in the old file stops blocking anything. Rename
+the file before the first run after the update, and change any links to the old path:
+
+```text
+git mv docs/open-questions.md docs/open_questions.md
+```
 
 ## What the layer plugins add
 
