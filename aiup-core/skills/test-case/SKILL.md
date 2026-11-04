@@ -89,13 +89,13 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 
 ## Status and priority values
 
-| Status    | Description                                          |
-|-----------|------------------------------------------------------|
-| Draft     | Initial version, still being written.                |
-| Reviewed  | Complete, awaiting stakeholder review.               |
-| Approved  | Reviewed and approved for automation.                |
-| Automated | An end-to-end test implements this test case.        |
-| Obsolete  | No longer valid, superseded by another test case.    |
+| Status    | Description                                                                |
+|-----------|----------------------------------------------------------------------------|
+| Draft     | Initial version, still being written.                                      |
+| Reviewed  | Complete and checked by the author, awaiting the product owner's approval. |
+| Approved  | Reviewed and approved for automation.                                      |
+| Automated | An end-to-end test implements this test case.                              |
+| Obsolete  | No longer valid, superseded by another test case.                          |
 
 | Priority | Description                                                        |
 |----------|--------------------------------------------------------------------|

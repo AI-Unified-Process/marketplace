@@ -111,6 +111,8 @@ If the agent starts by reading `docs/vision.md` after `/requirements`, the core 
 not exposed as a slash command by the selected agent, ask it to "generate the requirements catalog from the product
 vision"; Agent Skills can also be activated by intent.
 
+A use case carries a status from `Draft` to `Done`; [Use case status](workflow.md#use-case-status) explains each value
+and who sets it, and [Test case status](workflow.md#test-case-status) does the same for test cases.
 Before a use case moves to Approved, review the specifications against each other:
 
 ```text

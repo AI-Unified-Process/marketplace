@@ -240,6 +240,57 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
   above first. In a layered stack, `/use-case-coverage UC-XXX` in `aiup-core` does the same with the markers of
   `docs/architecture/stack.md`. In the other stacks, searching for the markers gives the same answer by hand.
 
+### Use case status
+
+The `**Status:**` line of a use case says how far it has come. Either language is readable in any document.
+
+| Status      | German        | Meaning                                                                    | How it gets there                                                                       |
+|-------------|---------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| Draft       | Entwurf       | Initial version, still being written.                                      | `/use-case-spec` writes the specification; `/reverse-engineer` always starts here.      |
+| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the specification is complete.                    |
+| Approved    | Genehmigt     | Reviewed and approved for implementation.                                  | The product owner sets it, once `/spec-review UC-XXX` ends with **Ready for Approved**. |
+| Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it.                                         |
+| Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it.                                         |
+| Done        | Abgeschlossen | Fully implemented, tested, and accepted.                                   | `/acceptance-protocol close` sets it after you confirm.                                 |
+| Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                         |
+
+After a specification is written, only `/acceptance-protocol close` changes this line. The implementation and test
+skills leave it alone, and the coverage audit (`/coverage-check` in `aiup-vaadin-jooq` and `aiup-angular-jpa`,
+`/use-case-coverage` with layer plugins) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
+and the suite passes. It never suggests `Done`, because acceptance is not visible in code, and never `Tested` while a
+blocking open question holds the use case. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit, so there you
+decide from the code and the tests.
+
+The status also decides what the skills do with a use case:
+
+- At `Draft` or `Reviewed`, the implementation skills ask whether to go ahead or to run `/spec-review UC-XXX` first.
+- At `Obsolete`, they do not implement it, and it no longer counts for its requirements.
+- At `Tested`, it enters `/acceptance-protocol` and the user guide; `/user-guide` covers `Tested` and `Done`.
+- At `Done`, `/release-notes` lists it.
+
+`/next` reads these values and names the next command for the use case closest to `Done`.
+
+### Test case status
+
+A test case has its own `**Status:**` values. It ends at `Automated`: acceptance and `Done` belong to the use cases it
+chains.
+
+| Status    | German        | Meaning                                                                    | How it gets there                                                                     |
+|-----------|---------------|----------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| Draft     | Entwurf       | Initial version, still being written.                                      | `/test-case` writes it, and sets a process test case back here when its Flow changes. |
+| Reviewed  | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the test case is complete.                      |
+| Approved  | Genehmigt     | Reviewed and approved for automation.                                      | The product owner sets it.                                                            |
+| Automated | Automatisiert | An end-to-end test implements this test case.                              | You set it when the coverage audit suggests it.                                       |
+| Obsolete  | Obsolet       | No longer valid, superseded by another test case.                          | You set it, or `/test-case` does when the path through the process no longer exists.  |
+
+The coverage audit (`/coverage-check TC-XXX` in `aiup-vaadin-jooq` and `aiup-angular-jpa`, `/test-case-coverage TC-XXX`
+with layer plugins) only suggests `Automated`, once every Flow row, validation, and postcondition has a step in the
+journey test, and never while a blocking open question holds the test case. `Automated` says the journey is automated,
+not that it passes: a journey that fails points at a use case it chains. The automation skills leave the line alone.
+
+`/next` names `/test-case-implement TC-XXX` for a test case at `Approved` once every use case it chains is implemented
+and the stack has an E2E layer.
+
 ### Requirement status
 
 The use case carries the progress; a requirement's status follows it. Deferred and Rejected are scope decisions and
@@ -249,9 +300,8 @@ Done, Implemented when every one is at least Implemented, In Progress when some 
 cases do not count.
 
 `spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
-differ, and `/requirements` sets the stored value when it updates the catalog. A use case moves by
-`/coverage-check` (aiup-vaadin-jooq and aiup-angular-jpa) or `/use-case-coverage` (layer plugins); its requirements follow.
-It reaches `Done` only through `/acceptance-protocol close` (see [Transition](#transition)).
+differ, and `/requirements` sets the stored value when it updates the catalog. When a use case moves (see
+[Use case status](#use-case-status)), its requirements follow.
 
 ### Open questions
 

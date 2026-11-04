@@ -120,15 +120,15 @@ and empty files are English) and preserved on save.
 
 Status values (either language is readable in any document):
 
-| English       | German          | Meaning                                          |
-|---------------|-----------------|--------------------------------------------------|
-| Draft         | Entwurf         | Initial version, still being written.            |
-| Reviewed      | Geprüft         | Complete, awaiting stakeholder review.           |
-| Approved      | Genehmigt       | Reviewed and approved for implementation.        |
-| Implemented   | Implementiert   | Implementation complete, pending testing.        |
-| Tested        | Getestet        | All tests pass, pending final acceptance.        |
-| Done          | Abgeschlossen   | Fully implemented, tested, and accepted.         |
-| Obsolete      | Obsolet         | No longer valid, superseded by another use case. |
+| English     | German        | Meaning                                                                    |
+|-------------|---------------|----------------------------------------------------------------------------|
+| Draft       | Entwurf       | Initial version, still being written.                                      |
+| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. |
+| Approved    | Genehmigt     | Reviewed and approved for implementation.                                  |
+| Implemented | Implementiert | Implementation complete, pending testing.                                  |
+| Tested      | Getestet      | All tests pass, pending final acceptance.                                  |
+| Done        | Abgeschlossen | Fully implemented, tested, and accepted.                                   |
+| Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           |
 
 ## Structural rules (ERROR level)
 
