@@ -221,12 +221,12 @@ right after `/use-case-diagram`; `/test-case` needs the specifications, though. 
 the missing use cases instead of modeling an activity without one, and `/test-case` stops and lists activities without
 a specified use case.
 
-The `aiup-vaadin-jooq` and `aiup-angular-jpa` implementation and testing skills end by handing off to a coverage check
-they do not run themselves: `/coverage-check UC-001` delegates to the read-only `uc-coverage` sub-agent that ships with
-the plugin ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](../aiup-angular-jpa/agents/uc-coverage.md)), which reports which
-parts of the specification still have no code or no test behind them. Run it when you want the audit — typically
-before accepting a use case as done, when it judges implementation and tests together in one matrix. With layer
-plugins, `/use-case-coverage UC-001` in `aiup-core` runs the same audit with the markers of `docs/architecture/stack.md`.
+`/use-case-test` ends by handing off to a coverage check it does not run itself: `/use-case-coverage UC-001` in
+`aiup-core` delegates to the read-only [`uc-coverage-layered`](../aiup-core/agents/uc-coverage-layered.md) sub-agent,
+which reads the markers of `docs/architecture/stack.md` and reports which parts of the specification still have no code
+or no test behind them. Run it when you want the audit — typically before accepting a use case as done, when it judges
+implementation and tests together in one matrix. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` run the same
+audit with their own `/coverage-check UC-001`.
 
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).

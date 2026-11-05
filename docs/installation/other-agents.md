@@ -161,12 +161,11 @@ servers and `type: "local"` with a command array for local servers:
   match the request to a skill's description.
 - Pass identifiers in the chat message when the host does not support positional slash-command arguments.
 - HTTP MCP is not supported by every client. A stdio-only client needs an HTTP-to-stdio bridge for remote servers.
-- Sub-agents are not part of the Agent Plugins standard. The
-  [`/coverage-check`](../../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill works either way: it delegates to
-  the sub-agent where there is one, and otherwise falls back to following
-  [`uc-coverage`](../../aiup-vaadin-jooq/agents/uc-coverage.md) as an instruction document. Where a host has neither,
-  point the assistant at that file directly — the checklist is host-independent. `/use-case-coverage` in `aiup-core` does
-  the same with [`uc-coverage-layered`](../../aiup-core/agents/uc-coverage-layered.md).
+- Sub-agents are not part of the Agent Plugins standard. `/use-case-coverage` in `aiup-core` works either way: it
+  delegates to the sub-agent where there is one, and otherwise falls back to following
+  [`uc-coverage-layered`](../../aiup-core/agents/uc-coverage-layered.md) as an instruction document. Where a host has
+  neither, point the assistant at that file directly — the checklist is host-independent. `/coverage-check` in the
+  deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` does the same with the plugin's `uc-coverage` agent.
 - `/use-case-implement` and `/use-case-test` run the layer skills by name. A host that cannot invoke one skill from another
   loads the layer skill's `SKILL.md` by glob instead, so install every layer skill `docs/architecture/stack.md` names.
 - The files under `docs/` remain compatible even when different steps are run by different agents.

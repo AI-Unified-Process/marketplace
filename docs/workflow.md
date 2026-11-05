@@ -237,10 +237,10 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
   include or extend a changed use case, which processes, test cases, and ADRs follow, each with the trace that
   explains it, and where the trace has gaps. The skill adds what touches the change without an id link and the
   hand-offs, from `/use-case-spec` to `/use-case-coverage`.
-- **Code and tests:** `/coverage-check UC-XXX` (in `aiup-vaadin-jooq` and `aiup-angular-jpa`) maps every step, flow,
-  rule, and linked NFR and constraint of a use case onto the code and the tests that realize it, using the markers
-  above first. In a layered stack, `/use-case-coverage UC-XXX` in `aiup-core` does the same with the markers of
-  `docs/architecture/stack.md`. In the other stacks, searching for the markers gives the same answer by hand.
+- **Code and tests:** `/use-case-coverage UC-XXX` in `aiup-core` maps every step, flow, rule, and linked NFR and
+  constraint of a use case onto the code and the tests that realize it, using the markers of
+  `docs/architecture/stack.md` first. `/coverage-check UC-XXX` does the same in the deprecated `aiup-vaadin-jooq` and
+  `aiup-angular-jpa`. In the other stacks, searching for the markers gives the same answer by hand.
 
 ### Use case status
 
@@ -257,8 +257,8 @@ The `**Status:**` line of a use case says how far it has come. Either language i
 | Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                         |
 
 After a specification is written, only `/acceptance-protocol close` changes this line. The implementation and test
-skills leave it alone, and the coverage audit (`/coverage-check` in `aiup-vaadin-jooq` and `aiup-angular-jpa`,
-`/use-case-coverage` with layer plugins) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
+skills leave it alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in
+`aiup-vaadin-jooq` and `aiup-angular-jpa`) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
 and the suite passes. It never suggests `Done`, because acceptance is not visible in code, and never `Tested` while a
 blocking open question holds the use case. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit, so there you
 decide from the code and the tests.
@@ -290,8 +290,8 @@ chains.
 | Automated | Automatisiert | An end-to-end test implements this test case.                              | You set it when the coverage audit suggests it.                                       |
 | Obsolete  | Obsolet       | No longer valid, superseded by another test case.                          | You set it, or `/test-case` does when the path through the process no longer exists.  |
 
-The coverage audit (`/coverage-check TC-XXX` in `aiup-vaadin-jooq` and `aiup-angular-jpa`, `/test-case-coverage TC-XXX`
-with layer plugins) only suggests `Automated`, once every Flow row, validation, and postcondition has a step in the
+The coverage audit (`/test-case-coverage TC-XXX` with layer plugins, `/coverage-check TC-XXX` in `aiup-vaadin-jooq` and
+`aiup-angular-jpa`) only suggests `Automated`, once every Flow row, validation, and postcondition has a step in the
 journey test, and never while a blocking open question holds the test case. `Automated` says the journey is automated,
 not that it passes: a journey that fails points at a use case it chains. The automation skills leave the line alone.
 
@@ -439,40 +439,37 @@ coverage check below.
 
 Both checks have an end point, so that a review does not turn into a loop. `/spec-review` ends with **Ready for
 Approved**: yes once the lint passes, no semantic warning is open, and no blocking open question is left; `info` findings never block it and are not
-turned into fix commands. `/coverage-check` is finished when every unit is `Covered` or `n/a`. A second run in the
+turned into fix commands. `/use-case-coverage` is finished when every unit is `Covered` or `n/a`. A second run in the
 same conversation compares with the first and separates real changes from a judgment that merely wobbled, and drift
 between code and specification is a decision for you — which side is right — never fixed on one side by guesswork.
 
 ## Coverage check
 
-Traceability is only worth as much as it is checked. `aiup-vaadin-jooq` and `aiup-angular-jpa` ship a read-only
-`uc-coverage` sub-agent for that check ([Vaadin](../aiup-vaadin-jooq/agents/uc-coverage.md),
-[Angular](../aiup-angular-jpa/agents/uc-coverage.md)): it turns a use case specification
-into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition,
+Traceability is only worth as much as it is checked. `aiup-core` ships a read-only
+[`uc-coverage-layered`](../aiup-core/agents/uc-coverage-layered.md) sub-agent for that check: it turns a use case
+specification into a list of coverage units — every main success scenario step, alternative flow, business rule, precondition,
 postcondition, and linked NFR and constraint — and maps each one onto the code and the tests that realize it.
 
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
 
-Those plugins' implementation and testing skills do not run the audit themselves — each run re-reads the
-specification and the code base and takes minutes, so the check runs once, explicitly, when you ask for it. The
-[`/coverage-check`](../aiup-vaadin-jooq/skills/coverage-check/SKILL.md) skill is that entry point, and the only one
-that judges both sides in a single matrix:
+The implementation and testing skills do not run the audit themselves — each run re-reads the specification and the
+code base and takes minutes, so the check runs once, explicitly, when you ask for it. `/use-case-coverage` and
+`/test-case-coverage` are that entry point, and the only one that judges both sides in a single matrix:
 
 ```text
-/coverage-check UC-001                 # implementation and tests together
-/coverage-check UC-001 tests           # narrow the audit to one side
-/coverage-check TC-001                 # a journey audits its Flow rows and Validation items
+/use-case-coverage UC-001              # implementation and tests together
+/use-case-coverage UC-001 tests        # narrow the audit to one side
+/test-case-coverage TC-001             # a journey audits its Flow rows and Validation items
 ```
 
 A use case whose coverage matrix is complete in both columns is the point at which `**Status:** Tested` is justified.
-That is what `/coverage-check UC-001` is for; the skill reports the justified status but leaves the line to you.
+That is what `/use-case-coverage UC-001` is for; the skill reports the justified status but leaves the line to you.
 
-Each agent's marker table is specific to its stack's conventions. In a layered stack, `/use-case-coverage` and `/test-case-coverage` in
-`aiup-core` run the same audit with [its own agent](../aiup-core/agents/uc-coverage-layered.md), which reads the markers from
-`docs/architecture/stack.md` instead of a fixed table. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not ship an
-equivalent yet; the same check can be run by hand from [the agent definition](../aiup-vaadin-jooq/agents/uc-coverage.md)
-with the markers of the stack in question.
+The agent reads the markers from `docs/architecture/stack.md`. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa`
+run the same audit with their own `/coverage-check` and `uc-coverage` agent, whose marker table is fixed to the stack.
+`aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not ship an equivalent yet; the same check can be run by hand from
+[the agent definition](../aiup-core/agents/uc-coverage-layered.md) with the markers of the stack in question.
 
 ## Transition
 

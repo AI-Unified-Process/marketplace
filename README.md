@@ -100,11 +100,12 @@ and the operations of an API contract agreed with a partner system, which the AP
 | [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                                                        |
 | [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                                                        |
 
-`aiup-vaadin-jooq` and `aiup-angular-jpa` additionally ship a read-only `uc-coverage`
-sub-agent ([Vaadin](aiup-vaadin-jooq/agents/uc-coverage.md), [Angular](aiup-angular-jpa/agents/uc-coverage.md)). It reports which parts of the specification have no code or no test behind them, and which code has no
-specification behind it. The `/coverage-check` skill of each plugin runs that
-audit on demand and judges implementation and tests together; the implementation and testing skills end by handing
-off to it rather than running it themselves, so a construction round stays fast.
+The coverage audit belongs to `aiup-core`: `/use-case-coverage` and `/test-case-coverage` run the read-only
+[`uc-coverage-layered`](aiup-core/agents/uc-coverage-layered.md) sub-agent on demand. It reports which parts of the
+specification have no code or no test behind them, and which code has no specification behind it, and judges
+implementation and tests together; `/use-case-test` and `/test-case-implement` end by handing off to it rather than
+running it themselves, so a construction round stays fast. Of the combined stack plugins, `aiup-vaadin-jooq` and
+`aiup-angular-jpa` have their own `/coverage-check`; `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit.
 
 `aiup-vaadin-jooq` and `aiup-angular-jpa` are deprecated in favour of the layer plugins and will be removed with
 `aiup-core` 4.0.0. The [migration guide](docs/migration.md) walks an existing project through the switch.
