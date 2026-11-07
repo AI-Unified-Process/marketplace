@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether /nest-rest-test writes the API tests of a read use case as the integration layer of a NestJS REST service, and notices without being told that the Vitest config lacks unplugin-swc, that no Testcontainers setup exists, and that the rows of the preconditions need the use case's seed file. The test application must also carry what main.ts configures. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "unplugin-swc in the Vitest config",
+      "description": "The Vitest config that runs the new spec registers unplugin-swc as a plugin, and the dependency is added to apps/api/package.json, so that NestJS dependency injection works",
+      "max_score": 18
+    },
+    {
+      "name": "Transformer chosen from the Vite version",
+      "description": "The agent reads the Vite version under the project's Vitest (below 8, so esbuild and SWC) and does not set oxc: false, an option that version does not have",
+      "max_score": 6
+    },
+    {
+      "name": "Testcontainers PostgreSQL, not a mock",
+      "description": "The tests run against PostgreSQL started by @testcontainers/postgresql; no SQLite, pg-mem, or mocked database",
+      "max_score": 14
+    },
+    {
+      "name": "One shared container, reset per file",
+      "description": "One container is started in a Vitest globalSetup and published (provide/inject); the schema is reset per test file; fileParallelism is false in the config that runs the spec",
+      "max_score": 10
+    },
+    {
+      "name": "Seed file after migrate",
+      "description": "The products come from apps/api/test/data/uc010-browse-product-catalog.ts exporting seed(db), applied after migrate() with the migrations folder of drizzle.config.ts, and holding the three products of the preconditions including the out-of-stock one; it is no hand-written migration under drizzle/migrations, and the test does not insert through the repository",
+      "max_score": 10
+    },
+    {
+      "name": "File name, describe, and test application",
+      "description": "The spec is apps/api/test/UC-010-browse-product-catalog.e2e-spec.ts with describe('UC-010: Browse Product Catalog') and it titles naming A1 and BR-010; the test application applies the global prefix api and the ValidationPipe that main.ts configures, so /api/products is what the tests call",
+      "max_score": 8
+    },
+    {
+      "name": "BR-010 with and without a filter",
+      "description": "One test shows Discontinued Widget absent from the unfiltered list and one shows it absent under category=tools, where the row otherwise matches",
+      "max_score": 10
+    },
+    {
+      "name": "A1 exact result",
+      "description": "The category test asserts exactly the available products of that category (Hammer alone for tools), status and body, not only a 200",
+      "max_score": 6
+    },
+    {
+      "name": "Nothing mocked",
+      "description": "No overrideProvider, vi.fn, or stub on ProductsService or ProductsRepository; requests go through Supertest to the booted application",
+      "max_score": 8
+    },
+    {
+      "name": "No production or docs changes",
+      "description": "No file under apps/api/src changes; nothing under docs/ changes except the nest-rest-test rows of the Markers table (Test row and Name row), the existing rows kept",
+      "max_score": 6
+    },
+    {
+      "name": "Honest report and hand-off",
+      "description": "The report states that the tests could not be run here (no Docker) rather than claiming they pass, and ends with the line Next: /use-case-coverage UC-010, because the project has no UI layer",
+      "max_score": 4
+    }
+  ]
+}

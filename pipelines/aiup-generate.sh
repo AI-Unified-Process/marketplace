@@ -90,6 +90,15 @@ case "$PLUGIN/$SKILL" in
   aiup-angular/angular-ui) ;;
   aiup-angular/angular-ui-test) ;;
   aiup-playwright/playwright-e2e-test) ;;
+  aiup-drizzle/drizzle-schema) ;;
+  aiup-drizzle/drizzle-persistence) ;;
+  aiup-drizzle/drizzle-persistence-test) ;;
+  aiup-nestjs/nest-service) ;;
+  aiup-nestjs/nest-service-test) ;;
+  aiup-nestjs/nest-rest) ;;
+  aiup-nestjs/nest-rest-test) ;;
+  aiup-nextjs/nextjs-ui) ;;
+  aiup-nextjs/nextjs-ui-test) ;;
   *)
     echo "ERROR: '$SKILL' of '$PLUGIN' is not in the catalogue of this marketplace" >&2
     exit 1 ;;
@@ -106,7 +115,7 @@ hint=""
 case "$SKILL" in
   implement | implement-hilla | browserless-test | hilla-test | spring-boot-test | vitest-test | dotnet-test | bunit-test | nest-test | react-test | playwright-test \
     | use-case-implement | use-case-test | test-case-implement \
-    | flyway-schema | jooq-persistence | jooq-persistence-test | jpa-persistence | jpa-persistence-test | spring-service | spring-service-test | spring-rest | spring-rest-test | spring-client | spring-client-test | vaadin-flow-ui | vaadin-flow-ui-test | hilla-ui | hilla-ui-test | angular-ui | angular-ui-test | vaadin-e2e-test | playwright-e2e-test)
+    | flyway-schema | jooq-persistence | jooq-persistence-test | jpa-persistence | jpa-persistence-test | spring-service | spring-service-test | spring-rest | spring-rest-test | spring-client | spring-client-test | vaadin-flow-ui | vaadin-flow-ui-test | hilla-ui | hilla-ui-test | angular-ui | angular-ui-test | drizzle-schema | drizzle-persistence | drizzle-persistence-test | nest-service | nest-service-test | nest-rest | nest-rest-test | nextjs-ui | nextjs-ui-test | vaadin-e2e-test | playwright-e2e-test)
     # Only the skills that turn a specification into code or tests care how the
     # specification moved; the document skills rewrite their artifact as a whole.
     # The subject of these skills is the path of the specification. A subject that
@@ -153,6 +162,9 @@ aiup-jpa:jpa-persistence aiup-jpa:jpa-persistence-test
 aiup-spring-boot:spring-service aiup-spring-boot:spring-service-test aiup-spring-boot:spring-rest aiup-spring-boot:spring-rest-test aiup-spring-boot:spring-client aiup-spring-boot:spring-client-test
 aiup-vaadin:vaadin-flow-ui aiup-vaadin:vaadin-flow-ui-test aiup-vaadin:hilla-ui aiup-vaadin:hilla-ui-test aiup-vaadin:vaadin-e2e-test
 aiup-angular:angular-ui aiup-angular:angular-ui-test
+aiup-drizzle:drizzle-schema aiup-drizzle:drizzle-persistence aiup-drizzle:drizzle-persistence-test
+aiup-nestjs:nest-service aiup-nestjs:nest-service-test aiup-nestjs:nest-rest aiup-nestjs:nest-rest-test
+aiup-nextjs:nextjs-ui aiup-nextjs:nextjs-ui-test
 aiup-playwright:playwright-e2e-test"
 view=docs/architecture/stack.md
 all_layers=""

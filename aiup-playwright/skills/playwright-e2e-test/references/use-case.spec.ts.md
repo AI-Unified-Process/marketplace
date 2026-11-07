@@ -84,7 +84,7 @@ test.describe('UC-020: Register Guest', () => {
         await page.getByRole('button', { name: 'Register' }).click();
 
         // The full message the specification states.
-        await expect(page.getByRole('alert')).toHaveText('This email address is already registered.');
+        await expect(page.getByRole('alert').filter({ hasText: /\S/ })).toHaveText('This email address is already registered.');
     });
 });
 ```

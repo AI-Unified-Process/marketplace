@@ -52,7 +52,8 @@ actor without a row is a person or a role. Without a Client layer the section is
 
 ## Module layout
 
-<!-- Flat single module or hexagonal multi-module; the root package; where each layer's code and tests live. -->
+<!-- Flat single module, hexagonal multi-module, or a workspace with one application per side; the root package or
+the application roots; where each layer's code and tests live. -->
 
 ## API contract
 

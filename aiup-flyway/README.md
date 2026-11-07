@@ -54,7 +54,7 @@ constraint, and the skill keeps its rows in the Markers table of `docs/architect
 Do not combine the layer plugins with a combined stack plugin (`aiup-vaadin-jooq`, `aiup-angular-jpa`,
 `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`); those ship their own migration skill — `/flyway-migration` in
 `aiup-vaadin-jooq` and `aiup-angular-jpa`, `/ef-migration` in `aiup-blazor-dotnet`, `/drizzle-migration` in
-`aiup-nestjs-nextjs`.
+`aiup-nestjs-nextjs`. A TypeScript project on layer plugins uses `aiup-drizzle` for this layer.
 
 ## Installation
 

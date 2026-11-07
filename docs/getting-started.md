@@ -28,6 +28,9 @@ needs `aiup-flyway`, `aiup-jooq`, and `aiup-spring-boot`; add `aiup-vaadin` for 
 | [`aiup-vaadin`](../aiup-vaadin/)           | UI: Vaadin Flow or Hilla, with Playwright E2E |
 | [`aiup-angular`](../aiup-angular/)         | UI: Angular                                   |
 | [`aiup-playwright`](../aiup-playwright/)   | E2E: Playwright for TypeScript                |
+| [`aiup-drizzle`](../aiup-drizzle/)         | Migration and persistence: Drizzle ORM        |
+| [`aiup-nestjs`](../aiup-nestjs/)           | Service and REST API: NestJS                  |
+| [`aiup-nextjs`](../aiup-nextjs/)           | UI: Next.js App Router                        |
 
 **Combined stack plugins** — one plugin for a fixed combination. Install exactly one, and no layer plugins next to it.
 
@@ -36,10 +39,10 @@ needs `aiup-flyway`, `aiup-jooq`, and `aiup-spring-boot`; add `aiup-vaadin` for 
 | [`aiup-vaadin-jooq`](../aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ (deprecated: use the layer plugins)            |
 | [`aiup-angular-jpa`](../aiup-angular-jpa/)     | Angular with a Spring Boot/JPA backend (deprecated: use the layer plugins)    |
 | [`aiup-blazor-dotnet`](../aiup-blazor-dotnet/) | Blazor and EF Core on .NET 10                                                 |
-| [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/) | NestJS/Drizzle and Next.js App Router                                         |
+| [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/) | NestJS/Drizzle and Next.js App Router (deprecated: use the layer plugins)     |
 
 Install only `aiup-core` when you want to use the analysis workflow with an unsupported implementation stack. A project
-that already uses `aiup-vaadin-jooq` or `aiup-angular-jpa` follows the [migration guide](migration.md).
+that already uses `aiup-vaadin-jooq`, `aiup-angular-jpa`, or `aiup-nestjs-nextjs` follows the [migration guide](migration.md).
 
 ## 2. Prepare the product vision
 

@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether /nest-service builds the service layer of UC-001 on a repository Handover in a NodeNext monorepo: .js import suffixes, no Drizzle and no HTTP types in the service, subclasses of the project's domain errors with the specification's messages, guards with markers, the age boundary against the arrival date, and the 23505 violation the Handover names mapped to the same domain error, reading err.cause too. Note that the arrival date is an input of the use case but not a column of GUEST. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": ".js suffix on relative imports",
+      "description": "Every relative import in the new or changed files under apps/api/src ends in .js, because the project is NodeNext",
+      "max_score": 10
+    },
+    {
+      "name": "No Drizzle in the service",
+      "description": "guests.service.ts imports nothing from drizzle-orm, the schema, or the drizzle provider, and calls only findByEmail and insert of GuestsRepository",
+      "max_score": 10
+    },
+    {
+      "name": "Project's domain errors, no HTTP",
+      "description": "The rejections are subclasses of BusinessRuleError from src/common/errors.ts (for example EmailAlreadyRegisteredError, GuestTooYoungError); no HttpException or ConflictException, no second base class",
+      "max_score": 12
+    },
+    {
+      "name": "Exact messages",
+      "description": "The errors carry \"The email address <email> is already registered.\" with the email filled in and \"Guests must be at least 18 years old on the day of arrival.\" word for word",
+      "max_score": 8
+    },
+    {
+      "name": "BR-003 boundary",
+      "description": "The age check compares the date of birth with the arrival date, not with today, and accepts a guest whose eighteenth birthday is the arrival date while rejecting one day younger",
+      "max_score": 12
+    },
+    {
+      "name": "Rule guards with markers",
+      "description": "BR-001, BR-002, and BR-003 each have a guard in the service, with // UC-001 BR-00X: <rule> directly above it; BR-001 is not left to a DTO",
+      "max_score": 12
+    },
+    {
+      "name": "Constraint violation mapped",
+      "description": "The insert is wrapped so that PostgreSQL code 23505, read from the error and from err.cause, becomes the EmailAlreadyRegistered error with its message, and any other error is rethrown",
+      "max_score": 10
+    },
+    {
+      "name": "TSDoc names the use case",
+      "description": "The public method's TSDoc names UC-001 and the steps or alternative flows it realizes",
+      "max_score": 4
+    },
+    {
+      "name": "Provider registered",
+      "description": "GuestsService is in the providers of guests.module.ts, and exported or otherwise reachable for the controller",
+      "max_score": 6
+    },
+    {
+      "name": "Layer scope",
+      "description": "No test file and no controller or class-validator DTO is created; the repository, schema, and migrations are unchanged; nothing under docs/ changes except the nest-service rows of the Markers table (new sections of docs/open_questions.md for a gap the agent found do not count)",
+      "max_score": 8
+    },
+    {
+      "name": "Markers rows",
+      "description": "The Markers table of docs/architecture/stack.md gains the three nest-service rows, the existing rows kept",
+      "max_score": 4
+    },
+    {
+      "name": "Handover",
+      "description": "The agent's last message holds a Handover from nest-service with the method, input type, each error with its flow or rule, and the line Next: /nest-rest UC-001",
+      "max_score": 4
+    }
+  ]
+}

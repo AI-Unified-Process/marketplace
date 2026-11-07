@@ -22,8 +22,8 @@ Process marketplace. A project combines one plugin per layer with `aiup-core`.
 | E2E         | Browser tests of a use case or a test case journey                           | UI                  |
 
 A server-side UI (Vaadin Flow) and a Hilla UI call the service layer directly. Hilla's `@BrowserCallable` endpoint
-is part of the Hilla UI skill, not of a separate API layer. A client-side UI (Angular) always needs an API layer and
-reaches the service through it. An API layer next to a server-side or Hilla UI is valid: it serves other clients —
+is part of the Hilla UI skill, not of a separate API layer. A client-side UI (Angular, Next.js) always needs an API
+layer and reaches the service through it. An API layer next to a server-side or Hilla UI is valid: it serves other clients —
 a mobile app, a partner system — and not the UI. A REST service without a UI has no UI and no E2E layer; its API
 tests are the outermost tests.
 
@@ -47,7 +47,7 @@ offer it (`UI`, `API`, both, or `Service` alone); without the line, every entry 
 The line narrows only the entry layers: migration, persistence, and service run for every use case, with or
 without it (a layer with nothing to do for the use case says so), and E2E follows the UI.
 
-**A client-side UI that reaches the service through the API (Angular) implies its API layer.** A use case offered
+**A client-side UI that reaches the service through the API (Angular, Next.js) implies its API layer.** A use case offered
 through `UI` is built in the API layer too, tested there (the UI row of the Integration layer table names the API), and its
 endpoints are part of the use case, not drift — whether or not the `**Layers:**` line also names `API`.
 
@@ -78,7 +78,7 @@ Client.
 ## Tests run, and the integration layer
 
 Each layer skill's `references/layer.md` says what its test skill exercises: *in process, real database* means the
-tests run the application context inside the JVM against the real database, so every layer below is exercised for
+tests run the application context inside the process against the real database, so every layer below is exercised for
 real; *backend mocked* means the UI test stubs the layer below; *running application* means black-box browser
 tests; *in process, external system stubbed* means the client tests call the adapter against a stub of the
 provider's contract. Client is never an entry layer, so its value never decides an integration layer. The
@@ -98,13 +98,14 @@ integration layer is the layer that entry layer calls, by the same rule:
 | Vaadin Flow | in process             | UI                                                        |
 | Hilla       | backend mocked         | Service — the `@BrowserCallable` endpoint calls it directly |
 | Angular     | backend mocked         | API — the UI reaches the service through it               |
+| Next.js     | backend mocked         | API — the UI reaches the service through it               |
 | REST API    | in process             | API                                                       |
 | Service     | in process             | Service (Persistence when the project has no service layer) |
 
 Because the rule starts at the entry point, an API next to a Vaadin Flow or Hilla UI never moves the UI's
 integration layer: the UI does not call it. It is the integration layer only of the use cases offered through it
 alone. A layer built without a layer skill (Skill column `–`) has no `layer.md`: count a server-side technology
-(Spring MVC, a JVM UI framework) as *in process, real database*, and ask about any other. E2E is never an entry
+(Spring MVC, NestJS, a JVM UI framework) as *in process, real database*, and ask about any other. E2E is never an entry
 layer and never the integration layer.
 
 **Recorded per entry layer.** The Integration layer table has one row per entry layer of the project, in the order
@@ -159,11 +160,19 @@ plugin outside this marketplace needs no row here. `scripts/check-layer-catalog.
 | `aiup-vaadin`      | E2E         | –                  | `vaadin-e2e-test`          | running application         |
 | `aiup-angular`     | UI          | `angular-ui`       | `angular-ui-test`          | backend mocked              |
 | `aiup-playwright`  | E2E         | –                  | `playwright-e2e-test`      | running application         |
+| `aiup-drizzle`     | Migration   | `drizzle-schema`   | –                          | –                           |
+| `aiup-drizzle`     | Persistence | `drizzle-persistence` | `drizzle-persistence-test` | in process, real database |
+| `aiup-nestjs`      | Service     | `nest-service`     | `nest-service-test`        | in process, real database   |
+| `aiup-nestjs`      | API         | `nest-rest`        | `nest-rest-test`           | in process, real database   |
+| `aiup-nextjs`      | UI          | `nextjs-ui`        | `nextjs-ui-test`           | backend mocked              |
 
 `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` build on Spring Boot and declare `aiup-spring-boot` as a plugin
 dependency, so Claude Code installs it with them: its service layer is what their persistence, UI, and tests connect
 to, and the persistence skills read the module layout reference of `spring-service`. Tessl has no dependency field; install
-`aiup-spring-boot` next to them there. `aiup-flyway`, `aiup-angular`, and `aiup-playwright` need only `aiup-core`.
+`aiup-spring-boot` next to them there. `aiup-drizzle` declares `aiup-nestjs` the same way: its repositories are
+NestJS providers, and its skills read the module layout and test setup references of that plugin. `aiup-flyway`,
+`aiup-angular`, `aiup-nestjs`, `aiup-nextjs`, and `aiup-playwright` need only `aiup-core`, so Next.js can sit on any
+API layer.
 
 ## Common combinations
 
@@ -176,6 +185,9 @@ to, and the persistence skills read the module layout reference of `spring-servi
 | Hilla, jOOQ                     | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    | Service           |
 | Hilla and a REST API, jOOQ      | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    | Service (API for `API`-only use cases) |
 | Angular, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` | API               |
+| REST API, NestJS, Drizzle       | `aiup-drizzle`, `aiup-nestjs`                                                    | API               |
+| Next.js, NestJS, Drizzle        | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  | API               |
+| Next.js, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  | API               |
 
 The combined stack plugins (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`) do not
 use this catalog; they ship their own `/implement`.

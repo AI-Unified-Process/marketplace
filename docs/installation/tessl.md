@@ -43,10 +43,13 @@ ai-unified-process/aiup-spring-boot
 ai-unified-process/aiup-vaadin
 ai-unified-process/aiup-angular
 ai-unified-process/aiup-playwright
+ai-unified-process/aiup-drizzle
+ai-unified-process/aiup-nestjs
+ai-unified-process/aiup-nextjs
 ```
 
-Instead of layer packages, a project can use one combined stack package (`aiup-vaadin-jooq` and `aiup-angular-jpa` are
-deprecated and will be removed with `aiup-core` 4.0.0; the [migration guide](../migration.md) moves an existing project to the layer packages):
+Instead of layer packages, a project can use one combined stack package (`aiup-vaadin-jooq`, `aiup-angular-jpa`, and
+`aiup-nestjs-nextjs` are deprecated and will be removed with `aiup-core` 4.0.0; the [migration guide](../migration.md) moves an existing project to the layer packages):
 
 ```text
 ai-unified-process/aiup-vaadin-jooq

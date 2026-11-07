@@ -45,7 +45,7 @@ With a combined stack plugin, its README documents the source and test trees:
 - [Vaadin and jOOQ](../../aiup-vaadin-jooq/) (deprecated)
 - [Angular and JPA](../../aiup-angular-jpa/) (deprecated)
 - [Blazor and .NET](../../aiup-blazor-dotnet/)
-- [NestJS and Next.js](../../aiup-nestjs-nextjs/)
+- [NestJS and Next.js](../../aiup-nestjs-nextjs/) (deprecated)
 
 ## Product vision
 

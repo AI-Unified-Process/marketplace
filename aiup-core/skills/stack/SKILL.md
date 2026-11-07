@@ -150,17 +150,19 @@ report that it is no longer read.
    layout, and the API contract.
 2. **Discover the layer skills** — see *The layer skills* — and **detect the stack** of an existing project with
    their Detect column. Where a Detect cell lists several kinds of evidence, the source tree decides (a `@Route`
-   class, a `@BrowserCallable` class, an `angular.json`); a dependency alone that two skills both name is no
-   evidence for either — ask. The evidence is in: `pom.xml` or `build.gradle(.kts)` dependencies, `package.json`, `angular.json`, and the
-   source tree. Detect the module layout too — a flat single module, or a Maven/Gradle reactor with modules per
-   hexagonal concern (`*-domain`, `*-application`, `*-persistence`, `*-api`, `*-app`) — and the root package.
+   class, a `@BrowserCallable` class, an `angular.json`, a `next.config.*`); a dependency alone that two skills both name is no
+   evidence for either — ask. The evidence is in: `pom.xml` or `build.gradle(.kts)` dependencies, `package.json`, `angular.json`, `nest-cli.json`,
+   `next.config.*`, `drizzle.config.ts`, and the source tree; in a workspace, the `package.json` of every application. Detect the module layout too — a flat single module, or a Maven/Gradle reactor with modules per
+   hexagonal concern (`*-domain`, `*-application`, `*-persistence`, `*-api`, `*-app`), or a TypeScript workspace
+   with one application per side (`apps/api`, `apps/web`) — and the root package or the application roots.
    **External systems:** collect the names on the `**Secondary Actors:**` lines of the use cases
    (`docs/use_cases/**/UC-*.md`) that are not actors of the use case diagram's people, the existing clients in the
    code (an adapter calling another host, a producer to another team's topic), and the OpenAPI and AsyncAPI files
    that are not the project's own API (`docs/api/external/`, a provider's file elsewhere under `docs/`). They are
    candidates, not rows. **Contract-first or code-first:** with an API layer, the project's own OpenAPI or AsyncAPI
    files under `docs/` (`docs/api/`, outside `docs/api/external/`) and `**API:**` lines in the use cases point to
-   contract-first; springdoc in the build without such files points to code-first.
+   contract-first; springdoc in the build or `@nestjs/swagger` in
+   `package.json`, without such files, points to code-first.
 3. **Ask what cannot be detected**, in one round, before writing. A new project needs a technology per layer; ask
    with the layers as questions and the discovered skills (and, for a layer none covers, the catalog's plugins) as
    options, and offer `–` for a layer the project does not need. Ask about a layer even in an existing project when
@@ -176,8 +178,8 @@ report that it is no longer read.
    live. A `Proposed`, `Superseded`, `Deprecated`, or `Rejected` ADR decides nothing. A technology or a module layout the team's architecture documentation already records is
    not a question either; name the document. The decision rights are not a question: without
    `docs/architecture/decision-rights.md`, `/use-case-implement` uses its defaults, and the report says so (step 7).
-4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular) needs an
-   API layer, and a use case offered through its UI is built and tested in that API layer too. A server-side UI (Vaadin Flow) and a Hilla UI call the service directly and need none; an API layer
+4. **Check the combination** against the rules of the catalog's Layers section. A client-side UI (Angular, Next.js) needs
+   an API layer, and a use case offered through its UI is built and tested in that API layer too. A server-side UI (Vaadin Flow) and a Hilla UI call the service directly and need none; an API layer
    next to them is valid and serves other clients — then say that a use case offered through only one of the two
    names it in its `**Layers:**` line (`/use-case-spec`). A layer skill needs the layer below it unless the catalog
    says otherwise. Report a combination that does not fit and ask. External systems need a Client layer, and a

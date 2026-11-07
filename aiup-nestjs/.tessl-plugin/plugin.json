@@ -1,0 +1,10 @@
+{
+  "name": "ai-unified-process/aiup-nestjs",
+  "description": "AI Unified Process service and API layers - NestJS services, REST controllers, and their tests",
+  "version": "3.0.0",
+  "author": {
+    "name": "Simon Martinelli",
+    "email": "simon@martinelli.ch",
+    "url": "https://unifiedprocess.ai"
+  }
+}

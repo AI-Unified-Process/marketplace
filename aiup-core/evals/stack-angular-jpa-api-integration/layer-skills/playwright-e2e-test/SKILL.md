@@ -1,8 +1,8 @@
 ---
 name: playwright-e2e-test
 description: >
-  Writes end-to-end browser tests in TypeScript with @playwright/test for any web UI that is not Vaadin (Angular
-  today, other client-side frameworks alike): a use case test (UC-XXX) with one test per scenario, or a test case
+  Writes end-to-end browser tests in TypeScript with @playwright/test for any web UI that is not Vaadin (Angular,
+  Next.js, other client-side frameworks alike): a use case test (UC-XXX) with one test per scenario, or a test case
   journey (TC-XXX) that walks the whole Flow table across views with one test.step per row. Locates elements by
   role, label, and text against the running application and cleans up only the data the test created. Use when the
   user asks to "write Playwright tests", "create e2e tests", "test in the browser", "automate a test case", "test a
@@ -102,6 +102,42 @@ Take the base URL and the E2E folder from `docs/architecture/stack.md` (the E2E 
 command) or the existing config; the default above is the Angular dev server. With a separate backend, the browser
 talks only to the frontend origin, which proxies `/api/*` to the backend.
 
+When the frontend and the backend are two applications and the project has no way of starting them yet, let
+Playwright own both, with the ports and commands of the project. The example is a Next.js frontend and a NestJS API;
+there the backend is the E2E server of the `test-setup.md` reference named under [Test Data](#test-data), which also
+provides its own database:
+
+```ts
+// playwright.config.ts
+webServer: [
+    {
+        command: 'npx tsc -p tsconfig.e2e.json && node dist-e2e/test/e2e-server.js',
+        cwd: 'apps/api',
+        url: 'http://localhost:3001/api/products', // a read the use case offers, or the project's health endpoint
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+    },
+    { command: 'npm run dev -w web', url: 'http://localhost:3000', reuseExistingServer: !process.env.CI },
+],
+```
+
+Check each command against the project's scripts, which differ. Point each `url` at something that answers only once
+the application is ready: a health endpoint or a read of the API, not a bare port; this skill adds no endpoint for it. A port opens before the application has connected to the database and run its migrations, and the first
+request then fails in a way that looks like a bug in the feature. Extend an existing `playwright.config.ts`; never
+replace it.
+
+When the application has a login, sign in once in a setup project and persist `storageState` rather than logging in
+at the start of every test; reuse such a setup when the project has one. A use case about a role's permissions uses
+that role's stored state.
+
+```ts
+// playwright.config.ts
+projects: [
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    { name: 'chromium', dependencies: ['setup'], use: { storageState: 'tests/e2e/.auth/user.json' } },
+],
+```
+
 ## Test Data
 
 The test skills own the test data; the migration layer writes none. An existing test data convention of the
@@ -110,6 +146,13 @@ backend test skills write, `src/test/resources/db/migration/R__uc<id>_<slug>.sql
 database (the Location of the Migration layer in `docs/architecture/stack.md`); for a journey, the files of the use
 cases its Flow links. Flyway's default location `classpath:db/migration` picks it up whenever the backend runs from
 its test classpath.
+
+A project on Drizzle has no such migration, because its migrations are generated and never hand-written. Its default
+is the per-use-case seed the backend test skills write, `test/data/uc<id>-<slug>.ts` in the API application; the
+section "The running application for E2E" of the `test-setup.md` reference of `nest-service-test` says how the
+running application loads it (locate it with a glob
+for `**/*nest-service-test/references/test-setup.md`; the skill folder may carry a host prefix such as
+`tessl__nest-service-test`). Any other migration technology: follow the project, and ask when it has no convention.
 
 - Test case **Preconditions** and use case preconditions are satisfied by that data. When they are not, extend the
   use case's test data file rather than inserting through a back door, and say so in the report.
@@ -122,6 +165,11 @@ its test classpath.
   layer's tests and say so in the report.
 - Data the test creates is removed in `test.afterEach`, through the API (the `request` fixture) or the UI — never a
   raw database call and never a delete-all. Make the cleanup idempotent: the test may have failed midway.
+- A use case that offers no way to remove what it creates cannot clean up: make the value unique per run
+  (`` `Anna ${Date.now()}` ``), so a second run does not hit the duplicate flow, leave the row, and say so in the report.
+- Check whether the state a test changes is global before treating tests as independent. Playwright runs files, and
+  with `fullyParallel` tests, concurrently, so two tests touching one application-wide setting interfere in whichever
+  order they run. Give each test a disjoint slice of that state, and say in a comment why the values were chosen.
 - For a journey, the test case's **Postconditions** section is the cleanup contract: remove exactly the records it
   lists, in the stated order (dependent records before their parents). An older document without Postconditions:
   derive the created data from the Flow.
@@ -182,6 +230,9 @@ overlay (`getByRole('combobox', { name: 'Room Type' }).click()`, then `getByRole
 while a native `<select>` takes `selectOption`. A React or Vue component library behaves the same way when it
 renders ARIA roles; check the rendered DOM with the Playwright MCP snapshot or `--debug` when a role is unclear.
 
+Next.js renders its own empty `role="alert"` element, the route announcer, in development and in production, so
+`getByRole('alert')` alone fails with a strict mode violation. Use `getByRole('alert').filter({ hasText: /\S/ })`.
+
 ## Assertions Reference
 
 Use the auto-retrying `expect(locator)` assertions — never a plain boolean check, never `waitForTimeout`.
@@ -189,7 +240,7 @@ Use the auto-retrying `expect(locator)` assertions — never a plain boolean che
 | Assertion type       | Example                                                              |
 |----------------------|----------------------------------------------------------------------|
 | Visible              | `await expect(page.getByText('Saved')).toBeVisible()`                |
-| Exact text           | `await expect(page.getByRole('alert')).toHaveText('Email already registered')` |
+| Exact text           | `await expect(page.getByRole('alert').filter({ hasText: /\S/ })).toHaveText('Email already registered')` |
 | Row absent           | `await expect(page.getByRole('row', { name: /Single Room/ })).toHaveCount(0)` |
 | Field value          | `await expect(page.getByLabel('Full Name')).toHaveValue('Jane Doe')` |
 | URL after navigation | `await expect(page).toHaveURL(/\/room-types\/42$/)`                  |

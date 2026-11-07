@@ -7,8 +7,7 @@ description: >
   links. Owns the shared rules: no assumptions for specification gaps
   (recorded in docs/open_questions.md), decision rights, UC-XXX BR-YYY markers, no edits to tests or docs. Use when
   the user asks to "implement UC-001", "build this use case", "implement the use case end to end", "implement only the
-  API layer of UC-001", or mentions implementing a use case in a project that combines layer plugins (aiup-flyway,
-  aiup-jooq, aiup-jpa, aiup-spring-boot, aiup-vaadin, aiup-angular). For a project that uses a combined stack plugin
+  API layer of UC-001", or mentions implementing a use case in a project that combines layer plugins. For a project that uses a combined stack plugin
   (aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs), use that plugin's /implement instead.
 ---
 
@@ -240,8 +239,8 @@ or `Service` alone for a use case no actor reaches through either (a scheduled j
 - **Without the line**, every layer of the Layers table runs.
 - **With the line**, API and UI run only when the line names them. The line narrows only the entry layers:
   migration, persistence, and service run as they do without it, and one with nothing to do for this use case
-  says so in its Handover. A client-side UI that reaches the service through the API (Angular) implies its API layer,
-  so `UI` there runs the API layer too (the layer catalog of `/stack`, "Entry layers of a use case"). With
+  says so in its Handover. A client-side UI that reaches the service through the API (Angular, Next.js) implies its API
+  layer, so `UI` there runs the API layer too (the layer catalog of `/stack`, "Entry layers of a use case"). With
   `Service` alone, neither runs.
 - **A layer the line names that the Layers table marks `–`** is a contradiction between the specification and the
   architecture: stop before the first layer and ask whether `/stack` adds the layer or `/use-case-spec

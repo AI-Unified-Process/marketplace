@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether drizzle-persistence handles a write that spans two repositories without an ambient transaction: every statement must be able to run on the same tx handle, the repository rather than the service opens the transaction, the stock rule sits in the where of the update so concurrent orders cannot oversell, the existing ProductsRepository is extended rather than duplicated, and relative imports keep the .js suffix of a NodeNext project. The agent's messages are in session-log.md.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Orders repository",
+      "description": "An @Injectable OrdersRepository (or similar, for the order aggregate) in apps/api/src/orders/ injects the database with @Inject(DRIZZLE); order lines get no repository of their own",
+      "max_score": 10
+    },
+    {
+      "name": "Existing products repository extended",
+      "description": "The stock change is a new method on the existing ProductsRepository; no second repository or query path to the product table is created in the orders feature",
+      "max_score": 14
+    },
+    {
+      "name": "Shared transaction handle",
+      "description": "The order insert, the line insert, and the stock update each accept an optional tx parameter (for example tx: DbExecutor = this.db) and run on it, so all can join one transaction",
+      "max_score": 20
+    },
+    {
+      "name": "Repository opens the transaction",
+      "description": "A repository method such as transaction(work) wraps db.transaction, so the service need not touch the database; no service file is written",
+      "max_score": 14
+    },
+    {
+      "name": "Stock check in the update",
+      "description": "The stock decrement has the sufficient-stock condition in its where clause (for example gte(products.stock, quantity)) and reports whether a row changed, instead of a read followed by an unconditional write",
+      "max_score": 14
+    },
+    {
+      "name": "BR-002 marker",
+      "description": "'// UC-030 BR-002: ...' is directly above that stock condition",
+      "max_score": 8
+    },
+    {
+      "name": "NodeNext imports",
+      "description": "Every new relative import ends in .js, as the existing code does",
+      "max_score": 6
+    },
+    {
+      "name": "Handover",
+      "description": "session-log.md has a 'Handover from drizzle-persistence (UC-030)' block listing the method signatures including tx, saying which steps share one transaction, and ending with 'Next: /nest-service UC-030'",
+      "max_score": 14
+    }
+  ]
+}

@@ -125,7 +125,7 @@ addition, in every project:
 The use case's optional `**Layers:**` line (German `**Schichten:**`) narrows the Layers table to the entry layers that
 offer it — `UI`, `API`, or `Service` alone. An entry layer it leaves out has no code and no tests for this use case,
 and that is not a gap; an endpoint or view of this use case in a layer it leaves out is drift. A client-side UI
-that reaches the service through the API (Angular) implies its API layer: for a use case offered through `UI`
+that reaches the service through the API (Angular, Next.js) implies its API layer: for a use case offered through `UI`
 there, the API endpoints are part of the use case and its integration layer, never drift and never an omitted
 layer. The use case's integration layer is the first row of the Integration layer table that its
 `**Layers:**` line names, in the table's order UI, API, Service; without the line, the first row.

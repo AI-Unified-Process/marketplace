@@ -106,6 +106,9 @@ marketplace/
 ├── aiup-vaadin/                  # Layer plugin: UI + E2E (vaadin-flow-ui, hilla-ui, *-test, vaadin-e2e-test)
 ├── aiup-angular/                 # Layer plugin: UI (angular-ui, angular-ui-test)
 ├── aiup-playwright/              # Layer plugin: E2E for TypeScript (playwright-e2e-test)
+├── aiup-drizzle/                 # Layer plugin: migration + persistence (drizzle-schema, drizzle-persistence, *-test)
+├── aiup-nestjs/                  # Layer plugin: service + REST (nest-service, nest-rest, *-test)
+├── aiup-nextjs/                  # Layer plugin: UI (nextjs-ui, nextjs-ui-test)
 ├── docs/                         # User guides, installation docs, design notes (docs/design/), and templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
 ├── scripts/                      # Validation and publication helpers
@@ -120,16 +123,17 @@ marketplace/
   owns the construction orchestrators for layer plugins: `/stack`, `/use-case-implement`, `/use-case-test`,
   `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`; `aiup-spring-boot`: ≥ 3.10.0, for the API contracts),
+  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`; `aiup-spring-boot`: ≥ 3.10.0, for the API contracts; `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: ≥ 3.14.0, for the Next.js rules),
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
   it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot`: their skills build on its service
-  layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. A layer skill that reads a file of another
+  layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. `aiup-drizzle` declares
+  `aiup-nestjs` the same way; `aiup-nextjs` needs only core, so it can sit on any API layer. A layer skill that reads a file of another
   plugin must declare that plugin as a dependency. Tessl's plugin manifest has no dependency field — `tessl.json` is the project file that links the directory to
-  a Tessl project — so Tessl users install core, and `aiup-spring-boot` where it is declared, explicitly.
-- **Combined stack plugins** — UI, backend, and data access in one plugin. `aiup-vaadin-jooq` and `aiup-angular-jpa`
-  are deprecated (superseded by the layer plugins, removed with aiup-core 4.0.0). `aiup-blazor-dotnet` stays
+  a Tessl project — so Tessl users install core, and `aiup-spring-boot` or `aiup-nestjs` where it is declared, explicitly.
+- **Combined stack plugins** — UI, backend, and data access in one plugin. `aiup-vaadin-jooq`, `aiup-angular-jpa`,
+  and `aiup-nestjs-nextjs` are deprecated (superseded by the layer plugins, removed with aiup-core 4.0.0). `aiup-blazor-dotnet` stays
   combined for good: its Vertical Slice Architecture keeps a use case's handler and data access in one slice, which
-  horizontal layers would split. `aiup-nestjs-nextjs` stays until its layers are split out. Require core.
+  horizontal layers would split. Require core.
 
 A project uses either layer plugins or one combined stack plugin, never both.
 
@@ -145,7 +149,7 @@ Rules a change must keep:
 - Each build skill, and each E2E test skill, ships `references/layer.md` and `references/markers.md`. A new layer
   plugin of this marketplace also adds its row to the Plugins table of `layer-catalog.md`
   (`scripts/check-layer-catalog.sh`). The contract is `docs/guides/layer-skill.md`; keep it in step with the
-  skeleton under *Layer plugins (Java)*.
+  skeleton under *Layer plugins (Java, TypeScript)*.
 - Shared rules live once, in `/use-case-implement` and `/use-case-test`; layer skills and the `test-case-*` skills
   refer to them by slash command and never copy them.
 - Layers run bottom-up, and every layer skill ends with a **Handover** block.
@@ -356,7 +360,7 @@ Why: [`docs/design/mockups.md`](docs/design/mockups.md).
 
 Why: [`docs/design/api-contracts.md`](docs/design/api-contracts.md).
 
-### Layer plugins (Java)
+### Layer plugins (Java, TypeScript)
 
 | Plugin             | Layer             | Skills                                                                                  |
 |--------------------|-------------------|-----------------------------------------------------------------------------------------|
@@ -367,6 +371,9 @@ Why: [`docs/design/api-contracts.md`](docs/design/api-contracts.md).
 | `aiup-vaadin`      | UI, E2E           | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
 | `aiup-angular`     | UI                | `/angular-ui`, `/angular-ui-test`                                                       |
 | `aiup-playwright`  | E2E (TypeScript)  | `/playwright-e2e-test`                                                                  |
+| `aiup-drizzle`     | Migration, Persistence | `/drizzle-schema`, `/drizzle-persistence`, `/drizzle-persistence-test`             |
+| `aiup-nestjs`      | Service, API      | `/nest-service`, `/nest-rest`, `/nest-service-test`, `/nest-rest-test`                  |
+| `aiup-nextjs`      | UI                | `/nextjs-ui`, `/nextjs-ui-test`                                                         |
 
 Every layer skill follows the same skeleton: Instructions, Scope (consumes / produces / never touches), Run Directly
 or from /use-case-implement, technology sections with where the BR marker goes in this layer, Markers, DO NOT, Workflow,
@@ -375,7 +382,10 @@ no API layer; an API layer next to Flow or Hilla serves other clients. Vaadin Fl
 without a service layer (Service `–`, a thin `ui` + `domain` design): `/vaadin-flow-ui` then calls the repositories,
 and the persistence skills make the repository the transaction boundary. `hilla-ui-test` also writes one Java endpoint
 contract test (access annotation, `EndpointException` message per flow), because neither the mocked view tests nor
-the service tests run the endpoint. A new layer plugin needs a `references/layer.md` in its build skill (or its E2E
+the service tests run the endpoint. Next.js is a client-side UI: it always needs an API layer, no Server Component or
+Server Action touches the database, and `nextjs-ui-test` reports a Server Component as out of its reach. Drizzle has no
+ambient transaction, so the repository owns it, and `nest-service-test` runs against the real database because a stub
+would move the integration layer. A new layer plugin needs a `references/layer.md` in its build skill (or its E2E
 test skill) and a row in the Plugins table of `aiup-core/skills/stack/references/layer-catalog.md`.
 
 ### Angular / JPA (stack-specific, deprecated)
@@ -431,7 +441,7 @@ Rules a change must keep:
 
 Why: [`docs/design/coverage-agent.md`](docs/design/coverage-agent.md).
 
-### NestJS / Next.js (stack-specific)
+### NestJS / Next.js (stack-specific, deprecated)
 
 | Phase        | Skill (slash command) | Description                                                         |
 |--------------|-----------------------|---------------------------------------------------------------------|

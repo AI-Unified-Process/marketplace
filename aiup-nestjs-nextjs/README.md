@@ -6,6 +6,12 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # aiup-nestjs-nextjs
 
+> **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`,
+> and `aiup-playwright`, run by `/stack`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
+> `aiup-core` (3.14.0 or later). The layer plugins also cover a NestJS REST API without a UI and Next.js on another
+> backend. This plugin keeps working and will be removed with `aiup-core` 4.0.0; do not install it together with the
+> layer plugins in one project. See the [migration guide](../docs/migration.md) for moving an existing project.
+
 `aiup-nestjs-nextjs` is the AI Unified Process construction plugin for a NestJS API using Drizzle ORM over PostgreSQL and a Next.js
 App Router frontend. It turns the artifacts produced by [`aiup-core`](../aiup-core/) into schema migrations, a REST
 API, a web UI, and tests across both applications.

@@ -29,7 +29,7 @@
     {
       "name": "aiup-nestjs-nextjs",
       "source": "./aiup-nestjs-nextjs",
-      "description": "AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests"
+      "description": "Deprecated — use the layer plugins. AI Unified Process for the NestJS/Drizzle + Next.js stack - migrations, implementation, tests"
     },
     {
       "name": "aiup-flyway",
@@ -65,6 +65,21 @@
       "name": "aiup-playwright",
       "source": "./aiup-playwright",
       "description": "AI Unified Process end-to-end layer - Playwright browser tests for use cases and test case journeys of any web UI"
+    },
+    {
+      "name": "aiup-drizzle",
+      "source": "./aiup-drizzle",
+      "description": "AI Unified Process migration and persistence layers - Drizzle ORM schema, generated PostgreSQL migrations, repositories, and their tests"
+    },
+    {
+      "name": "aiup-nestjs",
+      "source": "./aiup-nestjs",
+      "description": "AI Unified Process service and API layers - NestJS services, REST controllers, and their tests"
+    },
+    {
+      "name": "aiup-nextjs",
+      "source": "./aiup-nextjs",
+      "description": "AI Unified Process UI layer - Next.js App Router pages on an API layer, and their component tests"
     }
   ]
 }

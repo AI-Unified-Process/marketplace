@@ -90,6 +90,9 @@ and the operations of an API contract agreed with a partner system, which the AP
 | Vaadin Flow or Hilla, jOOQ  | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Vaadin Flow and a REST API  | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| REST API, NestJS, Drizzle   | `aiup-drizzle`, `aiup-nestjs`                                                    |
+| Next.js, NestJS, Drizzle    | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  |
+| Next.js, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
 
 ### Combined stack plugins
 
@@ -98,7 +101,7 @@ and the operations of an API contract agreed with a partner system, which the AP
 | [`aiup-vaadin-jooq`](aiup-vaadin-jooq/)     | Vaadin Flow or Hilla with jOOQ (deprecated)   | Flyway, implementation, Browserless or Karibu, Playwright, coverage check                                                                       |
 | [`aiup-angular-jpa`](aiup-angular-jpa/)     | Angular with Spring Boot and JPA (deprecated) | Flyway, implementation, Spring Boot tests, Vitest, Playwright, coverage check                                                                   |
 | [`aiup-blazor-dotnet`](aiup-blazor-dotnet/) | C# and Blazor on .NET 10 with EF Core         | EF migrations, Vertical Slices, bUnit, xUnit, Playwright                                                                                        |
-| [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js App Router    | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                                                        |
+| [`aiup-nestjs-nextjs`](aiup-nestjs-nextjs/) | NestJS and Drizzle with Next.js (deprecated)  | Drizzle migrations, implementation, Vitest, Supertest, React Testing Library, Playwright                                                        |
 
 The coverage audit belongs to `aiup-core`: `/use-case-coverage` and `/test-case-coverage` run the read-only
 [`uc-coverage-layered`](aiup-core/agents/uc-coverage-layered.md) sub-agent on demand. It reports which parts of the
@@ -107,8 +110,8 @@ implementation and tests together; `/use-case-test` and `/test-case-implement` e
 running it themselves, so a construction round stays fast. Of the combined stack plugins, `aiup-vaadin-jooq` and
 `aiup-angular-jpa` have their own `/coverage-check`; `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit.
 
-`aiup-vaadin-jooq` and `aiup-angular-jpa` are deprecated in favour of the layer plugins and will be removed with
-`aiup-core` 4.0.0. The [migration guide](docs/migration.md) walks an existing project through the switch.
+`aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated in favour of the layer plugins and
+will be removed with `aiup-core` 4.0.0. The [migration guide](docs/migration.md) walks an existing project through the switch.
 `aiup-blazor-dotnet` stays a combined plugin: its Vertical Slice Architecture keeps a use case's handler and data
 access together in one slice, which horizontal layer plugins would split apart.
 
@@ -256,6 +259,9 @@ marketplace/
 ├── aiup-angular-jpa/
 ├── aiup-blazor-dotnet/
 ├── aiup-nestjs-nextjs/
+├── aiup-drizzle/
+├── aiup-nestjs/
+├── aiup-nextjs/
 ├── aiup-flyway/
 ├── aiup-jooq/
 ├── aiup-jpa/

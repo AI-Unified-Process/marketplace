@@ -1,0 +1,6 @@
+{
+  "description": "Drizzle repositories for a write across two repositories, with a shared transaction handle",
+  "include": [
+    "./inputs"
+  ]
+}

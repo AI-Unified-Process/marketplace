@@ -99,4 +99,17 @@ layer plugins can. Rules that hold it together:
 - **Names never collide with combined stacks.** Core's orchestrators are `use-case-<step>` and `test-case-<step>`
   names, next to `/use-case-spec` and `/test-case`, and layer skills are `<technology>-<layer>[-test]`, so old and
   new plugins can coexist on Tessl (`tessl__<skill>`). The names are final: they stay when the combined stacks are gone.
+- **The TypeScript stack keeps the same shape (#50).** `aiup-drizzle`, `aiup-nestjs`, and `aiup-nextjs` replace
+  `aiup-nestjs-nextjs`; E2E stays with `aiup-playwright`. Four differences from the Java stacks are deliberate.
+  `aiup-drizzle` holds both Migration and Persistence, because `schema.ts` is the input of both, and it declares
+  `aiup-nestjs`, as `aiup-jooq` declares `aiup-spring-boot`, because its repositories are NestJS providers;
+  `aiup-nextjs` needs only core, which is what lets Next.js sit on a Spring API. `nest-service-test` runs against the
+  real database, where the combined `/nest-test` stubbed repositories: a stub would be `backend mocked` and would drop
+  a Service-only use case to the persistence layer, so the stubbed tier survives only for pure logic and units out of
+  the integration layer's reach. Drizzle has no ambient transaction like `@Transactional`, and a service never touches
+  the database, so the repository owns the transaction, unlike jOOQ and JPA: an atomic write is one repository method,
+  and a write across repositories passes an optional `tx`. Generated migrations cannot carry test data, so the E2E
+  default of a repeatable Flyway migration has a Drizzle counterpart, the per-use-case seed of the `test-setup.md`
+  reference of `nest-service-test`. There is no `nest-client`: the combined plugin had none, and `/stack` turns a
+  confirmed system with Client `–` into a question.
 - **Layer skills run standalone too** (`/jooq-persistence UC-001`), reading the same inputs and implementing one layer.

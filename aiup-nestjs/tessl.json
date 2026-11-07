@@ -1,0 +1,5 @@
+{
+  "name": "ai-unified-process/aiup-nestjs",
+  "mode": "vendored",
+  "dependencies": {}
+}

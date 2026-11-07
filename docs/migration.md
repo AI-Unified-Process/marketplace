@@ -6,12 +6,12 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Moving from a combined stack plugin to layer plugins
 
-`aiup-vaadin-jooq` and `aiup-angular-jpa` are deprecated and will be removed with `aiup-core` 4.0.0. A project that
-uses one of them keeps its code, its
+`aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated and will be removed with `aiup-core`
+4.0.0. A project that uses one of them keeps its code, its
 tests, and everything under `docs/`; what changes is which plugins are installed, which commands run, and where the
 `UseCase` annotation lives. This guide walks through the change. `aiup-blazor-dotnet` stays combined: its
 Vertical Slice Architecture keeps a use case's handler and data access in one slice, which layer plugins would split
-apart. `aiup-nestjs-nextjs` stays combined until its layers are split out. Nothing here applies to either.
+apart. Nothing here applies to it.
 
 Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ, and the
 [layer catalog](../aiup-core/skills/stack/references/layer-catalog.md) for the layers and the plugins of each.
@@ -28,7 +28,8 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 
 ## 1. Replace the plugins
 
-Remove the combined plugin and install `aiup-core` 3.10.0 or later with one plugin per layer of the project. Never
+Remove the combined plugin and install `aiup-core` 3.10.0 or later (3.14.0 for `aiup-nestjs-nextjs`) with one plugin
+per layer of the project. Never
 keep both forms in one project: the combined plugin does not read `docs/architecture/stack.md`, and its `/implement` and
 the layer skills would build the same use case twice.
 
@@ -36,6 +37,7 @@ the layer skills would build the same use case twice.
 |--------------------|----------------------------------------------------------------------------------|---------------------------------------|
 | `aiup-vaadin-jooq` | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    | UI with Vaadin Flow, Service with Hilla |
 | `aiup-angular-jpa` | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` | API                                   |
+| `aiup-nestjs-nextjs` | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                | API                                   |
 
 Claude Code:
 
@@ -50,7 +52,8 @@ Claude Code:
 
 Tessl: remove the combined package from the project and install the layer packages, for example
 `tessl install ai-unified-process/aiup-flyway`. Tessl does not install dependencies: install `aiup-core` and, with
-`aiup-jooq`, `aiup-jpa`, or `aiup-vaadin`, also `aiup-spring-boot` explicitly. See the
+`aiup-jooq`, `aiup-jpa`, or `aiup-vaadin`, also `aiup-spring-boot`, and with `aiup-drizzle`, also `aiup-nestjs`
+explicitly. See the
 [Tessl guide](installation/tessl.md); for other agents see
 [Agent Plugins and manual setup](installation/other-agents.md).
 
@@ -71,6 +74,9 @@ first `/use-case-coverage` after the switch audits with the code marker and the 
 second one is precise.
 
 ## 3. Move the `UseCase` annotation to the test sources
+
+Java projects only. A project coming from `aiup-nestjs-nextjs` has no annotation: its tests carry the id in
+`describe('UC-XXX: …')`, which stays. Skip to the next section.
 
 The combined plugins created the annotation in `src/main/java/<root package>/usecase/UseCase.java`. The layer test
 skills search the **test** sources of the module under test for `@interface UseCase`, reuse it when it is there, and
@@ -99,6 +105,9 @@ tests gets its own copy in its own `src/test/java`; the Navigator plugin resolve
 | `/spring-boot-test`     | `/spring-rest-test`, the integration layer behind an Angular client, run by `/use-case-test UC-XXX`; `/spring-service-test` and `/jpa-persistence-test` only when a run names them (`/use-case-test UC-XXX service`) or a unit is out of the API's reach |
 | `/vitest-test`          | `/angular-ui-test`, run by `/use-case-test UC-XXX`                                                                                                                                                                                                       |
 | `/playwright-test`      | `/vaadin-e2e-test` or `/playwright-e2e-test`, run by `/use-case-test UC-XXX` as the last layer and by `/test-case-implement TC-XXX` alone                                                                                                                |
+| `/drizzle-migration`    | `/drizzle-schema`, run by `/use-case-implement` as the first layer |
+| `/nest-test`            | `/nest-rest-test`, the integration layer, run by `/use-case-test UC-XXX`; `/nest-service-test` and `/drizzle-persistence-test` only when a run names them or a unit is out of the API's reach |
+| `/react-test`           | `/nextjs-ui-test`, run by `/use-case-test UC-XXX` |
 | `/coverage-check`       | `/use-case-coverage UC-XXX`, `/test-case-coverage TC-XXX`                                                                                                                                                                                                |
 
 The orchestrators are named `use-case-<step>` and `test-case-<step>`, next to `/use-case-spec` and `/test-case`, and
@@ -118,7 +127,9 @@ there:
    renamed and not duplicated. Check the report of this first run: it must name the existing class it updated, not a
    second one. The class names the combined plugins used and the layer test skills write are the same for the Vaadin
    stack (`UC<id><Name>Test`, `UC<id><Name>ServiceTest` behind Hilla, `UC<id><Name>IT`); on the Angular stack the old
-   `/spring-boot-test` classes are named `UC<id><Name>Test`, while new API tests are `UC<id><Name>ApiTest`.
+   `/spring-boot-test` classes are named `UC<id><Name>Test`, while new API tests are `UC<id><Name>ApiTest`. On the NestJS stack the
+   tests are found by their `describe('UC-XXX: …')` block: existing `*.e2e-spec.ts` and `*.spec.ts` files stay where
+   they are, and specs with stubbed repositories count as tests below the integration layer.
 3. **`/use-case-coverage UC-XXX`** audits the result and suggests the next `**Status:**` value. Service and repository tests
    the combined plugin wrote are not gaps; they are reconciled when their layer runs and otherwise left in place.
 

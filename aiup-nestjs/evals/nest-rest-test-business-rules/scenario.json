@@ -1,0 +1,6 @@
+{
+  "description": "Write the API tests of a NestJS use case as the integration layer, creating the Vitest, Testcontainers, and seed setup",
+  "include": [
+    "./inputs"
+  ]
+}

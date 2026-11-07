@@ -7,8 +7,7 @@ description: >
   test layer shares: the specification is the oracle, a test that disagrees with the code stays failing, existing
   tests are reconciled rather than duplicated, and every test carries the use case id. Use when the user asks to
   "test UC-001", "write the tests for this use case", "test only the service layer",
-  or mentions tests for a use case in a project that combines layer plugins (aiup-jooq, aiup-jpa,
-  aiup-spring-boot, aiup-vaadin, aiup-angular, aiup-playwright). With a combined stack plugin (aiup-vaadin-jooq,
+  or mentions tests for a use case in a project that combines layer plugins. With a combined stack plugin (aiup-vaadin-jooq,
   aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs), use its test skills. A TC-* journey is
   /test-case-implement; a TC-*.md document is /test-case.
 ---

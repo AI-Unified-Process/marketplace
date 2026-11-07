@@ -1,0 +1,6 @@
+{
+  "description": "Build a NestJS service on a Drizzle repository Handover in a NodeNext project, with domain errors and constraint violations",
+  "include": [
+    "./inputs"
+  ]
+}
