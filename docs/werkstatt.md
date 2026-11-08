@@ -43,7 +43,7 @@ and the auditor read the specification, not the implementer's reasoning.
 | Implement | `/aiup-core:use-case-implement` (or `/<plugin>:implement`), with the spec diff against the default branch | – |
 | Test | `/aiup-core:use-case-test` (or the plugin's test skills) in a fresh session | – |
 | G2–G4 build and tests | The Build, Unit tests and Integration tests commands of `docs/architecture/stack.md` | fix round |
-| G5 spec coverage | The `uc-coverage-layered` agent (or the plugin's `uc-coverage`), read-only | fix round or test round |
+| G5 spec coverage | The `uc-coverage-layered` agent (or the plugin's `uc-coverage`), read-only; it reports every gap in one pass, and a later audit re-checks the previous matrix | fix round or test round |
 | Budget | `max_rounds` fix rounds and `max_cost_usd` per use case | stuck |
 
 A harness guard keeps each station in its lane: test code the implementer writes and production code the tester
@@ -111,8 +111,12 @@ jobs:
       AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}
 ```
 
-GitHub only dispatches a workflow whose file is on the default branch, so commit the stub there; the run itself
-goes on the change branch: `gh workflow run aiup-werkstatt.yml --ref change/online-booking`.
+GitHub offers a workflow for dispatch only when its file is on the default branch, but it runs the file **as it is on
+the ref the run goes on**. Commit the stub to the default branch and create the change branches from there; the run
+goes on the change branch: `gh workflow run aiup-werkstatt.yml --ref change/online-booking`. When the stub changes
+later (another `model`, a higher `max_cost_usd`, the `AIUP_PR_TOKEN` line), merge the default branch into every open
+change branch before its next run; otherwise that run still uses the change branch's old stub. Secrets are the
+exception: they belong to the repository and reach every branch at once.
 
 ### CI on the pull request
 
@@ -150,7 +154,7 @@ falls back to `GITHUB_TOKEN`: the pull request is opened all the same, only with
 | `artifact_locations` | empty | Prompt hint when the artifacts are not at the default paths |
 | `model` | `claude-sonnet-5` | Model of every station |
 | `max_turns` | `150` | Turns per station; it stops loops, the cost budget is the real limit |
-| `max_rounds` | `3` | Fix rounds per use case |
+| `max_rounds` | `4` | Fix rounds per use case |
 | `max_cost_usd` | `15` | Cost budget per use case |
 | `timeout_minutes` | `180` | Upper limit of the whole run; the stations stop 10 minutes earlier |
 

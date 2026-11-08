@@ -486,6 +486,10 @@ command names and would collide, and a combined plugin next to layer plugins wou
   still reach the pull request.
 - A ready use case's linked requirements follow its status in the same commit (`werkstatt.py requirements`, which
   imports `derived_status()` from `spec_lint.py`; `/spec-review` stays read-only). `Deferred`/`Rejected` stay.
+- The audit reports every gap in one pass; a later audit re-checks the previous round's matrix
+  (`coverage-r<round>.md`). `max_rounds` defaults to 4.
+- A dispatched run reads the stub from the change branch, not from the default branch: a stub change reaches an
+  open change branch only by merging the default branch into it.
 - `max_turns` defaults to 150; a session cut off by it (`error_max_turns`) is recorded in the metrics and the report.
 - The optional secret `AIUP_PR_TOKEN` opens the pull request, so the project's CI runs on it; without it,
   `GITHUB_TOKEN` opens it without checks.

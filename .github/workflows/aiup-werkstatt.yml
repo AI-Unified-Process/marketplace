@@ -56,7 +56,7 @@ on:
       max_rounds:
         description: Fix rounds per use case before it counts as stuck
         required: false
-        default: "3"
+        default: "4"
         type: string
       max_cost_usd:
         description: Cost budget per use case in USD

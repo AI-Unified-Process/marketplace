@@ -27,7 +27,7 @@ UC="${UC:?UC is required, e.g. UC-003}"
 ENGINE="${ENGINE:?ENGINE is required}"
 MODEL="${MODEL:-claude-sonnet-5}"
 MAX_TURNS="${MAX_TURNS:-150}"
-MAX_ROUNDS="${MAX_ROUNDS:-3}"
+MAX_ROUNDS="${MAX_ROUNDS:-4}"
 MAX_COST_USD="${MAX_COST_USD:-15}"
 STACK_PLUGIN="${STACK_PLUGIN:-}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
@@ -43,6 +43,7 @@ F=".werkstatt/$UC"
 mkdir -p "$F"
 TOTAL_COST=0
 ROUNDS=0
+LAST_COVERAGE=""   # the matrix of the previous audit, kept per round as coverage-r<round>.md
 START_TIME=$(date +%s)
 START_SHA=$(git rev-parse HEAD)
 
@@ -246,13 +247,24 @@ while true; do
   if [ $BUILD_RC -eq 0 ]; then
     [ -n "$AUDIT_AGENT" ] || finish ready "Build and tests are green. $STACK_PLUGIN has no coverage audit, so the status moves to Implemented only." Implemented
     # -------------------------------------------------------------- G5: spec coverage (read-only)
-    rm -f "$F/coverage.json"
+    rm -f "$F/coverage.json" "$F/coverage.md"
+    # Every gap costs a fix or test round, so the audit reports all of them at once; a later audit re-checks the
+    # whole matrix of the previous one instead of stopping at the first new gap it finds.
+    PREVIOUS=""
+    [ -n "$LAST_COVERAGE" ] && PREVIOUS="The previous audit's matrix is $LAST_COVERAGE; the gaps it listed were worked
+on since. Check every row of it again, and look for what it may have missed, before you decide."
     station audit "Use $AUDIT_AGENT to audit the use case $UC ($SPEC) against its specification: every main
 success scenario step, alternative flow, business rule, precondition and postcondition against the code and tests.
+Report every gap you find in one pass, not only the first ones: each gap left for a later audit costs another round.
+$PREVIOUS
 Write the coverage matrix as Markdown to $F/coverage.md and the result to $F/coverage.json:
 {\"complete\": true|false, \"code_gaps\": [\"...\"], \"test_gaps\": [\"...\"]}.
 Change no other file. Do not run git."
     git checkout -q -- . && git clean -fdq -e .werkstatt/ -e .aiup-werkstatt-engine/   # the audit is read-only
+    if [ -f "$F/coverage.md" ]; then
+      cp "$F/coverage.md" "$F/coverage-r$ROUNDS.md"
+      LAST_COVERAGE="$F/coverage-r$ROUNDS.md"
+    fi
     if [ "$(jq -r '.complete // false' "$F/coverage.json" 2>/dev/null)" = "true" ]; then
       finish ready "All gates are green." Tested
     fi

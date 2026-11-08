@@ -10,7 +10,8 @@
 #   1. ready, blocked, pending: a green use case moves to Tested with its code and its requirements follow, a
 #      blocked one keeps only its open question, the next one is not built; the lane guard reverts test code of the
 #      implementer and production code of the tester, and keeps the tester's build file; a session cut off by the
-#      turn limit is recorded.
+#      turn limit is recorded; an audit that finds a gap leads to a test round, and the next audit gets the
+#      previous round's matrix.
 #   2. the deadline: a use case still running is stopped and dropped, the one before it keeps its result.
 #   3. a deadline already past: nothing is built, every use case is pending.
 #
@@ -34,15 +35,25 @@ mkdir -p "$WORK/bin"
 cat > "$WORK/bin/claude" <<'FAKE'
 #!/usr/bin/env bash
 # Plays one Werkstatt station. FAKE_BLOCK and FAKE_SLEEP name the use cases that block or hang in the implementer,
-# FAKE_MAXTURNS the ones whose test session ends at the turn limit.
+# FAKE_MAXTURNS the ones whose test session ends at the turn limit, FAKE_GAPS the ones whose first audit finds a
+# test gap. FAKE_LOG collects the audit prompts.
 prompt="$2"
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
 case "$prompt" in
   *uc-coverage*)
     out=$(printf '%s' "$prompt" | grep -oE '\.werkstatt/UC-[0-9]+/coverage\.json' | head -1)
+    printf '%s\n----\n' "$prompt" >> "${FAKE_LOG:-/dev/null}"
     echo '| Element | Code | Test |' > "${out%.json}.md"
-    echo '{"complete": true, "code_gaps": [], "test_gaps": []}' > "$out"
+    case " ${FAKE_GAPS:-} " in
+      *" $uc "*) if printf '%s' "$prompt" | grep -q "previous audit's matrix"; then gaps=0; else gaps=1; fi ;;
+      *) gaps=0 ;;
+    esac
+    if [ "$gaps" = 1 ]; then
+      echo '{"complete": false, "code_gaps": [], "test_gaps": ["Step 1 has no test"]}' > "$out"
+    else
+      echo '{"complete": true, "code_gaps": [], "test_gaps": []}' > "$out"
+    fi
     echo "audit scribble" > README.md   # the audit is read-only: the harness must undo this
     ;;
   *use-case-test*)
@@ -113,7 +124,7 @@ status_of() { sed -n 's/^\*\*Status:\*\* *//p' "$1/docs/use_cases/$2-case.md"; }
 
 # ---------------------------------------------------------------- 1. ready, blocked, pending
 R="$WORK/one"; fixture "$R"
-change "$R" "$WORK/one.log" FAKE_BLOCK=UC-002 FAKE_MAXTURNS=UC-001
+change "$R" "$WORK/one.log" FAKE_BLOCK=UC-002 FAKE_MAXTURNS=UC-001 FAKE_GAPS=UC-001 FAKE_LOG="$WORK/audits.log"
 expect_grep "1 outcome" "^outcome=blocked$" "$R.output"
 expect_eq "1 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
 expect_eq "1 UC-001 status" "$(status_of "$R" UC-001)" Tested
@@ -143,6 +154,12 @@ expect_grep "1 report lists the requirements" "Requirements: FR-001: Open -> Ver
 expect_grep "1 turn limit in the report" "test session of round 0 stopped at the turn limit (max_turns 5)" "$R/.werkstatt/report.md"
 expect_grep "1 turn limit in the metrics" '"station":"test","round":0,"exit":1,"subtype":"error_max_turns"' \
   "$R/.werkstatt/UC-001/metrics.jsonl"
+expect_eq "1 UC-001 one test round" "$(jq -r .fix_rounds "$R/.werkstatt/UC-001/summary.json")" 1
+expect_file "1 matrix of round 0 kept" "$R/.werkstatt/UC-001/coverage-r0.md"
+expect_file "1 matrix of round 1 kept" "$R/.werkstatt/UC-001/coverage-r1.md"
+expect_grep "1 audit asks for every gap" "Report every gap you find in one pass" "$WORK/audits.log"
+expect_grep "1 second audit gets the previous matrix" "previous audit's matrix is .werkstatt/UC-001/coverage-r0.md" \
+  "$WORK/audits.log"
 expect_eq "1 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
 # ---------------------------------------------------------------- 2. the deadline stops a running use case

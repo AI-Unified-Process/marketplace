@@ -57,7 +57,9 @@ again from the answered specification.
 Only `spec_lint.py` decides G1, for the same reason only it may fail a build in `/spec-review`: the same input
 gives the same result. The build gate runs the commands the stack file records rather than guessing a build tool.
 The coverage audit (G5) is read-only and reports gaps in code and tests separately, so a gap in the tests goes back
-to the tester, not to the implementer. The cost budget is the real limit of a station; `max_turns` only stops a
+to the tester, not to the implementer. Each gap costs a round, so the audit is asked for all of them at once, and a
+later audit gets the previous matrix to re-check row by row: in the first runs, audits that each found one new gap
+used up the rounds of a use case whose code was right. The cost budget is the real limit of a station; `max_turns` only stops a
 session that loops, so its default is high (150). A session it cuts off is recorded, not failed: what it wrote may
 still pass the gates, and when it does not, the fix round that follows shows why. A use case that does not get green within its rounds or its budget is
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
