@@ -97,7 +97,9 @@ neither the entity model nor the glossary defines.
   `references/open-questions.md`. **Raised by** is the skill that found the gap (`/use-case-implement`, or the layer
   skill) and today's date; the body holds the readings you saw. A part left out is `**Blocking:** Yes`,
   `**Status:** Open`. A reading the user chose is `**Status:** Answered`, with the reading as **Answer** and the user
-  (`git config user.name`) as **Answered by**; it is `**Blocking:** No`, because the code now follows it.
+  (`git config user.name`) as **Answered by**; it is `**Blocking:** No`, because the code now follows it. Name
+  exactly one element per section, and check the file right after writing as section "Checking the File" of that
+  skill says (`spec_lint.py --questions`); fix every finding on a section you wrote.
 - Never edit an existing test or a file under `docs/` — a specification, test case, requirement, the entity model,
   the glossary. The exceptions are the Markers table of `docs/architecture/stack.md`, which the layer skills
   maintain, and new sections appended to `docs/open_questions.md`; never change a section that is already there.

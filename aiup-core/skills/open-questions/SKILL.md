@@ -100,8 +100,25 @@ together and the body between them, as above.
 | a glossary term                                   | `Glossary: Loan`                     |
 | an entity or an attribute of the entity model     | `Entity: BOOK`, `Entity: BOOK.isbn`  |
 
-A question names exactly one element, the most specific one the gap is about. A question that is no question about
-the specification — scope, priority, budget, a deadline — belongs in the team's issue tracker, not here.
+A question names exactly one element, the most specific one the gap is about. A gap that spans several steps or
+flows of one use case names the use case and lists them in the body, or becomes one question per element — never a
+list (`UC-003 A1, A2`) or an annotation (`UC-003 (scope)`). A question that is no question about the specification —
+scope, priority, budget, a deadline — belongs in the team's issue tracker, not here.
+
+### Checking the File
+
+Whoever appends or changes a section — this skill or any other — checks the file right after writing, with the lint
+of `/spec-review`: locate `spec_lint.py` with a glob for `**/*spec-review/scripts/spec_lint.py` (the folder may carry
+a host prefix such as `tessl__spec-review`) and run
+
+```bash
+python3 <that path> --docs docs --questions
+```
+
+It reports only the findings in `docs/open_questions.md`: a missing field, an element of no known form or naming more
+than one element, a duplicate id, an element that points to nothing. Fix every finding on a section you wrote and run
+it again until none is left; a finding on a section someone else wrote goes into your report, unchanged. When the
+script cannot be found, check each section you wrote against the field table and "Elements" above by hand.
 
 ### Statuses
 
@@ -138,11 +155,12 @@ coverage audit does not suggest `Tested`. A question on a glossary term or an en
 5. Append the section with the next id, `**Status:** Open`, and **Raised by** the person who asked (their name, or
    `git config user.name` when they confirm it) and today's date. Write the readings the user named, or the ones you
    see in the specification, into the body.
-6. Report the id and the section.
+6. Check the file as "Checking the File" says.
+7. Report the id and the section.
 
 Another skill that finds a gap in the middle of its run — `/use-case-implement`, a layer skill, `/use-case-test`,
-`/use-case-spec`, `/requirements`, `/entity-model` — appends its section itself in this format and does not run this
-skill; its own instructions say when.
+`/use-case-spec`, `/requirements`, `/entity-model` — appends its section itself in this format, checks the file as
+"Checking the File" says, and does not run this skill; its own instructions say when.
 
 ## In the Clarify Step of a Specification Skill
 
@@ -171,6 +189,7 @@ only:
 5. **Withdraw** an `Open` or `Answered` question whose element the skill removed or rewrote so that the question no
    longer applies — an `Obsolete` use case, a deleted flow or requirement, a removed entity — with the reason in
    `**Withdrawn:**`.
+6. **Check the file** as "Checking the File" says, when the skill wrote to it.
 
 The report's **Clarified**, **Assumed**, and **Open** lines name the ids of the questions resolved, recorded, and
 withdrawn.
@@ -199,6 +218,7 @@ OQ-XXX` for an `Open` question, and for an `Answered` one the skill that resolve
    answer to an assumed default may be `Confirmed` or a correction.
 3. Add `**Answer:**` and `**Answered by:**` (the person who answered, as for **Raised by**) after the body, and set
    `**Status:** Answered`. When the question was already answered, show the old answer and ask before replacing it.
+   Check the file as "Checking the File" says.
 4. Hand off to the skill that resolves it — `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`.
 
 ## Withdrawing a Question

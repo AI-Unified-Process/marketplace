@@ -158,6 +158,8 @@ Every requirement must pass these checks before finalizing:
     - Categorize by constraint type
     - Name the source of each regulatory or externally imposed constraint in the Source column
 8. Validate: run every requirement against the quality checks table above
+    - When you wrote to `docs/open_questions.md`, check it as section "Checking the File" of `/open-questions` says
+      (`spec_lint.py --questions`) and fix every finding on a section you wrote
     - No duplicate IDs across all tables
     - All Status columns filled
     - **Hard gate:** every FR User Story matches "As a [role], I want [goal] so

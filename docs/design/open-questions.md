@@ -31,6 +31,11 @@ ends at `Resolved` once its answer is in the specification.
   as ERROR at `Tested`/`Done` — an ERROR at `Approved` would fail CI as soon as implementation records a gap, and no
   skill may change the status line. `/use-case-implement` asks before going ahead; when no one can answer, it
   leaves out only the elements the question is about. The coverage agents never suggest `Tested` past one.
+- **The writer checks its own section.** Every skill that writes a section runs `spec_lint.py --questions` right
+  after writing (`/open-questions`, "Checking the File") and fixes the findings on its own sections. Generated
+  sections once named several elements (`UC-001 A1, A2, A3`) or none (`UC-002 (scope)`) and failed only a later
+  `/spec-review`, far from the run that wrote them; a list or an annotation now gets its own `OQ_INVALID` message.
+  The check reuses the lint instead of a second parser, so the Element forms live in one regex.
 - **History is not checked.** `DANGLING_REF` covers only `Open` and `Answered` questions; `Resolved` and
   `Withdrawn` ones may point to renumbered elements.
 - The Studio never runs `/open-questions` (`LEFT_OUT` of `check-generate-catalogue.sh`); `spec_lint.py --report`

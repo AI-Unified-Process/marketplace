@@ -185,6 +185,8 @@ in the implementation, not the specification.
     Fix every reported problem and re-run until it exits cleanly. Errors mean the
     Studio structured editor cannot read the file; warnings mean a rule of this
     skill is violated — e.g. an implementation term in a step, which "Step writing guidelines" shows how to rewrite.
+    When you wrote to `docs/open_questions.md`, check it as section "Checking the File" of `/open-questions` says
+    (`spec_lint.py --questions`) and fix every finding on a section you wrote.
 15. Mark todo complete.
 16. **Quality gate — hand off, do not self-review.** The validator checks structure; it cannot judge
     whether a use case is a user goal, whether its actors are right, whether the scenario reaches the

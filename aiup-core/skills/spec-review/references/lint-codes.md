@@ -38,7 +38,7 @@ errors.
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
 | ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias | `/use-case-diagram` |
 | ERROR    | `OQ_BLOCKING`           | A use case at `Tested` or `Done` while a blocking open question on it is `Open` or `Answered`; a question on an FR, NFR, or C counts against every use case that links it | `/use-case-spec`, `/requirements` |
-| ERROR    | `OQ_INVALID`            | An open question without an `**Element:**`, `**Raised by:**`, `**Blocking:**`, or `**Status:**` line, with an unknown status, Blocking other than Yes or No, an element of no known form, or `Answered` without `**Answer:**`, `Resolved` without `**Resolved in:**`, `Withdrawn` without `**Withdrawn:**` | `/open-questions` |
+| ERROR    | `OQ_INVALID`            | An open question without an `**Element:**`, `**Raised by:**`, `**Blocking:**`, or `**Status:**` line, with an unknown status, Blocking other than Yes or No, an element of no known form or naming more than one element (`UC-001 A1, A2`), or `Answered` without `**Answer:**`, `Resolved` without `**Resolved in:**`, `Withdrawn` without `**Withdrawn:**` | `/open-questions` |
 | ERROR    | `BP_ID_MISMATCH`        | A process model whose `BP-XXX` process id and file name prefix (`BP-XXX-<name>.bpmn`) differ  | `/business-process` |
 | WARN     | `ACTOR_MISMATCH`        | A primary or secondary actor of a specification that `use_cases.puml` does not connect to the use case (or does not declare), or an actor the diagram connects that the specification does not list. Actors are compared by name, primary and secondary together; an actor inherits its parent's links (`Manager --|> Clerk`); a use case the diagram connects to no actor is skipped | `/use-case-spec` or `/use-case-diagram` |
 | WARN     | `MODULE_MISMATCH`       | A specification that does not lie in the folder of the module whose diagram holds its use case | move the file       |
@@ -79,6 +79,7 @@ broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_RE
 |------------------------------|-----------------------------------------------------------------------------------------|
 | `--docs DIR`                 | documentation folder (default `docs`)                                                    |
 | `--only UC-XXX` / `TC-XXX` / `BP-XXX` / `ADR-XXX` | report only findings about this element                             |
+| `--questions`                | report only findings in `open_questions.md`; a skill runs it after appending a question |
 | `--strict`                   | fail on warnings too                                                                     |
 | `--format json`              | print `{"findings": [...], "summary": {...}}`                                            |
 | `--baseline FILE`            | use this baseline (default `DIR/.spec-lint-baseline.json` when it exists)               |

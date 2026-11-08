@@ -273,6 +273,8 @@ Why: [`docs/design/next.md`](docs/design/next.md).
 - Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve or
   withdraw; `/spec-review` and the coverage agents only read.
 - `OQ_BLOCKING` is WARN at `Approved`/`Implemented` and ERROR at `Tested`/`Done`.
+- A question names exactly one element. Every skill that writes a section checks the file right after with
+  `spec_lint.py --questions` and fixes its own findings.
 - The Studio never runs `/open-questions` (`LEFT_OUT`).
 
 Why: [`docs/design/open-questions.md`](docs/design/open-questions.md).

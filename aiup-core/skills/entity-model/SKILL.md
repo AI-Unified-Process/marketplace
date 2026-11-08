@@ -234,4 +234,6 @@ module's folder under `docs/use_cases/`. Keep that structure when you update the
     - Every Validation Rules cell is a key value, or a nullability rule followed by rules of the vocabulary in the order of its Position column
     - With modules: every entity has one section in one module file, every entity a module's diagram names is its own
       or listed in its `From other modules:` line, and the `## Modules` table links every module file
+    - When you wrote to `docs/open_questions.md`, check it as section "Checking the File" of `/open-questions` says
+      (`spec_lint.py --questions`) and fix every finding on a section you wrote
 7. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist
