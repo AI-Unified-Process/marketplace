@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # AI Unified Process Software Werkstatt: Architecture
 
-> **Status: incubating** on `main`, not yet behind `v1`. This page is the concept: roles, stations, gates, branch
+> **Status: released** behind `v1`; the AI Unified Process Studio starts it (Studio UC-061). This page is the concept: roles, stations, gates, branch
 > model, metrics and rollout. How to run it: [werkstatt.md](werkstatt.md). Why it works this way:
 > [design/werkstatt.md](design/werkstatt.md).
 
@@ -148,8 +148,8 @@ Version 1 runs fully on GitHub Actions with headless Claude Code. No extra serve
 - **Shared implementation.** The reusable workflow `.github/workflows/aiup-werkstatt.yml` of this marketplace,
   next to `aiup-generate.yml`. A thin stub in the project repository calls it. The stations live in
   `pipelines/werkstatt/` and are checked out at `engine_ref`, the same tag or branch as the stub's `uses:` line.
-- **Start.** Manually with `workflow_dispatch` on a change branch, with or without UC ids. Later the AI Unified
-  Process Studio starts it, like a generate run.
+- **Start.** From the AI Unified Process Studio, like a generate run (Studio UC-061), or by hand with
+  `workflow_dispatch` on a change branch, with or without UC ids.
 - **Selection.** Without UC ids, every UC whose specification differs from the merge base with the default branch
   and whose status is *Approved*.
 - **The status is the memory.** A finished UC moves to *Tested* in the pull request (*Implemented* when the stack
@@ -215,10 +215,10 @@ Start with one UC on a test project and grow only when the numbers are stable.
 2. **Test project.** A Vaadin/jOOQ room booking project with two UCs (`simasch/werkstatt-demo`): ready, blocked on
    a specification gap, answered, and ready again, with the project's CI on every pull request. Opus 5.5 built both
    UCs with no fix round for about 3 USD each; Sonnet 5 needed three rounds for one and decided a gap silently. Done.
-3. **AI Unified Process Studio.** Specification first: vision, requirements and use cases for starting a run on a
-   change, showing the stations and the outcome per UC, and the change branch with its own pull request. Then the
-   code.
-4. **Release.** Merge into `main`, move `v1`, and the Studio offers the Werkstatt. Bitbucket follows.
+3. **AI Unified Process Studio.** Specification first (Studio UC-061, and UC-042, UC-052, UC-004 extended), then the
+   code: starting a run on the branch the user works on, the outcome per UC after the run, and the change branch's
+   own pull request. Done.
+4. **Release.** Merged into `main`, `v1` moved, and the Studio offers the Werkstatt. Done. Bitbucket follows.
 5. **Client project.** A brownfield project, with the Werkstatt as an opt-in per module.
 
 | Risk | Mitigation |

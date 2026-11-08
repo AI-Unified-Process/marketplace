@@ -6,8 +6,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # The AI Unified Process Werkstatt
 
-> **Status: incubating** on `main`. Not yet behind the `v1` tag, not yet offered by the AI Unified Process Studio.
-> Try it in a test repository with the stub below; it runs the Werkstatt as it is on `main`.
+> **Status: released** behind the `v1` tag. The AI Unified Process Studio sets it up and starts it (Studio UC-061);
+> without the Studio, commit the stub below and dispatch it by hand.
 >
 > The concept (roles, stations, gates, branch model, metrics, rollout): [werkstatt-architecture.md](werkstatt-architecture.md).
 
@@ -76,13 +76,14 @@ opened: a use case still running then ends `stuck`, the ones before it keep thei
 out between two use cases the run's outcome is `pending`. The status is the memory between runs: a built use case is `Tested` after the merge
 into the change branch and is no longer selected; a blocked, stuck or pending one stays `Approved`.
 
-## Setting it up in a test repository
+## Setting it up
 
 Prerequisites: a project with the AI Unified Process artifacts, a filled `docs/architecture/stack.md` (Layers and
 Commands, written by `/stack`), and the secret `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` in the repository.
 Allow GitHub Actions to create pull requests (Settings → Actions → General → Workflow permissions).
 
-Stub `.github/workflows/aiup-werkstatt.yml`:
+The Studio writes the stub during its generation setup (Studio UC-042), next to the one of `aiup-generate`. By
+hand, the stub `.github/workflows/aiup-werkstatt.yml` is:
 
 ```yaml
 name: AI Unified Process Werkstatt
@@ -100,11 +101,11 @@ permissions:
   pull-requests: write
 jobs:
   werkstatt:
-    uses: AI-Unified-Process/marketplace/.github/workflows/aiup-werkstatt.yml@main
+    uses: AI-Unified-Process/marketplace/.github/workflows/aiup-werkstatt.yml@v1
     with:
       use_cases: ${{ inputs.use_cases }}
       correlation_id: ${{ inputs.correlation_id || github.run_id }}
-      engine_ref: main
+      engine_ref: v1
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -169,7 +170,8 @@ result subtype, cost, seconds), the build logs, the lint output and the coverage
 ## Not yet
 
 - Bitbucket Pipelines (the GitHub reusable workflow only).
-- The Studio: starting a run, showing the stations, the change branch as a concept.
+- The Studio shows the outcome per use case once the run has ended, not the station a running use case is in, and
+  it has no change branch as a concept of its own: the Werkstatt runs on the branch the user works on.
 - Blocking questions on a requirement (`FR-`) count only when their element names the use case.
 - End-to-end tests are not part of the build gate; the coverage audit still reports a missing browser test.
 - A GitHub App as the author of the pull request: the reusable workflow would have to create the App token itself

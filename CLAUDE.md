@@ -111,7 +111,7 @@ marketplace/
 ├── aiup-nextjs/                  # Layer plugin: UI (nextjs-ui, nextjs-ui-test)
 ├── docs/                         # User guides, installation docs, design notes (docs/design/), and templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
-│   └── werkstatt/                # Werkstatt stations (incubating), run by .github/workflows/aiup-werkstatt.yml
+│   └── werkstatt/                # Werkstatt stations, run by .github/workflows/aiup-werkstatt.yml
 ├── scripts/                      # Validation and publication helpers
 └── README.md
 ```
@@ -468,11 +468,11 @@ Each combined stack plugin ships its own `/implement` and testing skills. A proj
 layer plugins (one per technical layer) or exactly one combined stack plugin, never both: two combined plugins share
 command names and would collide, and a combined plugin next to layer plugins would build the same use case twice.
 
-#### Werkstatt (incubating)
+#### Werkstatt
 
 - `.github/workflows/aiup-werkstatt.yml` builds the `Approved` use cases of a change branch through the stations in
   `pipelines/werkstatt/` (spec lint, implement, test, build, coverage audit, fix rounds), each agent station in its
-  own `claude -p` session. Not behind `v1` yet; the Studio does not offer it yet.
+  own `claude -p` session. Released behind `v1`; the Studio sets it up and starts it (Studio UC-061).
 - The result is one pull request against the change branch, never a commit on it (Studio C-004).
 - The status is the memory: a finished use case moves to `Tested` in the pull request (`Implemented` without a
   coverage audit), forward only, in the language of the specification; blocked, stuck and pending ones stay
