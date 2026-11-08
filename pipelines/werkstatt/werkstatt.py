@@ -76,11 +76,14 @@ def plugins(args):
         stack = read(args.stack) if os.path.isfile(args.stack) else ""
         if not stack:
             sys.exit(f"{args.stack} is missing: a layered project needs its stack file. Run /stack first.")
-        named = set(re.findall(r"`([a-z0-9-]+)`", "\n".join(
-            line for line in stack.splitlines() if line.startswith("|"))))
+        # Every table cell of the stack file, with or without backticks: /stack writes the Skill and Test skill
+        # columns of the Layers table bare and the Integration layer table in backticks.
+        named = {cell.strip().strip("`").strip()
+                 for line in stack.splitlines() if line.startswith("|")
+                 for cell in line.strip().strip("|").split("|")} - {"", "–", "-"}
         for cells in table_rows(read(args.catalog), "Plugins"):
             plugin = cells[0].strip("`")
-            skills = {c.strip("`") for c in cells[2:4]}
+            skills = {c.strip("`") for c in cells[2:4]} - {"", "–", "-"}
             if named & skills and plugin not in selected:
                 selected.append(plugin)
         if len(selected) == 1:

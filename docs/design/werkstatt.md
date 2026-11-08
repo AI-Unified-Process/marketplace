@@ -34,7 +34,9 @@ rejected pull request leaves the specification as it was.
 The tester and the auditor run in sessions of their own, so the specification stays the oracle: a test written by
 the agent that wrote the code tends to confirm the code. The same holds the other way: the implementer may not
 change tests, and the tester may not change production code. The guard reverts what crosses the lane instead of
-failing the run, and lists it in the pull request, so a drifting skill shows up in review.
+failing the run, and lists it in the pull request, so a drifting skill shows up in review. Build files are not
+production code: the test skills add test dependencies and runner configuration, and reverting them would only
+turn the tests red. The tester's changes to them are kept and listed in the pull request all the same.
 
 ## The andon cord is read from the file
 

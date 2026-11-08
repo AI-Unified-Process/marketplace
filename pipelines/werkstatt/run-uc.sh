@@ -34,6 +34,8 @@ ARTIFACT_LOCATIONS="${ARTIFACT_LOCATIONS:-}"
 HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
 # Test code by path: Java/Kotlin test sources, test folders, TypeScript and .NET test files.
 TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.cs\$}"
+# Build files: the tester may add a test dependency or adjust a test runner's configuration. Kept, and listed.
+BUILD_REGEX="${BUILD_REGEX:-(^|/)(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|gradle/libs\\.versions\\.toml|package(-lock)?\\.json|pnpm-lock\\.yaml|yarn\\.lock|angular\\.json|tsconfig[^/]*\\.json|[^/]*\\.config\\.[cm]?[jt]s|[^/]*\\.csproj|Directory\\.(Packages|Build)\\.props)\$}"
 OQ_FILE=docs/open_questions.md
 
 F=".werkstatt/$UC"
@@ -110,12 +112,16 @@ over_budget() { awk -v t="$TOTAL_COST" -v m="$MAX_COST_USD" 'BEGIN{exit !(t>m)}'
 
 # Harness rule: a station may only change its own kind of file. Everything else is reverted.
 #   guard tests  -> the implementer may not touch test code
-#   guard code   -> the tester may only touch test code and the open questions
+#   guard code   -> the tester may only touch test code, build files (listed) and the open questions
 guard() {
   local mode="$1" file
   git add -A
   while IFS= read -r file; do
     [ -n "$file" ] || continue
+    if [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]] && [[ "$file" =~ $BUILD_REGEX ]]; then
+      echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
+      continue
+    fi
     if [ "$mode" = tests ] && [[ "$file" =~ $TEST_REGEX ]]; then :
     elif [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]] && [ "$file" != "$OQ_FILE" ]; then :
     else continue

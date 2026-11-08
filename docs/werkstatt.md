@@ -45,7 +45,9 @@ and the auditor read the specification, not the implementer's reasoning.
 | Budget | `max_rounds` fix rounds and `max_cost_usd` per use case | stuck |
 
 A harness guard keeps each station in its lane: test code the implementer writes and production code the tester
-writes are reverted and listed in the pull request.
+writes are reverted and listed in the pull request. Build files (`pom.xml`, `package.json`, a test runner's
+configuration, and the like) are the exception for the tester: a test may need a dependency, so they are kept and
+listed.
 
 **The andon cord.** When a station meets a gap in the specification, it records a blocking open question in
 `docs/open_questions.md` (`**Blocking:** Yes`) instead of guessing. The Werkstatt detects the question from the file,
