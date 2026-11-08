@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # AI Unified Process Software Werkstatt: Architecture
 
-> **Status: incubating** on the branch `change/werkstatt`. This page is the concept: roles, stations, gates, branch
+> **Status: incubating** on `main`, not yet behind `v1`. This page is the concept: roles, stations, gates, branch
 > model, metrics and rollout. How to run it: [werkstatt.md](werkstatt.md). Why it works this way:
 > [design/werkstatt.md](design/werkstatt.md).
 
@@ -210,10 +210,11 @@ The AI Unified Process Studio can show them in its run overview; `/next` already
 
 Start with one UC on a test project and grow only when the numbers are stable.
 
-1. **Marketplace branch.** The reusable workflow and the stations on `change/werkstatt`, tested in CI with a fake
-   `claude` (`pipelines/werkstatt/self-test.sh`). Done.
-2. **Test project.** A copy of petclinic with the stub; real runs on one or two UCs, measuring first-pass rate and
-   cost.
+1. **Marketplace branch.** The reusable workflow and the stations, incubated on `change/werkstatt` and merged into
+   `main`, tested in CI with a fake `claude` (`pipelines/werkstatt/self-test.sh`). Done.
+2. **Test project.** A Vaadin/jOOQ room booking project with two UCs (`simasch/werkstatt-demo`): ready, blocked on
+   a specification gap, answered, and ready again, with the project's CI on every pull request. Opus 5.5 built both
+   UCs with no fix round for about 3 USD each; Sonnet 5 needed three rounds for one and decided a gap silently. Done.
 3. **AI Unified Process Studio.** Specification first: vision, requirements and use cases for starting a run on a
    change, showing the stations and the outcome per UC, and the change branch with its own pull request. Then the
    code.

@@ -37,6 +37,24 @@ uses: ai-unified-process/marketplace/.github/workflows/aiup-generate.yml@v1
 - bash /tmp/aiup-marketplace/pipelines/aiup-generate.sh
 ```
 
+## CI on the pull request
+
+GitHub starts no workflow for a pull request opened with the job's `GITHUB_TOKEN`, so the result of a generate run
+shows no checks unless the stub passes the optional secret `AIUP_PR_TOKEN`:
+
+```yaml
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}
+```
+
+The secret is the same one the Werkstatt uses, and it is created the same way: see
+[werkstatt.md, "CI on the pull request"](werkstatt.md#ci-on-the-pull-request). A stub without the line keeps
+working; its pull requests only arrive without checks. Adding an optional secret does not break the contract
+between stub and implementation, so it needs no new major tag. Bitbucket is not affected: there the Studio opens the
+pull request.
+
 ## The `v1` tag
 
 `v1` is a **moving tag**, not a release: it always points at the commit of this repository whose shared
@@ -58,8 +76,9 @@ git tag -f v1 <commit>
 git push -f origin v1
 ```
 
-The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`, still incubating on
-`change/werkstatt`) will move with the same tag once it is merged: its stubs pass the tag again as `engine_ref`.
+The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`, incubating on `main`) moves with
+the same tag: its stubs pass the tag again as `engine_ref`. Until it is released, its test stubs reference `@main`
+with `engine_ref: main` instead.
 
 Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
 repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins

@@ -6,8 +6,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # The AI Unified Process Werkstatt
 
-> **Status: incubating** on the branch `change/werkstatt`. Not yet behind the `v1` tag, not yet offered by the
-> AI Unified Process Studio. Try it in a test repository with the stub below.
+> **Status: incubating** on `main`. Not yet behind the `v1` tag, not yet offered by the AI Unified Process Studio.
+> Try it in a test repository with the stub below; it runs the Werkstatt as it is on `main`.
 >
 > The concept (roles, stations, gates, branch model, metrics, rollout): [werkstatt-architecture.md](werkstatt-architecture.md).
 
@@ -100,11 +100,11 @@ permissions:
   pull-requests: write
 jobs:
   werkstatt:
-    uses: AI-Unified-Process/marketplace/.github/workflows/aiup-werkstatt.yml@change/werkstatt
+    uses: AI-Unified-Process/marketplace/.github/workflows/aiup-werkstatt.yml@main
     with:
       use_cases: ${{ inputs.use_cases }}
       correlation_id: ${{ inputs.correlation_id || github.run_id }}
-      engine_ref: change/werkstatt
+      engine_ref: main
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -141,7 +141,9 @@ it, give the Werkstatt a token of its own:
 The pull request is then opened in the name of the token's account, and the workflows that run on `pull_request`
 (or on a push to `aiup/**`) start for it. That account cannot approve its own pull request, so a team uses the token
 of a machine user that has write access to the repository, not a person's. When the secret is missing, the Werkstatt
-falls back to `GITHUB_TOKEN`: the pull request is opened all the same, only without checks.
+falls back to `GITHUB_TOKEN`: the pull request is opened all the same, only without checks. The same secret serves
+`aiup-generate` ([generate-workflow-versioning.md](generate-workflow-versioning.md#ci-on-the-pull-request)), so one
+token per repository is enough.
 
 ## Inputs
 
