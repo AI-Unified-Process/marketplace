@@ -76,9 +76,9 @@ git tag -f v1 <commit>
 git push -f origin v1
 ```
 
-The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`, incubating on `main`) moves with
-the same tag: its stubs pass the tag again as `engine_ref`. Until it is released, its test stubs reference `@main`
-with `engine_ref: main` instead.
+The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`) moves with the same tag: its stubs
+pass the tag again as `engine_ref`. To try an unreleased change of it, a test stub references `@main` with
+`engine_ref: main` instead.
 
 Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
 repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins
