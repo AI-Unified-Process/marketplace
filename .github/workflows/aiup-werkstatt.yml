@@ -49,9 +49,9 @@ on:
         default: claude-sonnet-5
         type: string
       max_turns:
-        description: Upper limit of turns per station
+        description: Upper limit of turns per station (the cost budget is the real limit; this one stops loops)
         required: false
-        default: "80"
+        default: "150"
         type: string
       max_rounds:
         description: Fix rounds per use case before it counts as stuck
@@ -74,6 +74,12 @@ on:
         required: false
       CLAUDE_CODE_OAUTH_TOKEN:
         description: Token from `claude setup-token` of a Claude subscription
+        required: false
+      AIUP_PR_TOKEN:
+        # GitHub starts no workflow for a pull request opened with GITHUB_TOKEN, so without this secret the
+        # project's CI does not run on the Werkstatt's pull request. A fine-grained personal access token or a
+        # GitHub App token with Contents and Pull requests write; see docs/werkstatt.md.
+        description: Token that opens the pull request, so that the project's CI runs on it (optional)
         required: false
     outputs:
       outcome:
@@ -203,6 +209,8 @@ jobs:
         if: steps.run.outputs.outcome != ''
         uses: peter-evans/create-pull-request@v7
         with:
+          # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.
+          token: ${{ secrets.AIUP_PR_TOKEN || github.token }}
           base: ${{ github.ref_name }}
           branch: aiup/werkstatt-${{ inputs.correlation_id }}
           delete-branch: true

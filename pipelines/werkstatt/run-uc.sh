@@ -11,7 +11,8 @@
 # Each agent station is its own headless Claude Code session, so the tester and the auditor never see the
 # implementer's reasoning. Agents never run git; this script commits after each station. The outcome:
 #
-#   ready    all gates green; the status moves to Tested (Implemented when no coverage audit exists for the stack)
+#   ready    all gates green; the status moves to Tested (Implemented when no coverage audit exists for the stack),
+#            and the requirements the use case links follow it (werkstatt.py requirements)
 #   blocked  a blocking open question names the use case (the andon cord), or the spec lint fails;
 #            only the new open questions stay, the code of this use case is dropped
 #   stuck    the gates stay red after MAX_ROUNDS fix rounds or the cost budget is used up;
@@ -25,7 +26,7 @@ set -uo pipefail
 UC="${UC:?UC is required, e.g. UC-003}"
 ENGINE="${ENGINE:?ENGINE is required}"
 MODEL="${MODEL:-claude-sonnet-5}"
-MAX_TURNS="${MAX_TURNS:-80}"
+MAX_TURNS="${MAX_TURNS:-150}"
 MAX_ROUNDS="${MAX_ROUNDS:-3}"
 MAX_COST_USD="${MAX_COST_USD:-15}"
 STACK_PLUGIN="${STACK_PLUGIN:-}"
@@ -88,7 +89,7 @@ endlog() { echo "::endgroup::"; }
 
 # station <name> <prompt>
 station() {
-  local name="$1" prompt="$2" out="$F/session-$1-r$ROUNDS.json" t0 rc cost
+  local name="$1" prompt="$2" out="$F/session-$1-r$ROUNDS.json" t0 rc cost subtype
   log "$UC: $name (round $ROUNDS)"
   t0=$(date +%s)
   claude -p "$prompt" \
@@ -101,10 +102,18 @@ station() {
   rc=$?
   cost=$(jq -r '.total_cost_usd // 0' "$out" 2>/dev/null || echo 0)
   TOTAL_COST=$(awk -v a="$TOTAL_COST" -v b="${cost:-0}" 'BEGIN{printf "%.4f", a+b}')
-  jq -cn --arg uc "$UC" --arg st "$name" --argjson round "$ROUNDS" --argjson rc "$rc" \
+  # A session cut off by --max-turns ends with this subtype; its half-done work goes on to the gates all the same,
+  # but the report says why a round may have been wasted.
+  subtype=$(jq -r '.subtype // ""' "$out" 2>/dev/null || true)
+  if [ "$subtype" = "error_max_turns" ]; then
+    echo "::warning::$UC: the $name station stopped at the turn limit (max_turns $MAX_TURNS)."
+    echo "The $name session of round $ROUNDS stopped at the turn limit (max_turns $MAX_TURNS)." >> "$F/notes.log"
+  fi
+  jq -cn --arg uc "$UC" --arg st "$name" --argjson round "$ROUNDS" --argjson rc "$rc" --arg subtype "$subtype" \
         --argjson cost "${cost:-0}" --argjson sec "$(( $(date +%s) - t0 ))" \
-        '{uc:$uc, station:$st, round:$round, exit:$rc, cost_usd:$cost, seconds:$sec}' >> "$F/metrics.jsonl"
-  echo "exit=$rc cost=$cost total=$TOTAL_COST"
+        '{uc:$uc, station:$st, round:$round, exit:$rc, subtype:$subtype, cost_usd:$cost, seconds:$sec}' \
+        >> "$F/metrics.jsonl"
+  echo "exit=$rc subtype=$subtype cost=$cost total=$TOTAL_COST"
   endlog
 }
 
@@ -142,7 +151,7 @@ commit() {
 blocking_questions() { python3 "$HELPER" blocking "$UC" | paste -sd, - | sed 's/,/, /g'; }
 
 finish() {
-  local outcome="$1" reason="$2" status=""
+  local outcome="$1" reason="$2" status="" reqs=""
   case "$outcome" in
     blocked)
       # Only the open questions stay; the code of an unfinished use case is no proposal.
@@ -155,12 +164,15 @@ finish() {
       git reset -q --hard "$START_SHA" ;;
     ready)
       status=$(python3 "$HELPER" advance "$SPEC" "$3")
-      commit "status $status" ;;
+      # The requirements the use case links follow its new status, so the catalog shows no REQ_STATUS_DRIFT.
+      reqs=$(python3 "$HELPER" requirements "$UC" | paste -sd, - | sed 's/,/, /g')
+      commit "status $status${reqs:+; $reqs}" ;;
   esac
   jq -n --arg uc "$UC" --arg spec "$SPEC" --arg outcome "$outcome" --arg reason "$reason" --arg status "$status" \
+        --arg reqs "$reqs" \
         --argjson rounds "$ROUNDS" --argjson cost "$TOTAL_COST" --argjson sec "$(( $(date +%s) - START_TIME ))" \
-        '{uc:$uc, spec:$spec, outcome:$outcome, reason:$reason, status:$status, fix_rounds:$rounds,
-          cost_usd:$cost, seconds:$sec}' > "$F/summary.json"
+        '{uc:$uc, spec:$spec, outcome:$outcome, reason:$reason, status:$status, requirements:$reqs,
+          fix_rounds:$rounds, cost_usd:$cost, seconds:$sec}' > "$F/summary.json"
   cat "$F/summary.json"
   exit 0
 }

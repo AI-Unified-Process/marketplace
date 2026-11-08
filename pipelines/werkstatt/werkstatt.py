@@ -22,6 +22,10 @@ Standard library only. The shell scripts call one subcommand at a time:
       in the language of the specification. Prints the old and the new value.
   werkstatt.py blocking <UC-XXX> [--docs docs]
       The ids of the blocking open questions (Open or Answered) whose element names the use case, one per line.
+  werkstatt.py requirements <UC-XXX> [--docs docs] [--spec-lint spec_lint.py]
+      After a status advance: moves the progress status (Open .. Verified) of the requirements the use case links to
+      what their use cases make it, with derived_status() of spec_lint.py (default: $SPEC_LINT_MODULE or
+      $SPEC_LINT). Deferred and Rejected stay. Prints one line per change; without spec_lint.py it changes nothing.
   werkstatt.py self-test
       Runs every subcommand against fixtures; CI runs it, together with self-test.sh for the stations.
 """
@@ -152,6 +156,59 @@ def advance(args):
     print(f"{current} -> {value}")
 
 
+def load_spec_lint(path):
+    """spec_lint.py of /spec-review as a module: the requirement status is derived there, never a second time here."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("spec_lint", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def requirements(args):
+    """Moves the progress status of the requirements the use case links to what its use cases make it.
+
+    Only Open, In Progress, Implemented, and Verified change (#32); Deferred and Rejected are scope decisions, set by
+    hand, and a constraint without a Status column has nothing to change. Prints one line per change."""
+    if not args.spec_lint or not os.path.isfile(args.spec_lint):
+        print(f"spec_lint.py not found ({args.spec_lint or 'unset'}); requirement statuses unchanged", file=sys.stderr)
+        return
+    try:
+        lint = load_spec_lint(args.spec_lint)
+        project = lint.Project(args.docs)
+        catalog = lint.check_requirements(project)
+        specs = lint.load_specs(project)
+        linked = lint.linking_use_cases(specs)
+    except Exception as error:  # an older or broken spec_lint must not stop a green use case
+        print(f"spec_lint.py could not be used ({error}); requirement statuses unchanged", file=sys.stderr)
+        return
+    if not project.requirements_path:
+        return
+    progress = {lint.normalize(value) for value in lint.REQUIREMENT_PROGRESS}
+    lines = read(project.requirements_path).split("\n")
+    changes = []
+    for rid in sorted(linked):
+        if args.uc not in linked[rid] or rid not in catalog:
+            continue
+        number, status, _ = catalog[rid]
+        if lint.normalize(status) not in progress:
+            continue
+        derived = lint.derived_status([specs[uid] for uid in linked[rid]])
+        if derived is None or lint.normalize(derived) == lint.normalize(status):
+            continue
+        # The status is the last cell of the row; its padding is kept where the new value fits.
+        line = lines[number - 1]
+        end = line.rstrip().rfind("|")
+        start = line.rfind("|", 0, end)
+        cell = line[start + 1:end]
+        lines[number - 1] = line[:start + 1] + f" {derived} ".ljust(len(cell)) + line[end:]
+        changes.append(f"{rid}: {status} -> {derived}")
+    if changes:
+        with open(project.requirements_path, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines))
+        print("\n".join(changes))
+
+
 def blocking(args):
     path = os.path.join(args.docs, "open_questions.md")
     if not os.path.isfile(path):
@@ -252,6 +309,31 @@ SELF_TEST_QUESTIONS = """# Open Questions
 """
 
 
+SELF_TEST_REQUIREMENTS = """# Requirements
+
+## Functional Requirements
+
+| ID     | Title    | User Story                    | Use Cases      | Priority | Status      |
+|--------|----------|-------------------------------|----------------|----------|-------------|
+| FR-001 | Register | As a manager, I want a room.  | UC-001         | High     | Open        |
+| FR-002 | Shared   | As anyone, I want this.       | UC-001, UC-002 | High     | Open        |
+| FR-003 | Later    | As a manager, I want that.    | UC-001         | Low      | Deferred    |
+| FR-004 | Book     | As an employee, I want a slot.| UC-002         | High     | Open        |
+
+## Non-Functional Requirements
+
+| ID      | Title  | Requirement            | Category  | Use Cases      | Priority | Status |
+|---------|--------|------------------------|-----------|----------------|----------|--------|
+| NFR-001 | Fields | Errors at the field.   | Usability | UC-001, UC-002 | High     | Open   |
+
+## Constraints
+
+| ID    | Title | Constraint       | Category  | Use Cases | Priority |
+|-------|-------|------------------|-----------|-----------|----------|
+| C-001 | Stack | Java and Vaadin. | Technical | —         | High     |
+"""
+
+
 def self_test():
     """Runs every subcommand against fixtures in a temporary folder; exits non-zero on a failure."""
     import contextlib
@@ -263,7 +345,7 @@ def self_test():
     def run(func, **kwargs):
         out = io.StringIO()
         try:
-            with contextlib.redirect_stdout(out):
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
                 func(argparse.Namespace(**kwargs))
         except SystemExit as stop:
             return "EXIT: " + str(stop.code)
@@ -347,6 +429,31 @@ def self_test():
             expect("plugins from the real layer catalog", run(plugins, catalog=real, stack=stack, stack_plugin=""),
                    "aiup-core\naiup-flyway\naiup-jooq\naiup-spring-boot\naiup-vaadin\n")
 
+    # requirements: the real spec_lint.py derives the status; only the progress values of linked requirements move
+    lint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                             "aiup-core", "skills", "spec-review", "scripts", "spec_lint.py")
+    if os.path.isfile(lint_path):
+        with tempfile.TemporaryDirectory() as root:
+            docs = os.path.join(root, "docs")
+            write(os.path.join(docs, "requirements.md"), SELF_TEST_REQUIREMENTS)
+            for uid, name, state, linked in (("UC-001", "register-room", "Tested", "FR-001, FR-002, FR-003, NFR-001"),
+                                              ("UC-002", "book-room", "Draft", "FR-002, FR-004, NFR-001")):
+                write(os.path.join(docs, "use_cases", f"{uid}-{name}.md"),
+                      f"# Use Case: {name}\n\n## Overview\n\n**Use Case ID:** {uid}  \n**Status:** {state}  \n"
+                      f"**Requirements:** [{linked}](../requirements.md)\n")
+            expect("requirements", run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path),
+                   "FR-001: Open -> Verified\nFR-002: Open -> In Progress\nNFR-001: Open -> In Progress\n")
+            rows = {line.split("|")[1].strip(): line for line in read(os.path.join(docs, "requirements.md")).split("\n")
+                    if line.startswith("| ") and "-0" in line}
+            expect("requirements: padding kept", rows["FR-001"].endswith("| Verified    |"), True)
+            expect("requirements: Deferred stays", rows["FR-003"].endswith("| Deferred    |"), True)
+            expect("requirements: not linked by the use case", rows["FR-004"].endswith("| Open        |"), True)
+            expect("requirements: constraint untouched", rows["C-001"].endswith("| High     |"), True)
+            expect("requirements again: nothing to change",
+                   run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path), "")
+            expect("requirements without spec_lint",
+                   run(requirements, uc="UC-001", docs=docs, spec_lint=os.path.join(root, "none.py")), "")
+
     for failure in failures:
         print("FAIL " + failure)
     if failures:
@@ -382,6 +489,11 @@ def main():
     p.add_argument("uc")
     p.add_argument("--docs", default="docs")
     p.set_defaults(func=blocking)
+    p = sub.add_parser("requirements")
+    p.add_argument("uc")
+    p.add_argument("--docs", default="docs")
+    p.add_argument("--spec-lint", default=os.environ.get("SPEC_LINT_MODULE") or os.environ.get("SPEC_LINT", ""))
+    p.set_defaults(func=requirements)
     args = parser.parse_args()
     args.func(args)
 

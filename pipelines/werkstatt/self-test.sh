@@ -7,9 +7,10 @@
 # AI Unified Process Werkstatt - runs the stations against a fixture repository with a fake `claude` on the PATH.
 #
 # No model, no network: the fake plays each station by writing files the way the skills would. Checked:
-#   1. ready, blocked, pending: a green use case moves to Tested with its code, a blocked one keeps only its open
-#      question, the next one is not built; the lane guard reverts test code of the implementer and production code
-#      of the tester, and keeps the tester's build file.
+#   1. ready, blocked, pending: a green use case moves to Tested with its code and its requirements follow, a
+#      blocked one keeps only its open question, the next one is not built; the lane guard reverts test code of the
+#      implementer and production code of the tester, and keeps the tester's build file; a session cut off by the
+#      turn limit is recorded.
 #   2. the deadline: a use case still running is stopped and dropped, the one before it keeps its result.
 #   3. a deadline already past: nothing is built, every use case is pending.
 #
@@ -32,7 +33,8 @@ expect_grep() { grep -q -- "$2" "$3" 2>/dev/null || fail "$1: '$2' not in $3"; }
 mkdir -p "$WORK/bin"
 cat > "$WORK/bin/claude" <<'FAKE'
 #!/usr/bin/env bash
-# Plays one Werkstatt station. FAKE_BLOCK and FAKE_SLEEP name the use cases that block or hang in the implementer.
+# Plays one Werkstatt station. FAKE_BLOCK and FAKE_SLEEP name the use cases that block or hang in the implementer,
+# FAKE_MAXTURNS the ones whose test session ends at the turn limit.
 prompt="$2"
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
@@ -48,6 +50,9 @@ case "$prompt" in
     echo "class UC${n}Test {}" > "src/test/UC${n}Test.java"
     echo "<project>test dependency $uc</project>" > pom.xml
     echo "// the tester may not change production code" >> "src/main/UC${n}.java"
+    case " ${FAKE_MAXTURNS:-} " in *" $uc "*)
+      echo '{"total_cost_usd": 0.25, "subtype": "error_max_turns"}'; exit 1 ;;
+    esac
     ;;
   *use-case-implement*)
     mkdir -p src/main src/test
@@ -60,7 +65,7 @@ case "$prompt" in
     case " ${FAKE_SLEEP:-} " in *" $uc "*) sleep 300 ;; esac
     ;;
 esac
-echo '{"total_cost_usd": 0.25}'
+echo '{"total_cost_usd": 0.25, "subtype": "success"}'
 FAKE
 chmod +x "$WORK/bin/claude"
 printf 'print("spec lint: no errors")\n' > "$WORK/bin/spec_lint.py"
@@ -75,8 +80,17 @@ fixture() {
     git config user.name test; git config user.email test@example.com
     printf '%s\n' ".werkstatt/" >> .git/info/exclude
     for n in 001 002 003; do
-      printf '# UC-%s: Case %s\n\n**Status:** Approved\n' "$n" "$n" > "docs/use_cases/UC-$n-case.md"
+      printf '# UC-%s: Case %s\n\n**Status:** Approved\n**Requirements:** [FR-%s, NFR-001](../requirements.md)\n' \
+        "$n" "$n" "$n" > "docs/use_cases/UC-$n-case.md"
     done
+    {
+      printf '# Requirements\n\n## Functional Requirements\n\n'
+      printf '| ID | Title | User Story | Use Cases | Priority | Status |\n|---|---|---|---|---|---|\n'
+      for n in 001 002 003; do printf '| FR-%s | Case %s | As a user, I want %s. | UC-%s | High | Open |\n' "$n" "$n" "$n" "$n"; done
+      printf '\n## Non-Functional Requirements\n\n'
+      printf '| ID | Title | Requirement | Category | Use Cases | Priority | Status |\n|---|---|---|---|---|---|---|\n'
+      printf '| NFR-001 | Fields | Errors at the field. | Usability | UC-001, UC-002, UC-003 | High | Open |\n'
+    } > docs/requirements.md
     printf '# Open Questions\n' > docs/open_questions.md
     printf '# Stack\n\n## Commands\n\n| Purpose | Command |\n|---|---|\n| Build | `true` |\n' \
       > docs/architecture/stack.md
@@ -89,6 +103,7 @@ fixture() {
 change() {
   local dir="$1" log="$2"; shift 2
   (cd "$dir" && env PATH="$WORK/bin:$PATH" SPEC_LINT="$WORK/bin/spec_lint.py" MAX_TURNS=5 MAX_ROUNDS=1 \
+      SPEC_LINT_MODULE="$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py" \
       GITHUB_OUTPUT="$dir.output" "$@" \
       bash "$ENGINE/pipelines/werkstatt/run-change.sh" UC-001 UC-002 UC-003 > "$log" 2>&1)
 }
@@ -98,7 +113,7 @@ status_of() { sed -n 's/^\*\*Status:\*\* *//p' "$1/docs/use_cases/$2-case.md"; }
 
 # ---------------------------------------------------------------- 1. ready, blocked, pending
 R="$WORK/one"; fixture "$R"
-change "$R" "$WORK/one.log" FAKE_BLOCK=UC-002
+change "$R" "$WORK/one.log" FAKE_BLOCK=UC-002 FAKE_MAXTURNS=UC-001
 expect_grep "1 outcome" "^outcome=blocked$" "$R.output"
 expect_eq "1 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
 expect_eq "1 UC-001 status" "$(status_of "$R" UC-001)" Tested
@@ -118,6 +133,16 @@ expect_eq "1 UC-003 outcome" "$(outcome_of "$R" UC-003)" pending
 expect_eq "1 UC-003 status" "$(status_of "$R" UC-003)" Approved
 expect_grep "1 report row" "| UC-001 | \*\*ready\*\* | Approved -> Tested |" "$R/.werkstatt/report.md"
 expect_grep "1 report waits" "waits for UC-002" "$R/.werkstatt/report.md"
+expect_grep "1 FR-001 follows UC-001" "| FR-001 | Case 001 | As a user, I want 001. | UC-001 | High | Verified |" \
+  "$R/docs/requirements.md"
+expect_grep "1 NFR-001 in progress" "| NFR-001 | Fields | Errors at the field. | Usability | UC-001, UC-002, UC-003 | High | In Progress |" \
+  "$R/docs/requirements.md"
+expect_grep "1 FR-002 unchanged" "| FR-002 | Case 002 | As a user, I want 002. | UC-002 | High | Open |" "$R/docs/requirements.md"
+expect_grep "1 report lists the requirements" "Requirements: FR-001: Open -> Verified, NFR-001: Open -> In Progress" \
+  "$R/.werkstatt/report.md"
+expect_grep "1 turn limit in the report" "test session of round 0 stopped at the turn limit (max_turns 5)" "$R/.werkstatt/report.md"
+expect_grep "1 turn limit in the metrics" '"station":"test","round":0,"exit":1,"subtype":"error_max_turns"' \
+  "$R/.werkstatt/UC-001/metrics.jsonl"
 expect_eq "1 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
 # ---------------------------------------------------------------- 2. the deadline stops a running use case

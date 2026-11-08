@@ -94,12 +94,17 @@ for uc in sys.argv[1:]:
     part = [f"### {uc}", "", s.get("reason", "")]
     if s.get("spec"):
         part += ["", f"Specification: `{s['spec']}`"]
+    if s.get("requirements"):
+        part += ["", f"Requirements: {s['requirements']}"]
     lint = f".werkstatt/{uc}/lint.txt"
     if s["outcome"] == "blocked" and os.path.isfile(lint) and open(lint).read().strip():
         part += ["", "<details><summary>Spec lint</summary>", "", "```text", open(lint).read().strip(), "```", "", "</details>"]
     cov = f".werkstatt/{uc}/coverage.md"
     if os.path.isfile(cov):
         part += ["", "<details><summary>Spec coverage matrix</summary>", "", open(cov).read().strip(), "", "</details>"]
+    notes = f".werkstatt/{uc}/notes.log"
+    if os.path.isfile(notes):
+        part += ["", "Notes:"] + [f"- {l.strip()}" for l in open(notes) if l.strip()]
     guard = f".werkstatt/{uc}/guard.log"
     if os.path.isfile(guard):
         part += ["", "Harness guard:"] + [f"- {l.strip()}" for l in open(guard) if l.strip()]

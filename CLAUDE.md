@@ -484,6 +484,11 @@ command names and would collide, and a combined plugin next to layer plugins wou
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
 - The stations stop 10 minutes before `timeout_minutes`; the use case still running ends stuck, the finished ones
   still reach the pull request.
+- A ready use case's linked requirements follow its status in the same commit (`werkstatt.py requirements`, which
+  imports `derived_status()` from `spec_lint.py`; `/spec-review` stays read-only). `Deferred`/`Rejected` stay.
+- `max_turns` defaults to 150; a session cut off by it (`error_max_turns`) is recorded in the metrics and the report.
+- The optional secret `AIUP_PR_TOKEN` opens the pull request, so the project's CI runs on it; without it,
+  `GITHUB_TOKEN` opens it without checks.
 - `werkstatt.py self-test` and `self-test.sh` (stations with a fake `claude`) run in CI; a change to a station
   extends them. The scripts keep to bash 3.2.
 

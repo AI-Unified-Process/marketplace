@@ -29,6 +29,12 @@ The Werkstatt keeps no state of its own between runs. It selects the use cases t
 again; a blocked, stuck or pending one is still `Approved` and is. Nobody has to watch the pull request, and a
 rejected pull request leaves the specification as it was.
 
+The requirements catalog moves with the status. A requirement's progress follows the use cases that link it (#32),
+so a use case at `Tested` with its requirements still `Open` is a contradiction `/spec-review` reports as
+`REQ_STATUS_DRIFT`. The Werkstatt writes the derived status of the linked requirements into the same commit. It does
+not derive it a second time: `werkstatt.py requirements` imports `derived_status()` from `spec_lint.py`, the one
+copy. The writer lives in the Werkstatt and not in `spec_lint.py`, because `/spec-review` is read-only.
+
 ## Separate sessions, guarded lanes
 
 The tester and the auditor run in sessions of their own, so the specification stays the oracle: a test written by
@@ -51,7 +57,9 @@ again from the answered specification.
 Only `spec_lint.py` decides G1, for the same reason only it may fail a build in `/spec-review`: the same input
 gives the same result. The build gate runs the commands the stack file records rather than guessing a build tool.
 The coverage audit (G5) is read-only and reports gaps in code and tests separately, so a gap in the tests goes back
-to the tester, not to the implementer. A use case that does not get green within its rounds or its budget is
+to the tester, not to the implementer. The cost budget is the real limit of a station; `max_turns` only stops a
+session that loops, so its default is high (150). A session it cuts off is recorded, not failed: what it wrote may
+still pass the gates, and when it does not, the fix round that follows shows why. A use case that does not get green within its rounds or its budget is
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
 The run's own time limit is handled the same way: the stations stop before the job's timeout and the use case still
 running is dropped, because a job killed by GitHub opens no pull request and would lose the use cases already
@@ -62,6 +70,14 @@ green.
 The run installs aiup-core and the layer plugins whose skills the stack file names. The skill-to-plugin mapping is
 read from the Plugins table of the layer catalog, which `scripts/check-layer-catalog.sh` already keeps in step with
 the plugins. A third hand-written copy of the list, next to the two in the generate implementations, would drift.
+
+## A token of its own for the pull request
+
+GitHub starts no workflow for a pull request opened with `GITHUB_TOKEN`, to prevent workflows from triggering each
+other without end. The Werkstatt's gates are no replacement for the project's CI: a reviewer expects the same checks
+on every pull request. So the stub may pass `AIUP_PR_TOKEN`, a fine-grained token with Contents and Pull requests
+write, and the pull request is opened with it. The secret is optional: without it the result arrives all the same,
+only without checks, because a missing token must not cost a finished run.
 
 ## Engine checked out by ref
 
