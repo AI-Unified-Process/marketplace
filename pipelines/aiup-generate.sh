@@ -19,7 +19,8 @@
 # token of its own, and the Studio - which knows the run - opens the pull request for
 # the pushed branch instead (UC-033 BR-003). It runs the chosen skill of the chosen
 # plugin and pushes the result to its own branch; nothing is ever written to the
-# dispatched branch directly.
+# dispatched branch directly. The one exception is spec-review, which changes nothing:
+# its report goes to the Studio through the log of the step and no branch is pushed.
 #
 # Expected from the stub (declared as variables of the custom pipeline):
 #   PLUGIN, SKILL, SUBJECT, ARTIFACT_LOCATIONS, CORRELATION_ID, MODEL, MAX_TURNS,
@@ -34,8 +35,9 @@ set -euo pipefail
 # catalogue reaches a prompt. The catalogue mirrors the plugins of this marketplace -
 # the name alone would not do, because implement and playwright-test exist in several
 # stack plugins and mean different work in each - and a new skill changes it in the
-# same pull request that adds the skill. Read-only skills (spec-review, the coverage
-# audits) are left out. It is the same list as in the reusable workflow; a change
+# same pull request that adds the skill. Read-only skills (the coverage audits) are
+# left out; spec-review is the exception, because the Studio reads its report from the
+# log of the step. It is the same list as in the reusable workflow; a change
 # touches both, and scripts/check-generate-catalogue.sh fails CI when the two differ
 # or a skill on disk is in neither.
 case "$PLUGIN/$SKILL" in
@@ -47,6 +49,7 @@ case "$PLUGIN/$SKILL" in
   aiup-core/test-case) ;;
   aiup-core/reverse-engineer) ;;
   aiup-core/stack) ;;
+  aiup-core/spec-review) ;;
   aiup-vaadin-jooq/flyway-migration) ;;
   aiup-vaadin-jooq/implement) ;;
   aiup-vaadin-jooq/implement-hilla) ;;
@@ -104,6 +107,33 @@ case "$PLUGIN/$SKILL" in
     exit 1 ;;
 esac
 
+# --- Determine the kind of the run -----------------------------------------------
+# spec-review (UC-062 of the Studio) changes nothing, so it pushes no branch and hands
+# its report over through the log. A subject that starts with `lint` asks for the
+# deterministic part alone, which needs no AI access at all; the rest of the subject is
+# the scope - one use case or test case id, or empty for the whole project.
+review=false
+lint_only=false
+SCOPE=""
+arguments=""
+case "$SKILL" in
+  spec-review)
+    review=true
+    SCOPE=${SUBJECT:-}
+    if [ "$SCOPE" = lint ] || [ "${SCOPE#lint }" != "$SCOPE" ]; then
+      lint_only=true
+      SCOPE=${SCOPE#lint}
+      SCOPE=${SCOPE# }
+    fi
+    # The scope reaches the prompt and the lint; nothing but an id may stand there.
+    if [ -n "$SCOPE" ] && ! printf '%s' "$SCOPE" | grep -Eq '^([SB]?UC|TC)-[A-Za-z0-9_-]+$'; then
+      echo "ERROR: '$SCOPE' is no use case or test case id" >&2
+      exit 1
+    fi
+    arguments="--output .aiup-report/review.json" ;;
+esac
+LINT_ONLY=$lint_only
+
 # --- Determine the change of the specification ------------------------------------
 # A specification edit that only removes a requirement is invisible to the skill:
 # the remaining text is already satisfied by the existing code, so the run finds
@@ -143,6 +173,8 @@ case "$SKILL" in
 esac
 
 # --- Run the skill ----------------------------------------------------------------
+# the lint alone needs no session (section "Determine the kind of the run")
+if [ "$lint_only" != true ]; then
 npm install --global --no-fund --no-audit @anthropic-ai/claude-code
 
 # >>> plugin selection - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
@@ -210,7 +242,7 @@ done
 # the command name reaches the skill as its arguments, and the skills expect the hints
 # there. Plugin and skill were checked against the catalogue above; nothing else ever
 # stands before the colon or the space.
-prompt="/$PLUGIN:$SKILL ${SUBJECT:-}
+prompt="/$PLUGIN:$SKILL ${SUBJECT:-} $arguments
 ${ARTIFACT_LOCATIONS:-}
 $hint"
 
@@ -227,6 +259,63 @@ IS_SANDBOX=1 claude -p "$prompt" \
   --max-turns "$MAX_TURNS" \
   --permission-mode bypassPermissions \
   --disallowedTools "Bash(git:*)"
+fi
+
+# --- Hand the review over to the Studio -------------------------------------------
+# The report of spec-review: the lint runs here and not in the session, so its findings
+# never pass through a model, and the semantic part is the JSON the skill wrote (its
+# section "Machine-Readable Result"). The Studio reads the block between the markers
+# from the log of the step - the one channel GitHub and Bitbucket both offer without a
+# token of the run's own - and takes the last block that carries its correlation id.
+# Base64 keeps the payload on lines that nothing the session printed can be mistaken
+# for. Nothing is pushed: the review proposes no change.
+if [ "$review" = true ]; then
+# >>> review report - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+# The lint comes from the published aiup-core, the version the session installs too.
+marketplace=$(mktemp -d)
+git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/AI-Unified-Process/marketplace.git "$marketplace"
+git -C "$marketplace" sparse-checkout set aiup-core/skills
+lint="$marketplace/aiup-core/skills/spec-review/scripts/spec_lint.py"
+mkdir -p .aiup-report
+set +e
+if [ -n "$SCOPE" ]; then
+  python3 "$lint" --docs docs --format json --only "$SCOPE" > .aiup-report/lint.json
+else
+  python3 "$lint" --docs docs --format json > .aiup-report/lint.json
+fi
+lint_status=$?
+set -e
+# 1 only says that the lint found errors - a result of the review, not a failure of the run
+if [ "$lint_status" -gt 1 ]; then
+  echo "spec_lint.py failed with exit code $lint_status" >&2
+  exit 1
+fi
+mode=full
+if [ "$LINT_ONLY" = true ]; then
+  mode=lint
+fi
+python3 - "$mode" "$SCOPE" > .aiup-report/report.json <<'PY'
+import json, os, sys
+mode, scope = sys.argv[1], sys.argv[2]
+with open(".aiup-report/lint.json", encoding="utf-8") as f:
+    lint = json.load(f)
+semantic = None
+# a semantic part the session did not write, or wrote broken, is reported as missing
+if mode == "full" and os.path.isfile(".aiup-report/review.json"):
+    try:
+        with open(".aiup-report/review.json", encoding="utf-8") as f:
+            semantic = json.load(f)
+    except ValueError:
+        semantic = None
+json.dump({"format": 1, "mode": mode, "scope": scope, "lint": lint, "semantic": semantic}, sys.stdout,
+          ensure_ascii=False)
+PY
+echo "AIUP-REPORT-BEGIN $CORRELATION_ID"
+base64 < .aiup-report/report.json | fold -w 76
+echo "AIUP-REPORT-END $CORRELATION_ID"
+# <<< review report
+  exit 0
+fi
 
 # --- Advance the status of the specification --------------------------------------
 # The status of the specification follows the merge: the new status travels on the

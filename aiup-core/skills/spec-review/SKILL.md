@@ -131,6 +131,31 @@ moves to Approved?>
   `info` findings never make it `no`. This is the review's end point: once it says `yes`, say so plainly and do not look
   for more to improve.
 
+## Machine-Readable Result
+
+When `$ARGUMENTS` contains `--output <file>` (the AI Unified Process Studio passes `--output .aiup-report/review.json`), write the
+report as usual and then the semantic part (Part B) and the verdict as JSON to that file. Strip `--output <file>` from
+the arguments before resolving the scope. The path must lie outside `docs/`; refuse any other. This file and
+`docs/spec-report.html` are the only files the skill ever writes. Lint findings do not go into it: the caller runs
+`spec_lint.py --format json` itself, so the lint stays deterministic.
+
+```json
+{
+  "findings": [
+    {"severity": "WARN", "code": "Contradiction", "path": "docs/use_cases/UC-004-book-room.md", "line": 61,
+     "element": "UC-004 BR-002", "message": "Allows booking 12 months ahead; UC-009 BR-001 says 6 months"}
+  ],
+  "verdicts": [
+    {"use_case": "UC-004", "ready": false, "reason": "2 lint errors, 2 open semantic warnings"}
+  ]
+}
+```
+
+- `severity` is `WARN` or `INFO`, the spelling `spec_lint.py` uses; `code` is the check of the review checklist.
+- One verdict per use case in scope (the whole project: every use case with a specification), by the rule of
+  **Ready for Approved** above.
+- With nothing found, write `"findings": []` and still one verdict per use case. Write valid JSON and nothing else.
+
 ## After the Report
 
 Turn lint findings and semantic `warning` findings into the command that fixes them, and offer them; run one only if
@@ -294,7 +319,7 @@ python3 scripts/spec_lint.py --docs docs --report --only UC-001 > docs/spec-repo
 
 Always write `docs/spec-report.html`, replacing the previous page: ids link to their files relative to the docs
 folder, so the links only work there. Use another file name only when the user names one, and keep it in `docs/`.
-This page is the only file the skill writes, and only on this command.
+Apart from the JSON result of [Machine-Readable Result](#machine-readable-result), this page is the only file the skill writes, and only on this command.
 
 The page is self-contained (no external assets) and holds summary counts, the Requirement Coverage table, the trace
 matrix with requirement titles and a filter box, test case → process → use cases, the open questions that are `Open` or
