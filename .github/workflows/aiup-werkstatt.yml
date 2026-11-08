@@ -1,0 +1,228 @@
+# AI Unified Process Werkstatt - builds the approved use cases of a change, the shared implementation.
+#
+# The Werkstatt runs on a change branch: the branch that holds the specification changes of one change. It takes
+# every use case of the change that is Approved and sends each one through the stations
+#
+#   G1 spec lint -> implement -> test -> [ build and tests -> spec coverage audit -> fix ]* -> outcome
+#
+# each agent station in its own Claude Code session. A use case that needs an answer (a blocking open question,
+# the andon cord) or stays red stops the run; it contributes its open questions only, never half-built code.
+# The result comes back as one pull request against the change branch, never as a direct commit, so the change
+# branch's own pull request brings specification, code and tests to the default branch together.
+#
+# Like aiup-generate.yml, this workflow is called by a thin stub in the project repository; the stages live in
+# pipelines/werkstatt/ of this marketplace, checked out at engine_ref. See docs/werkstatt.md.
+name: AI Unified Process Werkstatt
+
+on:
+  workflow_call:
+    inputs:
+      use_cases:
+        description: Use case ids to build, space-separated (empty = every Approved use case of the change)
+        required: false
+        default: ""
+        type: string
+      correlation_id:
+        description: Id of the run from the Studio (or any unique id)
+        required: true
+        type: string
+      engine_ref:
+        # A called workflow cannot see the ref it was called at, so the stub passes it again: the same tag or
+        # branch as in its `uses:` line.
+        description: Ref of this marketplace whose pipelines/werkstatt/ scripts run
+        required: false
+        default: v1
+        type: string
+      stack_plugin:
+        description: Combined stack plugin of the project (e.g. aiup-blazor-dotnet); empty for layer plugins
+        required: false
+        default: ""
+        type: string
+      artifact_locations:
+        description: Where the artifacts lie when the repository deviates from the defaults (as in aiup-generate)
+        required: false
+        default: ""
+        type: string
+      model:
+        description: Model Claude Code runs with
+        required: false
+        default: claude-sonnet-5
+        type: string
+      max_turns:
+        description: Upper limit of turns per station (the cost budget is the real limit; this one stops loops)
+        required: false
+        default: "150"
+        type: string
+      max_rounds:
+        description: Fix rounds per use case before it counts as stuck
+        required: false
+        default: "4"
+        type: string
+      max_cost_usd:
+        description: Cost budget per use case in USD
+        required: false
+        default: "15"
+        type: string
+      timeout_minutes:
+        description: Upper limit of the whole run in minutes; the stations stop 10 minutes earlier for the pull request
+        required: false
+        default: "180"
+        type: string
+    secrets:
+      ANTHROPIC_API_KEY:
+        description: API key from the Anthropic Console
+        required: false
+      CLAUDE_CODE_OAUTH_TOKEN:
+        description: Token from `claude setup-token` of a Claude subscription
+        required: false
+      AIUP_PR_TOKEN:
+        # GitHub starts no workflow for a pull request opened with GITHUB_TOKEN, so without this secret the
+        # project's CI does not run on the Werkstatt's pull request. A fine-grained personal access token or a
+        # GitHub App token with Contents and Pull requests write; see docs/werkstatt.md.
+        description: Token that opens the pull request, so that the project's CI runs on it (optional)
+        required: false
+    outputs:
+      outcome:
+        description: ready (all use cases green), blocked, stuck, pending (the time ran out between use cases), or none (nothing to build)
+        value: ${{ jobs.werkstatt.outputs.outcome }}
+      pull_request:
+        description: Number of the pull request against the change branch, empty when nothing changed
+        value: ${{ jobs.werkstatt.outputs.pull_request }}
+
+jobs:
+  werkstatt:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(inputs.timeout_minutes) }}
+    outputs:
+      outcome: ${{ steps.run.outputs.outcome || 'none' }}
+      pull_request: ${{ steps.pr.outputs.pull-request-number }}
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      ENGINE: .aiup-werkstatt-engine
+    steps:
+      - name: Check out the change branch
+        uses: actions/checkout@v4
+        with:
+          # the merge base with the default branch selects the use cases of the change
+          fetch-depth: 0
+
+      - name: Check out the Werkstatt engine
+        uses: actions/checkout@v4
+        with:
+          repository: AI-Unified-Process/marketplace
+          ref: ${{ inputs.engine_ref }}
+          path: .aiup-werkstatt-engine
+
+      - name: Prepare
+        env:
+          TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
+        run: |
+          set -euo pipefail
+          # The stations stop 10 minutes before the job's timeout, so the use cases finished by then still reach
+          # the pull request; the one still running ends stuck (run-change.sh).
+          echo "DEADLINE=$(( $(date +%s) + (TIMEOUT_MINUTES - 10) * 60 ))" >> "$GITHUB_ENV"
+          # neither the engine nor the run records belong in the pull request
+          printf '%s\n' ".aiup-werkstatt-engine/" ".werkstatt/" >> .git/info/exclude
+          git config user.name "AI Unified Process Werkstatt"
+          git config user.email "werkstatt@unifiedprocess.ai"
+          if [ "$GITHUB_REF_NAME" = "$DEFAULT_BRANCH" ]; then
+            echo "::error::The Werkstatt runs on a change branch, not on $DEFAULT_BRANCH."
+            exit 1
+          fi
+
+      - name: Select the use cases
+        id: select
+        env:
+          # through the environment, not into the script: free text
+          USE_CASES: ${{ inputs.use_cases }}
+        run: |
+          set -euo pipefail
+          if [ -n "$USE_CASES" ]; then
+            ucs=$(printf '%s' "$USE_CASES" | grep -oE 'UC-[0-9]+' | paste -sd' ' - || true)
+          else
+            ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$DEFAULT_BRANCH")
+          fi
+          echo "Use cases: ${ucs:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "use_cases=$ucs" >> "$GITHUB_OUTPUT"
+
+      - name: Select the plugins
+        id: plugins
+        if: steps.select.outputs.use_cases != ''
+        env:
+          STACK_PLUGIN: ${{ inputs.stack_plugin }}
+        run: |
+          set -euo pipefail
+          # aiup-core plus the layer plugins whose skills docs/architecture/stack.md names, read from the Plugins
+          # table of the layer catalog; a combined stack plugin alone when the project uses one.
+          plugins=$(python3 "$ENGINE/pipelines/werkstatt/werkstatt.py" plugins \
+            --catalog "$ENGINE/aiup-core/skills/stack/references/layer-catalog.md" --stack-plugin "$STACK_PLUGIN")
+          echo "Plugins: $(echo $plugins)" | tee -a "$GITHUB_STEP_SUMMARY"
+          { echo "list<<WERKSTATT-$GITHUB_SHA"; echo "$plugins"; echo "WERKSTATT-$GITHUB_SHA"; } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.select.outputs.use_cases != ''
+        with:
+          node-version: "22"
+
+      - name: Install Claude Code and the plugins
+        if: steps.select.outputs.use_cases != ''
+        env:
+          PLUGINS: ${{ steps.plugins.outputs.list }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          npm install -g @anthropic-ai/claude-code
+          claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.git
+          for plugin in $PLUGINS; do
+            claude plugin install "$plugin@ai-unified-process-marketplace"
+          done
+          # One of the two secrets is enough. Only a set one is passed on: an empty variable would still count.
+          [ -n "$ANTHROPIC_API_KEY" ] && echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> "$GITHUB_ENV"
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] && echo "CLAUDE_CODE_OAUTH_TOKEN=$CLAUDE_CODE_OAUTH_TOKEN" >> "$GITHUB_ENV"
+          if [ -z "$ANTHROPIC_API_KEY$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN reached the workflow; the stub passes them explicitly."
+            exit 1
+          fi
+          # The deterministic lint of /spec-review, from the installed aiup-core so it matches the skills.
+          lint=$(find "$HOME/.claude/plugins" -path '*aiup-core*/skills/spec-review/scripts/spec_lint.py' | sort | tail -1)
+          echo "SPEC_LINT=${lint:-$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py}" >> "$GITHUB_ENV"
+
+      - name: Run the stations
+        id: run
+        if: steps.select.outputs.use_cases != ''
+        env:
+          USE_CASES: ${{ steps.select.outputs.use_cases }}
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          STACK_PLUGIN: ${{ inputs.stack_plugin }}
+          ARTIFACT_LOCATIONS: ${{ inputs.artifact_locations }}
+          MODEL: ${{ inputs.model }}
+          MAX_TURNS: ${{ inputs.max_turns }}
+          MAX_ROUNDS: ${{ inputs.max_rounds }}
+          MAX_COST_USD: ${{ inputs.max_cost_usd }}
+        run: |
+          bash "$ENGINE/pipelines/werkstatt/run-change.sh" $USE_CASES
+          cat .werkstatt/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Provide the result as a pull request against the change branch
+        id: pr
+        if: steps.run.outputs.outcome != ''
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.
+          token: ${{ secrets.AIUP_PR_TOKEN || github.token }}
+          base: ${{ github.ref_name }}
+          branch: aiup/werkstatt-${{ inputs.correlation_id }}
+          delete-branch: true
+          title: "AI Unified Process Werkstatt: ${{ steps.run.outputs.use_cases }} (${{ steps.run.outputs.outcome }})"
+          commit-message: "AI Unified Process Werkstatt: ${{ steps.run.outputs.use_cases }}"
+          body-path: .werkstatt/report.md
+
+      - name: Keep the run records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: werkstatt-${{ inputs.correlation_id }}
+          path: .werkstatt/
+          include-hidden-files: true
+          if-no-files-found: ignore

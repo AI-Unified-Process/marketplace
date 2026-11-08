@@ -89,6 +89,12 @@ jobs:
             exit 1
           fi
 
+      - name: Check the Werkstatt helpers and stations
+        run: |
+          # werkstatt.py against fixtures (and the real layer catalog); the stations with a fake claude
+          python3 pipelines/werkstatt/werkstatt.py self-test
+          bash pipelines/werkstatt/self-test.sh
+
       - name: Check use case spec validator and worked example
         run: |
           python3 aiup-core/skills/use-case-spec/scripts/validate_use_case.py --self-test
