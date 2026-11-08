@@ -5,7 +5,8 @@
 # mirror each other (docs/generate-workflow-versioning.md): the catalogue of allowed plugin/skill pairs, the skills whose
 # run gets the specification diff or advances the status, and the plugin selection block are the same in both. A skill
 # added to a plugin but not to the catalogue can never be run from the Studio, and one that is renamed leaves a dead
-# entry behind; neither fails anywhere else. Every skill on disk is either in the catalogue or listed below as one that
+# entry behind; neither fails anywhere else. The block that hands the report of spec-review to the Studio is the same in
+# both as well. Every skill on disk is either in the catalogue or listed below as one that
 # is deliberately left out.
 set -euo pipefail
 
@@ -16,13 +17,13 @@ import glob, os, re, sys
 
 WORKFLOW = ".github/workflows/aiup-generate.yml"
 SCRIPT = "pipelines/aiup-generate.sh"
-# Skills the Studio never runs: read-only audits and /next (a run that changes nothing has no result to
+# Skills the Studio never runs: read-only audits other than spec-review and /next (a run that changes nothing has no result to
 # propose), the question log (recording and answering need a person; spec_lint.py --report gives the overview), the
 # architecture decisions (a decision needs a person), the Transition skills (acceptance needs people, release notes a
 # Git baseline, and the user guide follows them as a release step, not a specification change), and the legacy
 # Karibu test skill, superseded by browserless-test.
 LEFT_OUT = {
-    "aiup-core/spec-review", "aiup-core/next", "aiup-core/use-case-coverage", "aiup-core/test-case-coverage",
+    "aiup-core/next", "aiup-core/use-case-coverage", "aiup-core/test-case-coverage",
     "aiup-core/open-questions", "aiup-core/architecture-decision",
     "aiup-core/user-guide", "aiup-core/acceptance-protocol", "aiup-core/release-notes",
     "aiup-vaadin-jooq/coverage-check", "aiup-angular-jpa/coverage-check", "aiup-vaadin-jooq/karibu-test",
@@ -52,8 +53,8 @@ def skill_cases(text):
     return arms
 
 
-def selection(text):
-    match = re.search(r"^[ \t]*# >>> plugin selection.*?^[ \t]*# <<< plugin selection", text, re.S | re.M)
+def selection(text, name="plugin selection"):
+    match = re.search(rf"^[ \t]*# >>> {name}.*?^[ \t]*# <<< {name}", text, re.S | re.M)
     if not match:
         return None
     return [line.strip() for line in match.group(0).splitlines()]
@@ -105,6 +106,13 @@ else:
     if combined != NOT_LAYER - {"aiup-core"}:
         error(f"plugin selection: the combined stack plugins are {sorted(combined)}, expected "
               f"{sorted(NOT_LAYER - {'aiup-core'})}")
+
+# The report of spec-review is read by the Studio from the log; both implementations must print the same block.
+review = selection(script, "review report")
+if review is None or selection(workflow, "review report") is None:
+    error("the review report block (# >>> review report ... # <<< review report) is missing")
+elif selection(workflow, "review report") != review:
+    error(f"the review report block differs between {WORKFLOW} and {SCRIPT}")
 
 if errors:
     sys.exit(1)
