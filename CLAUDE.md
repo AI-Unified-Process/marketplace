@@ -111,6 +111,7 @@ marketplace/
 ├── aiup-nextjs/                  # Layer plugin: UI (nextjs-ui, nextjs-ui-test)
 ├── docs/                         # User guides, installation docs, design notes (docs/design/), and templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
+│   └── werkstatt/                # Werkstatt stations (incubating), run by .github/workflows/aiup-werkstatt.yml
 ├── scripts/                      # Validation and publication helpers
 └── README.md
 ```
@@ -466,6 +467,23 @@ made in the skill, in the stack's `uc-coverage` agent (where one exists), and in
 Each combined stack plugin ships its own `/implement` and testing skills. A project installs `aiup-core` with either
 layer plugins (one per technical layer) or exactly one combined stack plugin, never both: two combined plugins share
 command names and would collide, and a combined plugin next to layer plugins would build the same use case twice.
+
+#### Werkstatt (incubating)
+
+- `.github/workflows/aiup-werkstatt.yml` builds the `Approved` use cases of a change branch through the stations in
+  `pipelines/werkstatt/` (spec lint, implement, test, build, coverage audit, fix rounds), each agent station in its
+  own `claude -p` session. Not behind `v1` yet; the Studio does not offer it yet.
+- The result is one pull request against the change branch, never a commit on it (Studio C-004).
+- The status is the memory: a finished use case moves to `Tested` in the pull request (`Implemented` without a
+  coverage audit), forward only, in the language of the specification; blocked, stuck and pending ones stay
+  `Approved` and are selected again.
+- The andon cord is read from `docs/open_questions.md` (a blocking `Open` or `Answered` question naming the use
+  case), not from the agent's answer. A blocked use case keeps only its questions; a stuck one keeps nothing.
+- G1 is `spec_lint.py`; the build gate runs the Commands table of the stack file. The plugins come from the Plugins
+  table of the layer catalog, never from a third copy of the generate skill lists.
+- Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
+
+Why: [`docs/design/werkstatt.md`](docs/design/werkstatt.md). Usage: [`docs/werkstatt.md`](docs/werkstatt.md).
 
 ## Copyright and attribution
 

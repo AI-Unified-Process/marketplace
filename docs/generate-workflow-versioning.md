@@ -58,6 +58,9 @@ git tag -f v1 <commit>
 git push -f origin v1
 ```
 
+The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`, still incubating on
+`change/werkstatt`) will move with the same tag once it is merged: its stubs pass the tag again as `engine_ref`.
+
 Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
 repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins
 and skills are installed at their published version inside the run.
