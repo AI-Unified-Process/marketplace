@@ -492,7 +492,7 @@ command names and would collide, and a combined plugin next to layer plugins wou
   open change branch only by merging the default branch into it.
 - `max_turns` defaults to 150; a session cut off by it (`error_max_turns`) is recorded in the metrics and the report.
 - The optional secret `AIUP_PR_TOKEN` opens the pull request, so the project's CI runs on it; without it,
-  `GITHUB_TOKEN` opens it without checks.
+  `GITHUB_TOKEN` opens it without checks. `aiup-generate.yml` takes the same secret.
 - `werkstatt.py self-test` and `self-test.sh` (stations with a fake `claude`) run in CI; a change to a station
   extends them. The scripts keep to bash 3.2.
 

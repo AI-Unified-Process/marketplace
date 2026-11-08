@@ -64,6 +64,12 @@ on:
       CLAUDE_CODE_OAUTH_TOKEN:
         description: Token from `claude setup-token` of a Claude subscription
         required: false
+      AIUP_PR_TOKEN:
+        # GitHub starts no workflow for a pull request opened with GITHUB_TOKEN, so without this secret the
+        # project's CI does not run on the result. A fine-grained personal access token or a GitHub App token with
+        # Contents and Pull requests write; the steps are in docs/werkstatt.md, "CI on the pull request".
+        description: Token that opens the pull request, so that the project's CI runs on it (optional)
+        required: false
 
 jobs:
   generate:
@@ -414,6 +420,8 @@ jobs:
         id: pr
         uses: peter-evans/create-pull-request@v7
         with:
+          # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.
+          token: ${{ secrets.AIUP_PR_TOKEN || github.token }}
           branch: aiup/${{ inputs.skill }}-${{ inputs.correlation_id }}
           delete-branch: true
           # The subject is passed through as it stands - a path or an id, depending on the
