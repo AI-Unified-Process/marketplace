@@ -483,7 +483,8 @@ command names and would collide, and a combined plugin next to layer plugins wou
   table of the layer catalog, never from a third copy of the generate skill lists.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
 
-Why: [`docs/design/werkstatt.md`](docs/design/werkstatt.md). Usage: [`docs/werkstatt.md`](docs/werkstatt.md).
+Why: [`docs/design/werkstatt.md`](docs/design/werkstatt.md). Usage: [`docs/werkstatt.md`](docs/werkstatt.md). Concept:
+[`docs/werkstatt-architecture.md`](docs/werkstatt-architecture.md).
 
 ## Copyright and attribution
 

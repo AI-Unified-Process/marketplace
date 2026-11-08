@@ -8,6 +8,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 > **Status: incubating** on the branch `change/werkstatt`. Not yet behind the `v1` tag, not yet offered by the
 > AI Unified Process Studio. Try it in a test repository with the stub below.
+>
+> The concept (roles, stations, gates, branch model, metrics, rollout): [werkstatt-architecture.md](werkstatt-architecture.md).
 
 The Werkstatt turns the approved use cases of a change into one tested pull request. Domain experts write the
 specification, the software engineer owns the architecture and the harness, and the agents build in between, each
