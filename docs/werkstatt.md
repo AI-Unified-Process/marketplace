@@ -66,7 +66,9 @@ builds the use case again.
 | `pending` | Not built: an earlier use case of the run stopped | Nothing; it is built in the next run |
 
 Use cases run in id order and the run stops at the first one that is not `ready`, because later use cases of the
-same change may build on it. The status is the memory between runs: a built use case is `Tested` after the merge
+same change may build on it. The stations stop 10 minutes before `timeout_minutes`, so the pull request is still
+opened: a use case still running then ends `stuck`, the ones before it keep their result, and when the time runs
+out between two use cases the run's outcome is `pending`. The status is the memory between runs: a built use case is `Tested` after the merge
 into the change branch and is no longer selected; a blocked, stuck or pending one stays `Approved`.
 
 ## Setting it up in a test repository
@@ -119,9 +121,9 @@ goes on the change branch: `gh workflow run aiup-werkstatt.yml --ref change/onli
 | `max_turns` | `80` | Turns per station |
 | `max_rounds` | `3` | Fix rounds per use case |
 | `max_cost_usd` | `15` | Cost budget per use case |
-| `timeout_minutes` | `180` | Upper limit of the whole run |
+| `timeout_minutes` | `180` | Upper limit of the whole run; the stations stop 10 minutes earlier |
 
-Outputs: `outcome` (`ready`, `blocked`, `stuck`, `none`) and `pull_request`. The artifact `werkstatt-<id>` holds the
+Outputs: `outcome` (`ready`, `blocked`, `stuck`, `pending`, `none`) and `pull_request`. The artifact `werkstatt-<id>` holds the
 records of every station: `summary.json` per use case, `metrics.jsonl` (station, round, exit code, cost, seconds),
 the build logs, the lint output and the coverage matrix.
 

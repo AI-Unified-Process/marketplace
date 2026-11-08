@@ -22,6 +22,8 @@ Standard library only. The shell scripts call one subcommand at a time:
       in the language of the specification. Prints the old and the new value.
   werkstatt.py blocking <UC-XXX> [--docs docs]
       The ids of the blocking open questions (Open or Answered) whose element names the use case, one per line.
+  werkstatt.py self-test
+      Runs every subcommand against fixtures; CI runs it, together with self-test.sh for the stations.
 """
 import argparse
 import glob
@@ -166,9 +168,197 @@ def blocking(args):
             print(head.group(1))
 
 
+SELF_TEST_CATALOG = """# Layer catalog
+
+## Plugins
+
+| Plugin             | Layer       | Skill              | Test skill              | Tests run |
+|--------------------|-------------|--------------------|-------------------------|-----------|
+| `aiup-flyway`      | Migration   | `flyway-schema`    | –                       | –         |
+| `aiup-jooq`        | Persistence | `jooq-persistence` | `jooq-persistence-test` | in process |
+| `aiup-jpa`         | Persistence | `jpa-persistence`  | `jpa-persistence-test`  | in process |
+| `aiup-spring-boot` | Service     | `spring-service`   | `spring-service-test`   | in process |
+| `aiup-vaadin`      | UI          | `vaadin-flow-ui`   | `vaadin-flow-ui-test`   | in process |
+| `aiup-vaadin`      | E2E         | –                  | `vaadin-e2e-test`       | browser   |
+| `aiup-playwright`  | E2E         | –                  | `playwright-e2e-test`   | browser   |
+
+## Next section
+
+| Plugin | Skill |
+|---|---|
+| `aiup-jpa` | `jpa-persistence` |
+"""
+
+# /stack writes the Layers table bare and the Integration layer table in backticks.
+SELF_TEST_STACK = """# Stack
+
+## Layers
+
+| Layer       | Technology  | Skill            | Test skill          |
+|-------------|-------------|------------------|---------------------|
+| Migration   | Flyway      | flyway-schema    | –                   |
+| Persistence | jOOQ        | jooq-persistence | –                   |
+| Service     | Spring Boot | –                | –                   |
+| UI          | Vaadin Flow | vaadin-flow-ui   | vaadin-flow-ui-test |
+
+## Integration layer
+
+| Entry layer | Integration layer |
+|-------------|-------------------|
+| UI          | `spring-service-test` |
+
+## Commands
+
+| Purpose            | Command |
+|--------------------|---------|
+| Build              | `./mvnw -B verify` |
+| Unit tests         | `./mvnw test` (Browserless tests) |
+| Integration tests  | – |
+| Lint               | `npm run lint` |
+| End-to-end tests   | `./mvnw -Pit verify` |
+"""
+
+SELF_TEST_QUESTIONS = """# Open Questions
+
+## OQ-001: Which discount applies?
+
+**Element:** UC-001 BR-002
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-002: Rounding
+
+**Element:** UC-001 step 3
+**Blocking:** No
+**Status:** Open
+
+## OQ-003: Already resolved
+
+**Element:** UC-001
+**Blocking:** Yes
+**Status:** Resolved
+
+## OQ-004: Beantwortet, aber nicht übernommen
+
+**Element:** UC-001 A1
+**Blocking:** Ja
+**Status:** Beantwortet
+
+## OQ-005: Another use case
+
+**Element:** UC-0010
+**Blocking:** Yes
+**Status:** Open
+"""
+
+
+def self_test():
+    """Runs every subcommand against fixtures in a temporary folder; exits non-zero on a failure."""
+    import contextlib
+    import io
+    import tempfile
+
+    failures = []
+
+    def run(func, **kwargs):
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                func(argparse.Namespace(**kwargs))
+        except SystemExit as stop:
+            return "EXIT: " + str(stop.code)
+        return out.getvalue()
+
+    def expect(name, got, want):
+        if got != want:
+            failures.append(f"{name}: expected {want!r}, got {got!r}")
+
+    def write(path, text):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(text)
+
+    with tempfile.TemporaryDirectory() as root:
+        catalog = os.path.join(root, "layer-catalog.md")
+        stack = os.path.join(root, "docs", "architecture", "stack.md")
+        docs = os.path.join(root, "docs")
+        write(catalog, SELF_TEST_CATALOG)
+        write(stack, SELF_TEST_STACK)
+
+        # plugins: bare and backticked cells count, – and other sections do not, no plugin twice
+        expect("plugins layered", run(plugins, catalog=catalog, stack=stack, stack_plugin=""),
+               "aiup-core\naiup-flyway\naiup-jooq\naiup-spring-boot\naiup-vaadin\n")
+        expect("plugins combined", run(plugins, catalog=catalog, stack=stack, stack_plugin="aiup-blazor-dotnet"),
+               "aiup-core\naiup-blazor-dotnet\n")
+        missing = run(plugins, catalog=catalog, stack=os.path.join(root, "none.md"), stack_plugin="")
+        expect("plugins without stack file", missing.startswith("EXIT: ") and "Run /stack" in missing, True)
+        empty = os.path.join(root, "empty-stack.md")
+        write(empty, "# Stack\n\n## Layers\n\n| Layer | Skill |\n|---|---|\n| UI | my-own-ui |\n")
+        expect("plugins without a known skill", "names no layer skill" in run(
+            plugins, catalog=catalog, stack=empty, stack_plugin=""), True)
+
+        # commands: the code span of a cell, no –, no end-to-end, test dropped next to verify
+        expect("commands", run(commands, stack=stack), "./mvnw -B verify\nnpm run lint\n")
+        expect("commands without stack file", run(commands, stack=os.path.join(root, "none.md")), "")
+        gradle = os.path.join(root, "gradle-stack.md")
+        write(gradle, "## Commands\n\n| Purpose | Command |\n|---|---|\n| Unit tests | `./mvnw test` |\n"
+                      "| Build | ./gradlew build |\n")
+        expect("commands: test before verify, bare cell", run(commands, stack=gradle),
+               "./mvnw test\n./gradlew build\n")
+
+        # spec: found in a module folder, missing one exits
+        en = os.path.join(docs, "use_cases", "booking", "UC-001-book-a-room.md")
+        write(en, "# UC-001: Book a Room\n\n**Status:** Approved  \n**Primary Actor:** Guest\n")
+        de = os.path.join(docs, "use_cases", "UC-002-zimmer-stornieren.md")
+        write(de, "# UC-002: Zimmer stornieren\n\n## Übersicht\n\n**Use-Case-ID:** UC-002\n"
+                  "**Status:** Genehmigt <!-- by the PO -->\n")
+        expect("spec in a module folder", run(spec, uc="UC-001", docs=docs), en + "\n")
+        expect("spec missing", run(spec, uc="UC-009", docs=docs).startswith("EXIT: "), True)
+
+        # status: rank in both languages, -1 for Obsolete
+        expect("status approved", run(status, file=en), "2\n")
+        expect("status genehmigt", run(status, file=de), "2\n")
+        obsolete = os.path.join(root, "obsolete.md")
+        write(obsolete, "# UC-003: Old\n\n**Status:** Obsolete\n")
+        expect("status obsolete", run(status, file=obsolete), "-1\n")
+
+        # advance: forward only, in the language of the specification, decorations and hard breaks kept
+        expect("advance en", run(advance, file=en, target="Tested"), "Approved -> Tested\n")
+        expect("advance en text", read(en).splitlines()[2], "**Status:** Tested  ")
+        expect("advance never backwards", run(advance, file=en, target="Implemented"), "Tested (unchanged)\n")
+        expect("advance de", run(advance, file=de, target="Implemented"), "Genehmigt -> Implementiert\n")
+        expect("advance de text", read(de).splitlines()[5], "**Status:** Implementiert <!-- by the PO -->")
+        expect("advance obsolete", run(advance, file=obsolete, target="Tested"), "Obsolete (unchanged)\n")
+
+        # blocking: Open or Answered, Yes or Ja, element names exactly this use case
+        expect("blocking without file", run(blocking, uc="UC-001", docs=docs), "")
+        write(os.path.join(docs, "open_questions.md"), SELF_TEST_QUESTIONS)
+        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\n")
+        expect("blocking other id", run(blocking, uc="UC-0010", docs=docs), "OQ-005\n")
+
+    # The real layer catalog, when the script runs from a marketplace checkout: its format is the contract.
+    real = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                        "aiup-core", "skills", "stack", "references", "layer-catalog.md")
+    if os.path.isfile(real):
+        with tempfile.TemporaryDirectory() as root:
+            stack = os.path.join(root, "stack.md")
+            with open(stack, "w", encoding="utf-8") as handle:
+                handle.write(SELF_TEST_STACK)
+            expect("plugins from the real layer catalog", run(plugins, catalog=real, stack=stack, stack_plugin=""),
+                   "aiup-core\naiup-flyway\naiup-jooq\naiup-spring-boot\naiup-vaadin\n")
+
+    for failure in failures:
+        print("FAIL " + failure)
+    if failures:
+        sys.exit(1)
+    print("self-test passed")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
+    p = sub.add_parser("self-test")
+    p.set_defaults(func=lambda _args: self_test())
     p = sub.add_parser("plugins")
     p.add_argument("--catalog", required=True)
     p.add_argument("--stack", default="docs/architecture/stack.md")

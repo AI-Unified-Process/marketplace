@@ -482,6 +482,10 @@ command names and would collide, and a combined plugin next to layer plugins wou
 - G1 is `spec_lint.py`; the build gate runs the Commands table of the stack file. The plugins come from the Plugins
   table of the layer catalog, never from a third copy of the generate skill lists.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
+- The stations stop 10 minutes before `timeout_minutes`; the use case still running ends stuck, the finished ones
+  still reach the pull request.
+- `werkstatt.py self-test` and `self-test.sh` (stations with a fake `claude`) run in CI; a change to a station
+  extends them. The scripts keep to bash 3.2.
 
 Why: [`docs/design/werkstatt.md`](docs/design/werkstatt.md). Usage: [`docs/werkstatt.md`](docs/werkstatt.md). Concept:
 [`docs/werkstatt-architecture.md`](docs/werkstatt-architecture.md).

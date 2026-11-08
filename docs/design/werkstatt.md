@@ -53,6 +53,9 @@ gives the same result. The build gate runs the commands the stack file records r
 The coverage audit (G5) is read-only and reports gaps in code and tests separately, so a gap in the tests goes back
 to the tester, not to the implementer. A use case that does not get green within its rounds or its budget is
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
+The run's own time limit is handled the same way: the stations stop before the job's timeout and the use case still
+running is dropped, because a job killed by GitHub opens no pull request and would lose the use cases already
+green.
 
 ## Plugins from the layer catalog
 
@@ -64,4 +67,7 @@ the plugins. A third hand-written copy of the list, next to the two in the gener
 
 A called workflow cannot see the ref it was called at. The scripts under `pipelines/werkstatt/` are therefore
 checked out at `engine_ref`, which the stub sets to the same tag or branch as its `uses:` line. That keeps the
-workflow small and lets the stations be shell and Python that run, and are tested, outside GitHub Actions.
+workflow small and lets the stations be shell and Python that run, and are tested, outside GitHub Actions:
+`werkstatt.py self-test` checks the helpers against fixtures and the real layer catalog, and `self-test.sh` runs the
+stations against a fixture repository with a fake `claude` on the PATH. Both run in CI. The scripts keep to the
+bash 3.2 of macOS.

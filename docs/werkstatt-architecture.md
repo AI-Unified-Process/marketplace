@@ -210,7 +210,8 @@ The AI Unified Process Studio can show them in its run overview; `/next` already
 
 Start with one UC on a test project and grow only when the numbers are stable.
 
-1. **Marketplace branch.** The reusable workflow and the stations on `change/werkstatt`, tested locally. Done.
+1. **Marketplace branch.** The reusable workflow and the stations on `change/werkstatt`, tested in CI with a fake
+   `claude` (`pipelines/werkstatt/self-test.sh`). Done.
 2. **Test project.** A copy of petclinic with the stub; real runs on one or two UCs, measuring first-pass rate and
    cost.
 3. **AI Unified Process Studio.** Specification first: vision, requirements and use cases for starting a run on a

@@ -203,7 +203,9 @@ The specification is the oracle. A test that disagrees with the code stays faili
 run_tests "" ""
 
 # ------------------------------------------------------------------ Gates and fix loop
-mapfile -t BUILD_COMMANDS < <(python3 "$HELPER" commands)
+# A read loop, not mapfile: the stations also run in the bash 3.2 of macOS.
+BUILD_COMMANDS=()
+while IFS= read -r line; do [ -n "$line" ] && BUILD_COMMANDS+=("$line"); done < <(python3 "$HELPER" commands)
 if [ ${#BUILD_COMMANDS[@]} -eq 0 ]; then
   if [ -x ./mvnw ]; then BUILD_COMMANDS=("./mvnw -B -ntp verify")
   elif [ -x ./gradlew ]; then BUILD_COMMANDS=("./gradlew build")
@@ -220,7 +222,7 @@ while true; do
   BUILD_LOG="$F/build-r$ROUNDS.log"
   : > "$BUILD_LOG"
   BUILD_RC=0
-  for cmd in "${BUILD_COMMANDS[@]}"; do
+  for cmd in ${BUILD_COMMANDS[@]+"${BUILD_COMMANDS[@]}"}; do
     echo "\$ $cmd" >> "$BUILD_LOG"
     bash -c "$cmd" >> "$BUILD_LOG" 2>&1 || { BUILD_RC=$?; break; }
   done

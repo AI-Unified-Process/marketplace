@@ -10,24 +10,71 @@
 # The skipped ones are recorded as pending and stay Approved, so the next run selects them again.
 # Writes .werkstatt/report.md (the pull request body) and the outcome to GITHUB_OUTPUT.
 #
-# Usage: run-change.sh UC-001 UC-002 ...    Env: see run-uc.sh, plus CORRELATION_ID
+# DEADLINE (epoch seconds, optional) is when the stations must have stopped, early enough for the pull request
+# to be opened before the job's timeout. A use case still running then is stopped and ends stuck; the ones before
+# it keep their result, so finished work is never lost to the timeout.
+#
+# Usage: run-change.sh UC-001 UC-002 ...    Env: see run-uc.sh, plus CORRELATION_ID and DEADLINE
 set -uo pipefail
 
+DEADLINE="${DEADLINE:-}"
 outcome=ready
-stopped_at=""
+pending_reason=""
+
+# pending <uc> <reason>
+pending() {
+  mkdir -p ".werkstatt/$1"
+  jq -n --arg uc "$1" --arg reason "$2" \
+    '{uc:$uc, outcome:"pending", reason:$reason, fix_rounds:0, cost_usd:0, seconds:0}' > ".werkstatt/$1/summary.json"
+}
+
 for uc in "$@"; do
-  if [ -n "$stopped_at" ]; then
-    mkdir -p ".werkstatt/$uc"
-    jq -n --arg uc "$uc" --arg by "$stopped_at" \
-      '{uc:$uc, outcome:"pending", reason:("Not built in this run: waits for " + $by + "."), fix_rounds:0,
-        cost_usd:0, seconds:0}' > ".werkstatt/$uc/summary.json"
+  if [ -n "$pending_reason" ]; then
+    pending "$uc" "$pending_reason"
     continue
   fi
-  UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh"
+  left=""
+  if [ -n "$DEADLINE" ]; then
+    left=$(( DEADLINE - $(date +%s) ))
+    if [ "$left" -le 0 ]; then
+      outcome=pending
+      pending_reason="Not built in this run: the run's time (timeout_minutes) was up."
+      pending "$uc" "$pending_reason"
+      continue
+    fi
+  fi
+
+  start_sha=$(git rev-parse HEAD)
+  t0=$(date +%s)
+  rc=0
+  if [ -n "$left" ]; then
+    # timeout signals the whole process group, so the Claude Code session and a running build stop as well.
+    timeout --kill-after=60 "$left" env UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh" || rc=$?
+  else
+    UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh" || rc=$?
+  fi
+
+  if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+    # Stopped by the deadline in the middle of a station: drop its code like a stuck use case, keep it as a diff.
+    echo "::warning::$uc: the run's time (timeout_minutes) was up; the use case was stopped."
+    mkdir -p ".werkstatt/$uc"
+    git add -A
+    git diff --cached "$start_sha" > ".werkstatt/$uc/dropped.diff"
+    git reset -q --hard "$start_sha"
+    git clean -fdq
+    # The cost of the interrupted station is unknown; only the finished stations count.
+    cost=0
+    [ -s ".werkstatt/$uc/metrics.jsonl" ] && cost=$(jq -s 'map(.cost_usd) | add // 0' ".werkstatt/$uc/metrics.jsonl")
+    jq -n --arg uc "$uc" --argjson cost "${cost:-0}" --argjson sec "$(( $(date +%s) - t0 ))" \
+      '{uc:$uc, outcome:"stuck", fix_rounds:0, cost_usd:$cost, seconds:$sec,
+        reason:"The run'"'"'s time (timeout_minutes) was up while this use case was built. Start the run again, or raise timeout_minutes."}' \
+      > ".werkstatt/$uc/summary.json"
+  fi
+
   o=$(jq -r '.outcome // "stuck"' ".werkstatt/$uc/summary.json" 2>/dev/null || echo stuck)
   if [ "$o" != "ready" ]; then
     outcome="$o"
-    stopped_at="$uc"
+    pending_reason="Not built in this run: waits for $uc."
   fi
 done
 
@@ -38,7 +85,10 @@ for uc in sys.argv[1:]:
     path = f".werkstatt/{uc}/summary.json"
     if not os.path.isfile(path):
         continue
-    s = json.load(open(path))
+    try:
+        s = json.load(open(path))
+    except ValueError:
+        s = {"outcome": "stuck", "reason": "The run records of this use case are unreadable; see the run's log."}
     total += float(s.get("cost_usd") or 0)
     rows.append(f"| {uc} | **{s['outcome']}** | {s.get('status') or '–'} | {s.get('fix_rounds', 0)} | {float(s.get('cost_usd') or 0):.2f} |")
     part = [f"### {uc}", "", s.get("reason", "")]

@@ -64,7 +64,7 @@ on:
         default: "15"
         type: string
       timeout_minutes:
-        description: Upper limit of the whole run in minutes
+        description: Upper limit of the whole run in minutes; the stations stop 10 minutes earlier for the pull request
         required: false
         default: "180"
         type: string
@@ -77,7 +77,7 @@ on:
         required: false
     outputs:
       outcome:
-        description: ready (all use cases green), blocked, stuck, or none (nothing to build)
+        description: ready (all use cases green), blocked, stuck, pending (the time ran out between use cases), or none (nothing to build)
         value: ${{ jobs.werkstatt.outputs.outcome }}
       pull_request:
         description: Number of the pull request against the change branch, empty when nothing changed
@@ -108,8 +108,13 @@ jobs:
           path: .aiup-werkstatt-engine
 
       - name: Prepare
+        env:
+          TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
         run: |
           set -euo pipefail
+          # The stations stop 10 minutes before the job's timeout, so the use cases finished by then still reach
+          # the pull request; the one still running ends stuck (run-change.sh).
+          echo "DEADLINE=$(( $(date +%s) + (TIMEOUT_MINUTES - 10) * 60 ))" >> "$GITHUB_ENV"
           # neither the engine nor the run records belong in the pull request
           printf '%s\n' ".aiup-werkstatt-engine/" ".werkstatt/" >> .git/info/exclude
           git config user.name "AI Unified Process Werkstatt"
