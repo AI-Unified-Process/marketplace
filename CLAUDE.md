@@ -490,6 +490,10 @@ command names and would collide, and a combined plugin next to layer plugins wou
   (`coverage-r<round>.md`). `max_rounds` defaults to 4.
 - A dispatched run reads the stub from the change branch, not from the default branch: a stub change reaches an
   open change branch only by merging the default branch into it.
+- The stub has one source, `pipelines/werkstatt/aiup-werkstatt-stub.yml`. The Studio ships a verbatim copy
+  (`src/main/resources/generation/aiup-werkstatt.yml`) and refuses a run on a branch whose stub differs in any line;
+  change it here, copy it to the Studio in the same release, and never document a hand-edited variant.
+  `scripts/check-werkstatt-stub.sh` checks it against the inputs and secrets of the reusable workflow in CI.
 - `max_turns` defaults to 150; a session cut off by it (`error_max_turns`) is recorded in the metrics and the report.
 - The optional secret `AIUP_PR_TOKEN` opens the pull request, so the project's CI runs on it; without it,
   `GITHUB_TOKEN` opens it without checks. `aiup-generate.yml` takes the same secret.

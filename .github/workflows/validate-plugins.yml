@@ -32,6 +32,9 @@ jobs:
       - name: Check the generate workflow catalogue against the skills on disk
         run: bash scripts/check-generate-catalogue.sh
 
+      - name: Check the Werkstatt stub against the reusable workflow
+        run: bash scripts/check-werkstatt-stub.sh
+
       - name: Check copyright headers, LICENSE and NOTICE
         run: bash scripts/check-copyright-headers.sh
 

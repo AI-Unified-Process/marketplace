@@ -1,0 +1,99 @@
+# AI Unified Process Werkstatt - the stub of a project repository.
+#
+# The source of this file is pipelines/werkstatt/aiup-werkstatt-stub.yml in the AI Unified
+# Process marketplace. The Studio ships a verbatim copy, writes it to
+# .github/workflows/aiup-werkstatt.yml during the setup, compares the file of a change branch
+# against it before a Werkstatt run, and offers the update when the two differ. Do not edit
+# it by hand in a project; change it in the marketplace and copy it to the Studio.
+#
+# The Werkstatt builds the Approved use cases of a change branch: spec lint, implementation,
+# tests, build, spec coverage audit and fix rounds, each agent step in its own session. The
+# Studio triggers it through workflow_dispatch on the change branch; the work lives in the
+# reusable workflow of the AI Unified Process marketplace, and the result comes back as one
+# pull request against the change branch.
+name: AI Unified Process Werkstatt
+
+# The correlation id is part of the run name so the Studio finds the run it triggered:
+# workflow_dispatch does not return a run id of its own.
+run-name: AI Unified Process werkstatt ${{ inputs.correlation_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      use_cases:
+        description: Use case ids to build (empty = every Approved use case of the change)
+        required: false
+        default: ""
+        type: string
+      correlation_id:
+        description: Id of the run from the Studio
+        required: true
+        type: string
+      stack_plugin:
+        description: Combined stack plugin of the project; empty for layer plugins
+        required: false
+        default: ""
+        type: string
+      artifact_locations:
+        description: Where the artifacts lie when the repository deviates from the defaults
+        required: false
+        default: ""
+        type: string
+      model:
+        description: Model Claude Code runs with
+        required: false
+        default: claude-opus-5-5
+        type: string
+      max_turns:
+        description: Upper limit of turns per station
+        required: false
+        default: "150"
+        type: string
+      max_rounds:
+        description: Fix rounds per use case before it counts as stuck
+        required: false
+        default: "4"
+        type: string
+      max_cost_usd:
+        description: Cost budget per use case in USD
+        required: false
+        default: "15"
+        type: string
+      timeout_minutes:
+        description: Upper limit of the whole run in minutes
+        required: false
+        default: "180"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# One run per repository; the Studio prevents parallel runs on its side as well.
+concurrency:
+  group: aiup-werkstatt
+  cancel-in-progress: false
+
+jobs:
+  werkstatt:
+    # The tag is moved by the marketplace when the Werkstatt evolves; engine_ref names the
+    # same tag again, because a called workflow cannot see the ref it was called at.
+    uses: ai-unified-process/marketplace/.github/workflows/aiup-werkstatt.yml@v1
+    with:
+      use_cases: ${{ inputs.use_cases }}
+      correlation_id: ${{ inputs.correlation_id }}
+      engine_ref: v1
+      stack_plugin: ${{ inputs.stack_plugin }}
+      artifact_locations: ${{ inputs.artifact_locations }}
+      model: ${{ inputs.model }}
+      max_turns: ${{ inputs.max_turns }}
+      max_rounds: ${{ inputs.max_rounds }}
+      max_cost_usd: ${{ inputs.max_cost_usd }}
+      timeout_minutes: ${{ inputs.timeout_minutes }}
+    # The AI access stays in this repository and is passed through one by one. The
+    # optional AIUP_PR_TOKEN opens the pull request, so that the CI of the project runs on
+    # it; without it the pull request arrives all the same, only without checks.
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}

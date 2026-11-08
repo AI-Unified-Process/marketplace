@@ -82,42 +82,25 @@ Prerequisites: a project with the AI Unified Process artifacts, a filled `docs/a
 Commands, written by `/stack`), and the secret `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` in the repository.
 Allow GitHub Actions to create pull requests (Settings → Actions → General → Workflow permissions).
 
-The Studio writes the stub during its generation setup (Studio UC-042), next to the one of `aiup-generate`. By
-hand, the stub `.github/workflows/aiup-werkstatt.yml` is:
+The stub `.github/workflows/aiup-werkstatt.yml` of a project has one source:
+[`pipelines/werkstatt/aiup-werkstatt-stub.yml`](../pipelines/werkstatt/aiup-werkstatt-stub.yml). The Studio ships a
+verbatim copy of it, writes it during its generation setup (Studio UC-042), next to the one of `aiup-generate`, and
+before every Werkstatt run compares the stub of the change branch against its copy (Studio UC-061 A4): a stub that
+differs in any line counts as outdated, and the Studio refuses the run until the branch carries the current one. So
+do not edit the stub in a project: the model, the budget, and the other limits are inputs of the dispatch, not lines
+of the file. Without the Studio, copy the file unchanged and pass the inputs by hand.
 
-```yaml
-name: AI Unified Process Werkstatt
-on:
-  workflow_dispatch:
-    inputs:
-      use_cases:
-        description: Use case ids (empty = every Approved use case of the change)
-        required: false
-      correlation_id:
-        description: Run id
-        required: false
-permissions:
-  contents: write
-  pull-requests: write
-jobs:
-  werkstatt:
-    uses: AI-Unified-Process/marketplace/.github/workflows/aiup-werkstatt.yml@v1
-    with:
-      use_cases: ${{ inputs.use_cases }}
-      correlation_id: ${{ inputs.correlation_id || github.run_id }}
-      engine_ref: v1
-    secrets:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-      AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}
-```
+A change to the stub is made here and copied to the Studio's `src/main/resources/generation/aiup-werkstatt.yml` in
+the same release; `scripts/check-werkstatt-stub.sh` fails CI when the stub passes an input the reusable workflow
+does not declare, leaves out one it declares, or names another ref in `engine_ref` than in its `uses:` line.
 
 GitHub offers a workflow for dispatch only when its file is on the default branch, but it runs the file **as it is on
 the ref the run goes on**. Commit the stub to the default branch and create the change branches from there; the run
-goes on the change branch: `gh workflow run aiup-werkstatt.yml --ref change/online-booking`. When the stub changes
-later (another `model`, a higher `max_cost_usd`, the `AIUP_PR_TOKEN` line), merge the default branch into every open
-change branch before its next run; otherwise that run still uses the change branch's old stub. Secrets are the
-exception: they belong to the repository and reach every branch at once.
+goes on the change branch:
+`gh workflow run aiup-werkstatt.yml --ref change/online-booking -f correlation_id=manual-1 -f max_cost_usd=40`. When
+the stub changes later, merge the default branch into every open change branch before its next run; otherwise that
+run still uses the change branch's old stub, and the Studio reports it as outdated. Secrets are the exception: they
+belong to the repository and reach every branch at once.
 
 ### CI on the pull request
 
@@ -137,7 +120,7 @@ it, give the Werkstatt a token of its own:
    gh secret set AIUP_PR_TOKEN -R <owner>/<repository>
    ```
 
-5. Pass it in the stub, as the line `AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}` above does.
+5. The stub passes it with the line `AIUP_PR_TOKEN: ${{ secrets.AIUP_PR_TOKEN }}`; nothing to change there.
 
 The pull request is then opened in the name of the token's account, and the workflows that run on `pull_request`
 (or on a push to `aiup/**`) start for it. That account cannot approve its own pull request, so a team uses the token
