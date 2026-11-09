@@ -23,8 +23,9 @@ Inception        Elaboration                                Construction        
 
 `aiup-core` owns the stack-independent steps. Construction comes in two forms:
 
-- **Combined stack plugin** (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`): one
-  plugin owns migrations, implementation, and tests for a fixed combination of UI, backend, and data access.
+- **Combined stack plugin** (`aiup-blazor-dotnet`, and the deprecated `aiup-vaadin-jooq`, `aiup-angular-jpa`,
+  `aiup-nestjs-nextjs`): one plugin owns migrations, implementation, and tests for a fixed combination of UI, backend,
+  and data access.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
   `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`): one plugin per technology, combined per project. `/stack` records the combination in
   `docs/architecture/stack.md`; `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in `aiup-core` run the layer skills it
@@ -41,7 +42,8 @@ Inception        Elaboration                                Construction        
   an adapter for it, and no test reaches it: the client tests run against a stub of the contract, the other layers
   against a fake of the port.
 
-The layer plugins replace `aiup-vaadin-jooq` and `aiup-angular-jpa`, which are deprecated. Use one form per project:
+The layer plugins replace `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs`, which are deprecated and
+will be removed with `aiup-core` 4.0.0; the [migration guide](migration.md) moves an existing project. Use one form per project:
 the combined plugins do not read `docs/architecture/stack.md`. The boundary between `aiup-core` and construction is the set
 of files under `docs/`, not a specific coding agent.
 
@@ -190,7 +192,8 @@ a layered use case spreads over classes named after entities: `UC-XXX` in the Ja
 `/** UC-XXX: <Use Case Name> */` above an Angular page component.
 
 **Tests.** Each stack carries the ids in the form its test framework supports. The Layer plugins row summarizes the
-layer test skills; in a layered project the Markers table of `docs/architecture/stack.md` is authoritative:
+layer test skills; in a layered project the Markers table of `docs/architecture/stack.md` is authoritative. The rows
+of `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` describe deprecated plugins:
 
 | Stack                | Use case tests (`UC-*`)                                                                                                                                                                                                                                                                                                                                                                            | Journey tests (`TC-*`)                                                                                      |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -257,10 +260,10 @@ The `**Status:**` line of a use case says how far it has come. Either language i
 | Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                         |
 
 After a specification is written, only `/acceptance-protocol close` changes this line. The implementation and test
-skills leave it alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in
-`aiup-vaadin-jooq` and `aiup-angular-jpa`) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
+skills leave it alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in the
+deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa`) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
 and the suite passes. It never suggests `Done`, because acceptance is not visible in code, and never `Tested` while a
-blocking open question holds the use case. `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit, so there you
+blocking open question holds the use case. `aiup-blazor-dotnet` and the deprecated `aiup-nestjs-nextjs` have no audit, so there you
 decide from the code and the tests.
 
 The status also decides what the skills do with a use case:
@@ -290,8 +293,8 @@ chains.
 | Automated | Automatisiert | An end-to-end test implements this test case.                              | You set it when the coverage audit suggests it.                                       |
 | Obsolete  | Obsolet       | No longer valid, superseded by another test case.                          | You set it, or `/test-case` does when the path through the process no longer exists.  |
 
-The coverage audit (`/test-case-coverage TC-XXX` with layer plugins, `/coverage-check TC-XXX` in `aiup-vaadin-jooq` and
-`aiup-angular-jpa`) only suggests `Automated`, once every Flow row, validation, and postcondition has a step in the
+The coverage audit (`/test-case-coverage TC-XXX` with layer plugins, `/coverage-check TC-XXX` in the deprecated `aiup-vaadin-jooq`
+and `aiup-angular-jpa`) only suggests `Automated`, once every Flow row, validation, and postcondition has a step in the
 journey test, and never while a blocking open question holds the test case. `Automated` says the journey is automated,
 not that it passes: a journey that fails points at a use case it chains. The automation skills leave the line alone.
 
@@ -468,7 +471,7 @@ That is what `/use-case-coverage UC-001` is for; the skill reports the justified
 
 The agent reads the markers from `docs/architecture/stack.md`. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa`
 run the same audit with their own `/coverage-check` and `uc-coverage` agent, whose marker table is fixed to the stack.
-`aiup-blazor-dotnet` and `aiup-nestjs-nextjs` do not ship an equivalent yet; the same check can be run by hand from
+`aiup-blazor-dotnet` and the deprecated `aiup-nestjs-nextjs` do not ship an equivalent; the same check can be run by hand from
 [the agent definition](../aiup-core/agents/uc-coverage-layered.md) with the markers of the stack in question.
 
 ## Transition

@@ -16,7 +16,7 @@ has an API layer as well, `nest-rest` of `aiup-nestjs` or `spring-rest` of `aiup
 written field by field from that layer's DTOs, and the JSON contract between the two is checked after every
 implementation. Server Components and Server Actions reach data through the same API, never through a database.
 
-The skills derive from the combined plugin [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), which a contributor wrote.
+The skills derive from the deprecated combined plugin [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), which a contributor wrote.
 
 ## Skills
 
@@ -67,7 +67,7 @@ tessl install ai-unified-process/aiup-nextjs
 ```
 
 Install the other layer plugins of the project the same way. Do not combine layer plugins with a combined stack
-plugin (`aiup-nestjs-nextjs`) in one project. See the [installation guides](../docs/installation/) for other
+plugin (the deprecated `aiup-nestjs-nextjs`) in one project. See the [installation guides](../docs/installation/) for other
 agents.
 
 ## Prerequisites

@@ -8,7 +8,8 @@ description: >
   (recorded in docs/open_questions.md), decision rights, UC-XXX BR-YYY markers, no edits to tests or docs. Use when
   the user asks to "implement UC-001", "build this use case", "implement the use case end to end", "implement only the
   API layer of UC-001", or mentions implementing a use case in a project that combines layer plugins. For a project that uses a combined stack plugin
-  (aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs), use that plugin's /implement instead.
+  (aiup-blazor-dotnet, or the deprecated aiup-vaadin-jooq, aiup-angular-jpa, aiup-nestjs-nextjs), use that plugin's
+  /implement instead.
 ---
 
 <!--

@@ -12,7 +12,7 @@ repositories, queries, and projections a use case needs, and tests the queries t
 a real database in a Testcontainers container.
 
 It is one plugin per layer: combine it with `aiup-core` and the plugins of the other layers instead of a combined
-stack plugin such as `aiup-angular-jpa`.
+stack plugin such as the deprecated `aiup-angular-jpa`.
 
 ## Requirements
 
@@ -48,7 +48,7 @@ and no Lombok is used.
 | REST API, Spring Boot, JPA    | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`                                    |
 | Angular, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
 
-Do not combine the layer plugins with a combined stack plugin (`aiup-angular-jpa`); it ships its own `/implement`.
+Do not combine the layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa`); it ships its own `/implement`.
 
 ## Installation
 

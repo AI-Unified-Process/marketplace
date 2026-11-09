@@ -8,7 +8,7 @@ description: >
   existing journey test is reconciled rather than duplicated. Use when the user asks to "implement TC-001",
   "automate TC-001", "write the end-to-end test for this test case", "turn the journey into a test", or mentions an
   automated test for a TC-* document in a project that combines layer plugins (aiup-vaadin, aiup-playwright). With a
-  combined stack plugin (aiup-vaadin-jooq, aiup-angular-jpa, aiup-blazor-dotnet, aiup-nestjs-nextjs), use its
+  combined stack plugin (aiup-blazor-dotnet, or the deprecated aiup-vaadin-jooq, aiup-angular-jpa, aiup-nestjs-nextjs), use its
   /playwright-test TC-XXX. Writes test code; the TC-*.md document itself is /test-case.
 ---
 

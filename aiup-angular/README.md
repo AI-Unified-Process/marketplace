@@ -60,7 +60,7 @@ tessl install ai-unified-process/aiup-angular
 ```
 
 Install the other layer plugins of the project the same way. Do not combine layer plugins with a combined stack
-plugin (`aiup-angular-jpa`) in one project. See the [installation guides](../docs/installation/) for other
+plugin (the deprecated `aiup-angular-jpa`) in one project. See the [installation guides](../docs/installation/) for other
 agents.
 
 ## Prerequisites

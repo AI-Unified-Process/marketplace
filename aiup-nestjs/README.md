@@ -14,7 +14,7 @@ It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.14.0 or 
 of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 
-The skills derive from the combined plugin [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), written by a contributor to
+The skills derive from the deprecated combined plugin [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), written by a contributor to
 the AI Unified Process, which this plugin and `aiup-drizzle` and `aiup-nextjs` supersede.
 
 ## Skills

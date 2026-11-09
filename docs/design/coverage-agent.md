@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Coverage sub-agent
 
-`aiup-vaadin-jooq/agents/uc-coverage.md` defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
+`aiup-vaadin-jooq/agents/uc-coverage.md` (a deprecated combined plugin) defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
 whether a `UC-XXX` or `TC-XXX` is completely implemented and completely tested. It derives coverage units from the specification
 (every main success scenario step, alternative flow, business rule, precondition, postcondition, and every NFR and
 constraint on its `**Requirements:**` line — for a test case, the
@@ -41,6 +41,6 @@ test case, `Automated`: the agent suggests a test case only its own statuses, ne
 construction skill needs the same hand-off section; do not add an in-skill audit back.
 
 The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
-plugin that wants the same check needs its own copy with its own markers (`aiup-angular-jpa` has one). Sub-agents are Claude Code-specific and are
+plugin that wants the same check needs its own copy with its own markers (the deprecated `aiup-angular-jpa` has one). Sub-agents are Claude Code-specific and are
 not part of the Agent Plugins standard; `/coverage-check` therefore also tells hosts without sub-agents to run the
 checklist from the agent file directly.

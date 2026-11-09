@@ -56,7 +56,7 @@ tessl install ai-unified-process/aiup-playwright
 /plugin install aiup-playwright
 ```
 
-Do not combine layer plugins with a combined stack plugin (`aiup-angular-jpa`) in one project. See the
+Do not combine layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa`) in one project. See the
 [installation guides](../docs/installation/) for other agents.
 
 ## Prerequisites

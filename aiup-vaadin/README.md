@@ -47,7 +47,7 @@ Replace `aiup-jooq` with `aiup-jpa` for a JPA persistence layer. The views call 
 (`/spring-rest`) may still exist for other clients; it then tests only its own contract, and the integration layer
 stays the Browserless tests of a Flow UI or the service tests behind a Hilla UI.
 
-This plugin replaces the UI and test half of the combined `aiup-vaadin-jooq` plugin for layered projects. Karibu
+This plugin replaces the UI and test half of the deprecated combined `aiup-vaadin-jooq` plugin for layered projects. Karibu
 Testing is not carried over; Browserless Testing supersedes it.
 
 ## Installation
@@ -70,7 +70,7 @@ tessl install ai-unified-process/aiup-vaadin
 
 Claude Code installs `aiup-core` and `aiup-spring-boot` with this plugin; Tessl does not, so name them as above.
 Install the plugins of the other layers (`aiup-flyway`, `aiup-jooq` or `aiup-jpa`) the same way. Do not combine
-layer plugins with the combined `aiup-vaadin-jooq` plugin in one project. See the marketplace
+layer plugins with the deprecated combined `aiup-vaadin-jooq` plugin in one project. See the marketplace
 [installation guides](../docs/installation/) for other agents and manual adoption.
 
 ## MCP servers

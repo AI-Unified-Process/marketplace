@@ -42,7 +42,7 @@ Inception        Elaboration                                Construction        
 ```
 
 `aiup-core` owns the stack-independent path from vision to specifications. Construction continues either with
-layer plugins — one per technology, combined per project — or with one combined stack plugin. With layer plugins, run
+layer plugins — one per technology, combined per project — or with one combined stack plugin (`aiup-blazor-dotnet`; the others are deprecated). With layer plugins, run
 `/stack` once; then *implement*, *test*, and *coverage* are `/use-case-implement`, `/use-case-test`, and
 `/use-case-coverage`, and *automate the journey* is `/test-case-implement`. A combined stack plugin uses its own
 `/implement`, test skills, and `/coverage-check` where it ships one.
@@ -59,7 +59,8 @@ later result remains traceable to the corresponding requirement or use case.
 ## Choose your plugins
 
 Install `aiup-core` in every project. For construction, combine **layer plugins** — one per technical layer — or add
-exactly one **combined stack plugin**. Do not mix both in one project.
+exactly one **combined stack plugin**. Do not mix both in one project. Of the combined stack plugins, only
+`aiup-blazor-dotnet` is maintained; the others are deprecated.
 
 ### Layer plugins
 
@@ -107,8 +108,9 @@ The coverage audit belongs to `aiup-core`: `/use-case-coverage` and `/test-case-
 [`uc-coverage-layered`](aiup-core/agents/uc-coverage-layered.md) sub-agent on demand. It reports which parts of the
 specification have no code or no test behind them, and which code has no specification behind it, and judges
 implementation and tests together; `/use-case-test` and `/test-case-implement` end by handing off to it rather than
-running it themselves, so a construction round stays fast. Of the combined stack plugins, `aiup-vaadin-jooq` and
-`aiup-angular-jpa` have their own `/coverage-check`; `aiup-blazor-dotnet` and `aiup-nestjs-nextjs` have no audit.
+running it themselves, so a construction round stays fast. Of the combined stack plugins, the deprecated
+`aiup-vaadin-jooq` and `aiup-angular-jpa` have their own `/coverage-check`; `aiup-blazor-dotnet` and the deprecated
+`aiup-nestjs-nextjs` have no audit.
 
 `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated in favour of the layer plugins and
 will be removed with `aiup-core` 4.0.0. The [migration guide](docs/migration.md) walks an existing project through the switch.
@@ -240,7 +242,7 @@ skill and document carries its copyright header and that each plugin ships `LICE
 |--------------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AI Unified Process, and create the first artifacts |
 | [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects                       |
-| [Migration guide](docs/migration.md)                         | Moving a project from `aiup-vaadin-jooq` or `aiup-angular-jpa` to the layer plugins          |
+| [Migration guide](docs/migration.md)                         | Moving a project from a deprecated combined stack plugin to the layer plugins                |
 | [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |
 | [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |
 | [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |

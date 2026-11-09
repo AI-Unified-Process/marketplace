@@ -52,7 +52,8 @@ your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only
 [`uc-coverage-layered`](agents/uc-coverage-layered.md) sub-agent. With a combined stack plugin, use its own
-`/implement` and test skills instead.
+`/implement` and test skills instead; `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated
+(see the [migration guide](../docs/migration.md)).
 
 Each skill reads the artifacts created by earlier steps. The linked `SKILL.md` files are the authoritative reference
 for detailed inputs, outputs, and behavior.

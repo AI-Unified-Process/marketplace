@@ -64,7 +64,8 @@ non-goals over a long feature wish list.
 /plugin install aiup-spring-boot
 ```
 
-Install the layer plugins of your stack, or one combined stack plugin instead. See the full
+Install the layer plugins of your stack, or one combined stack plugin instead (`aiup-blazor-dotnet`; the others are
+deprecated). See the full
 [Claude Code installation guide](installation/claude-code.md).
 
 ### Tessl
@@ -195,7 +196,7 @@ through it alone; when a use case is offered through it as well, `/use-case-test
 integration layer. Both take a layer to narrow the run, for example `/use-case-implement UC-001 api` or `/use-case-test UC-001
 persistence` for a lower layer.
 
-With a combined stack plugin, use its commands instead. For example, the construction workflow normally consists of a
+With a combined stack plugin (`aiup-blazor-dotnet`, or a deprecated one), use its commands instead. For example, the construction workflow normally consists of a
 migration, `/implement UC-001`, stack-specific unit or integration tests, and `/playwright-test UC-001`.
 
 For a journey across several use cases, first create a test-case document:
@@ -203,7 +204,7 @@ For a journey across several use cases, first create a test-case document:
 ```text
 /test-case UC-001 UC-004
 /test-case-implement TC-001      # layer plugins; /playwright-test TC-001 with a combined stack plugin
-/test-case-coverage TC-001       # layer plugins; /coverage-check TC-001 with aiup-vaadin-jooq or aiup-angular-jpa
+/test-case-coverage TC-001       # layer plugins; /coverage-check TC-001 with the deprecated aiup-vaadin-jooq or aiup-angular-jpa
 ```
 
 When several use cases form one business process — work handed over between roles, waiting for an event or a

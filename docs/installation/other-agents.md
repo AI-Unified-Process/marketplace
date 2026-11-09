@@ -28,7 +28,8 @@ packages directly or configuring skills and MCP servers by hand.
 ## Load an Agent Plugins package
 
 Clone the repository and point an Agent Plugins-conformant client at `aiup-core` plus one combined stack plugin or
-the layer plugins of your project:
+the layer plugins of your project (`aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated;
+see the [migration guide](../migration.md)):
 
 ```sh
 git clone https://github.com/AI-Unified-Process/marketplace.git

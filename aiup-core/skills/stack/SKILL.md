@@ -258,5 +258,7 @@ deleting the existing ones is the team's call. Changing it to `Use cases and tes
   write the technology in the Technology column, leave the Skill column `–`, and say that `/use-case-implement` will
   build that layer from its own knowledge without a layer skill. The E2E row is the exception: its Skill column is
   always `–`, and it names a Test skill instead.
-- Do not mix in the combined stack plugins (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`,
-  `aiup-nestjs-nextjs`): a project that uses one of them runs its `/implement` and needs no stack file.
+- Do not mix in the combined stack plugins (`aiup-blazor-dotnet`, and the deprecated `aiup-vaadin-jooq`,
+  `aiup-angular-jpa`, `aiup-nestjs-nextjs`): a project that uses one of them runs its `/implement` and needs no stack
+  file. A project that wants to move from a deprecated one to layer plugins removes it first; `/stack` then records
+  the layers.

@@ -10,10 +10,10 @@ description: >
   UC-001 completely tested", "audit the use case", "show me the coverage
   matrix", "do a traceability check", "what is still missing for UC-001", or
   "can I set the status to Tested". This is specification coverage, not line
-  coverage from a coverage report. It reports only and writes no
+  coverage. It reports only and writes no
   file. For projects that combine layer plugins and record
-  them in docs/architecture/stack.md; aiup-vaadin-jooq and aiup-angular-jpa
-  have /coverage-check. When the user wants the gaps closed rather than listed,
+  them in docs/architecture/stack.md; the deprecated aiup-vaadin-jooq and
+  aiup-angular-jpa have /coverage-check. When the user wants the gaps closed rather than listed,
   use /use-case-implement or /use-case-test instead. A TC-XXX journey is
   /test-case-coverage.
 ---

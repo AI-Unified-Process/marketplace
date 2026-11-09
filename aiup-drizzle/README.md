@@ -9,8 +9,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 `aiup-drizzle` is the AI Unified Process layer plugin for the **migration and persistence layers** of a TypeScript
 project: a [Drizzle](https://orm.drizzle.team/docs/overview) schema over PostgreSQL with generated migrations, derived
 from the entity model that [`aiup-core`](../aiup-core/) produces, and the repositories of a NestJS API. It is one plugin
-of a layer combination; it does not build services, an API, or a UI. Its skills derive from the combined plugin
-[`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), which a contributor wrote.
+of a layer combination; it does not build services, an API, or a UI. Its skills derive from the deprecated combined
+plugin [`aiup-nestjs-nextjs`](../aiup-nestjs-nextjs/), which a contributor wrote.
 
 ## Skills
 

@@ -56,7 +56,7 @@ Both skills can be run directly; they then read the same inputs and follow the s
 | Vaadin Flow, jOOQ           | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin` |
 | Hilla, jOOQ                 | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin` |
 
-Do not combine the layer plugins with a combined stack plugin such as `aiup-vaadin-jooq`, which ships its own
+Do not combine the layer plugins with a combined stack plugin such as the deprecated `aiup-vaadin-jooq`, which ships its own
 `/implement`.
 
 ## Installation

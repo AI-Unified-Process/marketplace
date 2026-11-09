@@ -72,7 +72,7 @@ layer only of the use cases offered through the API alone. Below the integration
 units the integration layer's skill reports it cannot reach. In a Vaadin or Hilla application without a public API,
 the API layer is marked `–` in `docs/architecture/stack.md` and `/spring-rest` does not run.
 
-Do not install this plugin together with a combined stack plugin (`aiup-vaadin-jooq`, `aiup-angular-jpa`) in one
+Do not install this plugin together with a combined stack plugin (the deprecated `aiup-vaadin-jooq`, `aiup-angular-jpa`) in one
 project.
 
 ## Architecture support
