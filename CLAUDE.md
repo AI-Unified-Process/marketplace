@@ -481,12 +481,17 @@ command names and would collide, and a combined plugin next to layer plugins wou
   coverage audit), forward only, in the language of the specification; blocked, stuck and pending ones stay
   `Approved` and are selected again.
 - The andon cord is read from `docs/open_questions.md` (a blocking `Open` or `Answered` question naming the use
-  case), not from the agent's answer. A blocked use case keeps only its questions; a stuck one keeps nothing.
+  case or a requirement its `**Requirements:**` line links), not from the agent's answer. `werkstatt.py blocking`
+  keeps its own parser and must read questions as `spec_lint.py` does. A blocked use case keeps only its questions;
+  a stuck one keeps nothing.
+- A use case named by hand in `use_cases` is built only at `Approved`; any other one is `skipped` with its reason.
 - G1 is `spec_lint.py`; the build gate runs the Commands table of the stack file. The plugins come from the Plugins
   table of the layer catalog, never from a third copy of the generate skill lists.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
-- The stations stop 10 minutes before `timeout_minutes`; the use case still running ends stuck, the finished ones
-  still reach the pull request.
+- The stations stop 10 minutes before `timeout_minutes`, counted from the job's first step, so `timeout_minutes`
+  must be more than 10; the use case still running ends stuck, the finished ones still reach the pull request.
+- Git paths are read with `core.quotePath=false`, `-z`, and `--no-renames`: specs carry umlauts, and a move must
+  not hide a deleted test.
 - A ready use case's linked requirements follow its status in the same commit (`werkstatt.py requirements`, which
   imports `derived_status()` from `spec_lint.py`; `/spec-review` stays read-only). `Deferred`/`Rejected` stay.
 - The audit reports every gap in one pass; a later audit re-checks the previous round's matrix

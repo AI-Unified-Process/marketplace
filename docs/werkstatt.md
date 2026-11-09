@@ -47,13 +47,18 @@ and the auditor read the specification, not the implementer's reasoning.
 | Budget | `max_rounds` fix rounds and `max_cost_usd` per use case | stuck |
 
 A harness guard keeps each station in its lane: test code the implementer writes and production code the tester
-writes are reverted and listed in the pull request. Build files (`pom.xml`, `package.json`, a test runner's
+writes are reverted and listed in the pull request. Test code is told by its path: test folders (`src/test/`,
+`test/`, `e2e/`, ...), `*.spec.ts` and `*.test.ts` files, `*Test(s).cs` and `*Test(s).razor` files, and every file in
+a .NET test project folder (`MyApp.Tests/`, `MyApp.Tests.E2E/`). A moved file counts with its old and its new path,
+so a test moved out of the test folder is restored. Build files (`pom.xml`, `package.json`, a test runner's
 configuration, and the like) are the exception for the tester: a test may need a dependency, so they are kept and
 listed.
 
 **The andon cord.** When a station meets a gap in the specification, it records a blocking open question in
 `docs/open_questions.md` (`**Blocking:** Yes`) instead of guessing. The Werkstatt detects the question from the file,
-stops the use case and keeps only the question. The domain expert answers it in the change branch; the next run
+stops the use case and keeps only the question. A question counts when it is `Open` or `Answered` and its element is
+the use case (`UC-003`, `UC-003 step 2`, `UC-003 A1`, `UC-003 BR-001`) or a requirement the use case links on its
+`**Requirements:**` line, as `/spec-review` reads the file. The domain expert answers it in the change branch; the next run
 builds the use case again.
 
 ## Outcomes
@@ -62,8 +67,9 @@ builds the use case again.
 | --- | --- | --- |
 | `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit), and the new status of the requirements the use case links |
 | `blocked` | Spec lint errors or a blocking open question | Only the new open questions; the code is dropped |
-| `stuck` | Still red after the fix rounds, or over budget | Nothing of this use case; the code is kept as `dropped.diff` in the run records |
+| `stuck` | Still red after the fix rounds, over budget, or the stations stopped without a result | Nothing of this use case; the code is kept as `dropped.diff` in the run records |
 | `pending` | Not built: an earlier use case of the run stopped | Nothing; it is built in the next run |
+| `skipped` | Not built: the use case is not `Approved` (or has no specification), also when `use_cases` names it | Nothing; the reason names its status |
 
 The requirements follow the use case in the same commit: the progress status (`Open`, `In Progress`, `Implemented`,
 `Verified`) of every requirement the use case links moves to what its use cases make it, derived by `spec_lint.py`
@@ -133,7 +139,7 @@ token per repository is enough.
 
 | Input | Default | Meaning |
 | --- | --- | --- |
-| `use_cases` | empty | Ids to build; empty = every `Approved` use case whose specification changed on the branch |
+| `use_cases` | empty | Ids to build; empty = every `Approved` use case whose specification changed on the branch. An id that is not `Approved` is skipped |
 | `correlation_id` | – | Run id; names the result branch `aiup/werkstatt-<id>` and the records artifact |
 | `engine_ref` | `v1` | Ref of this marketplace whose `pipelines/werkstatt/` runs; the same ref as in `uses:` |
 | `stack_plugin` | empty | A combined stack plugin (`aiup-blazor-dotnet`); empty for layer plugins |
@@ -142,9 +148,10 @@ token per repository is enough.
 | `max_turns` | `150` | Turns per station; it stops loops, the cost budget is the real limit |
 | `max_rounds` | `4` | Fix rounds per use case |
 | `max_cost_usd` | `15` | Cost budget per use case |
-| `timeout_minutes` | `180` | Upper limit of the whole run; the stations stop 10 minutes earlier |
+| `timeout_minutes` | `180` | Upper limit of the whole run, counted from the job's start; the stations stop 10 minutes earlier. A value of 10 or less fails the run at its first step |
 
-Outputs: `outcome` (`ready`, `blocked`, `stuck`, `pending`, `none`) and `pull_request`. The artifact `werkstatt-<id>` holds the
+Outputs: `outcome` (`ready`, `blocked`, `stuck`, `pending`, `none`; `none` also when every use case named was
+skipped, and then no pull request is opened) and `pull_request`. The artifact `werkstatt-<id>` holds the
 records of every station: `summary.json` per use case, `metrics.jsonl` (station, round, exit code, the session's
 result subtype, cost, seconds), the build logs, the lint output and the coverage matrix. A session cut off by
 `max_turns` (subtype `error_max_turns`) goes on to the gates with what it wrote, and the pull request lists it under
@@ -155,7 +162,6 @@ result subtype, cost, seconds), the build logs, the lint output and the coverage
 - Bitbucket Pipelines (the GitHub reusable workflow only).
 - The Studio shows the outcome per use case once the run has ended, not the station a running use case is in, and
   it has no change branch as a concept of its own: the Werkstatt runs on the branch the user works on.
-- Blocking questions on a requirement (`FR-`) count only when their element names the use case.
 - End-to-end tests are not part of the build gate; the coverage audit still reports a missing browser test.
 - A GitHub App as the author of the pull request: the reusable workflow would have to create the App token itself
   (a token cannot be handed from the stub's job to it). Use a machine user's fine-grained token meanwhile.

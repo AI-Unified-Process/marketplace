@@ -27,7 +27,9 @@ The Werkstatt keeps no state of its own between runs. It selects the use cases t
 `Approved`, and moves a finished one to `Tested` in the same pull request as its code, like the status advance of
 `aiup-generate` (forward only, in the language of the specification). After the merge the use case is not selected
 again; a blocked, stuck or pending one is still `Approved` and is. Nobody has to watch the pull request, and a
-rejected pull request leaves the specification as it was.
+rejected pull request leaves the specification as it was. The status is also the gate for ids given by hand in
+`use_cases`: one that is not `Approved` is skipped with its status as the reason, because an approval that a typed id
+could bypass would be no gate.
 
 The requirements catalog moves with the status. A requirement's progress follows the use cases that link it (#32),
 so a use case at `Tested` with its requirements still `Open` is a contradiction `/spec-review` reports as
@@ -50,7 +52,11 @@ A skill that meets a gap records a blocking open question (`/open-questions`). T
 whether it got stuck; it reads `docs/open_questions.md` after each station. The file is the contract every skill
 already writes, the check is deterministic, and a question that names the use case stops it whatever the agent
 says. A blocked use case contributes only its questions: half-built code is no proposal, and the next run builds
-again from the answered specification.
+again from the answered specification. The Werkstatt reads the file the way `spec_lint.py` does (heading with or
+without a colon, a backticked element, fenced examples skipped), and a question on a requirement stops every use case
+that links it, as `/spec-review` assigns it. The parser is a small copy of those rules rather than an import of
+`spec_lint.py`'s internals: a refactoring there must not cut the andon cord silently, and the self-test pins the
+rules.
 
 ## Gates before review
 
@@ -65,7 +71,9 @@ still pass the gates, and when it does not, the fix round that follows shows why
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
 The run's own time limit is handled the same way: the stations stop before the job's timeout and the use case still
 running is dropped, because a job killed by GitHub opens no pull request and would lose the use cases already
-green.
+green. The deadline is taken in the job's first step, so it counts from where GitHub's timeout counts, and a
+`timeout_minutes` of 10 or less fails right there: it would leave the stations no time at all. Stations that stop
+without a result (a crash) end stuck as well, with a row in the report, so no use case of a run goes unreported.
 
 ## Plugins from the layer catalog
 

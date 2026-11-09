@@ -33,8 +33,10 @@ STACK_PLUGIN="${STACK_PLUGIN:-}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 ARTIFACT_LOCATIONS="${ARTIFACT_LOCATIONS:-}"
 HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
-# Test code by path: Java/Kotlin test sources, test folders, TypeScript and .NET test files.
-TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.cs\$}"
+# Test code by path: Java/Kotlin test sources, test folders, TypeScript test files, and .NET test files: any file in a
+# .NET test project folder (a name that ends in .Tests or holds .Tests., such as MyApp.Tests or MyApp.Tests.E2E, for
+# helpers like a fixture or an attribute) and *Test(s).cs or *Test(s).razor anywhere.
+TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|(^|/)[^/]*\\.Tests(\\.[^/]*)?/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.(cs|razor)\$}"
 # Build files: the tester may add a test dependency or adjust a test runner's configuration. Kept, and listed.
 BUILD_REGEX="${BUILD_REGEX:-(^|/)(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|gradle/libs\\.versions\\.toml|package(-lock)?\\.json|pnpm-lock\\.yaml|yarn\\.lock|angular\\.json|tsconfig[^/]*\\.json|[^/]*\\.config\\.[cm]?[jt]s|[^/]*\\.csproj|Directory\\.(Packages|Build)\\.props)\$}"
 OQ_FILE=docs/open_questions.md
@@ -126,7 +128,7 @@ over_budget() { awk -v t="$TOTAL_COST" -v m="$MAX_COST_USD" 'BEGIN{exit !(t>m)}'
 guard() {
   local mode="$1" file
   git add -A
-  while IFS= read -r file; do
+  while IFS= read -r -d '' file; do
     [ -n "$file" ] || continue
     if [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]] && [[ "$file" =~ $BUILD_REGEX ]]; then
       echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
@@ -140,7 +142,9 @@ guard() {
     echo "$2 changed $file (reverted)" >> "$F/guard.log"
     git rm -q --cached -- "$file" 2>/dev/null || true
     if git cat-file -e "HEAD:$file" 2>/dev/null; then git checkout -q HEAD -- "$file"; else rm -f -- "$file"; fi
-  done < <(git diff --cached --name-only HEAD)
+  # NUL-separated and unquoted, so a path with an umlaut or a space is the real path; without rename detection, so a
+  # moved file lists both its old and its new path and a test moved out of the test folder is restored.
+  done < <(git -c core.quotePath=false diff --cached --name-only --no-renames -z HEAD)
   git reset -q
 }
 
