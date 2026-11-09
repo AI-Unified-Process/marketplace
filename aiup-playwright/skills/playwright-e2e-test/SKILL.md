@@ -104,8 +104,8 @@ talks only to the frontend origin, which proxies `/api/*` to the backend.
 
 When the frontend and the backend are two applications and the project has no way of starting them yet, let
 Playwright own both, with the ports and commands of the project. The example is a Next.js frontend and a NestJS API;
-there the backend is the E2E server of the `test-setup.md` reference named under [Test Data](#test-data), which also
-provides its own database:
+there the backend is the E2E server of [references/e2e-server.md](references/e2e-server.md), which also provides its
+own database:
 
 ```ts
 // playwright.config.ts
@@ -148,11 +148,9 @@ cases its Flow links. Flyway's default location `classpath:db/migration` picks i
 its test classpath.
 
 A project on Drizzle has no such migration, because its migrations are generated and never hand-written. Its default
-is the per-use-case seed the backend test skills write, `test/data/uc<id>-<slug>.ts` in the API application; the
-section "The running application for E2E" of the `test-setup.md` reference of `nest-service-test` says how the
-running application loads it (locate it with a glob
-for `**/*nest-service-test/references/test-setup.md`; the skill folder may carry a host prefix such as
-`tessl__nest-service-test`). Any other migration technology: follow the project, and ask when it has no convention.
+is the per-use-case seed the backend test skills write, `test/data/uc<id>-<slug>.ts` in the API application;
+[references/e2e-server.md](references/e2e-server.md) says how the running application loads it. Any other migration
+technology: follow the project, and ask when it has no convention.
 
 - Test case **Preconditions** and use case preconditions are satisfied by that data. When they are not, extend the
   use case's test data file rather than inserting through a back door, and say so in the report.
@@ -287,6 +285,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 - [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
   discover it.
+- [references/e2e-server.md](references/e2e-server.md): the entry point that starts a NestJS API on Drizzle with
+  its test data for the browser tests.
 - Playwright documentation: https://playwright.dev/docs/intro
 - Locators: https://playwright.dev/docs/locators
 - Test steps and tags: https://playwright.dev/docs/api/class-test

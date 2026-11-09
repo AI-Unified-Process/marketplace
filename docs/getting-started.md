@@ -267,3 +267,6 @@ reported gaps before using those artifacts as the baseline for further work.
 
 The [Book Library tutorial](https://unifiedprocess.ai/tutorial.html) demonstrates the complete workflow. Its first
 five steps are stack-independent; steps six through nine use the Vaadin and jOOQ plugin for construction and testing.
+That plugin, `aiup-vaadin-jooq`, is deprecated. A new project uses the layer plugins `aiup-flyway`, `aiup-jooq`,
+`aiup-spring-boot`, and `aiup-vaadin` with `/use-case-implement` and `/use-case-test` instead; the
+[migration guide](migration.md) maps the tutorial's commands to theirs.

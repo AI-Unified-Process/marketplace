@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-nestjs",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "AI Unified Process service and API layers - NestJS services, REST controllers, and their tests",
   "author": {
     "name": "Simon Martinelli",

@@ -43,7 +43,7 @@ Then install the layer plugins of your stack — one per layer. A REST API with 
 Add `aiup-vaadin` for a Vaadin UI, or `aiup-angular` and `aiup-playwright` for an Angular UI; take `aiup-jpa` instead
 of `aiup-jooq` for JPA. A TypeScript project takes `aiup-drizzle` and `aiup-nestjs`, with `aiup-nextjs` and
 `aiup-playwright` for a Next.js UI. Run `/stack` once in the project to record the combination. Each layer plugin declares
-`aiup-core` as a plugin dependency (3.3.0 or later; `aiup-playwright` 3.2.0, `aiup-spring-boot` 3.10.0, `aiup-drizzle`, `aiup-nestjs`, and `aiup-nextjs`
+`aiup-core` as a plugin dependency (3.12.0 or later; `aiup-drizzle`, `aiup-nestjs`, and `aiup-nextjs`
 3.14.0), so Claude Code
 installs core with it when it is missing.
 

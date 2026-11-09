@@ -17,7 +17,11 @@ engine="$1"
 default_branch="$2"
 base=$(git merge-base "origin/$default_branch" HEAD)
 
-for f in $(git diff --name-only --diff-filter=AM "$base" HEAD -- ':(glob)docs/use_cases/**/UC-*.md'); do
+# NUL-separated and unquoted, so a file name with an umlaut or a space is read as it is; without rename detection, so
+# a specification moved into a module folder (docs/use_cases/<slug>/) counts as added there.
+git -c core.quotePath=false diff -z --name-only --no-renames --diff-filter=AM "$base" HEAD \
+    -- ':(glob)docs/use_cases/**/UC-*.md' |
+while IFS= read -r -d '' f; do
   [ "$(python3 "$engine/pipelines/werkstatt/werkstatt.py" status "$f")" = "2" ] || continue
-  basename "$f" | grep -oE '^UC-[0-9]+'
+  basename "$f" | grep -oE '^UC-[0-9]+' || true
 done | sort -t- -k2,2n -u | paste -sd' ' -

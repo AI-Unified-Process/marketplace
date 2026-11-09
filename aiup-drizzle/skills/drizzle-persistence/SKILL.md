@@ -86,9 +86,7 @@ ProductsRepository (?)`.
 
 ```ts
 // src/database/drizzle.provider.ts
-import type { ExtractTablesWithRelations } from 'drizzle-orm';
-import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
-import type { PgTransaction } from 'drizzle-orm/pg-core';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import * as schema from './schema.js';
 
@@ -96,7 +94,7 @@ export const PG_POOL = Symbol('PG_POOL');
 export const DRIZZLE = Symbol('DRIZZLE');
 
 export type DrizzleDb = NodePgDatabase<typeof schema>;
-export type Tx = PgTransaction<NodePgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
+export type Tx = Parameters<Parameters<DrizzleDb['transaction']>[0]>[0];
 export type DbExecutor = DrizzleDb | Tx;
 
 export const databaseProviders = [
@@ -205,16 +203,14 @@ every statement must run on the `tx` handle it was opened with, and the service 
    rollback.
 3. **A write across repositories** gets an optional last parameter `tx: DbExecutor = this.db` on each method it calls,
    and one repository offers `transaction(work)`. The service calls that method and passes the handle along without
-   running anything on it:
-
-```ts
-// src/database/drizzle.provider.ts — added once
-export type Tx = Parameters<Parameters<DrizzleDb['transaction']>[0]>[0];
-export type DbExecutor = DrizzleDb | Tx;
-```
+   running anything on it. `Tx` and `DbExecutor` are the types `drizzle.provider.ts` exports (see "The Database Provider"
+   above); import them from there, never declare them a second time:
 
 ```ts
 // src/orders/orders.repository.ts
+import { DRIZZLE, type DbExecutor, type DrizzleDb, type Tx } from '../database/drizzle.provider.js';
+
+// inside the repository class
 transaction<T>(work: (tx: Tx) => Promise<T>): Promise<T> {
   return this.db.transaction(work);
 }

@@ -50,7 +50,8 @@ entry — into generated code, test data, or your summary; name the file it live
 - **Consumes** the views under `src/main/frontend/views/`, the endpoint signatures, labels, and messages from the
   `hilla-ui` Handover or the code, and the generated client and models under `Frontend/generated/`.
 - **Produces** one Vitest suite per use case under `src/main/frontend/tests/`, the one-time Vitest setup when
-  the project has none, and one endpoint contract test per use case (see *The Endpoint Contract*).
+  the project has none, one endpoint contract test per use case (see *The Endpoint Contract*), and the `UseCase`
+  annotation when the module has none.
 - **Never touches** production code, the service and persistence tests, or anything under `docs/` other than this
   skill's rows of the Markers table in `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
@@ -185,11 +186,7 @@ endpoint, a `@SpringBootTest` with `@AutoConfigureMockMvc`:
   the endpoint bean is enough here; over HTTP the same rejection is a `400` with the message in the JSON body.
 
 Nothing else: no business rule boundaries (the integration layer's tests own them) and no happy-path data checks
-beyond one call that proves the endpoint delegates. Annotate each method with `@UseCase` from the Java test skill
-of the integration layer (the Integration layer table of `docs/architecture/stack.md`), which created
-the annotation; when it is missing, run that skill first rather than defining the annotation here. A module whose
-test sources cannot see that annotation gets its own copy, identical to the one the integration layer's skill
-created. `@AutoConfigureMockMvc` needs the test dependency "Versions" names for the
+beyond one call that proves the endpoint delegates. Annotate each method with `@UseCase` (see below). `@AutoConfigureMockMvc` needs the test dependency "Versions" names for the
 installed Spring Boot; MockMvc's `with(csrf())` and `@WithMockUser` need `org.springframework.security:spring-security-test` in test scope. Add a
 missing one. `@SpringBootTest` starts from the application class; a module without a `@SpringBootApplication`
 (the endpoint's module in a hexagonal project) gets the test in the composition-root module when it exists, and
@@ -197,6 +194,32 @@ otherwise a minimal `@SpringBootConfiguration @EnableAutoConfiguration class End
 root package of its test sources that `@Import`s the endpoint and the service behind it. When the
 endpoint has no access annotation beyond the project default and the use case has no rejection, write no endpoint
 test and say so.
+
+**`@UseCase`.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
+when it is there: the Java test skills of the other layers create the same one. Create it only when it is missing, in
+that module's test sources (`src/test/java/<root package>/usecase/UseCase.java`), never in `src/main/java`. In a
+hexagonal project every module that holds use case tests gets its own copy in its own `src/test/java`; the plugin
+resolves the annotation by short name. The annotation has exactly this shape:
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface UseCase {
+    String id();
+
+    String scenario() default "Main Success Scenario";
+
+    String[] businessRules() default {};
+
+    String[] requirements() default {};
+}
+```
+
+An existing annotation without `requirements` predates that attribute: add it with its default `{}` and keep
+everything else; never remove or rename an attribute, other tests use it. `id` is the `**Use Case ID:**`, `scenario`
+the alternative flow heading of a rejection test, `requirements` the `NFR-XXX` and `C-XXX` ids whose limit the test
+asserts (a required role), never an `FR-*` id.
 
 ## Versions
 

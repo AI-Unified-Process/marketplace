@@ -111,7 +111,7 @@ def state(stored_spec, stored_text, current_spec, current_text):
 
 
 def read(path):
-    return Path(path).read_text(encoding="utf-8")
+    return Path(path).read_text(encoding="utf-8-sig")
 
 
 def check(root, targets, out=sys.stdout):

@@ -189,5 +189,5 @@ API layer.
 | Next.js, NestJS, Drizzle        | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  | API               |
 | Next.js, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  | API               |
 
-The combined stack plugins (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`) do not
-use this catalog; they ship their own `/implement`.
+The combined stack plugins (`aiup-blazor-dotnet`, and the deprecated `aiup-vaadin-jooq`, `aiup-angular-jpa`,
+`aiup-nestjs-nextjs`) do not use this catalog; they ship their own `/implement`.

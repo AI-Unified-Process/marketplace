@@ -177,7 +177,8 @@ list(page: number, size: number, lastName?: string): Observable<PageResponse<Gue
 ## Pages and Components
 
 The routed page component carries the use case id in a one-line class comment, so the page can be found from the
-specification:
+specification. In this example the specification of UC-010 states both messages: alternative flow A1 "No Room Types"
+says *No room types found.*, and A2 "Catalog Unavailable" says *The room type catalog is currently unavailable.*
 
 ```ts
 // pages/room-type-overview/room-type-overview.ts
@@ -205,7 +206,8 @@ export class RoomTypeOverview implements OnInit {
                 this.isLoading.set(false);
             },
             error: () => {
-                this.errorMessage.set('Room types could not be loaded.');
+                // UC-010 A2: the message as the specification states it
+                this.errorMessage.set('The room type catalog is currently unavailable.');
                 this.isLoading.set(false);
             },
         });
@@ -233,7 +235,9 @@ export class RoomTypeOverview implements OnInit {
 
 Messages the specification states (an empty state, a confirmation, an error) appear with exactly its wording. An
 error message the API returns for a rejected business rule is shown as the API sends it; do not translate a status
-code into a message the specification does not state — that is a gap.
+code into a message the specification does not state — that is a gap. When the specification has no flow for a
+failure such as a failed load, write no message of your own: record the gap as `/use-case-implement` defines it in
+"Gaps in the Specification", and name it in the Handover.
 
 ## Forms and Business Rule Markers
 

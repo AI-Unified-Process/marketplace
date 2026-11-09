@@ -124,7 +124,7 @@ marketplace/
   owns the construction orchestrators for layer plugins: `/stack`, `/use-case-implement`, `/use-case-test`,
   `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`; `aiup-spring-boot`: ≥ 3.10.0, for the API contracts; `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: ≥ 3.14.0, for the Next.js rules),
+  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.12.0, for `docs/open_questions.md` (`aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: ≥ 3.14.0, for the Next.js rules),
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
   it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot`: their skills build on its service
   layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. `aiup-drizzle` declares
@@ -270,11 +270,12 @@ Why: [`docs/design/next.md`](docs/design/next.md).
 
 - `/open-questions` owns the format of `docs/open_questions.md`; every other skill refers to it by glob. The file is
   created lazily, never empty.
-- Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve or
-  withdraw; `/spec-review` and the coverage agents only read.
+- Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve;
+  they and `/open-questions` withdraw; `/spec-review` and the coverage agents only read.
 - `OQ_BLOCKING` is WARN at `Approved`/`Implemented` and ERROR at `Tested`/`Done`.
 - A question names exactly one element. Every skill that writes a section checks the file right after with
-  `spec_lint.py --questions` and fixes its own findings.
+  `spec_lint.py --questions` and fixes its own findings; `--questions` leaves out `OQ_UNRESOLVED`, which only the
+  resolving skill can fix.
 - The Studio never runs `/open-questions` (`LEFT_OUT`).
 
 Why: [`docs/design/open-questions.md`](docs/design/open-questions.md).
@@ -480,12 +481,17 @@ command names and would collide, and a combined plugin next to layer plugins wou
   coverage audit), forward only, in the language of the specification; blocked, stuck and pending ones stay
   `Approved` and are selected again.
 - The andon cord is read from `docs/open_questions.md` (a blocking `Open` or `Answered` question naming the use
-  case), not from the agent's answer. A blocked use case keeps only its questions; a stuck one keeps nothing.
+  case or a requirement its `**Requirements:**` line links), not from the agent's answer. `werkstatt.py blocking`
+  keeps its own parser and must read questions as `spec_lint.py` does. A blocked use case keeps only its questions;
+  a stuck one keeps nothing.
+- A use case named by hand in `use_cases` is built only at `Approved`; any other one is `skipped` with its reason.
 - G1 is `spec_lint.py`; the build gate runs the Commands table of the stack file. The plugins come from the Plugins
   table of the layer catalog, never from a third copy of the generate skill lists.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
-- The stations stop 10 minutes before `timeout_minutes`; the use case still running ends stuck, the finished ones
-  still reach the pull request.
+- The stations stop 10 minutes before `timeout_minutes`, counted from the job's first step, so `timeout_minutes`
+  must be more than 10; the use case still running ends stuck, the finished ones still reach the pull request.
+- Git paths are read with `core.quotePath=false`, `-z`, and `--no-renames`: specs carry umlauts, and a move must
+  not hide a deleted test.
 - A ready use case's linked requirements follow its status in the same commit (`werkstatt.py requirements`, which
   imports `derived_status()` from `spec_lint.py`; `/spec-review` stays read-only). `Deferred`/`Rejected` stay.
 - The audit reports every gap in one pass; a later audit re-checks the previous round's matrix

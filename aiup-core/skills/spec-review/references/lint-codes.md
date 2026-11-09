@@ -79,7 +79,7 @@ broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_RE
 |------------------------------|-----------------------------------------------------------------------------------------|
 | `--docs DIR`                 | documentation folder (default `docs`)                                                    |
 | `--only UC-XXX` / `TC-XXX` / `BP-XXX` / `ADR-XXX` | report only findings about this element                             |
-| `--questions`                | report only findings in `open_questions.md`; a skill runs it after appending a question |
+| `--questions`                | report only findings in `open_questions.md`, without `OQ_UNRESOLVED`; a skill runs it after writing a section |
 | `--strict`                   | fail on warnings too                                                                     |
 | `--format json`              | print `{"findings": [...], "summary": {...}}`                                            |
 | `--baseline FILE`            | use this baseline (default `DIR/.spec-lint-baseline.json` when it exists)               |

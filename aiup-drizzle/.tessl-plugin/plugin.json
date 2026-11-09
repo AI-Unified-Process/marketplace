@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-drizzle",
   "description": "AI Unified Process migration and persistence layers - Drizzle ORM schema, generated PostgreSQL migrations, repositories, and their tests",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

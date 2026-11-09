@@ -146,11 +146,10 @@ public class GuestController {
      * UC-001 steps 3–5, A1, A2: registers a guest.
      */
     @PostMapping
-    public ResponseEntity<GuestResponse> register(@Valid @RequestBody RegisterGuestRequest request,
-                                                  UriComponentsBuilder uri) {
+    public ResponseEntity<GuestResponse> register(@Valid @RequestBody RegisterGuestRequest request) {
         Guest guest = service.register(request.toCommand());
-        return ResponseEntity.created(uri.path("/api/guests/{id}").buildAndExpand(guest.id()).toUri())
-                .body(GuestResponse.from(guest));
+        // no GET /api/guests/{id} yet, so no Location header
+        return ResponseEntity.status(HttpStatus.CREATED).body(GuestResponse.from(guest));
     }
 }
 ```
@@ -162,6 +161,10 @@ public class GuestController {
 - Each handler method calls one service method, maps the request DTO in and the result out, and does nothing else:
   no repository, no `if` that decides an outcome the specification describes, no `@Transactional`.
 - A Javadoc line names the use case and the steps or alternative flows the endpoint realizes.
+- A created resource answers `201` with a `Location` header that points at the read endpoint of that resource
+  (`ResponseEntity.created(uri.path("/api/guests/{id}").buildAndExpand(guest.id()).toUri())`, with a
+  `UriComponentsBuilder` parameter). While the project has no such endpoint, answer `201` without the header, as the
+  example does, and say so in the Handover. Never point `Location` at a URL that answers `404`.
 
 ## DTOs
 
@@ -293,16 +296,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 Every alternative flow that rejects the request has one status, chosen from this table unless the API contract — the
 use case's agreed operation, or the `## API contract` section — says otherwise, and named in the Handover:
 
-| Outcome                                                   | Status                     |
-|-----------------------------------------------------------|----------------------------|
-| Read                                                      | `200 OK`                   |
-| Created                                                   | `201 Created` + `Location` |
-| Changed and returned, or action with a result             | `200 OK`                   |
-| Deleted, or changed without a body                        | `204 No Content`           |
-| Malformed or invalid input                                | `400 Bad Request`          |
-| Not authenticated / not allowed                           | `401` / `403` (security)   |
-| Entity the path refers to does not exist                  | `404 Not Found`            |
-| Business rule violated, duplicate, wrong state            | `409 Conflict`             |
+| Outcome                                        | Status                                               |
+|------------------------------------------------|------------------------------------------------------|
+| Read                                           | `200 OK`                                             |
+| Created                                        | `201 Created` + `Location` where a read by id exists |
+| Changed and returned, or action with a result  | `200 OK`                                             |
+| Deleted, or changed without a body             | `204 No Content`                                     |
+| Malformed or invalid input                     | `400 Bad Request`                                    |
+| Not authenticated / not allowed                | `401` / `403` (security)                             |
+| Entity the path refers to does not exist       | `404 Not Found`                                      |
+| Business rule violated, duplicate, wrong state | `409 Conflict`                                       |
 
 Some projects use `422 Unprocessable Content` for a violated rule; follow the API contract or the existing advice.
 
@@ -378,7 +381,7 @@ End with the contract the UI layer and the API tests build on — every endpoint
 Handover from spring-rest (UC-001)
 - GET  /api/guests?page=0&size=20&lastName= → 200 PageResponse<GuestListItemResponse>, 400 page < 0 or size not 1..100
     — api/src/main/java/com/example/hotel/api/guest/GuestController.java
-- POST /api/guests  RegisterGuestRequest → 201 GuestResponse, Location /api/guests/{id}
+- POST /api/guests  RegisterGuestRequest → 201 GuestResponse, no Location (no GET /api/guests/{id} yet)
     400 invalid input (A3), 409 urn:problem:EmailAlreadyRegisteredException (A1, BR-002),
     409 urn:problem:GuestTooYoungException (A2, BR-003)
 - RegisterGuestRequest { firstName: string(1..100), lastName: string(1..100), email: string(email, ..255),

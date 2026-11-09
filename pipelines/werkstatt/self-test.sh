@@ -14,6 +14,11 @@
 #      previous round's matrix.
 #   2. the deadline: a use case still running is stopped and dropped, the one before it keeps its result.
 #   3. a deadline already past: nothing is built, every use case is pending.
+#   4. the lanes with awkward paths: a file name with an umlaut, a test moved out of the test folder, .NET test
+#      helpers; a use case that is not Approved is skipped, not built; stations that stop without a result end stuck
+#      with a row in the report.
+#   5. every use case named is not Approved: outcome none, nothing committed.
+#   6. select-ucs.sh: an umlaut and a space in a file name, a specification moved into a module folder.
 #
 # Usage: pipelines/werkstatt/self-test.sh     (CI: validate-plugins.yml)
 set -uo pipefail
@@ -36,7 +41,8 @@ cat > "$WORK/bin/claude" <<'FAKE'
 #!/usr/bin/env bash
 # Plays one Werkstatt station. FAKE_BLOCK and FAKE_SLEEP name the use cases that block or hang in the implementer,
 # FAKE_MAXTURNS the ones whose test session ends at the turn limit, FAKE_GAPS the ones whose first audit finds a
-# test gap. FAKE_LOG collects the audit prompts.
+# test gap. FAKE_LOG collects the audit prompts. FAKE_LANES names the use cases whose stations cross their lanes on
+# awkward paths, FAKE_CRASH the ones whose implementer kills the stations (no summary.json).
 prompt="$2"
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
@@ -61,6 +67,7 @@ case "$prompt" in
     echo "class UC${n}Test {}" > "src/test/UC${n}Test.java"
     echo "<project>test dependency $uc</project>" > pom.xml
     echo "// the tester may not change production code" >> "src/main/UC${n}.java"
+    case " ${FAKE_LANES:-} " in *" $uc "*) echo "changed by the tester" >> "docs/glossar-prüfung.md" ;; esac
     case " ${FAKE_MAXTURNS:-} " in *" $uc "*)
       echo '{"total_cost_usd": 0.25, "subtype": "error_max_turns"}'; exit 1 ;;
     esac
@@ -69,6 +76,15 @@ case "$prompt" in
     mkdir -p src/main src/test
     echo "class UC${n} {}" > "src/main/UC${n}.java"
     echo "class Sneaky${n}Test {}" > "src/test/Sneaky${n}Test.java"
+    case " ${FAKE_LANES:-} " in *" $uc "*)
+      echo "class Prüfung${n}Test {}" > "src/test/Prüfung${n}Test.java"
+      mkdir -p src/MyApp.Tests/Traceability MyApp.Tests.E2E src/MyApp/Pages
+      echo "class UseCaseAttribute {}" > src/MyApp.Tests/Traceability/UseCaseAttribute.cs
+      echo "class PlaywrightFixture {}" > MyApp.Tests.E2E/PlaywrightFixture.cs
+      echo "<p>test</p>" > src/MyApp/Pages/BookingTests.razor
+      mv src/test/ExistingTest.java src/main/Existing.java ;;
+    esac
+    case " ${FAKE_CRASH:-} " in *" $uc "*) kill -TERM "$PPID" ;; esac
     case " ${FAKE_BLOCK:-} " in *" $uc "*)
       printf '\n## OQ-0%s: Which rate?\n\n**Element:** %s BR-001\n**Blocking:** Yes\n**Status:** Open\n' \
         "$n" "$uc" >> docs/open_questions.md ;;
@@ -189,6 +205,66 @@ if command -v timeout >/dev/null; then
 else
   echo "SKIP the deadline scenarios: no timeout command (GNU coreutils)"
 fi
+
+# ---------------------------------------------------------------- 4. awkward paths, a Draft use case, a crash
+R="$WORK/four"; fixture "$R"
+(
+  cd "$R" || exit 1
+  mkdir -p src/test
+  echo "class ExistingTest {}" > src/test/ExistingTest.java
+  echo "Glossar" > "docs/glossar-prüfung.md"
+  sed 's/^\*\*Status:\*\* Approved/**Status:** Draft/' docs/use_cases/UC-002-case.md > draft.tmp
+  mv draft.tmp docs/use_cases/UC-002-case.md
+  git add -A && git commit -qm "lanes fixture"
+)
+change "$R" "$WORK/four.log" FAKE_LANES=UC-001 FAKE_CRASH=UC-003
+expect_grep "4 outcome" "^outcome=stuck$" "$R.output"
+expect_eq "4 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
+expect_no_file "4 umlaut test of the implementer reverted" "$R/src/test/Prüfung001Test.java"
+expect_grep "4 guard names the umlaut path" "src/test/Prüfung001Test.java (reverted)" "$R/.werkstatt/UC-001/guard.log"
+expect_eq "4 umlaut file of the tester reverted" "$(cat "$R/docs/glossar-prüfung.md")" Glossar
+expect_file "4 test moved out of the test folder restored" "$R/src/test/ExistingTest.java"
+expect_no_file "4 .NET test project helper reverted" "$R/src/MyApp.Tests/Traceability/UseCaseAttribute.cs"
+expect_no_file "4 .NET E2E project helper reverted" "$R/MyApp.Tests.E2E/PlaywrightFixture.cs"
+expect_no_file "4 razor test reverted" "$R/src/MyApp/Pages/BookingTests.razor"
+expect_eq "4 UC-002 outcome" "$(outcome_of "$R" UC-002)" skipped
+expect_eq "4 UC-002 status" "$(status_of "$R" UC-002)" Draft
+expect_no_file "4 UC-002 not built" "$R/src/main/UC002.java"
+expect_grep "4 report row skipped" "| UC-002 | \*\*skipped\*\* |" "$R/.werkstatt/report.md"
+expect_grep "4 report reason skipped" "UC-002 is Draft, not Approved" "$R/.werkstatt/report.md"
+expect_eq "4 UC-003 outcome" "$(outcome_of "$R" UC-003)" stuck
+expect_no_file "4 UC-003 code dropped" "$R/src/main/UC003.java"
+expect_grep "4 report row of the crash" "| UC-003 | \*\*stuck\*\* |" "$R/.werkstatt/report.md"
+expect_grep "4 report reason of the crash" "stopped with exit code 143 before they wrote a result" "$R/.werkstatt/report.md"
+expect_eq "4 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+# ---------------------------------------------------------------- 5. nothing Approved: outcome none
+R="$WORK/five"; fixture "$R"
+(
+  cd "$R" || exit 1
+  for f in docs/use_cases/UC-*.md; do
+    sed 's/^\*\*Status:\*\* Approved/**Status:** Obsolete/' "$f" > obsolete.tmp && mv obsolete.tmp "$f"
+  done
+  git add -A && git commit -qm "obsolete"
+)
+change "$R" "$WORK/five.log"
+expect_grep "5 outcome" "^outcome=none$" "$R.output"
+expect_eq "5 nothing committed" "$(cd "$R" && git rev-list --count HEAD)" 2
+
+# ---------------------------------------------------------------- 6. select-ucs.sh
+R="$WORK/six"; fixture "$R"
+(
+  cd "$R" || exit 1
+  git update-ref refs/remotes/origin/main HEAD
+  mkdir -p docs/use_cases/booking
+  git mv docs/use_cases/UC-001-case.md docs/use_cases/booking/UC-001-case.md
+  printf '# UC-004: Bestellung\n\n**Status:** Genehmigt\n' > "docs/use_cases/UC-004-bestellung-prüfen.md"
+  printf '# UC-005: Space\n\n**Status:** Approved\n' > "docs/use_cases/UC-005-with space.md"
+  printf '# UC-006: Draft\n\n**Status:** Draft\n' > "docs/use_cases/UC-006-draft.md"
+  git add -A && git commit -qm "change"
+)
+expect_eq "6 selected" "$(cd "$R" && bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" main 2>"$WORK/six.log")" \
+  "UC-001 UC-004 UC-005"
 
 if [ "$FAILURES" -gt 0 ]; then
   echo "--- run logs"; tail -n 30 "$WORK"/*.log

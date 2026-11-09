@@ -116,7 +116,9 @@ python3 <that path> --docs docs --questions
 ```
 
 It reports only the findings in `docs/open_questions.md`: a missing field, an element of no known form or naming more
-than one element, a duplicate id, an element that points to nothing. Fix every finding on a section you wrote and run
+than one element, a duplicate id, an element that points to nothing. It leaves out `OQ_UNRESOLVED` (an `Answered`
+question whose answer is not in the specification yet): only the skill that changes the specification fixes that one,
+and the full lint of `/spec-review` still reports it. Fix every finding on a section you wrote and run
 it again until none is left; a finding on a section someone else wrote goes into your report, unchanged. When the
 script cannot be found, check each section you wrote against the field table and "Elements" above by hand.
 

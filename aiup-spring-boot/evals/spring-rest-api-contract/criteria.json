@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /spring-rest builds only the API layer of UC-001: a @RestController under the base path recorded in docs/architecture/stack.md (/api/v1), request/response DTO records named per the contract, @Valid validation, a @RestControllerAdvice mapping the domain exceptions and validation failures to RFC 9457 ProblemDetail, 201 Created with Location, and no business logic in the controller. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether /spring-rest builds only the API layer of UC-001: a @RestController under the base path recorded in docs/architecture/stack.md (/api/v1), request/response DTO records named per the contract, @Valid validation, a @RestControllerAdvice mapping the domain exceptions and validation failures to RFC 9457 ProblemDetail, 201 Created (with a Location header only when a read endpoint of the guest exists, which here it does not), and no business logic in the controller. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -18,8 +18,8 @@
       "max_score": 8
     },
     {
-      "name": "201 Created with Location",
-      "description": "The register endpoint is a POST returning 201 Created with a Location header pointing to the new guest",
+      "name": "201 Created, no Location without a read endpoint",
+      "description": "The register endpoint is a POST returning 201 Created; since the project has no GET by id for a guest, it sends no Location header (never one that points at a URL answering 404) and the Handover says so",
       "max_score": 8
     },
     {

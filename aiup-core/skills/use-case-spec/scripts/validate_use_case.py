@@ -29,6 +29,7 @@ import argparse
 import os
 import re
 import sys
+import tempfile
 
 # ---------------------------------------------------------------------------
 # Language definitions (UseCaseLanguage.java)
@@ -568,7 +569,8 @@ def parse_extra_section(lines, index):
 
 def parse_document(text):
     doc = Document()
-    lines = [line.rstrip() for line in text.splitlines()]
+    # A byte order mark before the title is no content
+    lines = [line.rstrip() for line in text.lstrip("\ufeff").splitlines()]
     doc.language = detect_language(lines)
     lang = LANGUAGES[doc.language]
     headings = lang["headings"]
@@ -821,7 +823,8 @@ def check_contract(doc, path):
 
 
 def validate_file(path):
-    with open(path, encoding="utf-8") as handle:
+    # utf-8-sig drops the byte order mark some editors write
+    with open(path, encoding="utf-8-sig") as handle:
         text = handle.read()
     doc = parse_document(text)
     check_contract(doc, path)
@@ -1102,6 +1105,16 @@ def self_test():
             "[buchungAnlegen](../api/buchung.yaml#buchungAnlegen)":
         failures.append("valid-de: **API:** label not accepted")
     expect("valid-de-api", doc.problems, [], forbidden_severity=WARN)
+
+    doc = parse_document("\ufeff" + VALID_EN)
+    check_contract(doc, "UC-001-create-reservation.md")
+    expect("valid-en-bom", doc.problems, [], forbidden_severity=ERROR)
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "UC-001-create-reservation.md")
+        with open(path, "w", encoding="utf-8-sig") as handle:
+            handle.write(VALID_EN)
+        expect("valid-en-bom-file", validate_file(path), [],
+               forbidden_severity=ERROR)
 
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")

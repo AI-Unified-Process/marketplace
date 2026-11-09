@@ -215,6 +215,8 @@ first; otherwise use one repeatable migration per use case:
   data of the other use cases.
 - Insert rows with `nextval` of the table's sequence, or with explicit ids in a range the tests own when a test needs
   to know the id; reference other rows by a natural key subquery rather than by an id you hope for.
+- An `INSERT` with explicit ids ends with `ON CONFLICT DO NOTHING` (or the database's equivalent), so the repeatable
+  migration can run again on a database that already holds the rows.
 - The test data satisfies the preconditions of the use case and contains the rows each test excludes (an
   out-of-stock product for `BR-001`), so a missing condition makes a test fail.
 - Write the expected values into the test from the test data and the specification. Reuse test data another use case
