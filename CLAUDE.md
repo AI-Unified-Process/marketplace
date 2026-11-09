@@ -124,7 +124,7 @@ marketplace/
   owns the construction orchestrators for layer plugins: `/stack`, `/use-case-implement`, `/use-case-test`,
   `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.3.0 for the decision rights (`aiup-playwright`: ≥ 3.2.0, for `/open-questions`; `aiup-spring-boot`: ≥ 3.10.0, for the API contracts; `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: ≥ 3.14.0, for the Next.js rules),
+  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.12.0, for `docs/open_questions.md` (`aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: ≥ 3.14.0, for the Next.js rules),
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
   it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot`: their skills build on its service
   layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. `aiup-drizzle` declares
@@ -270,11 +270,12 @@ Why: [`docs/design/next.md`](docs/design/next.md).
 
 - `/open-questions` owns the format of `docs/open_questions.md`; every other skill refers to it by glob. The file is
   created lazily, never empty.
-- Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve or
-  withdraw; `/spec-review` and the coverage agents only read.
+- Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve;
+  they and `/open-questions` withdraw; `/spec-review` and the coverage agents only read.
 - `OQ_BLOCKING` is WARN at `Approved`/`Implemented` and ERROR at `Tested`/`Done`.
 - A question names exactly one element. Every skill that writes a section checks the file right after with
-  `spec_lint.py --questions` and fixes its own findings.
+  `spec_lint.py --questions` and fixes its own findings; `--questions` leaves out `OQ_UNRESOLVED`, which only the
+  resolving skill can fix.
 - The Studio never runs `/open-questions` (`LEFT_OUT`).
 
 Why: [`docs/design/open-questions.md`](docs/design/open-questions.md).

@@ -34,7 +34,7 @@ reviewable files under `docs/`.
 | Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests               |
 | Construction | [`/test-case-implement`](skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey                         |
 | Construction | [`/test-case-coverage`](skills/test-case-coverage/SKILL.md)   | Read-only coverage matrix of a test case journey                             |
-| Transition   | [`/user-guide`](skills/user-guide/SKILL.md)                   | `docs/user_guide/`: one chapter per actor from the accepted use cases        |
+| Transition   | [`/user-guide`](skills/user-guide/SKILL.md)                   | `docs/user_guide/`: one chapter per actor from the use cases at `Tested` or `Done` |
 | Transition   | [`/acceptance-protocol`](skills/acceptance-protocol/SKILL.md) | `docs/acceptance/<round>.md`: the acceptance checklist; accepted use cases go to `Done` |
 | Transition   | [`/release-notes`](skills/release-notes/SKILL.md)             | `docs/release-notes.md`: the use cases that reached `Done` since a Git tag   |
 
@@ -47,7 +47,7 @@ Inception          Elaboration                             Construction         
 ```
 
 The six Construction skills from `/stack` on drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
-`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.3.0 or later (`aiup-playwright`: 3.2.0, `aiup-spring-boot`: 3.10.0, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: 3.14.0): install one per layer of
+`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.12.0 or later (`aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: 3.14.0): install one per layer of
 your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only

@@ -6,9 +6,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Test setup of a NestJS application
 
-The one description of how the tests of a NestJS application run: read by `/nest-service-test`, `/nest-rest-test`, the
-persistence test skill, and the E2E test skill. An existing setup of the project comes first: check each section,
-reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js` suffixes where
+The one description of how the tests of a NestJS application run: read by `/nest-service-test`, `/nest-rest-test`, and
+the persistence test skill. The E2E test skill brings its own description of the running application. An existing
+setup of the project comes first: check each section, reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js` suffixes where
 the layout detection found none.
 
 ## Vitest configuration: check this before writing a single test
@@ -215,48 +215,6 @@ export async function applySeeds(db: DrizzleDb): Promise<void> {
 - **A flow the shared test data rules out** (an empty list) gets its own spec file, `UC-XXX-<slug>-empty.e2e-spec.ts`
   or `-empty.service-spec.ts`, whose `createTestApp({ seed: false })` starts without the rows. The tests run in process, so such a flow is reachable
   here; E2E leaves it to this layer.
-
-## The running application for E2E
-
-Browser tests run against a started application that must load the same test data. `src/` never imports `test/`, so a
-small entry point does what `createTestApp` does and then listens:
-
-```ts
-// test/e2e-server.ts
-import { NestFactory } from '@nestjs/core';
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { AppModule } from '../src/app.module.js';
-import { configureApp } from '../src/configure-app.js';
-import { DRIZZLE, type DrizzleDb } from '../src/database/drizzle.provider.js';
-import { applySeeds } from './utils/apply-seeds.js';
-
-// The server owns its database: a throwaway container, unless DATABASE_URL names one.
-process.env.DATABASE_URL ??= (await new PostgreSqlContainer('postgres:17-alpine').start()).getConnectionUri();
-
-const app = await NestFactory.create(AppModule);
-configureApp(app);
-const db = app.get<DrizzleDb>(DRIZZLE);
-await migrate(db, { migrationsFolder: './drizzle/migrations' });
-await applySeeds(db);
-await app.listen(process.env.PORT ?? 3001);
-```
-
-```jsonc
-// tsconfig.e2e.json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "rootDir": ".", "outDir": "dist-e2e" },
-  "include": ["src/**/*", "test/e2e-server.ts", "test/data/**/*", "test/utils/apply-seeds.ts"]
-}
-```
-
-Compile it with `tsc -p tsconfig.e2e.json` and start `node dist-e2e/test/e2e-server.js` from the API app's root, because
-the migrations folder is relative. Testcontainers removes the container when the process ends, so each start begins
-with a clean database. Do not run it with `tsx`: esbuild emits no decorator metadata, so dependency injection fails. A test
-skill never edits the Commands table of `docs/architecture/stack.md`: name the two commands in the report, for the team
-to record under End-to-end tests. Add `dist-e2e` to `.gitignore`. The top-level `await` needs ESM; in a CommonJS project
-wrap the body in an async function.
 
 ## Non-deterministic inputs
 

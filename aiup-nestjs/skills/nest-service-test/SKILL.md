@@ -198,7 +198,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## Resources
 
-- [references/test-setup.md](references/test-setup.md) — Vitest, Testcontainers, test data, the E2E server, and time.
+- [references/test-setup.md](references/test-setup.md) — Vitest, Testcontainers, test data, and time.
 - NestJS testing: https://docs.nestjs.com/fundamentals/testing
 - Vitest: https://vitest.dev/guide/
 - Testcontainers for Node: https://node.testcontainers.org

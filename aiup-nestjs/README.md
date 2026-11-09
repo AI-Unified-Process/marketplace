@@ -53,7 +53,7 @@ the Integration layer table of `docs/architecture/stack.md`:
 | No entry layer          | Service           | `/nest-service-test`: every business rule                                  |
 
 Both test skills run in process against PostgreSQL in Testcontainers, so Docker is required. The shared setup, including
-the per-use-case seed `test/data/uc<id>-<slug>.ts` and the entry point the E2E tests start, is
+the per-use-case seed `test/data/uc<id>-<slug>.ts` that the E2E tests load too, is
 [`test-setup.md`](skills/nest-service-test/references/test-setup.md).
 
 This plugin ships no Client layer skill: a use case that calls an external system has no layer skill to build the

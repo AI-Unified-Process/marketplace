@@ -249,18 +249,21 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
 
 The `**Status:**` line of a use case says how far it has come. Either language is readable in any document.
 
-| Status      | German        | Meaning                                                                    | How it gets there                                                                       |
-|-------------|---------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| Draft       | Entwurf       | Initial version, still being written.                                      | `/use-case-spec` writes the specification; `/reverse-engineer` always starts here.      |
-| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the specification is complete.                    |
-| Approved    | Genehmigt     | Reviewed and approved for implementation.                                  | The product owner sets it, once `/spec-review UC-XXX` ends with **Ready for Approved**. |
-| Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it.                                         |
-| Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it.                                         |
-| Done        | Abgeschlossen | Fully implemented, tested, and accepted.                                   | `/acceptance-protocol close` sets it after you confirm.                                 |
-| Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                         |
+| Status      | German        | Meaning                                                                    | How it gets there                                                                                      |
+|-------------|---------------|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| Draft       | Entwurf       | Initial version, still being written.                                      | `/use-case-spec` writes the specification; `/reverse-engineer` always starts here.                     |
+| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the specification is complete.                                   |
+| Approved    | Genehmigt     | Reviewed and approved for implementation.                                  | The product owner sets it, once `/spec-review UC-XXX` ends with **Ready for Approved**.                |
+| Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it; the generation workflows set it in their pull request. |
+| Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it; the generation workflows set it in their pull request. |
+| Done        | Abgeschlossen | Fully implemented, tested, and accepted.                                   | `/acceptance-protocol close` sets it after you confirm.                                                |
+| Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                                        |
 
-After a specification is written, only `/acceptance-protocol close` changes this line. The implementation and test
-skills leave it alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in the
+After a specification is written, no skill changes this line except `/acceptance-protocol close`, which sets `Done`.
+The generation workflows are the other exception: the Werkstatt (see [Werkstatt](werkstatt.md)) and `aiup-generate`
+move a finished use case forward to `Implemented` or `Tested` in the same pull request as its code, forward only and in
+the language of the specification, so the new status arrives only when someone merges the pull request. The
+implementation and test skills leave the line alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in the
 deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa`) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
 and the suite passes. It never suggests `Done`, because acceptance is not visible in code, and never `Tested` while a
 blocking open question holds the use case. `aiup-blazor-dotnet` and the deprecated `aiup-nestjs-nextjs` have no audit, so there you
@@ -454,7 +457,8 @@ specification into a list of coverage units — every main success scenario step
 postcondition, and linked NFR and constraint — and maps each one onto the code and the tests that realize it.
 
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
-specification's justified next `**Status:**` value. It never edits a file; the agent that called it closes the gaps.
+specification's justified next `**Status:**` value. It never edits a file, and neither does the front door that runs
+it: you decide which gaps to close and run `/use-case-implement` or `/use-case-test` for them.
 
 The implementation and testing skills do not run the audit themselves — each run re-reads the specification and the
 code base and takes minutes, so the check runs once, explicitly, when you ask for it. `/use-case-coverage` and
@@ -525,7 +529,7 @@ for those people; none of them changes a specification, except that closing an a
 | [`/use-case-coverage`](../aiup-core/skills/use-case-coverage/SKILL.md)     | Coverage matrix of a use case in a layered stack                        |
 | [`/test-case-implement`](../aiup-core/skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey in a layered stack |
 | [`/test-case-coverage`](../aiup-core/skills/test-case-coverage/SKILL.md)   | Coverage matrix of a test case journey in a layered stack               |
-| [`/user-guide`](../aiup-core/skills/user-guide/SKILL.md)                   | `docs/user_guide/`: the user guide from the accepted use cases          |
+| [`/user-guide`](../aiup-core/skills/user-guide/SKILL.md)                   | `docs/user_guide/`: the guide from the use cases at `Tested` or `Done`  |
 | [`/acceptance-protocol`](../aiup-core/skills/acceptance-protocol/SKILL.md) | `docs/acceptance/<round>.md`; accepted use cases set to `Done`          |
 | [`/release-notes`](../aiup-core/skills/release-notes/SKILL.md)             | `docs/release-notes.md`: what reached `Done` since a Git tag            |
 

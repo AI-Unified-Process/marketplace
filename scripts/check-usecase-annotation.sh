@@ -24,7 +24,7 @@ LAYER_PLUGINS = sorted(os.path.dirname(p) for p in glob.glob("aiup-*/plugin.json
 REQUIRED = ("aiup-jooq/skills/jooq-persistence-test", "aiup-jpa/skills/jpa-persistence-test",
             "aiup-spring-boot/skills/spring-service-test", "aiup-spring-boot/skills/spring-rest-test",
             "aiup-spring-boot/skills/spring-client-test",
-            "aiup-vaadin/skills/vaadin-flow-ui-test")
+            "aiup-vaadin/skills/vaadin-flow-ui-test", "aiup-vaadin/skills/hilla-ui-test")
 # A fence opens with three or more backticks or tildes, at any indentation (a code block inside a list item), and
 # closes with a line of the same character, at least as long, and nothing else.
 OPEN = re.compile(r"^\s*(`{3,}|~{3,})\s*([^\s`]*)")

@@ -24,7 +24,8 @@ ends at `Resolved` once its answer is in the specification.
   table. A part left out is `Blocking: Yes`; a reading the user chose is recorded `Answered`. `/use-case-spec`,
   `/requirements`, and `/entity-model` resolve the answered questions on their own elements, ask the open ones in
   their clarify step, record every default they took without asking as `Open` with an `**Assumed:**` line, and
-  withdraw questions whose element they removed. Only they set `Resolved`. `/spec-review` and the coverage agents
+  withdraw questions whose element they removed. Only they set `Resolved`. `/open-questions withdraw` also withdraws,
+  on a person's word; it never resolves. `/spec-review` and the coverage agents
   read the file and never write it.
 - **Blocking.** An `Open` or `Answered` blocking question blocks the use case its element names and every use case
   linking the requirement it names. `spec_lint.py` reports `OQ_BLOCKING` as WARN at `Approved`/`Implemented` and
@@ -35,7 +36,9 @@ ends at `Resolved` once its answer is in the specification.
   after writing (`/open-questions`, "Checking the File") and fixes the findings on its own sections. Generated
   sections once named several elements (`UC-001 A1, A2, A3`) or none (`UC-002 (scope)`) and failed only a later
   `/spec-review`, far from the run that wrote them; a list or an annotation now gets its own `OQ_INVALID` message.
-  The check reuses the lint instead of a second parser, so the Element forms live in one regex.
+  The check reuses the lint instead of a second parser, so the Element forms live in one regex. It leaves out
+  `OQ_UNRESOLVED`: the writer of an `Answered` section (`/open-questions answer`, `/use-case-implement`) may not set
+  `Resolved`, so it could never fix that finding. The full lint still reports it.
 - **History is not checked.** `DANGLING_REF` covers only `Open` and `Answered` questions; `Resolved` and
   `Withdrawn` ones may point to renumbered elements.
 - The Studio never runs `/open-questions` (`LEFT_OUT` of `check-generate-catalogue.sh`); `spec_lint.py --report`

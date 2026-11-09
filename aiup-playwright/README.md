@@ -11,8 +11,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 layer with [`aiup-core`](../aiup-core/). It tests the running application in a real browser — a single use case
 (`UC-*`), or a test case journey (`TC-*`) that chains several use cases.
 
-It works with any web UI that renders semantic HTML and ARIA — Angular today, other client-side frameworks alike —
-because it locates elements by role, label, and text. A Vaadin UI has its own E2E skill, `vaadin-e2e-test` in
+It works with any web UI that renders semantic HTML and ARIA, such as Angular (`aiup-angular`) and Next.js
+(`aiup-nextjs`), because it locates elements by role, label, and text. A Vaadin UI has its own E2E skill, `vaadin-e2e-test` in
 `aiup-vaadin`.
 
 ## Skills
@@ -25,7 +25,7 @@ The skill is normally run by `aiup-core`:
 
 ```text
 /stack                # records Playwright as the E2E layer in docs/architecture/stack.md
-/use-case-test UC-001        # … → angular-ui-test → playwright-e2e-test
+/use-case-test UC-001        # … → angular-ui-test or nextjs-ui-test → playwright-e2e-test
 /test-case-implement TC-001  # a journey runs the E2E layer only
 /test-case-coverage TC-001   # the one audit, using the markers the skill keeps in docs/architecture/stack.md
 ```
@@ -38,6 +38,11 @@ with a `Next:` line. The E2E layer has no implementation skill — `/use-case-im
 | Project                   | Plugins next to `aiup-core`                                                      |
 |---------------------------|----------------------------------------------------------------------------------|
 | Angular, Spring Boot, JPA | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| Next.js, NestJS, Drizzle  | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  |
+| Next.js, Spring Boot, JPA | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
+
+With a NestJS API on Drizzle, the skill can start the API for the browser tests with the test data the NestJS test
+skills write; [`e2e-server.md`](skills/playwright-e2e-test/references/e2e-server.md) shows how.
 
 ## Installation
 
@@ -56,12 +61,13 @@ tessl install ai-unified-process/aiup-playwright
 /plugin install aiup-playwright
 ```
 
-Do not combine layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa`) in one project. See the
+Do not combine layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa` or `aiup-nestjs-nextjs`)
+in one project. See the
 [installation guides](../docs/installation/) for other agents.
 
 ## Prerequisites
 
-- `aiup-core` 3.2.0 or later, and `docs/architecture/stack.md` written by `/stack`.
+- `aiup-core` 3.12.0 or later, and `docs/architecture/stack.md` written by `/stack`.
 - Node.js and `@playwright/test` (the skill sets it up when the project has no E2E tooling yet).
 - The application running locally, with seed data that satisfies the preconditions of the use cases and test cases.
 

@@ -92,7 +92,7 @@ with the ids that stop at each stage. An Obsolete test case does not count,
 and an NFR or constraint no use case links is listed as system-wide. It reads
 docs/ only; whether code and
 tests realize the use cases is /use-case-coverage (layer plugins) or
-/coverage-check (aiup-vaadin-jooq and aiup-angular-jpa).
+/coverage-check (the deprecated aiup-vaadin-jooq and aiup-angular-jpa).
 
 Both also list the open questions that are Open or Answered, and the
 architecture decisions with the requirements they link.
@@ -224,7 +224,8 @@ FRONT_MATTER = re.compile(r"^(status|date):\s*(.*)$", re.IGNORECASE)
 STEP_LINE = re.compile(r"^(\d+)\.\s+\S")
 FLOW_HEADING = re.compile(r"^###\s+(A\d+)\b")
 # The element forms of an open question (open-questions skill, Elements)
-ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+)(?:\s+(?:(?:step|schritt)\s+"
+ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)"
+                        r"(?:\s+(?:(?:step|schritt)\s+"
                         r"(\d+)|(A\d+)|((?:BR|GR)-[A-Za-z0-9_-]+)))?$",
                         re.IGNORECASE)
 ELEMENT_GLOSSARY = re.compile(r"^(?:Glossary|Glossar):\s*(.+)$", re.IGNORECASE)
@@ -360,7 +361,8 @@ def load_sibling(pattern, module_name):
 # ---------------------------------------------------------------------------
 
 def read_lines(path):
-    with open(path, encoding="utf-8") as handle:
+    # utf-8-sig drops the byte order mark some editors write
+    with open(path, encoding="utf-8-sig") as handle:
         return handle.read().splitlines()
 
 
@@ -2253,18 +2255,23 @@ def git_output(docs, *args):
     when Git is missing or the command fails."""
     try:
         done = subprocess.run(("git", "-C", docs) + args, check=False,
-                              capture_output=True, text=True, timeout=30)
+                              capture_output=True, encoding="utf-8",
+                              errors="surrogateescape", timeout=30)
     except (OSError, subprocess.SubprocessError):
         return None
-    return done.stdout.strip() if done.returncode == 0 else None
+    # A file shown with a byte order mark reads like the file on disk
+    return done.stdout.strip().lstrip("\ufeff") if done.returncode == 0 \
+        else None
 
 
 def done_at(docs, tag):
     """The ids of the use cases that were Done at the tag."""
-    listing = git_output(docs, "ls-tree", "-r", "--name-only", "--full-name",
-                         tag, "--", "use_cases")
+    # -z: without it Git quotes a path with non-ASCII characters
+    # ("UC-003-bestellung-pr\303\274fen.md") and the file is missed
+    listing = git_output(docs, "ls-tree", "-r", "-z", "--name-only",
+                         "--full-name", tag, "--", "use_cases")
     done = set()
-    for name in (listing or "").splitlines():
+    for name in (listing or "").split("\0"):
         if not FILE_UC.match(os.path.basename(name)) \
                 or not name.endswith(".md"):
             continue
@@ -3764,6 +3771,10 @@ def self_test():
             failures.append("broken: --questions should keep exactly the "
                             "findings in open_questions.md, got "
                             + str(sorted({f.code for f in questions})))
+        if any(f.code == "OQ_UNRESOLVED" for f in questions):
+            failures.append("broken: --questions should leave out "
+                            "OQ_UNRESOLVED, which only the skill that changes "
+                            "the specification fixes")
         for needle in ("UC-001 has no step 9", "term 'Booking'"):
             if not any(needle in m for m in dangling):
                 failures.append("broken: no DANGLING_REF for " + needle)
@@ -4098,6 +4109,60 @@ def self_test():
             if codes_of(changed):
                 failures.append("changed: without Git nothing can be compared")
 
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, CLEAN)
+        uc1 = os.path.join(root, "use_cases", "UC-001-create-guest.md")
+
+        def found_codes():
+            return sorted((f.code, f.element)
+                          for f in lint(root, validator, bpmn))
+
+        # A byte order mark before the title changes nothing.
+        before = found_codes()
+        with open(uc1, encoding="utf-8") as handle:
+            text = handle.read()
+        with open(uc1, "w", encoding="utf-8-sig") as handle:
+            handle.write(text)
+        if found_codes() != before:
+            failures.append("bom: a byte order mark changed the findings, "
+                            "got " + str(sorted(set(found_codes())
+                                                - set(before))))
+
+        # An id with a hyphen (UC-2-1) is a known element in every form.
+        write_fixture(root, {
+            "use_cases/UC-2-1-split-room.md": spec_text(
+                "UC-2-1", "Split Room", rules=RULE_TEXT),
+            "open_questions.md": "# Open Questions\n" + "".join(
+                "\n## OQ-00%d: Question %d?\n\n**Element:** %s\n"
+                "**Raised by:** /use-case-spec\n**Blocking:** No\n"
+                "**Status:** Open\n" % (n, n, element)
+                for n, element in enumerate(
+                    ("UC-2-1", "UC-2-1 step 3", "UC-2-1 A1",
+                     "UC-2-1 BR-001", "UC-2-1 step 9"), 1))})
+        found = lint(root, validator, bpmn)
+        invalid = [f.element for f in found if f.code == "OQ_INVALID"]
+        dangling = [f.element for f in found if f.code == "DANGLING_REF"
+                    and os.path.basename(f.path) == OQ_NAME]
+        if invalid or dangling != ["OQ-005"]:
+            failures.append("hyphen id: UC-2-1 elements should resolve and "
+                            "only OQ-005 (step 9) dangle, got OQ_INVALID "
+                            + str(invalid) + ", DANGLING_REF "
+                            + str(dangling))
+
+    if shutil.which("git"):
+        with tempfile.TemporaryDirectory() as root:
+            # Git quotes non-ASCII paths unless asked not to.
+            write_fixture(root, {"use_cases/UC-003-bestellung-pr\u00fcfen.md":
+                                 spec_text("UC-003", "Bestellung pr\u00fcfen",
+                                           status="Done")})
+            git_fixture(root, "init", "-q")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "done")
+            git_fixture(root, "tag", "v1.0.0")
+            if done_at(root, "v1.0.0") != {"UC-003"}:
+                failures.append("done_at: a file name with an umlaut was "
+                                "missed, got " + str(done_at(root, "v1.0.0")))
+
     if failures:
         for failure in failures:
             print("SELF-TEST FAIL: " + failure)
@@ -4112,9 +4177,14 @@ def self_test():
 
 def only_questions(findings, docs):
     """The findings on docs/open_questions.md itself: the check a skill runs
-    right after it appended a question (--questions)."""
+    right after it wrote a section (--questions).
+
+    OQ_UNRESOLVED is left out: the skill that writes an answer may not fix
+    it, only the skill that changes the specification sets Resolved. The
+    full lint still reports it."""
     path = os.path.normpath(os.path.join(docs, OQ_NAME))
-    return [f for f in findings if os.path.normpath(f.path) == path]
+    return [f for f in findings if os.path.normpath(f.path) == path
+            and f.code != "OQ_UNRESOLVED"]
 
 
 def filter_findings(args, findings, baseline):

@@ -137,7 +137,7 @@ whether the E2E scope leaves out the E2E layer.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (module subfolders included; also `docs/use-cases/`). A `TC-*` id is a journey: hand
+1. Read the use case specification, `docs/use_cases/**/UC-XXX-*.md` (module subfolders included). A `TC-*` id is a journey: hand
    off to `/test-case-implement TC-XXX` and stop. Read the requirements the use case links on its
    `**Requirements:**` line — exactly those rows — because a linked NFR or constraint with an observable limit needs
    a test too.

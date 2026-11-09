@@ -204,8 +204,8 @@ SKILL.md). Both have the same three sections: *The agent decides alone*, *The ag
   ADR, the retry, timeout, or fallback policy of an external system — has no element there: ask it, and when no one can answer, leave the part out and list the question under
   **Open questions** in the report, without an `OQ-` id. Never add a dependency or deviate from an ADR unasked.
 - **Never** — do not take the decision, also when a request implies it; report what would have to change and who
-  changes it: `/use-case-spec` or `/requirements` for a specification, the team for an ADR, the coverage audit for
-  the status line.
+  changes it: `/use-case-spec` or `/requirements` for a specification, the team for an ADR, the user for the status
+  line (the coverage audit only suggests the next value).
 - A decision no rule names, or one two rules claim (a label is decided alone, a message with business meaning is
   asked first), is asked first.
 
@@ -287,7 +287,7 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (module subfolders included; also check `docs/use-cases/`) and check its `**Status:**`
+1. Read the use case specification, `docs/use_cases/**/UC-XXX-*.md` (module subfolders included), and check its `**Status:**`
    line and its open questions in `docs/open_questions.md` — see "Gaps in the Specification" above.
 2. Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`, `NFR-*`, and
    `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional requirements explain the intent where

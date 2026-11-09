@@ -13,11 +13,15 @@ Use the content of the code block below; a copy written to disk takes the name `
 -- Test data for UC-010 Browse Product Catalog.
 -- Every test migration loads for every test, so the tables hold other use cases' rows too. These rows own
 -- the ids 1001-1099 and the category prefix "UC010", so the tests can scope their assertions to them.
+-- Flyway runs a repeatable migration again whenever its checksum changes, also on a database that already holds
+-- these rows, so every INSERT of a fixed id skips a row that exists (ON CONFLICT DO NOTHING, or the database's
+-- equivalent).
 
 INSERT INTO product (id, name, category, price, in_stock)
 VALUES (1001, 'Desk Lamp', 'UC010 Lighting', 39.90, TRUE),
        (1002, 'Floor Lamp', 'UC010 Lighting', 89.00, FALSE),
        (1003, 'Notebook', 'UC010 Office', 4.50, TRUE),
        (1004, 'Office Chair', 'UC010 Office', 249.00, TRUE),
-       (1005, 'Standing Desk', 'UC010 Desks', 499.00, FALSE);
+       (1005, 'Standing Desk', 'UC010 Desks', 499.00, FALSE)
+ON CONFLICT DO NOTHING;
 ```
