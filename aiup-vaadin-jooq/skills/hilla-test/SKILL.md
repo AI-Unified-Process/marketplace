@@ -308,7 +308,7 @@ void save_rejects_duplicate_email() {
 
 ## Templates
 
-Use [references/UC001ManagePersonsViewTest.tsx.md](references/UC001ManagePersonsViewTest.tsx.md) as
+Use [references/UC-001-manage-persons.test.tsx.md](references/UC-001-manage-persons.test.tsx.md) as
 the structure for the frontend suite and
 [references/UC001ManagePersonsServiceTest.java.md](references/UC001ManagePersonsServiceTest.java.md)
 for the backend suite (both paths are relative to the folder containing this SKILL.md, not to

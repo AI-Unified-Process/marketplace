@@ -4,10 +4,11 @@ Part of the AI Unified Process — https://unifiedprocess.ai
 Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 -->
 
-# UC001ManagePersonsViewTest.tsx
+# UC-001-manage-persons.test.tsx
 
-The source file `UC001ManagePersonsViewTest.tsx`, wrapped in Markdown so that every skill host installs it.
-Use the content of the code block below; a copy written to disk takes the name `UC001ManagePersonsViewTest.tsx`.
+The source file `UC-001-manage-persons.test.tsx`, wrapped in Markdown so that every skill host installs it.
+Use the content of the code block below; a copy written to disk takes the name `UC-<id>-<slug>.test.tsx` of its use
+case, here `UC-001-manage-persons.test.tsx`, under `src/main/frontend/tests/`.
 
 ```tsx
 /**
