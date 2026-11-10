@@ -67,6 +67,12 @@ Run directly, the same rules apply:
 - Update an existing `<System>ClientTest` and `<System>ClientFake` instead of writing second ones.
 - Write this layer's tests only, and say that `/use-case-test UC-XXX` runs all layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## Test Class Naming and `@UseCase`
 
 One class per external system, `<System>ClientTest` (`PaymentProviderClientTest`), in the package of the adapter,
@@ -185,15 +191,26 @@ public class PaymentProviderClientFake implements PaymentProviderClient {
 - **Deterministic results**: fixed ids and timestamps, never random values or `Instant.now()`.
 - **No logic of the provider** beyond what the flows need — the fake is not a simulator.
 - The integration layer's tests put it in place of the adapter with `@TestBean` (Spring Framework 6.2 and later),
-  so the real adapter is never created:
+  so the real adapter is never created. The field has the port's type, because `@TestBean` finds the bean to
+  replace by the field's type — a field typed as the fake matches no bean and would add a second one. The test
+  reaches the fake's switches through the constant the factory method returns:
 
   ```java
+  static final PaymentProviderClientFake PAYMENT_PROVIDER = new PaymentProviderClientFake();
+
   @TestBean
   PaymentProviderClient paymentProviderClient;
 
   static PaymentProviderClient paymentProviderClient() {
-      return new PaymentProviderClientFake();
+      return PAYMENT_PROVIDER;
   }
+
+  @AfterEach
+  void resetPaymentProvider() {
+      PAYMENT_PROVIDER.reset();
+  }
+
+  // in a test: PAYMENT_PROVIDER.declineNext(); … assertThat(PAYMENT_PROVIDER.charges()).hasSize(1);
   ```
 
   On an older Spring, or where the project's tests already replace boundaries with `@MockitoBean`, they follow

@@ -50,6 +50,7 @@ constraint, and the skill keeps its rows in the Markers table of `docs/architect
 | Vaadin Flow, jOOQ           | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Hilla, jOOQ                 | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| Next.js, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
 
 Do not combine the layer plugins with a combined stack plugin (`aiup-blazor-dotnet`, or the deprecated
 `aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-nestjs-nextjs`); those ship their own migration skill — `/flyway-migration` in

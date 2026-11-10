@@ -205,6 +205,13 @@ public class PaymentDeclinedException extends BusinessRuleException {
 Use `RestClient`, or an `@HttpExchange` interface backed by it when the project already declares HTTP interfaces.
 Do not add `WebClient`, OpenFeign, or another HTTP library unasked; follow one the project already uses.
 
+The adapter injects Spring Boot's auto-configured `RestClient.Builder`. Spring Boot 4 moved that auto-configuration
+into the module `spring-boot-restclient`, which `spring-boot-starter-webmvc` does not bring: the module that holds
+the adapter needs `spring-boot-starter-restclient` (and `spring-boot-starter-restclient-test` for the adapter's
+tests), or the context fails with no bean of type `RestClient.Builder`. Check the build file and add the starter
+when it is missing — it is part of Spring Boot, managed by its BOM, so name it under **Decisions** rather than
+asking. Spring Boot 3 has the builder in `spring-boot-starter-web`.
+
 ```java
 package com.example.hotel.client.paymentprovider;
 
@@ -251,7 +258,9 @@ record PaymentProviderProperties(String baseUrl, String apiKey) {
 ```
 
 - **Provider DTOs** are records in the adapter package, one per schema the use case's calls need, with the
-  contract's JSON property names (`@JsonProperty` where the Java name differs) and a `from(...)`/`to...()` mapping
+  contract's JSON property names (`@JsonProperty` where the Java name differs — from
+  `com.fasterxml.jackson.annotation` on Jackson 2 and Jackson 3 alike; Jackson 3 moved everything else to
+  `tools.jackson.*` but kept the annotations) and a `from(...)`/`to...()` mapping
   to the domain records. Write only the fields the calls send and read; ignore unknown properties. When the project
   already generates clients from OpenAPI (openapi-generator, its plugin in the build), add the provider's file to
   that setup instead — adding the generator to a project without it is a new dependency: ask.

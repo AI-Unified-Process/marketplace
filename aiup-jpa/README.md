@@ -16,7 +16,7 @@ stack plugin such as the deprecated `aiup-angular-jpa`.
 
 ## Requirements
 
-- `aiup-core` **3.3.0 or later**. Its `/stack` records this plugin as the Persistence layer in
+- `aiup-core` **3.16.0 or later**. Its `/stack` records this plugin as the Persistence layer in
   `docs/architecture/stack.md`; `/use-case-implement` and `/use-case-test` run the skills below in their place in the layer order, and
   `/use-case-coverage` finds their code and tests by the markers they keep in that document.
 - A Migration layer that owns the schema — normally `aiup-flyway` with `/flyway-schema`. Hibernate only validates
@@ -47,6 +47,8 @@ and no Lombok is used.
 |-------------------------------|----------------------------------------------------------------------------------|
 | REST API, Spring Boot, JPA    | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`                                    |
 | Angular, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| Next.js, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
+| Vaadin Flow or Hilla, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`                     |
 
 Do not combine the layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa`); it ships its own `/implement`.
 

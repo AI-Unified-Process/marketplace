@@ -65,6 +65,12 @@ use case its Flow links), the linked requirement rows, `docs/entity_model.md` (w
 when present, and `docs/architecture/stack.md`; then write this layer only and say that `/use-case-test UC-XXX` runs all test
 layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## Decide the Test Type First
 
 | Input                                                    | Artifact               | Test type                                                              |
@@ -89,10 +95,14 @@ Vaadin synchronization:
 <dependency>
     <groupId>org.vaadin.addons</groupId>
     <artifactId>dramafinder</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.1</version>
     <scope>test</scope>
 </dependency>
 ```
+
+Drama Finder 2.x is built against Vaadin 25 and Java 21. A project that already pins a version keeps it: an
+upgrade across the major is a dependency decision to ask about, and on 1.x the bundled reference's entries marked
+*(2.x)* — `ConfirmDialogElement` among them — do not exist.
 
 Annotate the class `@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)`, inject `@LocalServerPort`, and
 override `getUrl()` (`http://localhost:<port>/`) and `getView()` (the view's route). Give the application the
@@ -143,9 +153,14 @@ that flow; leave it out — no `@Nested` class, no `@Disabled` test — and name
 (`A1 Catalog Is Empty is tested in the integration layer; the running application has one data set`).
 
 An external system the use case calls (its secondary actor in the `## External systems` table of the stack file)
-must not be reached from the running application: it runs with a test profile that points the system's base URL at a
-stub, as "Which Layer Tests What" of `/use-case-test` says for external systems. Without such a profile, leave out
-the steps that call the system and say so in the report.
+must not be reached from the running application. How is decided by `/use-case-test`, section "External systems" of
+its `which-layer-tests-what.md` reference (locate it with a glob for
+`**/*use-case-test/references/which-layer-tests-what.md`; the folder may carry a host prefix such as
+`tessl__use-case-test`). This skill's tests start the application in the test's own process
+(`@SpringBootTest(webEnvironment = RANDOM_PORT)`), which is the case that section gives the port's fake to: put the
+fake `/spring-client-test` wrote in place with `@TestBean`, exactly as that skill shows, and switch it for the
+alternative flow a step needs. When the fake does not exist yet, report it and name `/spring-client-test UC-XXX`
+rather than leaving the steps out or mocking the adapter ad hoc.
 
 ## Use Case Tests (UC-*)
 
@@ -231,28 +246,27 @@ GridElement grid = GridElement.getById(page, "customer-grid");                 /
 GridElement first = GridElement.get(page);                                     // first on page
 NotificationElement notification = new NotificationElement(page);
 DialogElement dialog = DialogElement.getByHeaderText(page, "Edit Person");      // <vaadin-dialog> only
+ConfirmDialogElement confirm = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");  // <vaadin-confirm-dialog>
 
 // Scoped lookup when several elements share a label
 TextFieldElement inDialog = TextFieldElement.getByLabel(dialog.getLocator(), "Name");
 ButtonElement save = ButtonElement.getByText(dialog.getLocator(), "Save");
 ```
 
-**Confirm Dialog — the one exception to "no raw locators".** `DialogElement` matches `<vaadin-dialog>` only, and
-Drama Finder has no wrapper for `<vaadin-confirm-dialog>`, which `/vaadin-flow-ui` builds for a delete
-confirmation. In Vaadin 25 the `<vaadin-confirm-dialog>` element itself carries the role `alertdialog`, its header
-as accessible name, and its buttons as slotted `<vaadin-button>` children, and it is hidden while closed. Locate it
-the way Drama Finder locates a dialog — by role and name, narrowed to the tag — and the buttons inside it with
-`ButtonElement`:
+**Confirm Dialog.** `DialogElement` matches `<vaadin-dialog>` only. The `<vaadin-confirm-dialog>` that
+`/vaadin-flow-ui` builds for a delete confirmation is a `ConfirmDialogElement`, found by its header:
 
 ```java
-Locator confirm = page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName("Confirm Delete"))
-        .and(page.locator("vaadin-confirm-dialog"));
-PlaywrightAssertions.assertThat(confirm).isVisible();
-ButtonElement.getByText(confirm, "Delete").click();
-PlaywrightAssertions.assertThat(confirm).isHidden();
+ConfirmDialogElement confirm = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");
+confirm.assertOpen();
+confirm.assertConfirmText("Delete");
+confirm.confirm();          // cancel() and reject() for the other buttons
+confirm.assertClosed();
 ```
 
-On Vaadin 24 the role sits on the `vaadin-confirm-dialog-overlay` element instead; narrow to that tag there.
+A Flow `ConfirmDialog` leaves the page once it is answered, so look it up again when it opens a second time. Only a
+project on Drama Finder 1.x, which has no such wrapper, or on Vaadin 24 falls back to a raw locator by role and
+name, as the bundled reference shows.
 
 Icon-only buttons need an `aria-label` in the view; a missing one is a finding for the UI layer, not a reason for a
 CSS locator. Use `getInputLocator()` for value and focus, `getLocator()` for component attributes.
@@ -284,8 +298,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Use Mockito, or call services, repositories, or `DSLContext` to arrange data, drive a step, or assert a result —
   the only database access is the targeted delete of "Test Data", in `@AfterEach`, where the UI cannot remove a record
 - Use raw Playwright locators (`page.locator("vaadin-text-field")`) or XPath (it does not pierce shadow DOM) — the
-  one exception is a component Drama Finder has no wrapper for, located by role and name as shown for the Confirm
-  Dialog
+  one exception is a component the project's Drama Finder version has no wrapper for, located by role and name
+- Reach a real external system, or leave out a step because it calls one — the port's fake stands in
 - Use `Thread.sleep()` or `page.waitForTimeout()` — Drama Finder assertions auto-retry
 - Use `getAttribute()` / `isVisible()` directly in assertions — they do not retry
 - Assume all grid rows are rendered — count with `getTotalRowCount()`

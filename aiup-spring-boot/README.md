@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 business rules, a REST API with RFC 9457 Problem Details, and the calls to the external systems a use case names as
 secondary actors — each with its test skill.
 
-It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.10.0 or later) and one plugin per other layer
+It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.16.0 or later) and one plugin per other layer
 of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 
@@ -32,7 +32,7 @@ run directly, for example `/spring-rest UC-001` to change only the API of a use 
 
 The service layer is used by every UI: a Vaadin Flow view calls it directly, a Hilla `@BrowserCallable` endpoint
 (built by `/hilla-ui` in `aiup-vaadin`) delegates to it, and `/spring-rest` exposes it to a client-side UI such as
-Angular. The service never depends on a web or UI type.
+Angular or Next.js. The service never depends on a web or UI type.
 
 An external system the use case calls — a payment provider, a channel manager — is listed with its contract under
 `## External systems` in `docs/architecture/stack.md`. `/spring-client` runs only for a use case whose Secondary
@@ -56,13 +56,14 @@ disagree, neither skill decides: the gap goes to `docs/open_questions.md`.
 | Vaadin Flow, jOOQ             | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Hilla, jOOQ                   | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| Next.js, Spring Boot, JPA     | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
 
 A use case is tested once, in the integration layer of the entry layer it is offered through, which `/stack`
 records in the Integration layer table of `docs/architecture/stack.md`:
 
 | Project                            | Integration layer | What this plugin's test skills write                                                |
 |------------------------------------|-------------------|-------------------------------------------------------------------------------------|
-| REST API only, or Angular          | API               | `/spring-rest-test`: every business rule; `/spring-service-test` nothing new        |
+| REST API only, Angular, or Next.js | API               | `/spring-rest-test`: every business rule; `/spring-service-test` nothing new        |
 | Vaadin Flow (with or without REST) | UI                | `/spring-rest-test`: the endpoint contract only; `/spring-service-test` nothing new |
 | Hilla (with or without REST)       | Service           | `/spring-service-test`: every business rule; `/spring-rest-test`: the contract only |
 | No entry layer                     | Service           | `/spring-service-test`: every business rule                                         |
