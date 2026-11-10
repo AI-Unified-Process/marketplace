@@ -516,7 +516,16 @@ command names and would collide, and a combined plugin next to layer plugins wou
 - A red build goes to the implementer first; when it is still red after that, the tester gets the new log in the same
   round, because only the tester may repair a test. Both count as one fix round.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
-  The tester's changes to build files and to the stack file (the whole file, for its Markers rows) are kept and listed.
+  The tester's changes to build files and to the stack file (the whole file, for its Markers rows) are kept and listed;
+  so are the implementer's.
+- Protected for every station, reverted and listed: the specification (`docs/use_cases/`, the diagram, requirements,
+  glossary, entity model, processes, test cases, vision, ADRs), `.github/`, `.claude/`, `.mcp.json`, `CLAUDE.md`,
+  `AGENTS.md`, and the stack file when its Commands table changed. A station that changes the engine or the spec lint
+  (outside the project's Git, compared by checksum) ends the use case `stuck`.
+- The audit's `complete: true` is verified by `werkstatt.py verify-audit`, never trusted: a matrix row for every
+  step, flow, and rule, none open, and a `Read` of the spec and of every cited file in the audit's stream-json tool
+  log. A failed check reruns the audit once in the same round; a second failure moves the use case to `Implemented`,
+  not `Tested`. The report names the commit the gates ran on.
 - A station whose session fails (non-zero exit, no result) is started once more; a second failure ends the use case
   `stuck`, and both are recorded in the metrics and the report. Stations that stop without a result (a crash, a
   killed process) end the use case `stuck` too, with a row in the report.

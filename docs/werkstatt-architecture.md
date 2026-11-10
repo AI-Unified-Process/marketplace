@@ -62,7 +62,8 @@ flowchart LR
     C -- code gap --> F
     C -- test gap --> T
     F --> B
-    C -- complete --> P[PR against the<br/>change branch, status Tested]
+    C -- complete, verified --> P[PR against the<br/>change branch, status Tested]
+    C -- complete, unverified twice --> P2[PR against the<br/>change branch, status Implemented]
     G1 -- fail --> Q[Open question]
     I -- spec gap --> Q
     T -- spec gap --> Q
@@ -106,6 +107,11 @@ stack file `docs/architecture/stack.md`, because the test skills keep their rows
 crosses the lane is reverted and listed in the pull request, so a drifting skill shows up in review; the tester's
 changes to build files and to the stack file are kept and listed.
 
+**Protected paths.** No station may change what judges it or what the next station reads as instructions: the
+specification, the Commands table of the stack file, `.github/`, `.claude/`, `.mcp.json`, `CLAUDE.md`, and
+`AGENTS.md`. Such a change is reverted and listed. A station that changes the Werkstatt engine or the spec lint ends
+the use case stuck.
+
 ## Quality gates and the andon cord
 
 A UC carries code into the pull request only when every gate is green. A failed gate sends it back to a fix round,
@@ -117,7 +123,7 @@ never forward.
 | G2 Build | Compiles, migrations run, code generation works | Fix round |
 | G3 Tests | All tests the stack file's commands run are green | Fix round |
 | G4 Harness | What the build enforces (for example ArchUnit rules), plus the lane guard | Fix round; lane crossings are reverted |
-| G5 Spec coverage | Every main success scenario step, alternative flow and business rule has code and a test | Code gap: fix round; test gap: test round |
+| G5 Spec coverage | Every main success scenario step, alternative flow and business rule has code and a test. A verdict of complete is verified in code: a matrix row per step, flow and rule, and a `Read` of the specification and of every cited file in the audit's tool log | Code gap: fix round; test gap: test round; a verdict not verified twice: status *Implemented* only |
 | G6 Budget | At most `max_rounds` fix rounds and `max_cost_usd` per UC | Stuck: code dropped, kept as a diff in the run records |
 
 **The andon cord.** When a station finds a gap in the specification, it does not guess. It records a question with
@@ -159,7 +165,7 @@ Version 1 runs fully on GitHub Actions with headless Claude Code. No extra serve
 - **Selection.** Without UC ids, every UC whose specification differs from the merge base with the default branch
   and whose status is *Approved*.
 - **The status is the memory.** A finished UC moves to *Tested* in the pull request (*Implemented* when the stack
-  has no coverage audit). After the merge it is no longer selected; a blocked, stuck or pending UC stays *Approved*
+  has no coverage audit, or its verdict could not be verified). After the merge it is no longer selected; a blocked, stuck or pending UC stays *Approved*
   and is selected again. The Werkstatt keeps no state of its own.
 - **Agent runtime.** Claude Code CLI in print mode (`claude -p`), with aiup-core and the layer plugins whose skills
   the stack file names (read from the Plugins table of the layer catalog), or one combined stack plugin. Each station
@@ -234,4 +240,6 @@ Start with one UC on a test project and grow only when the numbers are stable.
 | Cost per UC grows | Turn and cost budget; measure before scaling |
 | Merge conflicts in shared layers | Small change branches; serial inside a branch; rebase often |
 | Agent changes tests to make them pass | Test station in a separate session; the lane guard reverts test changes by the implementer |
+| Agent changes the specification or the gate it is judged by | Protected paths: the specification, the Commands table, the workflow and the agent configuration are reverted for every station; the engine and the lint are checksummed |
+| Audit claims coverage it did not check | The verdict is verified against the specification's units and the audit's tool log, never taken on its word |
 | Engineer becomes a review bottleneck | Only green UCs carry code; coverage matrix in the pull request body |

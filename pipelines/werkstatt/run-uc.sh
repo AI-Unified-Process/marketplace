@@ -11,7 +11,8 @@
 # Each agent station is its own headless Claude Code session, so the tester and the auditor never see the
 # implementer's reasoning. Agents never run git; this script commits after each station. The outcome:
 #
-#   ready    all gates green; the status moves to Tested (Implemented when no coverage audit exists for the stack),
+#   ready    all gates green; the status moves to Tested (Implemented when no coverage audit exists for the stack,
+#            or when the audit's verdict of complete could not be verified twice: werkstatt.py verify-audit),
 #            and the requirements the use case links follow it (werkstatt.py requirements)
 #   blocked  a blocking open question names the use case (the andon cord), the spec lint finds errors, or a
 #            station left docs/open_questions.md in a state the lint rejects (the andon cord cannot be read then);
@@ -46,6 +47,10 @@ HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
 TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|(^|/)[^/]*\\.Tests(\\.[^/]*)?/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.(cs|razor)\$}"
 # Build files: the tester may add a test dependency or adjust a test runner's configuration. Kept, and listed.
 BUILD_REGEX="${BUILD_REGEX:-(^|/)(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|gradle/libs\\.versions\\.toml|package(-lock)?\\.json|pnpm-lock\\.yaml|yarn\\.lock|angular\\.json|tsconfig[^/]*\\.json|[^/]*\\.config\\.[cm]?[jt]s|[^/]*\\.csproj|Directory\\.(Packages|Build)\\.props)\$}"
+# Protected for every station: the specification the gates judge against, the pipeline, and the agent configuration
+# the next station reads. The status, the requirements, and the diagram are written by werkstatt.py after the
+# stations, outside the guard; docs/open_questions.md and the stack file are not protected.
+PROTECTED_REGEX="${PROTECTED_REGEX:-^docs/(use_cases/|use_cases\\.puml\$|requirements\\.md\$|glossary\\.md\$|entity_model(\\.md\$|/)|processes/|test_cases/|vision\\.md\$)|^docs/(.*/)?(decisions|adr|adrs)/|^\\.github/|^\\.claude/|^\\.mcp\\.json\$|(^|/)(CLAUDE|AGENTS)\\.md\$}"
 OQ_FILE=docs/open_questions.md
 # The test skills keep the Markers table of the stack file; the tester's change to it is kept, and listed.
 STACK_FILE=docs/architecture/stack.md
@@ -60,6 +65,13 @@ START_TIME=$(date +%s)
 START_SHA=$(git rev-parse HEAD)
 
 SPEC=$(python3 "$HELPER" spec "$UC") || { echo "::error::No specification for $UC"; exit 1; }
+
+# The engine and the lint are outside the project's Git, so the guard does not see them; a station that changed
+# them could change the gates. Their state is taken now and compared after every station.
+engine_state() {
+  { git -C "$ENGINE" status --porcelain 2>/dev/null; git -C "$ENGINE" diff 2>/dev/null; cat "${SPEC_LINT:-/dev/null}" 2>/dev/null; } | cksum
+}
+ENGINE_STATE=$(engine_state)
 
 # The commands of the stack. Layer plugins: the orchestrators of aiup-core. A combined stack plugin brings its own.
 if [ -z "$STACK_PLUGIN" ]; then
@@ -105,17 +117,31 @@ endlog() { echo "::endgroup::"; }
 
 # session <name> <prompt>: one headless session. Returns 1 when the session itself failed - a non-zero exit or
 # a result that is no JSON - which is not the same as a session that worked and was cut off by the turn limit.
+# The audit runs with stream-json: its tool log is the proof of what it read (werkstatt.py verify-audit), and its last
+# result event becomes the session's JSON like the other stations' output.
 session() {
   local name="$1" prompt="$2" out="$F/session-$1-r$ROUNDS.json" t0 rc cost subtype failed=0
   t0=$(date +%s)
-  claude -p "$prompt" \
-    --model "$MODEL" \
-    --max-turns "$MAX_TURNS" \
-    --output-format json \
-    --permission-mode bypassPermissions \
-    --disallowedTools "Bash(git:*)" \
-    > "$out" 2> "$F/session-$name-r$ROUNDS.err"
-  rc=$?
+  if [ "$name" = audit ]; then
+    claude -p "$prompt" \
+      --model "$MODEL" \
+      --max-turns "$MAX_TURNS" \
+      --output-format stream-json --verbose \
+      --permission-mode bypassPermissions \
+      --disallowedTools "Bash(git:*)" \
+      > "$F/session-$name-r$ROUNDS.jsonl" 2> "$F/session-$name-r$ROUNDS.err"
+    rc=$?
+    jq -c 'select(type == "object" and .type == "result")' "$F/session-$name-r$ROUNDS.jsonl" 2>/dev/null | tail -n 1 > "$out"
+  else
+    claude -p "$prompt" \
+      --model "$MODEL" \
+      --max-turns "$MAX_TURNS" \
+      --output-format json \
+      --permission-mode bypassPermissions \
+      --disallowedTools "Bash(git:*)" \
+      > "$out" 2> "$F/session-$name-r$ROUNDS.err"
+    rc=$?
+  fi
   cost=$(jq -r '.total_cost_usd // 0' "$out" 2>/dev/null || echo 0)
   case "$cost" in ''|*[!0-9.]*) cost=0 ;; esac
   TOTAL_COST=$(awk -v a="$TOTAL_COST" -v b="$cost" 'BEGIN{printf "%.4f", a+b}')
@@ -158,19 +184,48 @@ station() {
     fi
   fi
   endlog
+  [ "$(engine_state)" = "$ENGINE_STATE" ] || finish stuck "The $name station of $UC changed the Werkstatt engine or the spec lint, so the gates cannot be trusted any more. Nothing of $UC is kept."
 }
 
 over_budget() { awk -v t="$TOTAL_COST" -v m="$MAX_COST_USD" 'BEGIN{exit !(t>m)}'; }
 
 # Harness rule: a station may only change its own kind of file. Everything else is reverted.
-#   guard tests  -> the implementer may not touch test code
-#   guard code   -> the tester may only touch test code, build files and the stack file (both listed) and the
-#                   open questions
+#   every station -> no protected path (PROTECTED_REGEX): the specification, the pipeline, the agent configuration
+#   guard tests   -> the implementer may not touch test code; its build file changes are kept and listed
+#   guard code    -> the tester may only touch test code, build files and the stack file (both listed) and the
+#                    open questions
+# commands_changed: the Commands table of the stack file is the build gate; a station that changes it changes the
+# gate that judges it, so the whole file goes back (its Markers rows too, which the next test round writes again).
+commands_changed() {
+  local before
+  before=$(git show "HEAD:$STACK_FILE" 2>/dev/null > "$F/stack-head.md" && python3 "$HELPER" commands --stack "$F/stack-head.md")
+  [ "$before" != "$(python3 "$HELPER" commands --stack "$STACK_FILE" 2>/dev/null)" ]
+}
+
 guard() {
   local mode="$1" file
   git add -A
   while IFS= read -r -d '' file; do
     [ -n "$file" ] || continue
+    if [[ "$file" =~ $PROTECTED_REGEX ]] || { [ "$file" = "$STACK_FILE" ] && commands_changed; }; then
+      echo "::warning::$UC: the $2 station changed the protected path $file; reverted."
+      if [ "$file" = "$STACK_FILE" ]; then
+        echo "$2 changed the Commands table of the stack file $file (reverted)" >> "$F/guard.log"
+      else
+        echo "$2 changed the protected path $file (reverted)" >> "$F/guard.log"
+      fi
+      git rm -q --cached -- "$file" 2>/dev/null || true
+      if git cat-file -e "HEAD:$file" 2>/dev/null; then git checkout -q HEAD -- "$file"; else rm -f -- "$file"; fi
+      continue
+    fi
+    if [ "$mode" = tests ] && { [[ "$file" =~ $BUILD_REGEX ]] || [ "$file" = "$STACK_FILE" ]; }; then
+      if [ "$file" = "$STACK_FILE" ]; then
+        echo "$2 changed the stack file $file (kept)" >> "$F/guard.log"
+      else
+        echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
+      fi
+      continue
+    fi
     if [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]]; then
       if [[ "$file" =~ $BUILD_REGEX ]]; then
         echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
@@ -339,6 +394,29 @@ $(tail -n 150 "$BUILD_LOG")
 ~~~"
 }
 
+# audit <extra prompt>: the read-only coverage audit; writes coverage.json, coverage.md, and coverage-r<round>.md.
+audit() {
+  rm -f "$F/coverage.json" "$F/coverage.md"
+  station audit "Use $AUDIT_AGENT to audit the use case $UC ($SPEC) against its specification: every main
+success scenario step, alternative flow, business rule, precondition and postcondition against the code and tests.
+Report every gap you find in one pass, not only the first ones: each gap left for a later audit costs another round.
+$1
+Write the coverage matrix as Markdown to $F/coverage.md and the result to $F/coverage.json:
+{\"complete\": true|false, \"code_gaps\": [\"...\"], \"test_gaps\": [\"...\"]}.
+Change no other file. Do not run git."
+  git checkout -q -- . && git clean -fdq -e .werkstatt/ -e .aiup-werkstatt-engine/   # the audit is read-only
+  if [ -f "$F/coverage.md" ]; then
+    cp "$F/coverage.md" "$F/coverage-r$ROUNDS.md"
+    LAST_COVERAGE="$F/coverage-r$ROUNDS.md"
+  fi
+}
+
+# verify_audit: werkstatt.py verify-audit on the last audit; its findings go to verify-r<round>.txt.
+verify_audit() {
+  python3 "$HELPER" verify-audit --spec "$SPEC" --matrix "$F/coverage.md" \
+    --log "$F/session-audit-r$ROUNDS.jsonl" > "$F/verify-r$ROUNDS.txt" 2>&1
+}
+
 while true; do
   over_budget && finish stuck "The cost budget of \$$MAX_COST_USD for $UC is used up."
 
@@ -349,26 +427,28 @@ while true; do
   if [ $BUILD_RC -eq 0 ]; then
     [ -n "$AUDIT_AGENT" ] || finish ready "Build and tests are green. $STACK_PLUGIN has no coverage audit, so the status moves to Implemented only." Implemented
     # -------------------------------------------------------------- G5: spec coverage (read-only)
-    rm -f "$F/coverage.json" "$F/coverage.md"
     # Every gap costs a fix or test round, so the audit reports all of them at once; a later audit re-checks the
     # whole matrix of the previous one instead of stopping at the first new gap it finds.
     PREVIOUS=""
     [ -n "$LAST_COVERAGE" ] && PREVIOUS="The previous audit's matrix is $LAST_COVERAGE; the gaps it listed were worked
 on since. Check every row of it again, and look for what it may have missed, before you decide."
-    station audit "Use $AUDIT_AGENT to audit the use case $UC ($SPEC) against its specification: every main
-success scenario step, alternative flow, business rule, precondition and postcondition against the code and tests.
-Report every gap you find in one pass, not only the first ones: each gap left for a later audit costs another round.
-$PREVIOUS
-Write the coverage matrix as Markdown to $F/coverage.md and the result to $F/coverage.json:
-{\"complete\": true|false, \"code_gaps\": [\"...\"], \"test_gaps\": [\"...\"]}.
-Change no other file. Do not run git."
-    git checkout -q -- . && git clean -fdq -e .werkstatt/ -e .aiup-werkstatt-engine/   # the audit is read-only
-    if [ -f "$F/coverage.md" ]; then
-      cp "$F/coverage.md" "$F/coverage-r$ROUNDS.md"
-      LAST_COVERAGE="$F/coverage-r$ROUNDS.md"
-    fi
+    audit "$PREVIOUS"
+    # An audit that says complete is checked, not trusted: a row for every step, flow, and rule, none of them open,
+    # and a Read of the specification and of every file the matrix cites. One more audit gets the findings; when
+    # that one cannot be verified either, the build is green but the coverage unproven, so the status moves to
+    # Implemented only and the report says why.
     if [ "$(jq -r '.complete // false' "$F/coverage.json" 2>/dev/null)" = "true" ]; then
-      finish ready "All gates are green." Tested
+      if verify_audit; then finish ready "All gates are green." Tested; fi
+      echo "The audit of round $ROUNDS said complete but could not be verified: $(paste -sd' ' "$F/verify-r$ROUNDS.txt")" >> "$F/notes.log"
+      audit "$PREVIOUS
+The previous audit of this round said complete, but the Werkstatt could not verify it:
+$(sed 's/^/- /' "$F/verify-r$ROUNDS.txt")
+Open the specification and every file you cite with the Read tool, and give every step, alternative flow, and
+business rule its own row, its unit id (Step n, A<n>, BR-XXX) in the first cell."
+      if [ "$(jq -r '.complete // false' "$F/coverage.json" 2>/dev/null)" = "true" ]; then
+        verify_audit && finish ready "All gates are green." Tested
+        finish ready "Build and tests are green, but the coverage audit's verdict could not be verified twice: $(paste -sd' ' "$F/verify-r$ROUNDS.txt") The status moves to Implemented only; run /use-case-coverage $UC before setting Tested." Implemented
+      fi
     fi
     CODE_GAPS=$(jq -r '(.code_gaps // []) | map("- " + .) | join("\n")' "$F/coverage.json" 2>/dev/null)
     TEST_GAPS=$(jq -r '(.test_gaps // []) | map("- " + .) | join("\n")' "$F/coverage.json" 2>/dev/null)

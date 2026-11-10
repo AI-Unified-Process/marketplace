@@ -33,6 +33,12 @@ Standard library only. The shell scripts call one subcommand at a time:
       After a status advance: moves the progress status (Open .. Verified) of the requirements the use case links to
       what their use cases make it, with derived_status() of spec_lint.py (default: $SPEC_LINT_MODULE or
       $SPEC_LINT). Deferred and Rejected stay. Prints one line per change; without spec_lint.py it changes nothing.
+  werkstatt.py verify-audit --spec <file> --matrix <coverage.md> --log <session.jsonl> [--validator <path>]
+      Checks an audit that says complete instead of trusting it: the matrix has a row for every main success
+      scenario step (Step n), alternative flow (A<n>), and business rule (BR-XXX) of the specification, read with
+      validate_use_case.py of /use-case-spec; no such row is Missing or Partial; and the session's stream-json log
+      shows a Read of the specification and of every file the matrix cites. Prints one line per finding; exit 1
+      when there is one.
   werkstatt.py self-test
       Runs every subcommand against fixtures; CI runs it, together with self-test.sh for the stations.
 """
@@ -448,6 +454,103 @@ def blocking(args):
                 print(qid)
 
 
+VALIDATOR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "aiup-core", "skills",
+                         "use-case-spec", "scripts", "validate_use_case.py")
+FLOW_ID = re.compile(r"(A\d+)\s*:")
+RULE_ID = re.compile(r"(BR-[A-Za-z0-9_-]+)\s*:")
+UNIT_CELL = re.compile(r"(?:step|schritt)\s+(\d+)$", re.IGNORECASE)
+OPEN_VERDICT = re.compile(r"missing|partial|fehlt|teilweise", re.IGNORECASE)
+CITED_FILE = re.compile(r"([\w.\-/\\]+\.[A-Za-z0-9]+):\d+")
+
+
+def spec_units(path, validator):
+    """The coverage units every audit must list: Step n, A<n>, and BR-XXX, read as /use-case-spec reads them."""
+    import importlib.util
+    module_spec = importlib.util.spec_from_file_location("validate_use_case", validator)
+    module = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(module)
+    doc = module.parse_document(read(path))
+    units = [f"Step {n}" for n in doc.main_scenario_numbers]
+    units += [m.group(1) for m in (FLOW_ID.match(f.get("heading", "")) for f in doc.flows) if m]
+    units += [m.group(1) for m in (RULE_ID.match(r.get("heading", "")) for r in doc.rules) if m]
+    return units
+
+
+def matrix_rows(path):
+    """The rows of the coverage matrix by unit id, from the first cell of every table row."""
+    rows = {}
+    for line in read(path).splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip().strip("*`").strip() for c in line.strip().strip("|").split("|")]
+        if not cells or not cells[0]:
+            continue
+        unit = cells[0]
+        step = UNIT_CELL.match(unit)
+        if step:
+            unit = f"Step {step.group(1)}"
+        rows.setdefault(unit, cells)
+    return rows
+
+
+def opened_files(path):
+    """Every file_path the session's Read calls opened, the coverage agent's own included: the stream-json log
+    gives a subagent's messages with their parent_tool_use_id."""
+    import json
+    paths = set()
+    for line in read(path).splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict) or event.get("type") != "assistant":
+            continue
+        for item in (event.get("message") or {}).get("content") or []:
+            if isinstance(item, dict) and item.get("type") == "tool_use" and item.get("name") == "Read":
+                file_path = (item.get("input") or {}).get("file_path")
+                if isinstance(file_path, str):
+                    paths.add(file_path.replace("\\", "/"))
+    return paths
+
+
+def verify_audit(args):
+    """An audit that says complete is checked, not trusted: a matrix row for every step, flow, and rule, none of
+    them open, a Read of the specification, and a Read of every file the matrix cites. Prints one line per finding
+    and exits 1 when there is one."""
+    problems = []
+    try:
+        rows = matrix_rows(args.matrix)
+    except OSError:
+        rows = None
+        problems.append(f"The audit wrote no matrix ({args.matrix}).")
+    if rows is not None:
+        for unit in spec_units(args.spec, args.validator):
+            if unit not in rows:
+                problems.append(f"The matrix has no row for {unit}.")
+            elif OPEN_VERDICT.search(rows[unit][-1]):
+                problems.append(f"The matrix calls {unit} '{rows[unit][-1]}', yet the audit says complete.")
+    try:
+        opened = opened_files(args.log)
+    except OSError:
+        opened = None
+        problems.append(f"The audit left no tool log ({args.log}), so its reading cannot be checked.")
+    if opened is not None:
+        spec_path = args.spec.replace("\\", "/").removeprefix("./")
+        if not any(p == spec_path or p.endswith("/" + spec_path) for p in opened):
+            problems.append(f"The audit never opened the specification {args.spec}.")
+        if rows is not None:
+            names = {os.path.basename(p) for p in opened}
+            cited = sorted({os.path.basename(m.group(1).replace("\\", "/"))
+                            for cells in rows.values() for cell in cells[1:] for m in CITED_FILE.finditer(cell)})
+            for name in cited:
+                if name not in names:
+                    problems.append(f"The matrix cites {name}, which the audit never opened.")
+    for problem in problems:
+        print(problem)
+    if problems:
+        sys.exit(1)
+
+
 SELF_TEST_CATALOG = """# Layer catalog
 
 ## Plugins
@@ -855,6 +958,66 @@ def self_test():
             expect("requirements German", run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path),
                    "FR-001: Offen -> Verifiziert\n")
 
+    # verify-audit: rows for every step, flow, and rule; none open; the spec and every cited file opened
+    import json
+    with tempfile.TemporaryDirectory() as root:
+        spec_file = "docs/use_cases/UC-001-register.md"
+        write(os.path.join(root, spec_file),
+              "# Use Case: Register\n\n## Overview\n\n**Use Case ID:** UC-001  \n**Status:** Approved  \n\n"
+              "## Main Success Scenario\n\n1. Clerk opens the form.\n2. System saves the room.\n\n"
+              "## Alternative Flows\n\n### A1: Name taken\n\n**Trigger:** The name exists (step 2)  \n**Flow:**\n\n"
+              "1. System shows an error.\n2. Use case continues at step 1.\n\n"
+              "## Business Rules\n\n### BR-001: Unique name\n\nNo two rooms share a name.\n")
+        matrix = os.path.join(root, "coverage.md")
+        log = os.path.join(root, "session.jsonl")
+
+        def reads(*paths, parent=None):
+            content = [{"type": "tool_use", "name": "Read", "input": {"file_path": p}} for p in paths]
+            return json.dumps({"type": "assistant", "parent_tool_use_id": parent, "message": {"content": content}})
+
+        def verify(**overrides):
+            kwargs = dict(spec=spec_file, matrix=matrix, log=log, validator=VALIDATOR)
+            kwargs.update(overrides)
+            cwd = os.getcwd()
+            os.chdir(root)
+            out = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(out):
+                    verify_audit(argparse.Namespace(**kwargs))
+            except SystemExit as stop:
+                out.write("EXIT: " + str(stop.code))
+            finally:
+                os.chdir(cwd)
+            return out.getvalue()
+
+        full = ("| Unit | Description | Implementation | Test | Verdict |\n|---|---|---|---|---|\n"
+                "| Step 1 | Opens | RoomView.java:12 | UC001Test.java:5 | Covered |\n"
+                "| **Step 2** | Saves | RoomService.java:30 | UC001Test.java:9 | Covered |\n"
+                "| `A1` | Taken | RoomService.java:33 | UC001Test.java:20 | Covered |\n"
+                "| BR-001 | Unique | RoomService.java:33 | UC001Test.java:20 | Covered |\n")
+        write(matrix, full)
+        # the agent's Reads come with the parent_tool_use_id of its Agent call, as absolute paths
+        write(log, "not json\n" + reads(os.path.join(root, spec_file)) + "\n"
+              + reads("/w/src/RoomView.java", "/w/src/RoomService.java", "/w/test/UC001Test.java", parent="t1") + "\n"
+              + json.dumps({"type": "result", "subtype": "success"}) + "\n")
+        expect("verify-audit complete", verify(), "")
+        write(matrix, full.replace("| `A1` | Taken | RoomService.java:33 | UC001Test.java:20 | Covered |\n", "")
+              .replace("| Unique | RoomService.java:33 | UC001Test.java:20 | Covered |",
+                       "| Unique | RoomService.java:33 | — | Test missing |"))
+        expect("verify-audit missing row and open verdict", verify(),
+               "The matrix has no row for A1.\nThe matrix calls BR-001 'Test missing', yet the audit says complete.\n"
+               "EXIT: 1")
+        write(matrix, full.replace("Step 1", "Schritt 1"))
+        write(log, reads("/w/src/RoomView.java", "/w/test/UC001Test.java") + "\n")
+        expect("verify-audit no spec read, a cited file never opened", verify(),
+               f"The audit never opened the specification {spec_file}.\n"
+               "The matrix cites RoomService.java, which the audit never opened.\nEXIT: 1")
+        expect("verify-audit no matrix, no log", verify(matrix=os.path.join(root, "none.md"),
+                                                        log=os.path.join(root, "none.jsonl")),
+               "The audit wrote no matrix (" + os.path.join(root, "none.md") + ").\n"
+               "The audit left no tool log (" + os.path.join(root, "none.jsonl")
+               + "), so its reading cannot be checked.\nEXIT: 1")
+
     for failure in failures:
         print("FAIL " + failure)
     if failures:
@@ -899,6 +1062,12 @@ def main():
     p.add_argument("--docs", default="docs")
     p.add_argument("--spec-lint", default=os.environ.get("SPEC_LINT_MODULE") or os.environ.get("SPEC_LINT", ""))
     p.set_defaults(func=requirements)
+    p = sub.add_parser("verify-audit")
+    p.add_argument("--spec", required=True)
+    p.add_argument("--matrix", required=True)
+    p.add_argument("--log", required=True)
+    p.add_argument("--validator", default=VALIDATOR)
+    p.set_defaults(func=verify_audit)
     args = parser.parse_args()
     args.func(args)
 

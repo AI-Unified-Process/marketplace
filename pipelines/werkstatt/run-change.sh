@@ -203,6 +203,10 @@ print()
 print("\n\n".join(details))
 print()
 print("The content is a proposal and is to be reviewed before it is taken over.")
+# The verdicts hold for this commit only: a push to the pull request after the run is checked by no gate here.
+head = os.popen("git rev-parse HEAD 2>/dev/null").read().strip()
+if head:
+    print(f"The gates ran on commit `{head}`; a commit pushed after it is not covered by them, so run the Werkstatt again.")
 print()
 print(f"aiup-run: {os.environ.get('CORRELATION_ID', '')}")
 EOF

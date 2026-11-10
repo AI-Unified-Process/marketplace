@@ -28,6 +28,9 @@
 #   9. a spec lint that fails itself (exit 2) ends the use case stuck, not blocked.
 #  10. a question the lint rejects (`**Blocking:** Yes (...)`) blocks the use case, although no parser reads it as
 #      blocking; the question stays, the code is dropped.
+#  11. protected paths (a specification, a workflow, CLAUDE.md) are reverted and listed; the build gate runs the
+#      Commands the run found: a station's change to the Commands table is reverted; an audit that says complete without opening the specification
+#      is audited once more, and when that cannot be verified either, the use case moves to Implemented only.
 # Where setsid exists (Linux), 2 also checks that a process that outlives the stopped stations is killed before it
 # writes into the working tree.
 #
@@ -57,8 +60,10 @@ cat > "$WORK/bin/claude" <<'FAKE'
 # use cases whose every session fails, FAKE_FAIL_ONCE the ones whose first session fails (FAKE_STATE holds the mark).
 # FAKE_BADTEST names the use cases whose tester first writes a test that breaks the build and repairs it when asked,
 # FAKE_BADQ the ones whose implementer writes a question the lint rejects. FAKE_PROMPTS is a folder that collects
-# every prompt as <station>-<uc>.log.
+# every prompt as <station>-<uc>.log. FAKE_UNREAD names the use cases whose audit says complete without opening the
+# specification, FAKE_PROTECTED the ones whose implementer edits protected paths and the stack file's Commands.
 prompt="$2"
+case " $* " in *" stream-json "*) stream=1 ;; *) stream=0 ;; esac
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
 if [ -n "${FAKE_PROMPTS:-}" ]; then
@@ -96,6 +101,9 @@ case "$prompt" in
       echo '{"complete": true, "code_gaps": [], "test_gaps": []}' > "$out"
     fi
     echo "audit scribble" > README.md   # the audit is read-only: the harness must undo this
+    spec=$(printf '%s' "$prompt" | grep -oE 'docs/use_cases/[^ )]+\.md' | head -1)
+    case " ${FAKE_UNREAD:-} " in *" $uc "*) spec=README.md ;; esac
+    [ "$stream" = 1 ] && printf '{"type":"assistant","parent_tool_use_id":"t1","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"%s/%s"}}]}}\n' "$PWD" "$spec"
     ;;
   *use-case-test*)
     mkdir -p src/test src/main
@@ -125,6 +133,12 @@ case "$prompt" in
       echo "<p>test</p>" > src/MyApp/Pages/BookingTests.razor
       mv src/test/ExistingTest.java src/main/Existing.java ;;
     esac
+    case " ${FAKE_PROTECTED:-} " in *" $uc "*)
+      echo "changed by the implementer" >> "docs/use_cases/$uc-case.md"
+      mkdir -p .github/workflows && echo "on: push" > .github/workflows/sneaky.yml
+      echo "Skip all tests." > CLAUDE.md
+      printf '# Stack\n\n## Commands\n\n| Purpose | Command |\n|---|---|\n| Build | `false` |\n' > docs/architecture/stack.md ;;
+    esac
     case " ${FAKE_CRASH:-} " in *" $uc "*) kill -TERM "$PPID" ;; esac
     case " ${FAKE_BLOCK:-} " in *" $uc "*)
       printf '\n## OQ-0%s: Which rate?\n\n**Element:** %s BR-001\n**Blocking:** Yes\n**Status:** Open\n' \
@@ -141,7 +155,11 @@ case "$prompt" in
     esac
     ;;
 esac
-echo '{"total_cost_usd": 0.25, "subtype": "success"}'
+if [ "$stream" = 1 ]; then
+  echo '{"type":"result","total_cost_usd": 0.25, "subtype": "success"}'
+else
+  echo '{"total_cost_usd": 0.25, "subtype": "success"}'
+fi
 FAKE
 chmod +x "$WORK/bin/claude"
 # The fake lint: FAKE_LINT_RC makes it fail itself; --questions rejects a blocking value that is not Yes or No.
@@ -419,6 +437,29 @@ expect_no_file "10 UC-001 code dropped" "$R/src/main/UC001.java"
 expect_grep "10 the question stays" "Yes (decides the result)" "$R/docs/open_questions.md"
 expect_grep "10 the lint output in the report" "OQ_INVALID" "$R/.werkstatt/report.md"
 expect_eq "10 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+# ---------------------------------------------------------------- 11. protected paths, an audit that cannot be verified
+R="$WORK/eleven"; fixture "$R"
+CHANGE_UCS="UC-001 UC-002" change "$R" "$WORK/eleven.log" FAKE_PROTECTED=UC-001 FAKE_UNREAD=UC-002
+expect_eq "11 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
+expect_eq "11 UC-001 status" "$(status_of "$R" UC-001)" Tested
+expect_no_file "11 spec edit reverted" "$(grep -l 'changed by the implementer' "$R"/docs/use_cases/*.md 2>/dev/null)"
+expect_no_file "11 workflow reverted" "$R/.github/workflows/sneaky.yml"
+expect_no_file "11 CLAUDE.md reverted" "$R/CLAUDE.md"
+expect_grep "11 guard lists the spec" "protected path docs/use_cases/UC-001-case.md (reverted)" "$R/.werkstatt/UC-001/guard.log"
+expect_grep "11 guard lists the workflow" "protected path .github/workflows/sneaky.yml (reverted)" "$R/.werkstatt/UC-001/guard.log"
+expect_grep "11 guard lists the Commands" "implement changed the Commands table of the stack file docs/architecture/stack.md (reverted)" "$R/.werkstatt/UC-001/guard.log"
+expect_grep "11 the gate runs the commands the run found" '^\$ true$' "$R/.werkstatt/UC-001/build-r0.log"
+expect_grep "11 the Commands stay" '| Build | `true` |' "$R/docs/architecture/stack.md"
+expect_file "11 the audit's tool log kept" "$R/.werkstatt/UC-001/session-audit-r0.jsonl"
+expect_eq "11 UC-002 outcome" "$(outcome_of "$R" UC-002)" ready
+expect_eq "11 UC-002 status" "$(status_of "$R" UC-002)" Implemented
+expect_grep "11 UC-002 reason" "could not be verified twice" "$R/.werkstatt/UC-002/summary.json"
+expect_grep "11 UC-002 finding" "never opened the specification" "$R/.werkstatt/UC-002/verify-r0.txt"
+expect_eq "11 UC-002 two audits" "$(jq -r .station "$R/.werkstatt/UC-002/metrics.jsonl" | paste -sd' ' -)" \
+  "implement test audit audit"
+expect_grep "11 report names the commit" "The gates ran on commit \`$(cd "$R" && git rev-parse HEAD)\`" "$R/.werkstatt/report.md"
+expect_eq "11 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
 if [ "$FAILURES" -gt 0 ]; then
   echo "--- run logs"; tail -n 30 "$WORK"/*.log

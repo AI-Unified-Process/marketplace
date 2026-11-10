@@ -44,7 +44,7 @@ and the auditor read the specification, not the implementer's reasoning.
 | Test | `/aiup-core:use-case-test` (or the plugin's test skills) in a fresh session, with the same spec diff | – |
 | Open questions | After every agent station: `spec_lint.py --questions`, then the blocking open questions of the use case | blocked |
 | G2–G4 build and tests | The Build, Unit tests and Integration tests commands of `docs/architecture/stack.md` | fix round |
-| G5 spec coverage | The `uc-coverage-layered` agent (or the plugin's `uc-coverage`), read-only; it reports every gap in one pass, and a later audit re-checks the previous matrix | fix round or test round |
+| G5 spec coverage | The `uc-coverage-layered` agent (or the plugin's `uc-coverage`), read-only; it reports every gap in one pass, and a later audit re-checks the previous matrix. A verdict of complete is verified (see below) | fix round or test round; `Implemented` only when the verdict cannot be verified twice |
 | Budget | `max_rounds` fix rounds and `max_cost_usd` per use case | stuck |
 
 A fix round for a red build has two steps. The implementer gets the build log and the spec diff and changes
@@ -60,8 +60,25 @@ a .NET test project folder (`MyApp.Tests/`, `MyApp.Tests.E2E/`). A moved file co
 so a test moved out of the test folder is restored. Build files (`pom.xml`, `package.json`, a test runner's
 configuration, and the like) are the exception for the tester: a test may need a dependency, so they are kept and
 listed. The same holds for the stack file, `docs/architecture/stack.md`: the test skills keep their rows of its
-Markers table, so the tester's change to it is kept as a whole and listed. The open questions are every station's to
-append to.
+Markers table, so the tester's change to it is kept as a whole and listed, unless it changes the Commands table. The
+open questions are every station's to append to.
+
+Some paths are protected for every station, because they are what the gates judge against or what the next station
+reads: the specification (`docs/use_cases/`, `docs/use_cases.puml`, `docs/requirements.md`, `docs/glossary.md`, the
+entity model, `docs/processes/`, `docs/test_cases/`, `docs/vision.md`, the ADR folders), `.github/`, `.claude/`,
+`.mcp.json`, `CLAUDE.md`, and `AGENTS.md`. A change to one of them is reverted and listed. So is a change to the
+Commands table of the stack file, the build gate; the whole stack file goes back then. The implementer's changes to
+build files and to the rest of the stack file are kept and listed. A station that changes the Werkstatt engine or the
+spec lint, which lie outside the project's Git, ends the use case `stuck`. The status, the requirements, and the
+diagram are written by the Werkstatt after the stations, not by them.
+
+**A verified audit.** The audit's `"complete": true` is checked, not trusted. Its session runs with
+`--output-format stream-json`, and `werkstatt.py verify-audit` checks three things: the matrix has a row for every
+main success scenario step (`Step n`), alternative flow (`A1`), and business rule (`BR-001`) of the specification,
+none of them `Missing` or `Partial`; the tool log shows a `Read` of the specification; and every file the matrix cites
+(`RoomService.java:33`) was opened with `Read`. When a check fails, the audit runs once more in the same round with
+the findings. When that verdict cannot be verified either, the build is green but the coverage unproven: the use case
+is `ready` with the status `Implemented`, and the pull request gives the findings.
 
 A station whose session fails (the `claude` call exits with an error or returns no result: a rejected key, an
 unknown model, a rate limit) is started once more. A second failure ends the use case `stuck`, whatever the build
@@ -80,7 +97,7 @@ file, and an error there blocks the use case too, with the lint's findings in th
 
 | Outcome | Meaning | What the pull request carries |
 | --- | --- | --- |
-| `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit), the new status of the requirements the use case links, and its new colour in the use case diagram |
+| `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit, or its verdict could not be verified), the new status of the requirements the use case links, and its new colour in the use case diagram |
 | `blocked` | Spec lint errors, a blocking open question, or an open questions file the lint rejects | Only the new open questions; the code is dropped, untracked files included |
 | `stuck` | Still red after the fix rounds, over budget, a session that failed twice, a spec lint that failed itself, or stations that stopped without a result | Nothing of this use case, untracked files included; the code is kept as `dropped.diff` in the run records |
 | `pending` | Not built: an earlier use case of the run stopped | Nothing; it is built in the next run |
@@ -199,7 +216,15 @@ skipped, and then no pull request is opened) and `pull_request`. The artifact `w
 records of every station: `summary.json` per use case, `metrics.jsonl` (station, round, exit code, the session's
 result subtype, cost, seconds), the build logs, the lint output and the coverage matrix. A session cut off by
 `max_turns` (subtype `error_max_turns`) goes on to the gates with what it wrote, and the pull request lists it under
-*Notes*, so a fix round it caused is visible.
+*Notes*, so a fix round it caused is visible. The audit's stream-json tool log (`session-audit-r<round>.jsonl`) and the
+findings of its verification (`verify-r<round>.txt`) are kept too.
+
+The pull request names the commit the gates ran on. A commit pushed to it afterwards is covered by none of them: the
+status `Tested` claims the commit the Werkstatt built, so run the Werkstatt again after a change.
+
+The self-tests (`werkstatt.py self-test`, `self-test.sh` with a fake `claude`) prove the harness: the lanes, the
+gates, the outcomes. They say nothing about the quality of what a model builds; only the review of the pull request
+does.
 
 ## Not yet
 

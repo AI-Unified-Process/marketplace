@@ -53,6 +53,16 @@ and listed, like a build file; the guard does not try to tell a Markers row from
 without rename detection, so a moved file is the deletion of one path and the addition of another and is undone as
 both; with rename detection the guard saw only the new path, removed it, and the commit lost the file.
 
+A lane is not enough where a station could change the judge. The implementer may write code, but not the
+specification the audit compares the code with, not the Commands table that is the build gate, not the workflow
+that runs the Werkstatt, and not `CLAUDE.md`, `AGENTS.md`, or `.claude/`, which the next station reads as
+instructions. These paths are protected for every station and reverted, as needs-human-review protects its own
+workflow and prompt files. The Commands table is protected by content, not by path, because the tester's Markers
+rows live in the same file: a stack file whose commands differ from the commit before the station goes back as a
+whole. Before the guard compared it, a Commands change committed by one use case would also have judged every use
+case after it. The engine and the installed spec lint are outside the project's Git, so the guard cannot see them; a
+checksum taken before the first station is compared after every station, and a difference ends the use case `stuck`.
+
 A session that fails is not a station that found nothing to do. The exit code of the `claude` call and a missing
 result decide it, not the build: unchanged code builds green, and on a stack without a coverage audit nothing else
 would stand between a rejected key and a use case reported `ready`. The station is started once more, because a
@@ -95,7 +105,13 @@ test is wrong, and the audit only runs on a green build. So the implementer goes
 red, the tester gets the new log in the same round. Without that second step a test that does not compile could
 never be repaired, because the lane guard reverts every test change of the implementer. Each gap costs a round, so the audit is asked for all of them at once, and a
 later audit gets the previous matrix to re-check row by row: in the first runs, audits that each found one new gap
-used up the rounds of a use case whose code was right. The cost budget is the real limit of a station; `max_turns` only stops a
+used up the rounds of a use case whose code was right. The audit's verdict moves a use case to `Tested`, so it is
+checked in code, not taken on the agent's word: a row per step, flow, and rule, none of them open, and proof of
+reading from the stream-json tool log (a `Read` of the specification and of every file the matrix cites; the coverage
+agent's own calls come with their `parent_tool_use_id`). A failed check is no gap in the code, so it costs no fix
+round: the audit runs once more with the findings, and a verdict that still cannot be verified moves the use case to
+`Implemented`, which claims a green build and nothing more. Failing toward `stuck` would drop working code for a
+fault of the audit; failing toward `Tested` would be the claim the check exists to prevent. The cost budget is the real limit of a station; `max_turns` only stops a
 session that loops, so its default is high (150). A session it cuts off is recorded, not failed: what it wrote may
 still pass the gates, and when it does not, the fix round that follows shows why. A use case that does not get green within its rounds or its budget is
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
