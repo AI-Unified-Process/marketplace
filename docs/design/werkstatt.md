@@ -103,6 +103,15 @@ green. The deadline is taken in the job's first step, so it counts from where Gi
 `timeout_minutes` of 10 or less fails right there: it would leave the stations no time at all. Stations that stop
 without a result (a crash) end stuck as well, with a row in the report, so no use case of a run goes unreported.
 
+## The JDK comes with the job
+
+The build gate first ran on the runner image's default JDK, and the project was meant to pin a newer one itself.
+That failed for every Java project: the image's default (17) lags behind what the projects require, and a Maven
+toolchain does not help, because `maven-enforcer-plugin`'s `requireJavaVersion` checks the JVM Maven runs on. The
+stub cannot be edited to add a setup step, so the reusable workflow installs a Temurin JDK itself, from the input
+`java_version` (default `25`), which sets `JAVA_HOME` for the stations and the build. An empty value keeps the image's
+default, for a project without Java or one that brings its JDK another way.
+
 ## Plugins from the layer catalog
 
 The run installs aiup-core and the layer plugins whose skills the stack file names. The skill-to-plugin mapping is

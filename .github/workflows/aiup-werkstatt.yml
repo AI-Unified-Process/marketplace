@@ -46,6 +46,13 @@ on:
         required: false
         default: ""
         type: string
+      java_version:
+        # The build commands run on the JDK of this step; the runner image's default JDK lags behind. Empty leaves
+        # the image's default (a project without Java, or one that pins its JDK itself).
+        description: Temurin JDK the build commands run on (JAVA_HOME); empty keeps the runner image's default
+        required: false
+        default: "25"
+        type: string
       model:
         description: Model Claude Code runs with
         required: false
@@ -185,6 +192,14 @@ jobs:
         if: steps.select.outputs.use_cases != ''
         with:
           node-version: "22"
+
+      # Sets JAVA_HOME and PATH for the rest of the job, so the stations and the build gate run Maven or Gradle on
+      # this JDK: a maven-enforcer requireJavaVersion checks the JVM Maven runs on, which no toolchain changes.
+      - uses: actions/setup-java@v4
+        if: steps.select.outputs.use_cases != '' && inputs.java_version != ''
+        with:
+          distribution: temurin
+          java-version: ${{ inputs.java_version }}
 
       - name: Install Claude Code and the plugins
         if: steps.select.outputs.use_cases != ''

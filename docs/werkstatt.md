@@ -114,12 +114,13 @@ one. The Werkstatt then falls back to the build tool it finds in the repository 
 table (Purpose, Command); the Werkstatt reads it for the commands and the combined plugin ignores it. Without a
 build command the use case ends `stuck`.
 
-**The toolchain.** The job installs Node 22 for Claude Code and nothing else: the build commands run with what the
-`ubuntu-latest` runner image brings (a default JDK, Maven, Gradle, a .NET SDK, Docker for Testcontainers). The stub
-cannot be edited to add a setup step, so the project pins what it needs itself: the Maven or Gradle wrapper, a Java
-toolchain in the build (`maven-toolchains-plugin`, Gradle's `java.toolchain` with a resolver), `global.json` for
-.NET, `.nvmrc` or `engines` with a version manager the build calls. A build that needs a JDK or SDK the image does
-not have ends every use case `stuck` after the fix rounds, with the compiler's message in the build log.
+**The toolchain.** The job installs Node 22 for Claude Code and a Temurin JDK (`java_version`, default `25`), which
+sets `JAVA_HOME` for the stations and the build commands; an empty `java_version` keeps the default JDK of the
+`ubuntu-latest` runner image (older than most projects require). Everything else comes with the image (Maven, Gradle,
+a .NET SDK, Docker for Testcontainers). The stub cannot be edited to add a setup step, so the project pins what else
+it needs itself: the Maven or Gradle wrapper, `global.json` for .NET, `.nvmrc` or `engines` with a version manager the
+build calls. A build that needs a JDK or SDK the job does not have ends every use case `stuck` after the fix rounds,
+with the compiler's message in the build log.
 
 **Tokens.** The checkout keeps no token in `.git/config`, and the AI secrets reach only the step that runs the
 stations; the build commands run without them. The pull request is opened by a later step with its own token.
@@ -181,6 +182,7 @@ token per repository is enough.
 | `engine_ref` | `v1` | Ref of this marketplace whose `pipelines/werkstatt/` runs; the same ref as in `uses:` |
 | `stack_plugin` | empty | A combined stack plugin (`aiup-blazor-dotnet`); empty for layer plugins |
 | `artifact_locations` | empty | Prompt hint for the stations only; the Werkstatt itself (selection, lint, andon cord, status) reads the default paths under `docs/` |
+| `java_version` | `25` | Temurin JDK the stations and the build commands run on; empty keeps the runner image's default |
 | `model` | `claude-opus-5-5` | Model of every station |
 | `max_turns` | `150` | Turns per station; it stops loops, the cost budget is the real limit |
 | `max_rounds` | `4` | Fix rounds per use case; a round is one pass of the implementer and, where needed, the tester |

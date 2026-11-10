@@ -39,6 +39,11 @@ on:
         required: false
         default: ""
         type: string
+      java_version:
+        description: JDK the build runs on (empty = the runner image's default)
+        required: false
+        default: "25"
+        type: string
       model:
         description: Model Claude Code runs with
         required: false
@@ -85,6 +90,7 @@ jobs:
       engine_ref: v1
       stack_plugin: ${{ inputs.stack_plugin }}
       artifact_locations: ${{ inputs.artifact_locations }}
+      java_version: ${{ inputs.java_version }}
       model: ${{ inputs.model }}
       max_turns: ${{ inputs.max_turns }}
       max_rounds: ${{ inputs.max_rounds }}

@@ -540,6 +540,9 @@ command names and would collide, and a combined plugin next to layer plugins wou
   change it here, copy it to the Studio in the same release, and never document a hand-edited variant.
   `scripts/check-werkstatt-stub.sh` checks it against the inputs and secrets of the reusable workflow in CI, and that
   every input is forwarded and the defaults agree (`model` is `claude-opus-5-5` in both).
+- The job installs a Temurin JDK from `java_version` (default `25`; empty keeps the runner image's default), which
+  sets `JAVA_HOME` for the stations and the build gate; the image's default JDK is too old, and a Maven toolchain
+  does not satisfy `requireJavaVersion`.
 - `max_turns` defaults to 150; a session cut off by it (`error_max_turns`) is recorded in the metrics and the report.
 - The optional secret `AIUP_PR_TOKEN` opens the pull request, so the project's CI runs on it; without it,
   `GITHUB_TOKEN` opens it without checks. `aiup-generate.yml` takes the same secret.
