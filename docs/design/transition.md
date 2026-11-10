@@ -24,7 +24,7 @@ every use case. Transition adds three skills that read them.
   date, not a property of the specification; it keeps no ids of its own, so the lint needs no new grammar.
 - **A use case without a test case still gets a section** (main success scenario, each alternative flow, each rule),
   because otherwise it could never reach `Done`.
-- **The user guide is derived and anchored.** Each section it writes carries `<!-- UC-XXX -->`, so a re-run finds and
+- **The user guide is derived and anchored.** Each section it writes carries `<!-- UC-XXX spec=… text=… -->`, so a re-run finds and
   rewrites it, and the team's own sections (login, screenshots, support hints) survive. It covers `Tested` and `Done`
   by default because the guide describes what users get; `all` adds `Approved` and `Implemented` for training ahead of
   a release. It never names screens, buttons, or menu paths the specification does not, because the specification is

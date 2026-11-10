@@ -26,12 +26,18 @@ ADR skills on Tessl or in `~/.claude/skills`. Its description triggers on "ADR".
   `/stack`, `/use-case-implement`, and (through it) the layer skills, and by the `/implement` skills of the combined
   stack plugins and `/angular-ui`, which read the three folders themselves; an accepted ADR is never rewritten, a
   changed decision supersedes it.
+- **The requirement link is the one exception.** `/architecture-decision ADR-XXX link NFR-YYY` (id first, like the
+  skill's other actions) only adds ids to the `**Requirements:**` line, on an ADR of any status, and leaves
+  `**Date:**` alone. The link is traceability, not the decision: Context, Decision, and Consequences stay as they
+  were. Removing a link from an accepted ADR says the decision no longer serves that quality, which is a changed
+  decision and therefore a supersede. Without it the fix `ADR_UNLINKED` names could not be carried out on
+  exactly the ADRs that matter, the accepted ones of a brownfield project, short of superseding each with a copy.
 - **No other skill writes an ADR; three hand off.** `/stack` names the choices of its question round that no
   constraint or accepted ADR fixed, `/use-case-implement` names an answered architecture question (new dependency,
   deviation from an ADR), `/requirements` names the ADRs linking an NFR or constraint it changed. The "never changes
   an ADR" rule of the decision rights stays.
 - **Lint.** `DANGLING_REF` and `DUPLICATE_ID` cover ADR ids and their links (ERROR); `ADR_UNLINKED`, `ADR_STALE`,
   `ADR_INVALID` are WARN only, because the ADRs are the team's documents and a brownfield ADR without the line must
-  not fail CI. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
+  not fail CI; the fix of `ADR_UNLINKED` is the `link` action. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
   ADRs and broken constraints.
 - The Studio never runs it (`LEFT_OUT`): a decision needs a person.

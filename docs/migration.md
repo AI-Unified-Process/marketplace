@@ -28,7 +28,7 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 
 ## 1. Replace the plugins
 
-Remove the combined plugin and install `aiup-core` 3.10.0 or later (3.14.0 for `aiup-nestjs-nextjs`) with one plugin
+Remove the combined plugin and install `aiup-core` 3.16.0 or later with one plugin
 per layer of the project. Never
 keep both forms in one project: the combined plugin does not read `docs/architecture/stack.md`, and its `/implement` and
 the layer skills would build the same use case twice.
@@ -50,6 +50,17 @@ Claude Code:
 /plugin install aiup-vaadin
 ```
 
+A project coming from `aiup-nestjs-nextjs`:
+
+```text
+/plugin uninstall aiup-nestjs-nextjs
+/plugin install aiup-core
+/plugin install aiup-drizzle
+/plugin install aiup-nestjs
+/plugin install aiup-nextjs
+/plugin install aiup-playwright
+```
+
 Tessl: remove the combined package from the project and install the layer packages, for example
 `tessl install ai-unified-process/aiup-flyway`. Tessl does not install dependencies: install `aiup-core` and, with
 `aiup-jooq`, `aiup-jpa`, or `aiup-vaadin`, also `aiup-spring-boot`, and with `aiup-drizzle`, also `aiup-nestjs`
@@ -63,7 +74,8 @@ explicitly. See the
 /stack
 ```
 
-The skill detects Flyway, jOOQ or JPA, Spring Boot, and Vaadin or Angular from the build files and the source tree,
+The skill detects the technologies from the build files and the source tree (Flyway, jOOQ or JPA, Spring Boot, and
+Vaadin or Angular in a Java project; Drizzle, NestJS, and Next.js in a TypeScript one),
 asks only where two technologies fit, and writes the stack file: the Layers table with the skill and the test
 skill of each layer, the Integration layer table, the module layout, the API contract when there is one, and
 the build and test commands, in `docs/architecture/stack.md`. Architecture documentation the project already
@@ -97,7 +109,7 @@ tests gets its own copy in its own `src/test/java`; the Navigator plugin resolve
 | Combined plugin command | Layer plugins                                                                                                                                                                                                                                            |
 |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `/flyway-migration`     | `/flyway-schema`, run by `/use-case-implement` as the first layer                                                                                                                                                                                        |
-| `/implement`            | `/use-case-implement UC-XXX`: migration, persistence, service, API, UI, each layer by its own skill with a Handover to the next                                                                                                                          |
+| `/implement`            | `/use-case-implement UC-XXX`: migration, persistence, client, service, API, UI, each layer the project has by its own skill with a Handover to the next                                                                                                  |
 | `/implement-hilla`      | `/use-case-implement UC-XXX` with `hilla-ui` in the UI row of `docs/architecture/stack.md`                                                                                                                                                               |
 | `/browserless-test`     | `/vaadin-flow-ui-test`, the integration layer of a Vaadin Flow project, run by `/use-case-test UC-XXX`                                                                                                                                                   |
 | `/karibu-test`          | Not carried over. Browserless Testing supersedes Karibu; existing Karibu tests keep running and are left alone                                                                                                                                           |

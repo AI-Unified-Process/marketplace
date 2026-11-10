@@ -18,8 +18,8 @@ its mockups or wireframes on an optional `**Mockup:**` line.
 - **Optional, and never reported when missing.** Many use cases have no screen, or a team that designs in the code.
   `/use-case-spec` keeps an existing line and adds one only when the user names a mockup; it never asks. The
   semantic review does not count a missing mockup as incomplete.
-- **Only the UI layer reads it.** The rule lives once, in section "Mockups" of `/use-case-implement`; `/vaadin-flow-ui`,
-  `/hilla-ui`, and `/angular-ui` refer to it and report a `Mockup:` line in their Handover. The test skills do not
+- **Only the UI layer reads it.** The rule lives once, in section "Mockups" of `/use-case-implement`; the UI layer skills
+  (`/vaadin-flow-ui`, `/hilla-ui`, `/angular-ui`, `/nextjs-ui`) refer to it and report a `Mockup:` line in their Handover. The test skills do not
   read it: their oracle is the specification and the labels the UI Handover names, and a test derived from a picture
   would test the picture. The combined stack plugins keep their own `/implement` rules.
 - **The specification wins.** The mockup decides the layout — where fields, columns, and actions sit, and a label

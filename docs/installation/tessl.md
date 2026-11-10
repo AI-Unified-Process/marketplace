@@ -24,7 +24,7 @@ Use the agent identifier supported by your Tessl version, such as `claude-code`,
 
 Install `aiup-core` and the layer plugins of your stack. Tessl does not install a package's dependencies, so name
 them explicitly: every layer package needs `aiup-core`, and `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also need
-`aiup-spring-boot`. For example a REST API with Spring Boot and jOOQ:
+`aiup-spring-boot`, and `aiup-drizzle` also needs `aiup-nestjs`. For example a REST API with Spring Boot and jOOQ:
 
 ```sh
 tessl install ai-unified-process/aiup-core
@@ -48,18 +48,23 @@ ai-unified-process/aiup-nestjs
 ai-unified-process/aiup-nextjs
 ```
 
-Instead of layer packages, a project can use one combined stack package (`aiup-vaadin-jooq`, `aiup-angular-jpa`, and
-`aiup-nestjs-nextjs` are deprecated and will be removed with `aiup-core` 4.0.0; the [migration guide](../migration.md) moves an existing project to the layer packages):
+Instead of layer packages, a C# and Blazor project uses the combined stack package:
 
 ```text
-ai-unified-process/aiup-vaadin-jooq
-ai-unified-process/aiup-angular-jpa
 ai-unified-process/aiup-blazor-dotnet
-ai-unified-process/aiup-nestjs-nextjs
 ```
 
-Use only `aiup-core` for an unsupported implementation stack. Use either layer packages or one of the four stack
-packages in a project, never both.
+Three more combined stack packages are deprecated and will be removed with `aiup-core` 4.0.0. Install one only for a
+project that already uses it; the [migration guide](../migration.md) moves such a project to the layer packages:
+
+```text
+ai-unified-process/aiup-vaadin-jooq      (deprecated)
+ai-unified-process/aiup-angular-jpa      (deprecated)
+ai-unified-process/aiup-nestjs-nextjs    (deprecated)
+```
+
+Use only `aiup-core` for an unsupported implementation stack. Use either layer packages or one combined stack
+package in a project, never both.
 
 ## Versions and team use
 

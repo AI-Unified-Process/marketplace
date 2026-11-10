@@ -40,7 +40,7 @@ and the auditor read the specification, not the implementer's reasoning.
 | Station / gate | What runs | On failure |
 | --- | --- | --- |
 | G1 spec lint | `spec_lint.py --only UC-XXX` of `/spec-review`, plus the blocking open questions of the use case | blocked |
-| Implement | `/aiup-core:use-case-implement` (or `/<plugin>:implement`), with the spec diff against the default branch | – |
+| Implement | `/aiup-core:use-case-implement` (or `/<plugin>:implement`), with the spec diff against the merge base with the default branch | – |
 | Test | `/aiup-core:use-case-test` (or the plugin's test skills) in a fresh session | – |
 | G2–G4 build and tests | The Build, Unit tests and Integration tests commands of `docs/architecture/stack.md` | fix round |
 | G5 spec coverage | The `uc-coverage-layered` agent (or the plugin's `uc-coverage`), read-only; it reports every gap in one pass, and a later audit re-checks the previous matrix | fix round or test round |
@@ -49,11 +49,20 @@ and the auditor read the specification, not the implementer's reasoning.
 A harness guard keeps each station in its lane: test code the implementer writes and production code the tester
 writes are reverted and listed in the pull request. Build files (`pom.xml`, `package.json`, a test runner's
 configuration, and the like) are the exception for the tester: a test may need a dependency, so they are kept and
-listed.
+listed. The same holds for the stack file, `docs/architecture/stack.md`: the test skills keep their rows of its
+Markers table, so the tester's change to it is kept as a whole and listed. The open questions are every station's to
+append to. The guard judges a file a station renamed or moved by both of its paths, so a move is undone as a whole,
+never as a deletion.
+
+A station whose session fails (the `claude` call exits with an error or returns no result: a rejected key, an
+unknown model, a rate limit) is started once more. A second failure ends the use case `stuck`, whatever the build
+says about the unchanged code. Both the failure and the retry are recorded in the metrics and the report.
 
 **The andon cord.** When a station meets a gap in the specification, it records a blocking open question in
 `docs/open_questions.md` (`**Blocking:** Yes`) instead of guessing. The Werkstatt detects the question from the file,
-stops the use case and keeps only the question. The domain expert answers it in the change branch; the next run
+stops the use case and keeps only the question. A blocking question that is `Open` or `Answered` counts when it
+names the use case or a requirement its `**Requirements:**` line links, the same questions `/spec-review` reports
+for it as `OQ_BLOCKING`. The domain expert answers it in the change branch; the next run
 builds the use case again.
 
 ## Outcomes
@@ -61,9 +70,10 @@ builds the use case again.
 | Outcome | Meaning | What the pull request carries |
 | --- | --- | --- |
 | `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit), and the new status of the requirements the use case links |
-| `blocked` | Spec lint errors or a blocking open question | Only the new open questions; the code is dropped |
-| `stuck` | Still red after the fix rounds, or over budget | Nothing of this use case; the code is kept as `dropped.diff` in the run records |
+| `blocked` | Spec lint errors or a blocking open question | Only the new open questions; the code, new files included, is dropped |
+| `stuck` | Still red after the fix rounds, over budget, or a session that failed twice | Nothing of this use case, new files included; the code is kept as `dropped.diff` in the run records |
 | `pending` | Not built: an earlier use case of the run stopped | Nothing; it is built in the next run |
+| `skipped` | A use case named in `use_cases` that is not `Approved` or has no specification | Nothing; the report gives the reason, and the use cases after it are still built |
 
 The requirements follow the use case in the same commit: the progress status (`Open`, `In Progress`, `Implemented`,
 `Verified`) of every requirement the use case links moves to what its use cases make it, derived by `spec_lint.py`
@@ -92,7 +102,8 @@ of the file. Without the Studio, copy the file unchanged and pass the inputs by 
 
 A change to the stub is made here and copied to the Studio's `src/main/resources/generation/aiup-werkstatt.yml` in
 the same release; `scripts/check-werkstatt-stub.sh` fails CI when the stub passes an input the reusable workflow
-does not declare, leaves out one it declares, or names another ref in `engine_ref` than in its `uses:` line.
+does not declare, leaves out one it declares, does not forward an input to the reusable workflow, gives an input
+another default than the reusable workflow, or names another ref in `engine_ref` than in its `uses:` line.
 
 GitHub offers a workflow for dispatch only when its file is on the default branch, but it runs the file **as it is on
 the ref the run goes on**. Commit the stub to the default branch and create the change branches from there; the run
@@ -133,18 +144,19 @@ token per repository is enough.
 
 | Input | Default | Meaning |
 | --- | --- | --- |
-| `use_cases` | empty | Ids to build; empty = every `Approved` use case whose specification changed on the branch |
+| `use_cases` | empty | Ids to build; empty = every `Approved` use case whose specification changed on the branch, a specification moved or renamed in the same change included. A named use case that is not `Approved` or has no specification is `skipped` |
 | `correlation_id` | – | Run id; names the result branch `aiup/werkstatt-<id>` and the records artifact |
 | `engine_ref` | `v1` | Ref of this marketplace whose `pipelines/werkstatt/` runs; the same ref as in `uses:` |
 | `stack_plugin` | empty | A combined stack plugin (`aiup-blazor-dotnet`); empty for layer plugins |
-| `artifact_locations` | empty | Prompt hint when the artifacts are not at the default paths |
-| `model` | `claude-sonnet-5` | Model of every station |
+| `artifact_locations` | empty | Prompt hint for the stations only; the Werkstatt itself (selection, lint, andon cord, status) reads the default paths under `docs/` |
+| `model` | `claude-opus-5-5` | Model of every station |
 | `max_turns` | `150` | Turns per station; it stops loops, the cost budget is the real limit |
 | `max_rounds` | `4` | Fix rounds per use case |
 | `max_cost_usd` | `15` | Cost budget per use case |
 | `timeout_minutes` | `180` | Upper limit of the whole run; the stations stop 10 minutes earlier |
 
-Outputs: `outcome` (`ready`, `blocked`, `stuck`, `pending`, `none`) and `pull_request`. The artifact `werkstatt-<id>` holds the
+Outputs: `outcome` (`ready`, `blocked`, `stuck`, `pending`, `none`; `none` also when every named use case was
+skipped) and `pull_request`. The artifact `werkstatt-<id>` holds the
 records of every station: `summary.json` per use case, `metrics.jsonl` (station, round, exit code, the session's
 result subtype, cost, seconds), the build logs, the lint output and the coverage matrix. A session cut off by
 `max_turns` (subtype `error_max_turns`) goes on to the gates with what it wrote, and the pull request lists it under
@@ -155,7 +167,6 @@ result subtype, cost, seconds), the build logs, the lint output and the coverage
 - Bitbucket Pipelines (the GitHub reusable workflow only).
 - The Studio shows the outcome per use case once the run has ended, not the station a running use case is in, and
   it has no change branch as a concept of its own: the Werkstatt runs on the branch the user works on.
-- Blocking questions on a requirement (`FR-`) count only when their element names the use case.
 - End-to-end tests are not part of the build gate; the coverage audit still reports a missing browser test.
 - A GitHub App as the author of the pull request: the reusable workflow would have to create the App token itself
   (a token cannot be handed from the stub's job to it). Use a machine user's fine-grained token meanwhile.

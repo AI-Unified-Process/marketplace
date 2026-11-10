@@ -15,7 +15,9 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
 
 - **Every activity is a use case of the diagram.** When the flow needs a step without one, the skill writes nothing
   and hands off to `/use-case-diagram`. `spec_lint.py` matches activities against the diagram as well as the
-  specifications (`BPMN_UNMAPPED`); a diagram use case still lacking a specification is `SPEC_MISSING`. The process
+  specifications (`BPMN_UNMAPPED`); a diagram use case still lacking a specification is `SPEC_MISSING`. The fix of
+  `BPMN_UNMAPPED` is the same wherever it is named: `/use-case-diagram` for the missing use case, then
+  `/business-process BP-XXX`. The process
   sits above the use cases; it never replaces them, and a use case never carries a process model (see the goal-level
   check in `/use-case-diagram`).
 - **The agent never writes diagram coordinates.** `skills/business-process/scripts/bpmn_layout.py` (standard library

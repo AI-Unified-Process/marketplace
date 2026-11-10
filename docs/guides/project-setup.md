@@ -19,6 +19,8 @@ your-project/
 │   ├── glossary.md
 │   ├── entity_model.md
 │   ├── use_cases.puml
+│   ├── processes/
+│   │   └── BP-001-*.bpmn
 │   ├── use_cases/
 │   │   ├── UC-001-*.md
 │   │   └── ...
@@ -26,6 +28,10 @@ your-project/
 │   │   ├── TC-001-*.md
 │   │   └── ...
 │   ├── open_questions.md
+│   ├── user_guide/
+│   ├── acceptance/
+│   │   └── release-1.4.md
+│   ├── release-notes.md
 │   └── architecture/
 │       ├── stack.md
 │       └── decisions/

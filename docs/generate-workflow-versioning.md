@@ -80,6 +80,11 @@ The Werkstatt (`.github/workflows/aiup-werkstatt.yml` and `pipelines/werkstatt/`
 pass the tag again as `engine_ref`. To try an unreleased change of it, a test stub references `@main` with
 `engine_ref: main` instead.
 
+The workflows pin what they run themselves: third-party actions by commit SHA, and the claude-code CLI by version
+(2.1.322 at the time of writing) in the workflows and in `pipelines/aiup-generate.sh`. A newer action or CLI reaches
+the project repositories only through a commit here and a moved `v1`, so update them deliberately and move the tag
+after a run on a test repository.
+
 Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
 repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins
 and skills are installed at their published version inside the run.

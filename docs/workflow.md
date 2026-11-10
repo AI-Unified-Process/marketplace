@@ -40,7 +40,8 @@ Inception        Elaboration                                Construction        
   journeys (`Test cases only`). An external system a use case calls as a secondary actor is listed under
   `## External systems` in the stack file with its contract (OpenAPI or AsyncAPI); the Client layer builds a port and
   an adapter for it, and no test reaches it: the client tests run against a stub of the contract, the other layers
-  against a fake of the port.
+  against a fake of the port. An E2E test that starts the application itself uses the fake too; one that drives a
+  separately running application uses a stub profile, or leaves those steps out and lists them as not automated.
 
 The layer plugins replace `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs`, which are deprecated and
 will be removed with `aiup-core` 4.0.0; the [migration guide](migration.md) moves an existing project. Use one form per project:
@@ -188,8 +189,10 @@ services, and handlers after the use case's domain, and the tests carry the id. 
 a layered use case spreads over classes named after entities: `UC-XXX` in the Javadoc of the service method
 (`/spring-service`), the REST handler method (`/spring-rest`), and the port method of an external system
 (`/spring-client`), in the class Javadoc of a Vaadin Flow view
-(`/** UC-XXX <Use Case Name>. */`) and a Hilla endpoint, in the file comment of a Hilla view, and as
-`/** UC-XXX: <Use Case Name> */` above an Angular page component.
+(`/** UC-XXX <Use Case Name>. */`) and a Hilla endpoint, in the file comment of a Hilla view, as
+`/** UC-XXX: <Use Case Name> */` above an Angular page component and above the Next.js component that holds the
+page's markup (`/nextjs-ui`), and in the TSDoc of the NestJS service method (`/nest-service`) and of the
+`@Controller()` handler method (`/nest-rest`).
 
 **Tests.** Each stack carries the ids in the form its test framework supports. The Layer plugins row summarizes the
 layer test skills; in a layered project the Markers table of `docs/architecture/stack.md` is authoritative. The rows
@@ -198,7 +201,7 @@ of `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` describe dep
 | Stack                | Use case tests (`UC-*`)                                                                                                                                                                                                                                                                                                                                                                            | Journey tests (`TC-*`)                                                                                      |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `aiup-vaadin-jooq`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test` and `UC001<Name>ServiceTest`; `describe('UC-001: …')` in `UC-001-<slug>.test.tsx` (Hilla); Playwright `UC001<Name>IT`                                                                                                                                                                               | `TC001<Name>IT` with `@DisplayName("TC-001: …")` and `// Step <n>: <name>` per Flow row                     |
-| `aiup-angular-jpa`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test`; `describe('UC-001: …')` in `UC-001-<slug>.spec.ts`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                                                                                                              | `TC-001-<slug>.spec.ts` with `test.describe('TC-001: …')`, `{ tag: '@TC-001' }`, `test.step('Step <n>: …')` |
+| `aiup-angular-jpa`   | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"})` in `UC001<Name>Test`; `describe('UC-001: …')` in `UC-001-<slug>.spec.ts`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                                                                                                              | `TC-001-<slug>.spec.ts` with `test.describe('TC-001: …')`, `{ tag: '@TC-001' }`, `test.step('Step <n>: …')` after a `// Step <n>: <name>` comment |
 | `aiup-blazor-dotnet` | `[UseCase("UC-001", Scenario = "A1: …", BusinessRules = ["BR-003"])]` in `UC001<Name>Test`, `UC001<Name>HandlerTest`, and `UC001<Name>IT`                                                                                                                                                                                                                                                          | `TC001<Name>IT` with `[Fact(DisplayName = "TC-001: …")]` and `// Step <n>: <name>` per Flow row             |
 | `aiup-nestjs-nextjs` | `describe('UC-001: …')` with `it('A1: …')` and `it('BR-003: …')`; Playwright `test.describe('UC-001: …')` with `{ tag: '@UC-001' }`                                                                                                                                                                                                                                                                | `test.describe('TC-001: …')` with `{ tag: '@TC-001' }` and `test.step('Step <n>: …')`                       |
 | Layer plugins        | `@UseCase(id = "UC-001", scenario = "A1: …", businessRules = {"BR-003"}, requirements = {"NFR-002"})` in `UC001<Name>RepositoryTest`, `<System>ClientTest`, `UC001<Name>ServiceTest`, `UC001<Name>ApiTest` (`…ApiIT` live), `UC001<Name>EndpointTest` (Hilla), and `UC001<Name>Test` (Vaadin Flow); `describe('UC-001: …')` in `UC-001-<slug>.test.tsx` (Hilla), `UC-001-<slug>.spec.ts` (Angular), `<Component>.test.tsx` (Next.js), or `test/UC-001-<slug>*.e2e-spec.ts`, `*.service-spec.ts`, and `*.repository.e2e-spec.ts` (NestJS, Drizzle); E2E `UC001<Name>IT`, or `UC-001-<slug>.spec.ts` in the E2E folder with `{ tag: '@UC-001' }` (Playwright) | `TC001<Name>IT` with `@TestCase(id = "TC-001", useCases = {"UC-001", …})` (Vaadin) or `TC-001-<slug>.spec.ts` (Playwright) with `// Step <n>: <name>` per Flow row |
@@ -234,7 +237,8 @@ qualifier. An `FR-*` id is never named there, because the use case realizes its 
   `Obsolete` test case does not count, and an NFR or constraint no use case links is listed as system-wide, outside
   the count.
   `/spec-review report` puts the counts, the coverage, the matrix, and the lint findings on one HTML page,
-  `docs/spec-report.html`; `/spec-review report FR-014` narrows it to one id.
+  `docs/spec-report.html`; `/spec-review report FR-014` narrows it to one id. That page, and a JSON result file a
+  caller asks for with `--output <file>`, are the only files the skill writes.
 - **Change impact:** `spec_lint.py --impact FR-014` (skill `/spec-review impact FR-014`) walks the same chain the
   other way, transitively, before a change is made: which use cases link the requirement, cite a changed rule, or
   include or extend a changed use case, which processes, test cases, and ADRs follow, each with the trace that
@@ -254,13 +258,19 @@ The `**Status:**` line of a use case says how far it has come. Either language i
 | Draft       | Entwurf       | Initial version, still being written.                                      | `/use-case-spec` writes the specification; `/reverse-engineer` always starts here.      |
 | Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the specification is complete.                    |
 | Approved    | Genehmigt     | Reviewed and approved for implementation.                                  | The product owner sets it, once `/spec-review UC-XXX` ends with **Ready for Approved**. |
-| Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it.                                         |
-| Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it.                                         |
+| Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it; the Werkstatt and `aiup-generate` set it in their pull request. |
+| Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it; the Werkstatt and `aiup-generate` set it in their pull request. |
 | Done        | Abgeschlossen | Fully implemented, tested, and accepted.                                   | `/acceptance-protocol close` sets it after you confirm.                                 |
 | Obsolete    | Obsolet       | No longer valid, superseded by another use case.                           | You set it when the use case no longer applies.                                         |
 
-After a specification is written, only `/acceptance-protocol close` changes this line. The implementation and test
-skills leave it alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in the
+No skill you run by hand changes this line after the specification is written, except `/acceptance-protocol close`,
+which sets `Done`. Between `Approved` and `Tested` you set it yourself, or the automation does: the
+[Werkstatt](werkstatt.md) moves a use case it finished to `Tested` (`Implemented` on a stack without a coverage
+audit) in its pull request, forward only, together with the status of the linked requirements, and the
+`aiup-generate` workflow advances the status of the use case a construction skill ran for the same way, unless the
+skill only recorded open questions or a blocking question names the use case. Either
+change reaches the branch only when you merge that pull request. The implementation and test
+skills leave the line alone, and the coverage audit (`/use-case-coverage` with layer plugins, `/coverage-check` in the
 deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa`) only suggests the next value: `Implemented` when the implementation is complete, `Tested` when the tests are complete too
 and the suite passes. It never suggests `Done`, because acceptance is not visible in code, and never `Tested` while a
 blocking open question holds the use case. `aiup-blazor-dotnet` and the deprecated `aiup-nestjs-nextjs` have no audit, so there you
@@ -268,8 +278,10 @@ decide from the code and the tests.
 
 The status also decides what the skills do with a use case:
 
-- At `Draft` or `Reviewed`, the implementation skills ask whether to go ahead or to run `/spec-review UC-XXX` first.
-- At `Obsolete`, they do not implement it, and it no longer counts for its requirements.
+- At `Draft` or `Reviewed`, the implementation skills ask whether to go ahead or to run `/spec-review UC-XXX` first;
+  `/use-case-test` and `/test-case-implement` ask the same by the section "Status of the Specification" of
+  `/use-case-test`.
+- At `Obsolete`, they neither implement nor test it, and it no longer counts for its requirements.
 - At `Tested`, it enters `/acceptance-protocol` and the user guide; `/user-guide` covers `Tested` and `Done`.
 - At `Done`, `/release-notes` lists it.
 
@@ -287,7 +299,7 @@ chains.
 
 | Status    | German        | Meaning                                                                    | How it gets there                                                                     |
 |-----------|---------------|----------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| Draft     | Entwurf       | Initial version, still being written.                                      | `/test-case` writes it, and sets a process test case back here when its Flow changes. |
+| Draft     | Entwurf       | Initial version, still being written.                                      | `/test-case` writes it; `/test-case TC-XXX` updates an existing one, keeping id and file, and a changed Flow (also on a process rerun) goes back here. |
 | Reviewed  | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the test case is complete.                      |
 | Approved  | Genehmigt     | Reviewed and approved for automation.                                      | The product owner sets it.                                                            |
 | Automated | Automatisiert | An end-to-end test implements this test case.                              | You set it when the coverage audit suggests it.                                       |
@@ -311,7 +323,8 @@ cases do not count. Verified is derived from a status, not from a test run: the 
 `Tested` and your own test suite.
 
 `spec_lint.py --trace` shows the derived status next to the stored one, the lint warns with `REQ_STATUS_DRIFT` when they
-differ, and `/requirements` sets the stored value when it updates the catalog. When a use case moves (see
+differ, and `/requirements` sets the stored value when it updates the catalog. It writes no status outside the six
+named here: a conflict between requirements is an open question in `docs/open_questions.md`, not a status. When a use case moves (see
 [Use case status](#use-case-status)), its requirements follow.
 
 ### Open questions
@@ -376,6 +389,10 @@ format and add the lines:
   next step.
 - `spec_lint.py` reports an ADR link to nothing as `DANGLING_REF`, and `ADR_UNLINKED`, `ADR_STALE`, and `ADR_INVALID`
   as warnings: the ADRs are the team's documents, so a brownfield ADR without the line never fails a build.
+- An accepted ADR is never rewritten; a changed decision supersedes it. The one line that may still change is the
+  link: `/architecture-decision ADR-008 link NFR-004` adds ids to the `**Requirements:**` line of an existing ADR of
+  any status and leaves its date and text alone, which is the fix for `ADR_UNLINKED`. Removing a link from an
+  accepted ADR is a new decision that supersedes it.
 
 ### Construction inputs
 
@@ -414,8 +431,8 @@ reference but does not. The coverage audit treats each linked NFR and constraint
 - **The agent never** changes a specification, requirement, ADR, or the glossary on its own, changes an existing test
   to make it pass, or sets a status line.
 
-A team tightens or loosens the first two sections in `docs/architecture/decision-rights.md` (`/stack` offers to
-create it from the defaults); the "never" rules always apply, and a decision no rule names is asked first.
+A team tightens or loosens the first two sections in `docs/architecture/decision-rights.md` (`/stack` never asks
+about it: it creates the file from the defaults when you ask for it, and names that in its report); the "never" rules always apply, and a decision no rule names is asked first.
 
 ## Specification review
 

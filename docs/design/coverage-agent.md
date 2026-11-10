@@ -6,41 +6,56 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Coverage sub-agent
 
-`aiup-vaadin-jooq/agents/uc-coverage.md` (a deprecated combined plugin) defines the `uc-coverage` sub-agent: a **read-only** auditor that checks
-whether a `UC-XXX` or `TC-XXX` is completely implemented and completely tested. It derives coverage units from the specification
-(every main success scenario step, alternative flow, business rule, precondition, postcondition, and every NFR and
-constraint on its `**Requirements:**` line — for a test case, the
-Flow rows, Validation items, and Postconditions), maps each onto code and tests by id marker (`@UseCase`,
-`UC<id>…Test`, `UC<id>…ServiceTest`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`) or domain vocabulary, and
-reports gaps, drift, and the justified next `**Status:**` value.
+The coverage audit is a **read-only** sub-agent that checks whether a `UC-XXX` or `TC-XXX` is completely implemented
+and completely tested. There are two kinds of it:
 
-Three constraints hold this design together and must survive edits:
+- **`aiup-core/agents/uc-coverage-layered.md`** — the agent of every project that combines layer plugins, and the
+  one that is maintained. It has no marker table of its own: it reads the Markers table of
+  `docs/architecture/stack.md`, in which every layer skill keeps its rows, so the markers it searches for are
+  always those of the layers the project actually has. Its front doors are `/use-case-coverage` (a use case) and
+  `/test-case-coverage` (a journey), both in `aiup-core`.
+- **`agents/uc-coverage.md` of a combined stack plugin** — a copy per stack with a marker table fixed to that stack
+  (`@UseCase`, `UC<id>…Test`, `describe('UC-XXX: …')`, `UC<id>…IT` / `TC<id>…IT`), behind that plugin's
+  `/coverage-check`. Only the deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` ship one, and they go with those
+  plugins; `aiup-blazor-dotnet` and the deprecated `aiup-nestjs-nextjs` have no audit.
+
+Either agent derives coverage units from the specification (every main success scenario step, alternative flow,
+business rule, precondition, postcondition, and every NFR and constraint on its `**Requirements:**` line — for a test
+case, the Flow rows, Validation items, and Postconditions), maps each onto code and tests by id marker or domain
+vocabulary, and reports gaps, drift, and the justified next `**Status:**` value.
+
+The constraints that hold this design together apply to both and must survive edits:
 
 - **It never writes.** Its `tools:` list is `Read, Grep, Glob`, and the DO NOT section forbids editing files —
   including the specification's `**Status:**` line. A reviewer that fixes its own findings hides them.
 - **No `file:line`, no `Covered`.** The evidence rule is what keeps the audit from rubber-stamping the code the
   calling agent has just written.
-- **`/coverage-check` stays thin and read-only.** `skills/coverage-check/SKILL.md` is only a front door to the agent:
-  argument parsing, delegation, faithful presentation, hand-off. It must never gain the ability to close the gaps it
-  reports, and it must not restate the agent's checklist — that is how it would grow into the combined
-  implement-and-test skill this design deliberately avoids.
+- **The front doors stay thin and read-only.** `/use-case-coverage`, `/test-case-coverage`, and `/coverage-check`
+  are only doors to the agent: argument parsing, delegation, faithful presentation, hand-off. They must never gain
+  the ability to close the gaps they report, and they must not restate the agent's checklist — that is how one would
+  grow into the combined implement-and-test skill this design deliberately avoids.
 - **Drift is the user's call, and reruns are compared.** The agent names both fixes for every drift item
-  (specification or code) and recommends neither; `/coverage-check` asks which side is right before offering a
+  (specification or code) and recommends neither; the front door asks which side is right before offering a
   command, and on a rerun in the same conversation flags verdicts that changed without a change to the
   specification or the evidence files. Guessing the side of a drift fix is what bounced work between
-  `/spec-review` and `/coverage-check`.
+  `/spec-review` and the audit.
 
-All six implementation and testing skills of this plugin end with a `## Coverage Check` section and a final workflow
-step that **hands off** — they never run the agent themselves. The four test skills hand off to
-`/coverage-check UC-XXX`; `/implement` and `/implement-hilla` hand off to their test skill (`/browserless-test`,
-`/hilla-test`), so the audit runs once, after the tests exist. This is deliberate: every
-audit re-reads the specification and the code base and takes minutes, and running it inside `/implement`, again
-inside the test skill, and once more in `/coverage-check` turned a two-minute construction round into thirty. One
-explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested` — or, for a
-test case, `Automated`: the agent suggests a test case only its own statuses, never `Implemented` or `Tested` (#54). A new
-construction skill needs the same hand-off section; do not add an in-skill audit back.
+**Construction skills hand off; they never run the agent themselves.** In a layered project `/use-case-implement`
+hands off to `/use-case-test`, and `/use-case-test` and `/test-case-implement` end with one hand-off line to
+`/use-case-coverage UC-XXX` or `/test-case-coverage TC-XXX`, so the audit runs once, after the tests exist. In the
+combined plugins every implementation and testing skill ends with a `## Coverage Check` section the same way: the
+test skills hand off to `/coverage-check UC-XXX`, and `/implement` hands off to its test skill. This is deliberate:
+every audit re-reads the specification and the code base and takes minutes, and running it inside the implementation
+skill, again inside the test skill, and once more at the front door turned a two-minute construction round into
+thirty. One explicit run at the end, in the agent's `both` mode, is the audit that justifies a `**Status:** Tested` —
+or, for a test case, `Automated`: the agent suggests a test case only its own statuses, never `Implemented` or
+`Tested` (#54). A new construction skill needs the same hand-off; do not add an in-skill audit back.
 
-The agent lives in this plugin, not in `aiup-core`, and its marker table describes this stack only; another stack
-plugin that wants the same check needs its own copy with its own markers (the deprecated `aiup-angular-jpa` has one). Sub-agents are Claude Code-specific and are
-not part of the Agent Plugins standard; `/coverage-check` therefore also tells hosts without sub-agents to run the
-checklist from the agent file directly.
+**Why two kinds.** A combined plugin knows its stack, so its agent carries the markers; a combination of layer
+plugins is only known in the project, so the layered agent lives in `aiup-core` and takes the markers from the stack
+file. A change to a marker is therefore made in the layer skill's `references/markers.md` (and from there in the
+stack file), or, for a combined plugin, in the skill and its agent copy together — and in the Traceability table of
+`docs/workflow.md` either way.
+
+Sub-agents are Claude Code-specific and are not part of the Agent Plugins standard; every front door therefore also
+tells hosts without sub-agents to run the checklist from the agent file directly.

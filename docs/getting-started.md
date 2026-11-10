@@ -24,12 +24,12 @@ needs `aiup-flyway`, `aiup-jooq`, and `aiup-spring-boot`; add `aiup-vaadin` for 
 | [`aiup-flyway`](../aiup-flyway/)           | Migration: Flyway SQL migrations              |
 | [`aiup-jooq`](../aiup-jooq/)               | Persistence: jOOQ                             |
 | [`aiup-jpa`](../aiup-jpa/)                 | Persistence: JPA/Hibernate                    |
-| [`aiup-spring-boot`](../aiup-spring-boot/) | Service and REST API: Spring Boot             |
+| [`aiup-spring-boot`](../aiup-spring-boot/) | Service, REST API, and client: Spring Boot    |
 | [`aiup-vaadin`](../aiup-vaadin/)           | UI: Vaadin Flow or Hilla, with Playwright E2E |
 | [`aiup-angular`](../aiup-angular/)         | UI: Angular                                   |
 | [`aiup-playwright`](../aiup-playwright/)   | E2E: Playwright for TypeScript                |
 | [`aiup-drizzle`](../aiup-drizzle/)         | Migration and persistence: Drizzle ORM        |
-| [`aiup-nestjs`](../aiup-nestjs/)           | Service and REST API: NestJS                  |
+| [`aiup-nestjs`](../aiup-nestjs/)           | Service and REST API: NestJS, on Drizzle      |
 | [`aiup-nextjs`](../aiup-nextjs/)           | UI: Next.js App Router                        |
 
 **Combined stack plugins** — one plugin for a fixed combination. Install exactly one, and no layer plugins next to it.
@@ -232,6 +232,10 @@ or no test behind them. Run it when you want the audit — typically before acce
 implementation and tests together in one matrix. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` run the same
 audit with their own `/coverage-check UC-001`.
 
+In a GitHub project the same construction can run unattended: the [Werkstatt](werkstatt.md) builds the `Approved`
+use cases of a change branch through these skills and proposes the result, with every finished use case at `Tested`,
+as one pull request.
+
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).
 
@@ -266,4 +270,6 @@ reported gaps before using those artifacts as the baseline for further work.
 ## Complete example
 
 The [Book Library tutorial](https://unifiedprocess.ai/tutorial.html) demonstrates the complete workflow. Its first
-five steps are stack-independent; steps six through nine use the Vaadin and jOOQ plugin for construction and testing.
+five steps are stack-independent; steps six through nine were written with the combined `aiup-vaadin-jooq` plugin,
+which is deprecated. In a new project, run `/stack`, `/use-case-implement`, and `/use-case-test` with the layer
+plugins at that point instead; the [migration guide](migration.md) maps the commands.

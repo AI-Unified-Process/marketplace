@@ -29,11 +29,12 @@ now link its operations on an optional `**API:**` line.
   nothing: it records an open question, blocking, and leaves that part out. A documented response without a flow is
   built as the contract says and recorded as non-blocking.
 - **Only an agreed contract is input.** `/stack` records under `## API contract` whether the project is
-  contract-first or code-first. A document springdoc generates from the code is output; a line pointing to it is
+  contract-first or code-first. A document springdoc or `@nestjs/swagger` generates from the code is output; a line pointing to it is
   ignored. When the section is silent, a linked file counts as agreed and the skill asks for `/stack` to record it,
   because a team that writes the line means it.
-- **The rule lives once.** Section "API Contract" of `/use-case-implement` holds it; `/spring-rest` and
-  `/spring-rest-test` refer to it. The test skill takes the statuses and payloads from the operation and checks that
+- **The rule lives once.** Section "API Contract" of `/use-case-implement` holds it; the API layer skills
+  (`/spring-rest` and `/spring-rest-test`, `/nest-rest` and `/nest-rest-test`) refer to it and never restate it.
+  The test skill takes the statuses and payloads from the operation and checks that
   every rejecting flow has a documented response. The coverage agent reports an endpoint that differs from its
   operation as drift and names both fixes.
 - **AsyncAPI is accepted but not built.** An inbound message needs a listener, and no layer skill builds one yet. The

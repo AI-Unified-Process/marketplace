@@ -56,6 +56,15 @@ later result remains traceable to the corresponding requirement or use case.
 
 [Read about phases, artifacts, traceability, and change handling →](docs/workflow.md)
 
+### Automated construction
+
+The Werkstatt is a GitHub Actions workflow that builds the `Approved` use cases of a change branch through the same
+skills: specification lint, implementation, tests, build, coverage audit, and fix rounds. Its result is one pull
+request against the change branch, in which every finished use case has moved to `Tested`; a use case with a blocking
+open question stays `Approved` and keeps only its questions.
+
+[Read how to set up and run the Werkstatt →](docs/werkstatt.md)
+
 ## Choose your plugins
 
 Install `aiup-core` in every project. For construction, combine **layer plugins** — one per technical layer — or add
@@ -83,6 +92,13 @@ and the operations of an API contract agreed with a partner system, which the AP
 | [`aiup-vaadin`](aiup-vaadin/)           | UI (Flow, Hilla), E2E | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
 | [`aiup-angular`](aiup-angular/)         | UI                    | `/angular-ui`, `/angular-ui-test`                                                            |
 | [`aiup-playwright`](aiup-playwright/)   | E2E (TypeScript)      | `/playwright-e2e-test`                                                                       |
+| [`aiup-drizzle`](aiup-drizzle/)         | Migration, Persistence | `/drizzle-schema`, `/drizzle-persistence`, `/drizzle-persistence-test`                      |
+| [`aiup-nestjs`](aiup-nestjs/)           | Service, REST API     | `/nest-service`, `/nest-rest`, `/nest-service-test`, `/nest-rest-test`                       |
+| [`aiup-nextjs`](aiup-nextjs/)           | UI                    | `/nextjs-ui`, `/nextjs-ui-test`                                                              |
+
+`aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` build on `aiup-spring-boot`, and `aiup-drizzle` on `aiup-nestjs`. The
+service and test skills of `aiup-nestjs` assume the Drizzle persistence layer; `aiup-nextjs` and `aiup-angular` sit
+on any API layer, because both API layers hand over the same paging and `application/problem+json` error shape.
 
 | Project                     | Plugins next to `aiup-core`                                                      |
 |-----------------------------|----------------------------------------------------------------------------------|
@@ -92,6 +108,7 @@ and the operations of an API contract agreed with a partner system, which the AP
 | Vaadin Flow and a REST API  | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    |
 | Angular, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
 | REST API, NestJS, Drizzle   | `aiup-drizzle`, `aiup-nestjs`                                                    |
+| Angular, NestJS, Drizzle    | `aiup-drizzle`, `aiup-nestjs`, `aiup-angular`, `aiup-playwright`                 |
 | Next.js, NestJS, Drizzle    | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  |
 | Next.js, Spring Boot, JPA   | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
 
@@ -243,11 +260,14 @@ skill and document carries its copyright header and that each plugin ships `LICE
 | [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AI Unified Process, and create the first artifacts |
 | [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects                       |
 | [Migration guide](docs/migration.md)                         | Moving a project from a deprecated combined stack plugin to the layer plugins                |
+| [Werkstatt](docs/werkstatt.md)                               | Building the approved use cases of a change branch in GitHub Actions, as one pull request    |
+| [Werkstatt architecture](docs/werkstatt-architecture.md)     | The concept behind the Werkstatt: stations, gates, and the andon cord                        |
+| [Generation workflow versioning](docs/generate-workflow-versioning.md) | For maintainers: how the shared workflows are released behind the `v1` tag          |
 | [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |
 | [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |
 | [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |
 | [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                                        |
-| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis followed by Vaadin/jOOQ construction            |
+| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis, then construction with the deprecated `aiup-vaadin-jooq` plugin |
 
 Detailed skill behavior is documented in each plugin's `skills/*/SKILL.md`. Those files are the authoritative source
 for inputs, outputs, safety constraints, and execution steps; READMEs provide navigation and concise summaries.

@@ -42,24 +42,27 @@ Then install the layer plugins of your stack — one per layer. A REST API with 
 
 Add `aiup-vaadin` for a Vaadin UI, or `aiup-angular` and `aiup-playwright` for an Angular UI; take `aiup-jpa` instead
 of `aiup-jooq` for JPA. A TypeScript project takes `aiup-drizzle` and `aiup-nestjs`, with `aiup-nextjs` and
-`aiup-playwright` for a Next.js UI. Run `/stack` once in the project to record the combination. Each layer plugin declares
-`aiup-core` as a plugin dependency (3.3.0 or later; `aiup-playwright` 3.2.0, `aiup-spring-boot` 3.10.0, `aiup-drizzle`, `aiup-nestjs`, and `aiup-nextjs`
-3.14.0), so Claude Code
+`aiup-playwright` for a Next.js UI; the service and test skills of `aiup-nestjs` assume Drizzle below them. Run `/stack` once in the project to record the combination. Each layer plugin declares
+`aiup-core` as a plugin dependency (3.16.0 or later; `aiup-flyway` 3.3.0), so Claude Code
 installs core with it when it is missing.
 
-Or install one combined stack plugin instead of layer plugins:
+Or install the combined stack plugin instead of layer plugins, for C# and Blazor:
 
 ```text
-/plugin install aiup-vaadin-jooq
-/plugin install aiup-angular-jpa
 /plugin install aiup-blazor-dotnet
-/plugin install aiup-nestjs-nextjs
 ```
 
-These four commands are alternatives, not a bundle, and none of them goes together with layer plugins.
-`aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated in favour of the layer plugins and
-will be removed with `aiup-core` 4.0.0; the
-[migration guide](../migration.md) moves an existing project. Projects on another stack need only `aiup-core` and can use
+It does not go together with layer plugins. Three more combined stack plugins are deprecated in favour of the layer
+plugins and will be removed with `aiup-core` 4.0.0. Install one only for a project that already uses it; the
+[migration guide](../migration.md) moves such a project:
+
+```text
+/plugin install aiup-vaadin-jooq      # deprecated: use aiup-flyway, aiup-jooq, aiup-spring-boot, aiup-vaadin
+/plugin install aiup-angular-jpa      # deprecated: use aiup-flyway, aiup-jpa, aiup-spring-boot, aiup-angular, aiup-playwright
+/plugin install aiup-nestjs-nextjs    # deprecated: use aiup-drizzle, aiup-nestjs, aiup-nextjs, aiup-playwright
+```
+
+These are alternatives, not a bundle. Projects on another stack need only `aiup-core` and can use
 their own implementation workflow after the specification boundary.
 
 ## Verify the installation

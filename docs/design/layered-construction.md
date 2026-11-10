@@ -17,7 +17,7 @@ layer plugins can. Rules that hold it together:
 - **The stack file is AIUP's, the architecture documentation is the team's.** The stack file does not depend on
   how a team documents its architecture — arc42, C4, Kruchten's 4+1, a single `docs/architecture.md`, or nothing —
   and looks the same next to each. `/stack` reads those documents and the ADRs (globs `docs/**/{decisions,adr,adrs}/*.md`) as input,
-  and never writes, moves, or indexes them. It owns the `## Layers` and `## Markers` sections and writes
+  and never writes, moves, or indexes them. It owns the `## Layers`, `## External systems`, and `## Markers` sections and writes
   `## Module layout`, `## API contract`, and `## Commands` only when their heading is missing, so a team can refine
   them. aiup-core 3.0.0 made the file the Development View of a 4+1 folder (`docs/architecture/development.md`,
   written by `/architecture`); that tied an AIUP contract to one documentation style and was dropped in 3.1.0.
@@ -64,16 +64,23 @@ layer plugins can. Rules that hold it together:
   No test reaches the system: `/spring-client-test` tests the adapter against a stub of the contract
   (MockRestServiceServer by default, no new dependency) and writes a fake of the port; the integration layer puts
   the fake in place with `@TestBean` and drives the external flows through it, so the client tests run first, an
-  exception to "the layers below are not run". The Tests run value `in process, external system stubbed` exists for
+  exception to "the layers below are not run". E2E follows where the application runs: a test that starts the
+  application in its own process (`/vaadin-e2e-test`) puts the port fake in place the same way; one that drives a
+  separate process (`/playwright-e2e-test`) cannot, so it uses a stub profile when the project has one, and otherwise
+  leaves the steps that call the system out and lists them as not automated. The rule lives once, in section
+  "External systems" of `use-case-test/references/which-layer-tests-what.md`. The Tests run value `in process, external system stubbed` exists for
   the Client row alone and never decides an integration layer.
 - **One integration layer per entry point.** Start at the entry layer a use case is offered through: when its test
   skill runs in process against the real database (the catalog's Tests run column: `vaadin-flow-ui-test`,
-  `spring-rest-test`, `spring-service-test`, the persistence tests), that is the integration layer; when it mocks the
-  backend (`hilla-ui-test`, `angular-ui-test`), it is the layer that entry layer calls. So Flow → UI, Hilla → Service,
-  Angular → API, REST → API, Service → Service; an API next to Flow or Hilla never moves the UI's integration layer,
-  because the UI does not call it. The rule lives once, in the section "Tests run, and the integration layer" of
+  `spring-rest-test`, `spring-service-test`, `nest-rest-test`, `nest-service-test`, the persistence tests), that is
+  the integration layer; when it mocks the backend (`hilla-ui-test`, `angular-ui-test`, `nextjs-ui-test`), it is the
+  layer that entry layer calls. So Flow → UI, Hilla → Service, Angular → API, Next.js → API, REST → API,
+  Service → Service (Persistence when the project has no service layer); an API next to Flow or Hilla never moves the
+  UI's integration layer, because the UI does not call it. The rule lives once, in the section "Tests run, and the integration layer" of
   `layer-catalog.md`. Only `/stack` applies it and records the result as the Integration layer table under
-  the Layers table — one row per entry layer, in the order UI, API, Service; a use case is tested in the first row
+  the Layers table — in the order UI, API, Service: the UI and API rows only when the project has the layer, the
+  Service row always, because a use case can be offered through the service alone (without a service layer such a
+  use case is tested in Persistence); a use case is tested in the first row
   its `**Layers:**` line names, or the first row without the line. `/use-case-test`, the coverage agent, and the
   layer test skills look the layer up and never derive it; a missing table is a hand-off to `/stack`.
   `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the
@@ -103,7 +110,15 @@ layer plugins can. Rules that hold it together:
   `aiup-nestjs-nextjs`; E2E stays with `aiup-playwright`. Four differences from the Java stacks are deliberate.
   `aiup-drizzle` holds both Migration and Persistence, because `schema.ts` is the input of both, and it declares
   `aiup-nestjs`, as `aiup-jooq` declares `aiup-spring-boot`, because its repositories are NestJS providers;
-  `aiup-nextjs` needs only core, which is what lets Next.js sit on a Spring API. `nest-service-test` runs against the
+  `aiup-nextjs` needs only core, which is what lets Next.js sit on a Spring API, and `/angular-ui` sits on a NestJS
+  one the same way: both API layers hand over the same paging shape and
+  `application/problem+json { type, title, status, detail, errors?: [{ field, message }] }`. `aiup-playwright` reads
+  no file of another plugin; it takes the backend's start command from the End-to-end row of the Commands table or
+  from the backend test skill's hand-off. The `aiup-nestjs` test skills write Vitest specs and ask before adding a
+  second runner to a Jest project, and the Drizzle skills describe drizzle-orm 0.x and name where 1.0 differs. `aiup-nestjs` reads no file of
+  `aiup-drizzle` and declares only core, but its service and test skills assume the Drizzle persistence layer below
+  them (the `tx` handover, the `DRIZZLE` handle in the test setup); another persistence technology under NestJS needs
+  its own layer skills. `nest-service-test` runs against the
   real database, where the combined `/nest-test` stubbed repositories: a stub would be `backend mocked` and would drop
   a Service-only use case to the persistence layer, so the stubbed tier survives only for pure logic and units out of
   the integration layer's reach. Drizzle has no ambient transaction like `@Transactional`, and a service never touches

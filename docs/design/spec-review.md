@@ -34,8 +34,11 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 - **Converges.** The verdict states **Ready for Approved** (lint exit 0, no open semantic warning); `info`
   findings get no fix command, and a repeated run in the same conversation reports what changed since the last one
   instead of a fresh list. Without this, every fix is followed by a review that finds the next thing.
-- **Read-only.** Like `/coverage-check`, the skill never edits a specification, the glossary, or the baseline; the
-  only file it writes is the generated page `docs/spec-report.html`, on `/spec-review report` alone. It
+- **Read-only.** Like the coverage audit, the skill never edits a specification, the glossary, or the baseline. It
+  writes two generated files and nothing else: the page `docs/spec-report.html`, on `/spec-review report` alone, and,
+  when the caller passes `--output <file>`, the semantic findings and the verdict as JSON in the file the caller
+  names, which must lie outside `docs/` (the Studio passes `.aiup-report/review.json` to show the review in its
+  log). The lint findings are not in it; the caller runs `spec_lint.py --format json` itself. It
   hands off to `/use-case-spec`, `/requirements`, `/use-case-diagram`. It stays in `aiup-core` because it reads only
   `docs/`; comparing specifications with code is `/use-case-coverage` (layer plugins) or a combined stack's
   `/coverage-check`.
