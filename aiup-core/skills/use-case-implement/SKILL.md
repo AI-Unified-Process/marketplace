@@ -220,8 +220,8 @@ the method, query condition, or validator that enforces it:
 // UC-001 BR-003: A guest must be at least eighteen years old on the day of arrival.
 ```
 
-- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications `UC-001 GR-003`. Rules are
-  numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Always qualify the rule with its use case — `UC-001 BR-003`. Rules are numbered per use case, so a bare `BR-003` is
+  ambiguous in code.
 - Restate the rule in one line after the colon; do not paste the whole rule text. Keep the whole comment, indentation
   included, within the line length of the project's formatter (Spring Java Format wraps comments at 90 columns), so
   the build does not break the marker onto a second line: shorten the restated rule rather than let it wrap.

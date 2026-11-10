@@ -63,7 +63,6 @@ LANGUAGES = {
         "layers_aliases": ["**Layers:**"],
         "mockup_aliases": ["**Mockup:**"],
         "api_aliases": ["**API:**"],
-        "rule_prefix": "BR",
     },
     "de": {
         "headings": {
@@ -97,7 +96,6 @@ LANGUAGES = {
         # "Entwurf" is a status value, so the mockup line keeps its label
         "mockup_aliases": ["**Mockup:**"],
         "api_aliases": ["**API:**"],
-        "rule_prefix": "GR",
     },
 }
 
@@ -117,8 +115,8 @@ NUMBERED_ITEM = re.compile(r"(\d+)\.\s+(.*)")
 ID_TITLE = re.compile(r"#\s+[SB]?UC-[A-Za-z0-9_-]+\s*:.*")
 FLOW_LABEL = re.compile(r"A\d+\s*:\s*(.*)")
 # Hyphenated tails like BR-USER-050 are valid Navigator-style rule ids.
-RULE_LABEL = re.compile(r"(?:BR|GR)-[A-Za-z0-9_-]+\s*:\s*.*")
-RULE_NUMBER = re.compile(r"(?:BR|GR)-(\d+)\s*:")
+RULE_LABEL = re.compile(r"BR-[A-Za-z0-9_-]+\s*:\s*.*")
+RULE_NUMBER = re.compile(r"BR-(\d+)\s*:")
 PLACEHOLDER = re.compile(r"_[^_].*_|\*[^*].*\*")
 UC_ID_GRAMMAR = re.compile(r"[SB]?UC-[A-Za-z0-9_-]+")
 
@@ -792,11 +790,10 @@ def check_contract(doc, path):
         doc.add(0, WARN, "POSTCONDITIONS_EMPTY",
                 "failure postconditions are empty")
 
-    prefix = lang["rule_prefix"]
     for rule in doc.rules:
         if not RULE_LABEL.fullmatch(rule["heading"]):
             doc.add(rule["line"], WARN, "RULE_LABEL_MISSING",
-                    "business rule heading has no " + prefix + "-XXX label: "
+                    "business rule heading has no BR-XXX label: "
                     + rule["heading"])
     # Rule ids are scoped to their use case: every document numbers its rules
     # from BR-001 without gaps (Studio renumbers them so on save). Checked only
@@ -807,8 +804,8 @@ def check_contract(doc, path):
         values = [int(match.group(1)) for match in numbers]
         if values != list(range(1, len(values) + 1)):
             doc.add(doc.rules[0]["line"], WARN, "RULE_NUMBERING",
-                    "business rule ids are not " + prefix + "-001.."
-                    + prefix + ("-%03d" % len(values)) + " without gaps "
+                    "business rule ids are not BR-001..BR-%03d without gaps "
+                    % len(values) +
                     "(ids restart per document; Studio renumbers on save)")
 
     steps = doc.main_scenario + [s for f in doc.flows for s in f["steps"]]
@@ -939,7 +936,7 @@ _Keine — die Erfassung ist wiederholbar._
 
 ## Geschäftsregeln
 
-### GR-001: Zustellung
+### BR-001: Zustellung
 
 Mitteilungen werden nur dem eigenen Team zugestellt.
 """

@@ -209,9 +209,9 @@ PUML_LINK = re.compile(r"^\s*(" + PUML_NODE + r")\s*(<\|?|)([-.]+(?:(?:\[[^\]]*\
 PUML_RELATION = re.compile(r"<<\s*(include|extend)s?\s*>>", re.IGNORECASE)
 REQ_ROW = re.compile(r"^\|\s*((?:FR|NFR|C)-[A-Za-z0-9_-]+)\s*\|")
 REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
-RULE_HEADING = re.compile(r"^###\s+((?:BR|GR)-[A-Za-z0-9_-]+)\s*:?\s*(.*)$")
+RULE_HEADING = re.compile(r"^###\s+(BR-[A-Za-z0-9_-]+)\s*:?\s*(.*)$")
 RULE_REF = re.compile(
-    r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)[\s,]+((?:BR|GR)-[A-Za-z0-9_-]+)")
+    r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)[\s,]+(BR-[A-Za-z0-9_-]+)")
 MD_LINK = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
 ENTITY_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9_]*)\s*$")
 BP_REF = re.compile(r"(?<![A-Za-z0-9])(BP-\d{3,})(?![0-9])")
@@ -225,7 +225,7 @@ STEP_LINE = re.compile(r"^(\d+)\.\s+\S")
 FLOW_HEADING = re.compile(r"^###\s+(A\d+)\b")
 # The element forms of an open question (open-questions skill, Elements)
 ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+)(?:\s+(?:(?:step|schritt)\s+"
-                        r"(\d+)|(A\d+)|((?:BR|GR)-[A-Za-z0-9_-]+)))?$",
+                        r"(\d+)|(A\d+)|(BR-[A-Za-z0-9_-]+)))?$",
                         re.IGNORECASE)
 ELEMENT_GLOSSARY = re.compile(r"^(?:Glossary|Glossar):\s*(.+)$", re.IGNORECASE)
 ELEMENT_ENTITY = re.compile(r"^(?:Entity|Entität):\s*([A-Za-z][A-Za-z0-9_]*)"
@@ -1954,7 +1954,7 @@ ADR_INACTIVE = ("Superseded", "Deprecated", "Rejected")
 def rule_key(text):
     """The node id of a business rule: 'UC-003 BR-002' also for
     'UC-003:BR-002' and 'UC-003/BR-002'; any other id unchanged."""
-    match = re.match(r"^\s*([SB]?UC-[A-Za-z0-9_-]+?)[\s:/,]+((?:BR|GR)-"
+    match = re.match(r"^\s*([SB]?UC-[A-Za-z0-9_-]+?)[\s:/,]+(BR-"
                      r"[A-Za-z0-9_-]+)\s*$", text)
     return match.group(1) + " " + match.group(2) if match else text.strip()
 

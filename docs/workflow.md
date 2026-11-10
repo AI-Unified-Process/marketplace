@@ -147,9 +147,9 @@ test case creates that state with the earlier steps of the journey and checks th
 | `OQ-XXX`  | Open question, `## OQ-XXX:` section of `docs/open_questions.md`                         | Project       | `OQ-XXX`           |
 | `ADR-XXX` | Architecture decision record, `docs/architecture/decisions/ADR-XXX-*.md`                | Project       | `ADR-XXX`          |
 
-German specifications use `GR-YYY` (*Geschäftsregel*) instead of `BR-YYY`. Business rules are numbered per use case,
-so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`. A rule that applies to several
-use cases is defined once and cited from the others, never copied.
+The id prefixes are the same in every specification language: a German specification writes `BR-YYY` too. Business
+rules are numbered per use case, so a bare `BR-003` is ambiguous outside its own use case: cite it as `UC-005 BR-003`.
+A rule that applies to several use cases is defined once and cited from the others, never copied.
 
 Do not reuse an identifier for a different concern after it has been committed. When a requirement changes, update it
 and rerun or reconcile the downstream artifacts that depend on it.

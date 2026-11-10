@@ -75,7 +75,8 @@ credential value — password, API key, token, connection string, private key, `
 your report; name the file it lives in and leave the value out.
 
 Both the English and the German specification format are valid input (`## Hauptablauf`,
-`## Alternativabläufe`, `## Geschäftsregeln`, `GR-XXX`). Report in the language the caller uses.
+`## Alternativabläufe`, `## Geschäftsregeln`); the business rule ids are `BR-XXX` in both.
+Report in the language the caller uses.
 
 ## Step 2 — Derive the coverage units
 

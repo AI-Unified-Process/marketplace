@@ -97,8 +97,8 @@ directly above the repository query, service method, or DTO validation decorator
 // UC-010 BR-010: Out-of-stock products are excluded regardless of any category filter.
 ```
 
-- Always qualify the rule with its use case — `UC-001 BR-003`, in German specifications
-  `UC-001 GR-003`. Rules are numbered per use case, so a bare `BR-003` is ambiguous in code.
+- Always qualify the rule with its use case — `UC-001 BR-003`. Rules are numbered per use case, so a bare
+  `BR-003` is ambiguous in code.
 - Restate the rule in one line after the colon; do not paste the whole rule text.
 - A rule enforced in several places (a DTO validation decorator and a service check) gets the marker at each place.
 - A rule the use case cites from another use case keeps that use case's id (`UC-002 BR-001`).

@@ -95,7 +95,7 @@ together and the body between them, as above.
 | a use case                                        | `UC-003`                             |
 | a step of its main success scenario               | `UC-003 step 4`                      |
 | an alternative flow                               | `UC-003 A2`                          |
-| a business rule (German `GR-`)                    | `UC-003 BR-002`                      |
+| a business rule                                   | `UC-003 BR-002`                      |
 | a requirement                                     | `FR-014`, `NFR-002`, `C-006`         |
 | a glossary term                                   | `Glossary: Loan`                     |
 | an entity or an attribute of the entity model     | `Entity: BOOK`, `Entity: BOOK.isbn`  |

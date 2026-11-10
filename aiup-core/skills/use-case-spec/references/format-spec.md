@@ -116,7 +116,7 @@ and empty files are English) and preserved on save.
 | Success subsection   | `### Success Postconditions`  | `### Erfolgsfall`       |
 | Failure subsection   | `### Failure Postconditions`  | `### Fehlerfall`        |
 | Business rules       | `## Business Rules`           | `## Geschäftsregeln`    |
-| Rule prefix          | `BR`                          | `GR` (reads `BR` too)   |
+| Rule prefix          | `BR`                          | `BR`                    |
 
 Status values (either language is readable in any document):
 
@@ -186,7 +186,6 @@ canonical form, but validators must accept:
   the use case trigger, whose canonical label is
   `**Auslösendes Ereignis:**` — deliberately not `**Auslöser:**`, which
   names the condition of an alternative flow.
-- **`BR-` rule labels in German documents** (written back as `GR-`).
 - **Wrapped lines** — joined into the item above.
 
 ## Normalized on save by Studio (WARN level)
@@ -258,7 +257,7 @@ The `/use-case-spec` skill additionally requires:
   Case wird bei Schritt N fortgesetzt.` / `Der Use Case endet.`).
 - Success and failure postconditions are non-empty (an explicit italic
   placeholder such as `_None — …_` counts as a deliberate statement).
-- Business rule headings carry a `BR-XXX:` / `GR-XXX:` label, numbered
+- Business rule headings carry a `BR-XXX:` label, numbered
   `BR-001`, `BR-002`, … without gaps within the document.
 - No implementation-level terms in steps (SMTP, email server, JWT,
   token, bcrypt, hash, salt, SHA, SQL, SELECT, INSERT).
