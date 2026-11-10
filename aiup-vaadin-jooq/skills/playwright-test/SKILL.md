@@ -12,6 +12,8 @@ description: >
   Playwright for Vaadin, or Drama Finder. Also trigger when the user
   references a use case (UC-*) or a test case (TC-*) and asks for
   Playwright or E2E tests.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /vaadin-e2e-test of
+  aiup-vaadin.
 ---
 
 <!--

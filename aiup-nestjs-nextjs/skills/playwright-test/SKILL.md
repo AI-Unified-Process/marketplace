@@ -10,6 +10,8 @@ description: >
   e2e tests", "write end-to-end tests for UC-001", "automate TC-001", "test in
   the browser", or mentions end-to-end testing, browser tests, or a test case
   (TC-*) to automate.
+  Deprecated with the plugin aiup-nestjs-nextjs, removed with aiup-core 4.0.0: new projects use /playwright-e2e-test
+  of aiup-playwright.
 ---
 
 <!--

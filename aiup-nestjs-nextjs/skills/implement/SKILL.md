@@ -7,6 +7,8 @@ description: >
   data access layer", "build the page", or mentions NestJS modules, controllers,
   providers, Drizzle queries, repositories, or a Next.js frontend calling a
   NestJS backend.
+  Deprecated with the plugin aiup-nestjs-nextjs, removed with aiup-core 4.0.0: new projects use /use-case-implement of
+  aiup-core with the layer plugins aiup-drizzle, aiup-nestjs, and aiup-nextjs.
 ---
 
 <!--

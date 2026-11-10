@@ -6,6 +6,8 @@ description: >
   Use when the user asks to "write Karibu tests", "unit test a Vaadin view",
   "test the UI server-side", "create view tests", or mentions Karibu testing,
   Vaadin unit tests, or server-side UI testing.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /vaadin-flow-ui-test of
+  aiup-vaadin (Browserless Testing; Karibu is not carried over).
 ---
 
 <!--

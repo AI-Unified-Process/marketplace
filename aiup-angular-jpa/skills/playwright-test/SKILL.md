@@ -10,6 +10,8 @@ description: >
   "test a user journey", or mentions end-to-end testing, browser tests, or UI
   integration tests for this stack. Also trigger when the user references a
   use case (UC-*) or a test case (TC-*) and asks for Playwright or E2E tests.
+  Deprecated with the plugin aiup-angular-jpa, removed with aiup-core 4.0.0: new projects use /playwright-e2e-test of
+  aiup-playwright.
 ---
 
 <!--

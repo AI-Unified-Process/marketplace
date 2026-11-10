@@ -11,6 +11,8 @@ description: >
   JPA repository", or mentions MockMvc, MockMvcTester, RestAssured,
   RestTestClient, Testcontainers, @SpringBootTest, or server-side Java
   testing for this stack.
+  Deprecated with the plugin aiup-angular-jpa, removed with aiup-core 4.0.0: new projects use /spring-rest-test and
+  /spring-service-test of aiup-spring-boot.
 ---
 
 <!--

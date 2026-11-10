@@ -8,6 +8,8 @@ description: >
   view tests with the official Vaadin testing framework", or mentions
   Browserless testing, SpringBrowserlessTest, browserless-test-junit6, UI Unit
   Testing, or server-side Vaadin testing.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /vaadin-flow-ui-test of
+  aiup-vaadin.
 ---
 
 <!--

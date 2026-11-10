@@ -7,6 +7,8 @@ description: >
   "test the Angular component", "write a Vitest test", "unit test an Angular
   page", or mentions TestBed, HttpTestingController, or component testing for
   this stack.
+  Deprecated with the plugin aiup-angular-jpa, removed with aiup-core 4.0.0: new projects use /angular-ui-test of
+  aiup-angular.
 ---
 
 <!--

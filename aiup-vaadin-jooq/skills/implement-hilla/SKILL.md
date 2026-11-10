@@ -7,6 +7,8 @@ description: >
   "create a Hilla view", "build a React view for Vaadin", "create a
   @BrowserCallable endpoint", or mentions Hilla, client-side Vaadin views,
   file-based routing, TSX views, or React + jOOQ.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /use-case-implement of
+  aiup-core with /hilla-ui of aiup-vaadin.
 ---
 
 <!--

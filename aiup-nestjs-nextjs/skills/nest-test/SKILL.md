@@ -7,6 +7,8 @@ description: >
   backend tests", "test the API", "write an e2e test", "test the endpoint", or
   mentions Supertest, Testcontainers, NestJS testing, or Vitest for a NestJS
   project.
+  Deprecated with the plugin aiup-nestjs-nextjs, removed with aiup-core 4.0.0: new projects use /nest-rest-test and
+  /nest-service-test of aiup-nestjs.
 ---
 
 <!--

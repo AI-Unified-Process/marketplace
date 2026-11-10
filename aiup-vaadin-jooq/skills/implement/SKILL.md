@@ -7,6 +7,8 @@ description: >
   view", "write the data access layer", or mentions Vaadin Flow, server-side
   Java views, jOOQ queries, Java web app, or database-backed UI. For Hilla
   (React/TypeScript) views use the implement-hilla skill instead.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /use-case-implement of
+  aiup-core with the layer plugins aiup-flyway, aiup-jooq, aiup-spring-boot, and aiup-vaadin.
 ---
 
 <!--

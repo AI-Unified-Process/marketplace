@@ -14,6 +14,7 @@ description: >
   tests, and no files. When the user wants the gaps closed rather than listed,
   use /implement, /spring-boot-test, /vitest-test, or /playwright-test
   instead.
+  Deprecated plugin: new projects use /use-case-coverage of aiup-core.
 ---
 
 <!--

@@ -9,6 +9,8 @@ description: >
   @BrowserCallable service", "write Vitest tests for a Hilla app", or mentions
   Hilla testing, React Testing Library for Vaadin, endpoint mocking, or
   testing TSX views.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /hilla-ui-test of aiup-
+  vaadin and /spring-service-test of aiup-spring-boot.
 ---
 
 <!--

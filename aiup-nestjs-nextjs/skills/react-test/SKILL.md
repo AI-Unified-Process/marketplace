@@ -10,6 +10,8 @@ description: >
   "test the component", "write an RTL test", or mentions React Testing Library,
   jsdom, or component testing for a Next.js project. Browser tests against the
   running stack are /playwright-test.
+  Deprecated with the plugin aiup-nestjs-nextjs, removed with aiup-core 4.0.0: new projects use /nextjs-ui-test of
+  aiup-nextjs.
 ---
 
 <!--

@@ -6,6 +6,8 @@ description: >
   migration", "generate SQL", "set up database tables", "update the schema", or
   mentions Drizzle, drizzle-kit, pg-core, schema.ts, or database versioning for
   a NestJS project.
+  Deprecated with the plugin aiup-nestjs-nextjs, removed with aiup-core 4.0.0: new projects use /drizzle-schema of
+  aiup-drizzle.
 ---
 
 <!--

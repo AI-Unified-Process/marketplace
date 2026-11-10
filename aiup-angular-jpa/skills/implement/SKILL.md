@@ -8,6 +8,8 @@ description: >
   "build the Angular page/component", or mentions Spring Boot, JPA/Hibernate
   entities, hexagonal architecture, ports and adapters, or an Angular frontend
   calling a Java backend.
+  Deprecated with the plugin aiup-angular-jpa, removed with aiup-core 4.0.0: new projects use /use-case-implement of
+  aiup-core with the layer plugins aiup-flyway, aiup-jpa, aiup-spring-boot, and aiup-angular.
 ---
 
 <!--

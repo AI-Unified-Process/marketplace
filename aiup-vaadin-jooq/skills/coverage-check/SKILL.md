@@ -14,6 +14,7 @@ description: >
   tests, and no files. When the user wants the gaps closed rather than listed,
   use /implement, /implement-hilla, /browserless-test, /hilla-test,
   /karibu-test, or /playwright-test instead.
+  Deprecated plugin: new projects use /use-case-coverage of aiup-core.
 ---
 
 <!--

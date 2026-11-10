@@ -6,6 +6,8 @@ description: >
   asks to "create a migration", "generate SQL scripts", "set up database tables",
   "write a Flyway migration", or mentions schema migration, DB migration,
   database versioning, or SQL migration files.
+  Deprecated with the plugin aiup-vaadin-jooq, removed with aiup-core 4.0.0: new projects use /flyway-schema of aiup-
+  flyway.
 ---
 
 <!--

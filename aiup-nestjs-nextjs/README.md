@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 > **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`,
 > and `aiup-playwright`, run by `/stack`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
-> `aiup-core` (3.14.0 or later). The layer plugins also cover a NestJS REST API without a UI and Next.js on another
+> `aiup-core` (3.16.0 or later). The layer plugins also cover a NestJS REST API without a UI and Next.js on another
 > backend. This plugin keeps working and will be removed with `aiup-core` 4.0.0; do not install it together with the
 > layer plugins in one project. See the [migration guide](../docs/migration.md) for moving an existing project.
 
