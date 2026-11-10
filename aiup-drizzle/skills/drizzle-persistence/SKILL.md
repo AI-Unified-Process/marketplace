@@ -86,9 +86,7 @@ ProductsRepository (?)`.
 
 ```ts
 // src/database/drizzle.provider.ts
-import type { ExtractTablesWithRelations } from 'drizzle-orm';
-import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
-import type { PgTransaction } from 'drizzle-orm/pg-core';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import * as schema from './schema.js';
 
@@ -96,7 +94,8 @@ export const PG_POOL = Symbol('PG_POOL');
 export const DRIZZLE = Symbol('DRIZZLE');
 
 export type DrizzleDb = NodePgDatabase<typeof schema>;
-export type Tx = PgTransaction<NodePgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
+// The handle a transaction callback receives, derived from the database type so it survives a Drizzle upgrade.
+export type Tx = Parameters<Parameters<DrizzleDb['transaction']>[0]>[0];
 export type DbExecutor = DrizzleDb | Tx;
 
 export const databaseProviders = [
@@ -168,7 +167,9 @@ transaction across two repositories.
   exports its type; a column the use case does not show stays out, and a column added later does not leak. Where a
   whole row is the right shape, export `typeof products.$inferSelect`. The service maps to the response type.
 - **Children in one query.** Load a parent with its children through a join, or through `db.query.<table>` with
-  `with: { … }` where the provider passes the schema and `relations` exist. Never run a query per row.
+  `with: { … }` where the provider passes the schema and `relations` exist (`drizzle-orm` 0.x; from 1.0 the provider
+  passes `{ relations }` built with `defineRelations` — see "Drizzle version" of `drizzle-config.md`). Never run a
+  query per row.
 - **Lists page in the database.** `.orderBy(...)` with a unique tie-breaker, `.limit()`, `.offset()`, and a count with
   the same filters (`this.db.$count(products, where)`). Build dynamic filters as a condition array passed to
   `and(...)`, which ignores `undefined`. Map a sort key to a column through an allow-list.
@@ -207,11 +208,8 @@ every statement must run on the `tx` handle it was opened with, and the service 
    and one repository offers `transaction(work)`. The service calls that method and passes the handle along without
    running anything on it:
 
-```ts
-// src/database/drizzle.provider.ts — added once
-export type Tx = Parameters<Parameters<DrizzleDb['transaction']>[0]>[0];
-export type DbExecutor = DrizzleDb | Tx;
-```
+`Tx` and `DbExecutor` are the two types of [The Database Provider](#the-database-provider); an existing provider
+without them gets them added there, once, in that form.
 
 ```ts
 // src/orders/orders.repository.ts

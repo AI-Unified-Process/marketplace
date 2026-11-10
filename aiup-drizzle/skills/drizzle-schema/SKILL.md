@@ -128,7 +128,7 @@ convention as a side effect of adding a table.
 ```ts
 // src/database/schema.ts
 import { sql } from 'drizzle-orm';
-import { boolean, check, doublePrecision, integer, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import { boolean, check, integer, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const supplier = pgTable(
   'supplier',
@@ -146,13 +146,16 @@ export const products = pgTable(
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: text().notNull(),
-    price: doublePrecision().notNull(),
+    category: text().notNull(),
+    price: integer().notNull(), // whole cents: an amount of money is never a floating-point column
     inStock: boolean('in_stock').notNull().default(true),
     supplierId: integer('supplier_id').references(() => supplier.id),
   },
   (table) => [
     // UC-011 BR-002: Product names are unique.
     uniqueIndex('idx_product_name').on(table.name),
+    // UC-011 BR-001: The price is a whole number of cents and never negative.
+    check('product_price_ck', sql`${table.price} >= 0`),
   ],
 );
 ```
@@ -183,6 +186,10 @@ npx drizzle-kit generate     # emits SQL and updates meta/_journal.json under `o
 git status --short           # expect one new .sql file, its snapshot, and the journal
 ```
 
+That is the layout of `drizzle-kit` 0.3x, the stable line. From 1.0 a generate adds one folder with `migration.sql`
+and `snapshot.json` and there is no journal: check the installed version first, as section "Drizzle version" of
+[references/drizzle-config.md](references/drizzle-config.md) says.
+
 Use the project's script when `package.json` has one (`db:generate`). Then read the emitted SQL. A column rename
 drizzle-kit did not recognise appears as `DROP COLUMN` + `ADD COLUMN`, which discards production data. If the SQL
 contains a `DROP` you did not intend, the schema edit was wrong: **fix the schema and regenerate**. Never edit the
@@ -202,7 +209,8 @@ database already has under a new name, because the newest snapshot still describ
 
 **Stop and tell the user before generating anything.** Do not answer drizzle-kit's rename prompt speculatively; a wrong
 answer emits DDL that discards a populated column. To diagnose it without touching anything, compare the newest
-snapshot with the schema:
+snapshot with the schema (the script reads the 0.3x layout; from 1.0 read the `snapshot.json` of the newest migration
+folder instead):
 
 ```bash
 node -e "
@@ -238,7 +246,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 1. Read the inputs — see "Run Directly or from /use-case-implement". With a use case, list the entities its steps,
    alternative flows, and business rules touch, and the entities they reference by a foreign key.
-2. Locate the schema and the migrations — see "Where the Schema Lives".
+2. Locate the schema and the migrations — see "Where the Schema Lives" — and read the installed `drizzle-orm` and
+   `drizzle-kit` versions (section "Drizzle version" of the configuration reference).
 3. Read the existing schema to learn its conventions: primary key style, dates, and the money choice. Compare each
    listed entity with it: an entity without a table needs its complete table, an existing table needs the columns and
    constraints the entity model gives it and the table lacks. When nothing is missing, generate nothing and say so in

@@ -58,6 +58,12 @@ a commented-out `expect`) an assertion whose value the specification states — 
 expected and the actual value; update an existing test file for this use case instead of creating a second one.
 `/use-case-test UC-XXX` runs the tests of all layers.
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## Server Components
 
 A Server Component cannot be rendered in jsdom. When the page of the use case, or a part of it, is a Server Component
@@ -112,9 +118,17 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: { tsconfigPaths: true }, // Vite 8 and up; see below
   test: { environment: 'jsdom', globals: true, setupFiles: ['./vitest.setup.ts'], include: ['src/**/*.test.tsx'] },
 });
 ```
+
+**Resolve the path alias.** `create-next-app` sets `"paths": { "@/*": ["./src/*"] }` in `tsconfig.json`, and every
+shadcn/ui component imports `@/lib/utils` and `@/components/ui/*`; Next.js resolves the alias, Vitest does not unless
+the config says so, and the first render fails on an import that cannot be resolved. Read `paths` in `tsconfig.json`
+and check that the Vitest config resolves them: `resolve.tsconfigPaths: true` from Vite 8 on; below it the
+`vite-tsconfig-paths` plugin when the project has it — adding it is a new dependency to ask about — or without it a
+`resolve.alias` entry per path (`{ '@': fileURLToPath(new URL('./src', import.meta.url)) }`).
 
 ```ts
 // vitest.setup.ts
@@ -140,7 +154,7 @@ describe('UC-010: Browse Product Catalog', () => {
 
   it('main scenario — renders the products returned by the API', async () => {
     vi.mocked(apiGet).mockResolvedValue([
-      { id: 1, name: 'Hammer', category: 'tools', price: 12.5, imageUrl: null },
+      { id: 1, name: 'Hammer', category: 'tools', price: 1250 },
     ]);
 
     render(<ProductsPage />);
@@ -180,8 +194,23 @@ to drift after a backend change. An element no role or label query reaches is a 
   vi.mock('next/navigation', () => ({
     useRouter: () => ({ push }),
     useSearchParams: () => new URLSearchParams('category=tools'),
+    useParams: () => ({ id: '42' }),
   }));
   ```
+
+- **A dynamic segment** (`/guests/[id]`) reaches a client page as the `params` prop, a `Promise` from Next.js 15 on
+  that the page unwraps with `use(params)`. Pass a promise that is already resolved and render inside `act`, because
+  `use` suspends on the first render; then query with `findBy*`:
+
+  ```tsx
+  await act(async () => {
+    render(<EditGuestPage params={Promise.resolve({ id: '42' })} />);
+  });
+  expect(await screen.findByRole('heading', { name: 'Edit Guest' })).toBeVisible();
+  ```
+
+  A component that reads `useParams()` gets the id from the mock above instead. In a project on Next.js 14 or
+  earlier `params` is a plain object: pass `{ id: '42' }`.
 
 ## Queries and Async
 

@@ -42,7 +42,11 @@ in and leave the value out.
 
 - **Consumes** the Handover of the persistence layer: the repository, its methods, the result types they return, the
   steps that share a transaction, and the constraint violations its methods raise. In a project without a persistence skill run, the existing
-  repositories.
+  repositories. For a use case that calls an external system, also the Client Handover: the port and its methods.
+- **Assumes Drizzle below it.** The sections "Transactions" and "Constraint Violations" are written for the
+  persistence layer `/drizzle-persistence` builds. When the Persistence row of the stack file names another technology
+  (Prisma, TypeORM, MikroORM), follow the project's existing transaction and error-handling convention in their place,
+  write no Drizzle code, and say in the report that this skill did not guide those two parts.
 - **Produces** the public service methods the layer above calls — a controller of `/nest-rest` — with their input
   types, return types, and the domain errors they throw, and the provider entry in `<feature>.module.ts`.
 - **Never touches** the persistence code (queries, schema, migrations), the controllers and DTOs, the tests, or
@@ -126,7 +130,7 @@ alternative flow states, word for word.
 
 ## Transactions
 
-Drizzle has no ambient transaction: nothing like `@Transactional` joins a statement to a transaction, every statement
+These rules hold on the Drizzle persistence layer (see [Scope](#scope)). Drizzle has no ambient transaction: nothing like `@Transactional` joins a statement to a transaction, every statement
 must run on the `tx` handle it was opened with, and the service must not touch the database. So the repository owns the
 transaction, as `/drizzle-persistence` defines it. An existing convention of the project comes first.
 
@@ -189,8 +193,28 @@ callback: after a violation PostgreSQL has aborted the transaction, and nothing 
 Call only what the Handover names. A method that is missing is a request to the persistence skill, not a query in the
 service. Handle `undefined` from a single-row read; never assert non-null.
 
-A step that calls an external system needs the Client layer, and this plugin ships no client skill: never put an HTTP
-client in the service. `/use-case-implement` stops and hands off to `/stack`.
+## Calling an External System
+
+A step that calls an external system — the use case names it as a secondary actor — calls the port the Client
+Handover names, and only its listed methods. No HTTP client (`fetch`, `HttpService`, an SDK of the provider), message
+template, or provider type in a service.
+
+- **Where the Handover comes from.** This plugin ships no client skill. When the Client row of the stack file names a
+  technology and no skill, `/use-case-implement` builds the client itself before this layer and hands over the port:
+  an abstract class (or an interface with an injection token) with the adapter registered as its provider. Inject the
+  port, never the adapter.
+- When the use case calls a system and there is no Client Handover and no existing port, stop and name the missing
+  method for the Client layer (`/use-case-implement UC-XXX client`). A system the `## External systems` table of the
+  stack file does not list goes to `/stack` first, as `/use-case-implement` defines it in "Which Layers Run". Never
+  write the call into the service.
+- Turn the port's errors into the specification's outcome: let the flow's error reach the layer above when the step
+  stops there, or catch it where the specification continues differently. Whatever the flow does next — a
+  compensating write, a status — is the specification's, not a retry or fallback of your own.
+- Mind the transaction: a port call inside `transaction(work)` holds a database connection for as long as the provider
+  takes. Call the port before the transaction when the step needs its answer, and after it when the call must follow
+  the commit.
+- A business rule the external system's answer decides (the card is declined) is still marked in the service, at the
+  place that turns the answer into the rejection.
 
 ## Markers
 
@@ -206,6 +230,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
   `Request`, `Response`, a class-validator DTO.
 - Drop the `.js` suffix from a relative import in a NodeNext project.
 - Change the repository's signatures or the result types the persistence Handover provides.
+- Call an external system from the service other than through the port of the Client Handover.
 - Create tests — `/nest-service-test` writes them.
 - Add a service interface or injection token the project does not already use.
 - Catch an error only to log it and carry on, swallow a domain error into a `null` return, or catch a constraint
@@ -217,7 +242,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    /use-case-implement](#run-directly-or-from-use-case-implement).
 2. Read `docs/architecture/stack.md` for the module layout; run the detection of
    [references/module-layout.md](references/module-layout.md).
-3. Read the persistence Handover, or the existing repositories when there is none.
+3. Read the persistence Handover, or the existing repositories when there is none; for a use case that calls an
+   external system, the Client Handover — see [Calling an External System](#calling-an-external-system).
 4. Search for the existing service of this feature and for `UC-XXX` references; reconcile instead of duplicating.
 5. Write or extend the service: one method per step or command, input types, a guard clause with its marker per
    business rule, a domain error per rejection and per violation the Handover names, and `list`/`count` for a list that

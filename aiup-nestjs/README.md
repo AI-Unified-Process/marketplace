@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 [NestJS](https://nestjs.com) application: the business logic with its rules and domain errors, and a REST API with
 class-validator DTOs and RFC 9457 Problem Details, each with its test skill.
 
-It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.14.0 or later) and one plugin per other layer
+It is one layer of a stack, not a stack. Combine it with `aiup-core` (3.16.0 or later) and one plugin per other layer
 of your project. `/stack` records which plugin builds which layer in `docs/architecture/stack.md`; `/use-case-implement`,
 `/use-case-test`, and `/use-case-coverage` run the layer skills from there.
 
@@ -30,12 +30,21 @@ Each skill is normally run by `/use-case-implement UC-XXX` or `/use-case-test UC
 layer below to the next. Each can also be run directly, for example `/nest-rest UC-001` to change only the API of a use
 case.
 
-Two TypeScript-specific concerns are handled explicitly:
+**The service and test skills assume the Drizzle persistence layer** that `/drizzle-persistence` of `aiup-drizzle`
+builds: the transaction rules, the constraint violation handling, and the shared test setup are written for it. On
+another persistence technology (Prisma, TypeORM) `/nest-service` follows the project's own convention for those parts
+and says so, and the test skills stop before writing a Drizzle setup and report what the project uses. `/nest-rest`
+depends on no persistence technology.
+
+Three TypeScript-specific concerns are handled explicitly:
 
 - A NestJS project on ESM and NodeNext needs a `.js` suffix on every relative import, even though the source is
   TypeScript; a project on other module settings must not get one.
 - NestJS dependency injection needs decorator metadata. Below Vite 8, Vitest's esbuild transformer does not emit it and
   the project needs `unplugin-swc`; from Vite 8, Oxc reads it from `tsconfig.json`. The test skills check this first.
+- The test skills write Vitest specs. `nest new` scaffolds Vitest for an ESM project from NestJS 12 and Jest for a
+  CommonJS project (and for every project through NestJS 11): in a project whose runner is Jest, the test skills ask
+  before they add a second runner, and write for Jest when that is the answer.
 
 ## Combinations
 
@@ -56,8 +65,9 @@ Both test skills run in process against PostgreSQL in Testcontainers, so Docker 
 the per-use-case seed `test/data/uc<id>-<slug>.ts` and the entry point the E2E tests start, is
 [`test-setup.md`](skills/nest-service-test/references/test-setup.md).
 
-This plugin ships no Client layer skill: a use case that calls an external system has no layer skill to build the
-adapter yet, and `/stack` asks which technology calls it.
+This plugin ships no Client layer skill. For a use case that calls an external system, `/stack` records the technology
+that calls it, `/use-case-implement` builds the port and its adapter itself, `/nest-service` calls the port, and the
+integration layer's test skill writes the fake of the port that stands in for the system in every test.
 
 ## Installation
 

@@ -59,6 +59,12 @@ tag and file name. `/use-case-test UC-XXX` runs the tests of all layers; `/test-
 A test case is the user's call to fix on either side too: the code (`/use-case-implement UC-XXX`) or the specification
 (`/use-case-spec UC-XXX`, or `/test-case TC-XXX` for the journey itself).
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## Decide the Test Type First
 
 | Input                                                    | Artifact               | Test type                                                                   |
@@ -91,7 +97,7 @@ npx playwright install chromium
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-    testDir: './tests/e2e',
+    testDir: './e2e',
     use: {
         baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:4200',
     },
@@ -99,13 +105,15 @@ export default defineConfig({
 ```
 
 Take the base URL and the E2E folder from `docs/architecture/stack.md` (the E2E row's Location and the End-to-end tests
-command) or the existing config; the default above is the Angular dev server. With a separate backend, the browser
-talks only to the frontend origin, which proxies `/api/*` to the backend.
+command) or the existing config; the default above is the Angular dev server (`4200`), a Next.js dev server listens
+on `3000`. With a separate backend, the browser talks only to the frontend origin, which proxies `/api/*` to the
+backend.
 
 When the frontend and the backend are two applications and the project has no way of starting them yet, let
-Playwright own both, with the ports and commands of the project. The example is a Next.js frontend and a NestJS API;
-there the backend is the E2E server of the `test-setup.md` reference named under [Test Data](#test-data), which also
-provides its own database:
+Playwright own both, with the ports and commands of the project: the backend command is the one the End-to-end tests
+row of the Commands table names, or the one the Hand-off of the backend test skill names — see
+[Test Data](#test-data). The example is a Next.js frontend and a NestJS API whose test skill handed over a compiled
+E2E server that provides its own database:
 
 ```ts
 // playwright.config.ts
@@ -134,7 +142,7 @@ that role's stored state.
 // playwright.config.ts
 projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
-    { name: 'chromium', dependencies: ['setup'], use: { storageState: 'tests/e2e/.auth/user.json' } },
+    { name: 'chromium', dependencies: ['setup'], use: { storageState: 'e2e/.auth/user.json' } },
 ],
 ```
 
@@ -148,11 +156,13 @@ cases its Flow links. Flyway's default location `classpath:db/migration` picks i
 its test classpath.
 
 A project on Drizzle has no such migration, because its migrations are generated and never hand-written. Its default
-is the per-use-case seed the backend test skills write, `test/data/uc<id>-<slug>.ts` in the API application; the
-section "The running application for E2E" of the `test-setup.md` reference of `nest-service-test` says how the
-running application loads it (locate it with a glob
-for `**/*nest-service-test/references/test-setup.md`; the skill folder may carry a host prefix such as
-`tessl__nest-service-test`). Any other migration technology: follow the project, and ask when it has no convention.
+is the per-use-case seed the backend test skills write, `test/data/uc<id>-<slug>.ts` in the API application. How the
+running application loads it is not this skill's to invent, and this skill reads no file of another plugin for it:
+take the command that starts the backend with its test data from the End-to-end tests row of the Commands table of
+`docs/architecture/stack.md`, or from the Hand-off of the backend test skill (`/nest-service-test` names an E2E
+server and the two commands that build and start it). When neither names one, ask how the backend is started with
+the test data; when no one can answer, report that the E2E tests cannot run yet and that `/nest-service-test UC-XXX`
+writes the E2E server. Any other migration technology: follow the project, and ask when it has no convention.
 
 - Test case **Preconditions** and use case preconditions are satisfied by that data. When they are not, extend the
   use case's test data file rather than inserting through a back door, and say so in the report.
@@ -175,21 +185,23 @@ for `**/*nest-service-test/references/test-setup.md`; the skill folder may carry
   derive the created data from the Flow.
 
 An external system the use case calls (its secondary actor in the `## External systems` table of the stack file)
-must not be reached from the running application: it runs with a test profile that points the system's base URL at a
-stub, as "Which Layer Tests What" of `/use-case-test` says for external systems. Without such a profile, leave out
-the steps that call the system and say so in the report.
+must not be reached from the running application. This skill drives the application as a separate process, so a fake
+of the port cannot reach it: the application runs with a test profile that points the system's base URL at a stub, as
+`/use-case-test` defines in "Which Layer Tests What" (section "External systems" of its reference). Without such a
+profile, leave out the steps that call the system and list them in the report as not automated.
 
 ## Use Case Tests (UC-*)
 
 One use case, one file `UC-XXX-<slug>.spec.ts`; template [references/use-case.spec.ts.md](references/use-case.spec.ts.md).
 Cover the main success scenario and every alternative flow the actor sees. Business rules are tested in the
-integration layer of `docs/architecture/stack.md` (the API tests behind an Angular client); here only their effect the
+integration layer of `docs/architecture/stack.md` (the API tests behind an Angular or Next.js client); here only their effect the
 actor observes (the rejection message, a filtered list), not every rule again.
 
 - One `test.describe('UC-XXX: <Use Case Name>', …)`.
 - Every test carries `{ tag: '@UC-XXX' }` and names its scenario with the specification's heading:
   `'main scenario - …'`, `'A1: Filter by Category'`. The tag and the E2E folder are what tell this file from the
-  `angular-ui-test` suite of the same use case, which has the same file name and `describe` title.
+  UI test suite of the same use case (`angular-ui-test`), which has the same file name and `describe` title; a
+  Next.js component test differs by its `.test.tsx` suffix as well.
 - Run one use case with `npx playwright test --grep "@UC-010"`.
 
 ## Test Case Journeys (TC-*)

@@ -149,15 +149,22 @@ and run its detection. A NodeNext project needs a `.js` suffix on every relative
 ## Validation
 
 The `ValidationPipe` needs `class-validator` and `class-transformer`. A project without them gets both: the NestJS API
-row of the stack file is the decision for them, and the report names them. `ValidationPipe` is global, with `whitelist`, `forbidNonWhitelisted`, and `transform`. Check that it exists; a project
-without one gets it in the root module, so that a test application built from that module has it too:
+row of the stack file is the decision for them, and the report names them. `ValidationPipe` is global, with `whitelist`,
+`forbidNonWhitelisted`, `transform`, and an `exceptionFactory` that names the field of every violation, so the error
+body carries `errors: [{ field, message }]` and a client can put each message on its input — the same body
+`/spring-rest` hands over, so a UI skill works on either API layer. Check that the pipe exists; a project without one
+gets `validationPipe` of [references/worked-example.md](references/worked-example.md) in the root module, so that a
+test application built from that module has it too:
 
 ```ts
 providers: [
-  { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }) },
+  { provide: APP_PIPE, useValue: validationPipe },
   { provide: APP_FILTER, useClass: ProblemDetailsFilter },
 ],
 ```
+
+An existing pipe without the factory keeps its format: hand over the `errors` shape it really produces, and report
+that a client cannot attach a message to a field.
 
 What cannot live in a module, such as `app.setGlobalPrefix('api')`, goes into one exported function that `main.ts`
 calls, so that the test application and the E2E server configure the same application:
@@ -254,7 +261,7 @@ Handover from nest-rest (UC-001)
   birthDate: date "YYYY-MM-DD", arrivalDate: date }
 - GuestResponse { id: number, firstName: string, lastName: string, email: string, birthDate: date }
 - Page<GuestListItemResponse> { content: [{ id, firstName, lastName, email }], page, size, totalElements }
-- Errors: application/problem+json { type, title, status, detail, errors?: [{ message }] }
+- Errors: application/problem+json { type, title, status, detail, errors?: [{ field, message }] }
 - Contract: docs/api/booking.yaml#createBooking followed (path, properties, statuses); not built: flow A3 has no
   documented response (OQ-014)   (only when the use case has an **API:** line)
 Nothing to do: <reason>   (when the use case has no API change)
@@ -267,7 +274,8 @@ UC-XXX` when the API is the top layer. Never run the coverage audit.
 
 - [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
   discover it.
-- [references/worked-example.md](references/worked-example.md) — a read and a write endpoint, and the exception filter.
+- [references/worked-example.md](references/worked-example.md) — a read and a write endpoint, the validation pipe, and
+  the exception filter.
 - NestJS controllers: https://docs.nestjs.com/controllers
 - NestJS validation: https://docs.nestjs.com/techniques/validation
 - NestJS exception filters: https://docs.nestjs.com/exception-filters

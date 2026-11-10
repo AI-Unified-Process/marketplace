@@ -64,10 +64,18 @@ Run directly, the same rules apply:
 - Update the existing spec of this use case instead of writing a second one; search for `describe('UC-XXX:` first.
 - Write this layer's tests only, and say that `/use-case-test UC-XXX` runs all layers.
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## Test Setup
 
 Read [references/test-setup.md](references/test-setup.md) before writing anything, and check its sections against the
-project: the Vitest transformer, the Testcontainers global setup, `openTestDb`, `createTestApp`, the test data. Add what is missing and
+project: the persistence technology and the test runner first — on another persistence technology than Drizzle, or in
+a project whose runner is Jest, the reference says where to stop and ask — then the Vitest transformer, the
+Testcontainers global setup, `openTestDb`, `createTestApp`, the test data. Add what is missing and
 say so; reuse what exists. For the API app root and the import style, locate the shared reference with a glob for
 `**/*nest-service/references/module-layout.md` (the folder may carry a host prefix such as `tessl__nest-service`); test
 files carry `.js` specifiers in a NodeNext project exactly like source files do.
@@ -100,7 +108,8 @@ it; the `describe` title is what `/use-case-coverage` searches for.
 - **Real call chain**: the service comes from `app.get(GuestsService)`. No `vi.fn()`, `overrideProvider`, or stub on a
   repository or service of the use case's own call chain: a stub is a different test, and the layer would no longer run
   against the real database, which is what the Integration layer table of the stack file relies on. An external system
-  is the exception: `/use-case-test` says what stands in for it.
+  is the exception: `/use-case-test` says what stands in for it — a fake of the port — and section "Test data" of the
+  setup reference says who writes it in a project without a client test skill.
 - **Constraint violations**: where the Handover names one, the race cannot be staged through the service; a test that
   inserts the row between check and write needs a stub, so report that branch as unreached rather than faking it.
 - **Time and randomness**: see section "Non-deterministic inputs" of the setup reference.
@@ -111,10 +120,21 @@ it; the `describe` title is what `/use-case-coverage` searches for.
 // test/UC-001-register-guest.service-spec.ts
 import type { INestApplication } from '@nestjs/common';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { inArray } from 'drizzle-orm';
+import { DRIZZLE, type DrizzleDb } from '../src/database/drizzle.provider.js';
+import { guests } from '../src/database/schema.js';
 import { GuestTooYoungError } from '../src/guests/guests.errors.js';
-import { GuestsRepository } from '../src/guests/guests.repository.js';
-import { GuestsService } from '../src/guests/guests.service.js';
+import { GuestsService, type RegisterGuest } from '../src/guests/guests.service.js';
 import { createTestApp } from './utils/create-app.js';
+
+// The values of the specification's example; each test changes only what its rule is about.
+const valid: RegisterGuest = {
+  firstName: 'Grace',
+  lastName: 'Hopper',
+  email: 'grace@example.com',
+  birthDate: '1990-12-09',
+  arrivalDate: '2026-03-01',
+};
 
 describe('UC-001: Register Guest', () => {
   let app: INestApplication;
@@ -126,8 +146,12 @@ describe('UC-001: Register Guest', () => {
     service = app.get(GuestsService);
   });
 
+  // UC-001 offers no delete, so the cleanup goes through the DRIZZLE handle, not a repository method.
   afterEach(async () => {
-    await Promise.all(created.splice(0).map((id) => app.get(GuestsRepository).delete(id)));
+    const ids = created.splice(0);
+    if (ids.length > 0) {
+      await app.get<DrizzleDb>(DRIZZLE).delete(guests).where(inArray(guests.id, ids));
+    }
   });
 
   afterAll(async () => {
@@ -176,7 +200,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Workflow
 
 1. When run directly, read the inputs and apply the rules of [Run Directly or from /use-case-test](#run-directly-or-from-use-case-test).
-2. Check the setup against [references/test-setup.md](references/test-setup.md): the transformer first, then the
+2. Check the setup against [references/test-setup.md](references/test-setup.md): the persistence technology and the
+   test runner first, then the transformer, the
    container, `createTestApp`, and the seeds. Add what is missing.
 3. Read the service and its errors — the mechanics only; expected values come from the specification.
 4. Search for `describe('UC-XXX:` and existing specs of the feature; update instead of adding a second file.
@@ -193,6 +218,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification, with the rule or step, the expected
   value, and the actual value.
 - Units this layer cannot reach, by name.
+- In a project with an E2E layer: the E2E server of the setup reference (section "The running application for E2E")
+  and the two commands that build and start it, for the team to record under End-to-end tests in the Commands table —
+  the E2E test skill takes them from there or from this hand-off.
 - When run directly, one `Next:` line: the next test skill above in the Layers table — `/nest-rest-test UC-XXX` when the
   project has an API layer — or `/use-case-coverage UC-XXX`. Never run the coverage audit.
 

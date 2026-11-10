@@ -52,6 +52,12 @@ specification or the test data, never from a run of the code; never weaken, dele
 value the specification states — leave the test failing and report the expected and the actual value; update an
 existing test file instead of writing a second one. Say that `/use-case-test UC-XXX` runs all test layers.
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## What to Test in This Layer
 
 Following "Which Layer Tests What" of `/use-case-test`: the integration layer's tests named in
@@ -81,8 +87,11 @@ excludes (`BR-001`). Otherwise a rule's cases belong to the integration layer's 
 The Vitest configuration, the Testcontainers lifecycle, the per-file schema reset, and the test data convention live
 once, in the test setup reference of `aiup-nestjs`: locate it with a glob for
 `**/*nest-service-test/references/test-setup.md` (the skill folder may carry a host prefix such as
-`tessl__nest-service-test`) and follow it before writing a test. Check what it says is present; add only what is
-missing, and say so.
+`tessl__nest-service-test`) and follow it before writing a test, its section "The test runner" first: in a project
+whose runner is Jest it says where to stop and ask instead of adding Vitest. Check what it says is present; add only
+what is missing, and say so. Open the connection as the project's provider does: section "Drizzle version" of
+`drizzle-config.md` (a glob for `**/*drizzle-schema/references/drizzle-config.md`) names what differs from
+`drizzle-orm` 1.0 on.
 
 A repository test boots no application. It builds the handle the provider would build, runs the migrations, applies
 the seed, and constructs the repository directly:

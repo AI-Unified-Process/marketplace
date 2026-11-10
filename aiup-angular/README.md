@@ -11,7 +11,8 @@ of a project that combines one plugin per layer with [`aiup-core`](../aiup-core/
 and HTTP services of a use case on top of the REST API the API layer provides, and tests them with Vitest.
 
 Angular is a client-side UI: it talks to the backend only over HTTP, so a project with this plugin always has an
-API layer as well (for example `spring-rest` of `aiup-spring-boot`). The TypeScript models are written field by
+API layer as well (`spring-rest` of `aiup-spring-boot`, `nest-rest` of `aiup-nestjs`, or any other backend that
+hands over its endpoints). The TypeScript models are written field by
 field from that layer's DTOs, and the JSON contract between the two is checked after every implementation.
 
 ## Skills
@@ -25,8 +26,8 @@ The skills are normally run by `aiup-core`, not one by one:
 
 ```text
 /stack        # records Angular as the UI layer in docs/architecture/stack.md
-/use-case-implement UC-001 # … → spring-rest → angular-ui
-/use-case-test UC-001      # … → spring-rest-test → angular-ui-test → playwright-e2e-test
+/use-case-implement UC-001 # … → spring-rest (or nest-rest) → angular-ui
+/use-case-test UC-001      # … → spring-rest-test (or nest-rest-test) → angular-ui-test → playwright-e2e-test
 /use-case-coverage UC-001  # the one audit, using the markers these skills keep in docs/architecture/stack.md
 ```
 
@@ -38,6 +39,7 @@ as `/use-case-implement` or `/use-case-test`, works on the UI layer only, and en
 | Project                   | Plugins next to `aiup-core`                                                      |
 |---------------------------|----------------------------------------------------------------------------------|
 | Angular, Spring Boot, JPA | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` |
+| Angular, NestJS, Drizzle  | `aiup-drizzle`, `aiup-nestjs`, `aiup-angular`, `aiup-playwright`                 |
 
 Any persistence plugin works below the API layer (`aiup-jooq` instead of `aiup-jpa`). Browser tests of the running
 application come from [`aiup-playwright`](../aiup-playwright/).
@@ -65,7 +67,7 @@ agents.
 
 ## Prerequisites
 
-- `aiup-core` 3.3.0 or later, and `docs/architecture/stack.md` written by `/stack`.
+- `aiup-core` 3.16.0 or later, and `docs/architecture/stack.md` written by `/stack`.
 - An Angular project using standalone components; Vitest through `@angular/build:unit-test` (or a Vitest config).
 - An API layer plugin that hands over its endpoints and DTOs.
 

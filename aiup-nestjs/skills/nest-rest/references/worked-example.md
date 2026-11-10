@@ -97,6 +97,36 @@ export class ProductsController {
 `CreateProductBody` and `ListProductsQuery` are plain imports on purpose: `import type` erases the class, and the
 `ValidationPipe` then has nothing to validate against.
 
+## The validation pipe
+
+Only for a project that has none. The `exceptionFactory` keeps the property name of every violation, nested ones with a
+dotted path, so the filter can answer `errors: [{ field, message }]`.
+
+```ts
+// src/common/validation.pipe.ts
+import { BadRequestException, ValidationPipe, type ValidationError } from '@nestjs/common';
+
+export type FieldError = { field: string; message: string };
+
+function fieldErrors(errors: ValidationError[], parent = ''): FieldError[] {
+  return errors.flatMap((error) => {
+    const field = parent ? `${parent}.${error.property}` : error.property;
+    return [
+      ...Object.values(error.constraints ?? {}).map((message) => ({ field, message })),
+      ...fieldErrors(error.children ?? [], field),
+    ];
+  });
+}
+
+export const validationPipe = new ValidationPipe({
+  whitelist: true,
+  forbidNonWhitelisted: true,
+  transform: true,
+  exceptionFactory: (errors) =>
+    new BadRequestException({ message: 'The request is invalid.', errors: fieldErrors(errors) }),
+});
+```
+
 ## The exception filter
 
 Only for a project that has none. An existing filter gets the new errors added instead.
@@ -106,6 +136,7 @@ Only for a project that has none. An existing filter gets the new errors added i
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException } from '@nestjs/common';
 import type { Response } from 'express';
 import { BusinessRuleError, NotFoundError } from './errors.js';
+import type { FieldError } from './validation.pipe.js';
 
 @Catch(BusinessRuleError, NotFoundError, HttpException)
 export class ProblemDetailsFilter implements ExceptionFilter {
@@ -131,16 +162,15 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     return exception instanceof NotFoundError ? 404 : 409;
   }
 
-  // ValidationPipe answers with a BadRequestException whose message is a list of strings.
-  private fieldErrors(exception: Error): { message: string }[] | undefined {
+  // The validation pipe answers with a BadRequestException that carries the field errors.
+  private fieldErrors(exception: Error): FieldError[] | undefined {
     if (!(exception instanceof HttpException)) return undefined;
     const response = exception.getResponse();
-    const message = typeof response === 'object' ? (response as { message?: unknown }).message : undefined;
-    return Array.isArray(message) ? message.map((text) => ({ message: String(text) })) : undefined;
+    const errors = typeof response === 'object' ? (response as { errors?: unknown }).errors : undefined;
+    return Array.isArray(errors) ? (errors as FieldError[]) : undefined;
   }
 }
 ```
 
 Express's `type('application/problem+json')` keeps the media type; `send` with an object then writes JSON. Register the
-filter with `APP_FILTER` in the root module, as section "Validation" of the skill shows. A `{ field, message }` entry per
-field needs an `exceptionFactory` on the `ValidationPipe`; add it when the API contract or a client asks for the field.
+pipe with `APP_PIPE` and the filter with `APP_FILTER` in the root module, as section "Validation" of the skill shows.

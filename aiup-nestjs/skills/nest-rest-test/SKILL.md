@@ -68,12 +68,19 @@ Run directly, the same rules apply:
 - Update the existing spec of this use case instead of writing a second one; search for `describe('UC-XXX:` first.
 - Write this layer's tests only, and say that `/use-case-test UC-XXX` runs all layers.
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## Test Setup
 
 The shared setup lives once, in `/nest-service-test`: locate it with a glob for
 `**/*nest-service-test/references/test-setup.md` (the folder may carry a host prefix such as
-`tessl__nest-service-test`) and read it before writing anything. Check its sections against the project: the Vitest
-transformer, the Testcontainers global setup, `openTestDb`, `createTestApp`, the test data. Add what is missing and say so; reuse what
+`tessl__nest-service-test`) and read it before writing anything. Check its sections against the project: the
+persistence technology and the test runner first — on another persistence technology than Drizzle, or in a project
+whose runner is Jest, the reference says where to stop and ask — then the Vitest transformer, the Testcontainers global setup, `openTestDb`, `createTestApp`, the test data. Add what is missing and say so; reuse what
 exists. For the API app root and the import style, locate `**/*nest-service/references/module-layout.md` the same way.
 
 Check one thing here that a service test cannot show: **the test application has what `main.ts` configures.** A global
@@ -100,7 +107,7 @@ the `describe` title is what `/use-case-coverage` searches for.
 | Alternative flow rejected by the service | status, the error format's content type and `type`, and the full `detail` message  |
 | Business rule                            | an allowed and a rejected request at the boundary the rule names, the rejection with its full `detail` |
 | Postcondition                            | the persisted state read back through the API's own read endpoint when the response does not expose it |
-| Invalid input                            | `400` and the error body; an unknown query parameter or body field where the `ValidationPipe` forbids it |
+| Invalid input                            | `400` and the error body with `errors: [{ field, message }]` naming the rejected field, as the Handover lists it; an unknown query parameter or body field where the `ValidationPipe` forbids it |
 | Entity not found                         | `404` with the error body, when the use case addresses an entity by id             |
 | JSON contract                            | field names and formats the client relies on: dates `YYYY-MM-DD`, amounts, nulls, and columns that must stay out of the response |
 
@@ -111,7 +118,8 @@ the `describe` title is what `/use-case-coverage` searches for.
   little when the test data is known.
 - **Full stack, nothing mocked**: no `overrideProvider`, `vi.fn()`, or stub on a service or repository of the use case's
   own call chain. A test that mocks the service proves only the controller's wiring, not that the rejection reaches the
-  caller. An external system is the exception: `/use-case-test` says what stands in for it.
+  caller. An external system is the exception: `/use-case-test` says what stands in for it — a fake of the port — and
+  section "Test data" of the setup reference says who writes it in a project without a client test skill.
 - **Test data and cleanup**: see section "Test data" of the setup reference. A rule about what a read leaves out needs
   a row that the rule excludes in the use case's seed, or the test proves nothing.
 - Assert on the response body, the JSON actually sent over the wire.
@@ -190,7 +198,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 ## Workflow
 
 1. When run directly, read the inputs and apply the rules of [Run Directly or from /use-case-test](#run-directly-or-from-use-case-test).
-2. Check the setup against the setup reference: the transformer first, then the container, `createTestApp` with what
+2. Check the setup against the setup reference: the persistence technology and the test runner first, then the
+   transformer, the container, `createTestApp` with what
    `main.ts` configures, and the seeds. Add what is missing.
 3. Read the controller, its DTOs, and the exception filter — the mechanics only; expected statuses and messages come
    from the API contract and the specification.
@@ -208,6 +217,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification or the API contract, with the flow, the
   expected value, and the actual value.
 - Units no endpoint reaches, by name.
+- In a project with an E2E layer: the E2E server of the setup reference (section "The running application for E2E")
+  and the two commands that build and start it, for the team to record under End-to-end tests in the Commands table —
+  the E2E test skill takes them from there or from this hand-off.
 - When run directly, one `Next:` line: the UI test skill of the Layers table when the project has a UI layer
   (`/nextjs-ui-test UC-XXX`), otherwise `/use-case-coverage UC-XXX`. Never run the coverage audit.
 

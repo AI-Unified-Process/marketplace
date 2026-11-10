@@ -15,3 +15,7 @@ layer. Keep this row and the Plugins table of the layer catalog in `aiup-core` i
 | Plugin | Layer | Skill | Test skill | Tests run | Detect in an existing project |
 |--------|-------|-------|------------|-----------|-------------------------------|
 | `aiup-nestjs` | Service | `nest-service` | `nest-service-test` | in process, real database | `@Injectable()` in `*.service.ts`; `@nestjs/core` in `package.json` |
+
+The service and test skills assume the Drizzle persistence layer (`/drizzle-persistence`): on another persistence
+technology `nest-service` follows the project's own transaction convention, and `nest-service-test` stops and reports
+instead of writing a Drizzle test setup.

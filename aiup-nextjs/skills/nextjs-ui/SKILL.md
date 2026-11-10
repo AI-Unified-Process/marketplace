@@ -87,6 +87,23 @@ When the project deviates from a default below, follow the project.
   component beside its siblings. [references/worked-example.md](references/worked-example.md) shows both forms.
 - **`useSearchParams` sits under `<Suspense>`** in the route file, or static generation fails at build time with an
   error that names the hook but not the fix.
+- **Dynamic segments are a Promise.** A use case that works on one entity (`src/app/guests/[id]/page.tsx`) reads the
+  id from `params`, which from Next.js 15 on is a `Promise`, as `searchParams` is: a client page unwraps it with
+  React's `use(params)`, a Server Component with `await params`, and a component below the page reads
+  `useParams<{ id: string }>()` from `next/navigation`. The synchronous `{ params }: { params: { id: string } }` of
+  Next.js 14 and earlier fails the type check of `next build`; check the installed `next` version before choosing.
+  The value is a string: convert it before it goes into a typed call.
+
+  ```tsx
+  'use client';
+  import { use } from 'react';
+
+  /** UC-012: Edit Guest */
+  export default function EditGuestPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
+    // …
+  }
+  ```
 - **Component library**: where shadcn/ui, Tailwind, and `lucide-react` are installed, build with them and with the
   project's theme tokens — not raw hex values, not a second component library, and not a raw `<select>` where the
   project has a styled primitive.
@@ -110,7 +127,7 @@ name it in the Handover.
 
 ## Calling the API
 
-- **The path is relative.** `/api/products`, never `http://localhost:3001/api/products`. The rewrite in `next.config.*`
+- **The path is relative.** `/api/products`, never `http://localhost:8080/api/products`. The rewrite in `next.config.*`
   reaches the API, so the code never changes between environments; the origin is fixed when `next build` runs (see
   the layout reference). A hardcoded origin in a page breaks every environment but one.
 - **Use the project's fetch client if it has one.** A project with `apiGet`/`apiPost` helpers put them there for error
@@ -209,7 +226,7 @@ End with the files you created or changed, the **Open questions** list when ther
 Handover from nextjs-ui (UC-010)
 - Route: /products  → ProductCatalog  — src/app/products/page.tsx (wrapper), src/views/ProductCatalog.tsx
 - Calls: apiGet('/api/products?category=…') → GET /api/products; apiGet('/api/products/categories')
-- Types: Product { id, name, category, price, imageUrl | null }  — src/types/product.ts
+- Types: Product { id, name, category, price }  — src/types/product.ts (price in whole cents, as the API sends it)
 - Labels: heading "Products"; field "Category"; empty state "No products found."
 - Validations: none (or: dateOfBirth → UC-020 BR-002)
 - Server Components: none (or: the page and what it fetches on the server)

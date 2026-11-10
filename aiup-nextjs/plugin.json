@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aiup-nextjs",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "AI Unified Process UI layer - Next.js App Router pages on an API layer, and their component tests",
   "author": {
     "name": "Simon Martinelli",

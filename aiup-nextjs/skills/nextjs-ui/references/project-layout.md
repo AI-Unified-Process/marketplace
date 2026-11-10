@@ -66,13 +66,16 @@ Pages Router would claim. Do not "tidy" it into `src/pages`.
 
 The browser calls relative `/api/...` paths, and a rewrite in `next.config.*` forwards them to the API origin. Read
 the rewrite and compare it with the base path of the API contract section of the stack file. With no rewrite yet, add
-one that reads the origin from an environment variable with a local default, and name the variable in your report:
+one that reads the origin from an environment variable with a local default, and name the variable in your report.
+The default is the origin the project's API listens on locally, never a guess: take the port from the API layer's
+configuration at the Location the stack file gives (`server.port` of a Spring Boot application, `8080` when it sets
+none; the `listen` call in `main.ts` of a NestJS application) or from the Commands table, and ask when neither says.
 
 ```ts
 // next.config.ts
 const nextConfig = {
   async rewrites() {
-    const origin = process.env.API_ORIGIN ?? 'http://localhost:3001';
+    const origin = process.env.API_ORIGIN ?? 'http://localhost:8080'; // the local origin of this project's API
     return [{ source: '/api/:path*', destination: `${origin}/api/:path*` }];
   },
 };

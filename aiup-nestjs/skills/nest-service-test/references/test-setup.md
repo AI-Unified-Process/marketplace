@@ -6,10 +6,39 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Test setup of a NestJS application
 
-The one description of how the tests of a NestJS application run: read by `/nest-service-test`, `/nest-rest-test`, the
-persistence test skill, and the E2E test skill. An existing setup of the project comes first: check each section,
-reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js` suffixes where
-the layout detection found none.
+The one description of how the tests of a NestJS application run: read by `/nest-service-test`, `/nest-rest-test`, and
+the persistence test skill `/drizzle-persistence-test`. An existing setup of the project comes first: check each
+section, reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js`
+suffixes where the layout detection found none.
+
+**It assumes PostgreSQL through Drizzle.** When the Persistence row of `docs/architecture/stack.md` names another
+technology, stop before writing any of this: report which technology the project uses and that this setup does not
+cover it, and ask how its tests reach the database.
+
+## The test runner: check this first
+
+The specs and the setup below are written for **Vitest**. Read `package.json` and the test configuration before
+writing a file:
+
+| What the project has                                                      | What to do                                      |
+|---------------------------------------------------------------------------|-------------------------------------------------|
+| `vitest` in `devDependencies`, a `vitest.config*.ts`                      | Go on with this reference                       |
+| `jest` in `devDependencies`, `jest.config.*` or `test/jest-e2e.json`      | Stop and ask — see below                        |
+| Neither                                                                   | Vitest, as a new dependency the report names    |
+
+`nest new` writes Vitest for an ESM project from NestJS 12 on, and Jest for a CommonJS project and for every project
+through NestJS 11, so a Jest setup is common. Never add Vitest next to it unasked, and never write a spec that imports
+from `vitest` into a project that cannot run it. Ask which the team wants:
+
+- **Stay on Jest**: keep the file names, the `describe` and `it` titles, the test data files, and every rule of the
+  test skill, and translate the mechanics — `@jest/globals` or the globals in place of the `vitest` import, `jest.fn()`
+  and `jest.useFakeTimers({ doNotFake: [...] })`, `globalSetup`/`globalTeardown` modules that publish `DATABASE_URL`
+  through `process.env` in place of `project.provide` and `inject`, `maxWorkers: 1` in place of
+  `fileParallelism: false`, and `testRegex` for the spec suffixes. `ts-jest` reads `emitDecoratorMetadata` from
+  `tsconfig.json`, so the transformer check below does not apply.
+- **Move to Vitest**: a new dependency and a change to the existing specs, which is the team's decision.
+
+When no one can answer, stay on Jest — the project's convention comes first — and say so in the report.
 
 ## Vitest configuration: check this before writing a single test
 
@@ -47,8 +76,8 @@ export default defineConfig({
 });
 ```
 
-The Nest generator may already have written this file: extend it. Its `test/app.e2e-spec.ts` runs under the wider
-`include` too and is left alone.
+The Nest generator writes this file for an ESM project from NestJS 12 on: extend it. Its `test/app.e2e-spec.ts` runs
+under the wider `include` too and is left alone.
 
 Adding `unplugin-swc`, `@swc/core`, `testcontainers`, or `supertest` is a new dependency: it follows the decision
 rights of `/use-case-implement`, and the report names it.
@@ -83,7 +112,12 @@ declare module 'vitest' {
 ```
 
 Per test file, drop and recreate the schema, then migrate. `openTestDb` does that and hands back a Drizzle connection;
-the persistence tests use it alone, without an application:
+the persistence tests use it alone, without an application.
+
+The examples are written for the stable `drizzle-orm` 0.x line. Read the installed version from `package.json`
+first: from 1.0 (a release candidate at the time of writing) `drizzle()` takes `{ relations }` where 0.x takes
+`{ schema }`, and the migrations folder holds one folder per migration instead of a `meta/_journal.json`. Open the
+connection exactly as the project's `drizzle.provider.ts` does, whatever the version:
 
 ```ts
 // test/utils/test-db.ts
@@ -201,7 +235,7 @@ export async function applySeeds(db: DrizzleDb): Promise<void> {
 ```
 
 - `test/data/uc<id>-<slug>.ts` exports `seed(db)` and is applied **after** `migrate()`. It is never a migration:
-  Drizzle migrations are generated, and a hand-written one desynchronises the journal.
+  Drizzle migrations are generated, and a hand-written one desynchronises the migration history.
 - A seed is **idempotent** (`onConflictDoNothing` on a unique key) and leaves generated ids to the database, because
   every seed runs together and an E2E server may restart on the same database. Take the values from the specification's
   examples and the entity model.
@@ -212,6 +246,12 @@ export async function applySeeds(db: DrizzleDb): Promise<void> {
 - **Cleanup:** remove only the rows the test created, in `afterEach`, by id or by the value the test used; never delete
   all data. A use case that offers no delete gets none added for a test: delete through the `DRIZZLE` handle of the
   application under test.
+- **An external system** never answers a test. Where the Layers table has a client test skill, it writes the fake of
+  each port. This plugin ships none: the test skill of the integration layer then writes the fake itself, a class in
+  `test/fakes/<system>.fake.ts` that implements the port with the answers the alternative flows need, taken from the
+  contract the `## External systems` table of the stack file names. `createTestApp` puts it in place of the adapter
+  with `overrideProvider(<Port>).useValue(fake)` — the one override a test application gets — and the report names
+  the file. The same fake serves the service and the API tests.
 - **A flow the shared test data rules out** (an empty list) gets its own spec file, `UC-XXX-<slug>-empty.e2e-spec.ts`
   or `-empty.service-spec.ts`, whose `createTestApp({ seed: false })` starts without the rows. The tests run in process, so such a flow is reachable
   here; E2E leaves it to this layer.
