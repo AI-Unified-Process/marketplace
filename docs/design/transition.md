@@ -39,6 +39,11 @@ every use case. Transition adds three skills that read them.
   with both ways out — the same rule as drift in the coverage agent. Comparing with a rewrite from the previous
   specification (`git show`) was rejected for the same reason as comparing with a fresh one, and a `spec=` hash alone
   cannot see a hand edit.
+- **A use case no person performs still gets an anchor.** A use case whose primary actors are all systems or timers
+  has no chapter, but `/next` offers `/user-guide` for every `Tested` or `Done` use case without an anchored section
+  and cannot tell a person from a system. So the skill writes a short anchored section for it in `README.md` under
+  "What the system does by itself". Teaching `spec_lint.py` to guess which actor is a person was rejected: the
+  specification does not say it, and a guess would hide a use case the guide forgot.
 - **The plan waits for a yes when someone can answer.** A new guide or a changed set of chapters is shown first and
   written after the confirmation; when no one can answer (a pipeline, a host without a way to ask, a confirmation in
   advance), the plan is written as shown and opens the report — the rule `/entity-model` already follows for its

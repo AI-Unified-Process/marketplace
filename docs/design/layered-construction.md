@@ -71,18 +71,23 @@ layer plugins can. Rules that hold it together:
   separate process (`/playwright-e2e-test`) cannot, so it uses a stub profile when the project has one, and otherwise
   leaves the steps that call the system out and lists them as not automated. The rule lives once, in section
   "External systems" of `use-case-test/references/which-layer-tests-what.md`. The Tests run value `in process, external system stubbed` exists for
-  the Client row alone and never decides an integration layer.
+  the Client row alone and never decides an integration layer. A Client layer needs the service layer, like an API
+  layer and a Hilla UI: the service calls the port and lets the failure pass through, so a Vaadin Flow project
+  without a service layer (Service `–`) that confirms an external system is asked by `/stack` to add one. Letting
+  the view call the port was rejected: the view would own retry outcomes and the failure mapping the service owns
+  everywhere else.
 - **One integration layer per entry point.** Start at the entry layer a use case is offered through: when its test
   skill runs in process against the real database (the catalog's Tests run column: `vaadin-flow-ui-test`,
   `spring-rest-test`, `spring-service-test`, `nest-rest-test`, `nest-service-test`, the persistence tests), that is
   the integration layer; when it mocks the backend (`hilla-ui-test`, `angular-ui-test`, `nextjs-ui-test`), it is the
   layer that entry layer calls. So Flow → UI, Hilla → Service, Angular → API, Next.js → API, REST → API,
-  Service → Service (Persistence when the project has no service layer); an API next to Flow or Hilla never moves the
+  Service → Service; an API next to Flow or Hilla never moves the
   UI's integration layer, because the UI does not call it. The rule lives once, in the section "Tests run, and the integration layer" of
   `layer-catalog.md`. Only `/stack` applies it and records the result as the Integration layer table under
-  the Layers table — in the order UI, API, Service: the UI and API rows only when the project has the layer, the
-  Service row always, because a use case can be offered through the service alone (without a service layer such a
-  use case is tested in Persistence); a use case is tested in the first row
+  the Layers table — in the order UI, API, Service: a row only when the project has the layer; with a service
+  layer the Service row is always there, because a use case can be offered through the service alone, and a
+  project without one has no Service row, so such a use case needs a service layer (the orchestrators stop on a
+  `**Layers:**` line that names a layer marked `–`); a use case is tested in the first row
   its `**Layers:**` line names, or the first row without the line. `/use-case-test`, the coverage agent, and the
   layer test skills look the layer up and never derive it; a missing table is a hand-off to `/stack`.
   `/use-case-test` runs the test skills from that layer up and writes no tests of their own for the

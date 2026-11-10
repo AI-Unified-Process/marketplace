@@ -85,7 +85,8 @@ needs no question. A test case is in scope under either value.
 Check `package.json` and the repository root first. When `@playwright/test` and `playwright.config.ts` exist, use
 them as they are. When another E2E framework is configured (`cypress.config.ts`, `protractor.conf.js`, a
 `cypress/` folder), stop and report the conflict instead of adding a second one. When there is no E2E tooling at
-all, say so: this skill then chooses Playwright on the user's behalf.
+all, say so and add it: the E2E row of the stack file names this skill, so Playwright is the recorded choice and not a
+new one. Name the added package under **Decisions**.
 
 ```bash
 npm install -D @playwright/test
@@ -301,4 +302,4 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Test steps and tags: https://playwright.dev/docs/api/class-test
 - The playwright MCP server (`npx @playwright/mcp@latest`) drives a browser for exploring the running application
   and debugging a locator. See the plugin's `rules/mcp-servers.md` (locate it with a glob for
-  `**/rules/mcp-servers.md`; not every host installs it — the server named here is all you need) to configure it.
+  `**/*aiup-playwright*/**/rules/mcp-servers.md`; not every host installs it — the server named here is all you need) to configure it.

@@ -209,8 +209,8 @@ The adapter injects Spring Boot's auto-configured `RestClient.Builder`. Spring B
 into the module `spring-boot-restclient`, which `spring-boot-starter-webmvc` does not bring: the module that holds
 the adapter needs `spring-boot-starter-restclient` (and `spring-boot-starter-restclient-test` for the adapter's
 tests), or the context fails with no bean of type `RestClient.Builder`. Check the build file and add the starter
-when it is missing — it is part of Spring Boot, managed by its BOM, so name it under **Decisions** rather than
-asking. Spring Boot 3 has the builder in `spring-boot-starter-web`.
+when it is missing — it is part of Spring Boot, managed by its BOM, so it is decided alone and named under
+**Decisions** (section "Decision Rights" of `/use-case-implement`). Spring Boot 3 has the builder in `spring-boot-starter-web`.
 
 ```java
 package com.example.hotel.client.paymentprovider;
@@ -386,5 +386,5 @@ the coverage audit.
 - Spring AMQP: https://docs.spring.io/spring-amqp/reference/
 - OpenAPI Specification: https://spec.openapis.org/oas/latest.html — AsyncAPI: https://www.asyncapi.com/docs/reference/specification/latest
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

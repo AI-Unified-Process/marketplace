@@ -11,6 +11,35 @@ the persistence test skill. The E2E test skill brings its own description of the
 setup of the project comes first: check each section, reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js` suffixes where
 the layout detection found none.
 
+**It assumes PostgreSQL through Drizzle.** When the Persistence row of `docs/architecture/stack.md` names another
+technology, stop before writing any of this: report which technology the project uses and that this setup does not
+cover it, and ask how its tests reach the database.
+
+## The test runner: check this first
+
+The specs and the setup below are written for **Vitest**. Read `package.json` and the test configuration before
+writing a file:
+
+| What the project has                                                      | What to do                                      |
+|---------------------------------------------------------------------------|-------------------------------------------------|
+| `vitest` in `devDependencies`, a `vitest.config*.ts`                      | Go on with this reference                       |
+| `jest` in `devDependencies`, `jest.config.*` or `test/jest-e2e.json`      | Stop and ask — see below                        |
+| Neither                                                                   | Ask before adding Vitest: a new dependency      |
+
+`nest new` writes Vitest for an ESM project from NestJS 12 on, and Jest for a CommonJS project and for every project
+through NestJS 11, so a Jest setup is common. Never add Vitest next to it unasked, and never write a spec that imports
+from `vitest` into a project that cannot run it. Ask which the team wants:
+
+- **Stay on Jest**: keep the file names, the `describe` and `it` titles, the test data files, and every rule of the
+  test skill, and translate the mechanics — `@jest/globals` or the globals in place of the `vitest` import, `jest.fn()`
+  and `jest.useFakeTimers({ doNotFake: [...] })`, `globalSetup`/`globalTeardown` modules that publish `DATABASE_URL`
+  through `process.env` in place of `project.provide` and `inject`, `maxWorkers: 1` in place of
+  `fileParallelism: false`, and `testRegex` for the spec suffixes. `ts-jest` reads `emitDecoratorMetadata` from
+  `tsconfig.json`, so the transformer check below does not apply.
+- **Move to Vitest**: a new dependency and a change to the existing specs, which is the team's decision.
+
+When no one can answer, stay on Jest — the project's convention comes first — and say so in the report.
+
 ## Vitest configuration: check this before writing a single test
 
 This is the highest-value check, and it is invisible until it bites.

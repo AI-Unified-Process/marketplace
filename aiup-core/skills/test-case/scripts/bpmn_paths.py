@@ -30,8 +30,9 @@ Path rules, applied deterministically in document order:
   one path in the document order of their sequence flows, up to the
   converging parallel gateway; branch-internal alternatives multiply.
 - Loops are traversed once: every sequence flow is followed at most twice
-  per path, so a rework loop yields one path without and one path with a
-  single repetition of the loop body.
+  per path and every node other than a parallel gateway is left at most
+  twice, so a rework loop yields one path without and one path with a
+  single repetition of the loop body, wherever the loop enters and leaves.
 - A node without outgoing flows ends the path (implicit end event).
 - Sub-processes are passed through as a single step; their inside is not
   expanded.
@@ -225,6 +226,8 @@ class Walker:
         self.warnings = warnings
         self.truncated = False
         self.walks = 0
+        self.source = {flow[0]: flow[2] for flows in process.outgoing.values()
+                       for flow in flows}
 
     def warn(self, message):
         if message not in self.warnings:
@@ -307,6 +310,12 @@ class Walker:
             self.warn("node " + node_id + " has no outgoing flow and ends "
                       "the path")
             return [(prefix, ("end", node_id), used)]
+        # Left twice already: a third time would repeat the loop once more.
+        # A loop that returns to its own gateway (G -> B -> G) uses no flow
+        # a third time, so the flows alone do not stop it.
+        if self.p.kind(node_id) != "parallelGateway" and sum(
+                1 for flow_id in used if self.source.get(flow_id) == node_id) >= 2:
+            return []
         alternatives = decision_at is not None and len(flows) > 1
         if decision_at is not None and not alternatives and \
                 self.p.kind(node_id) in ALTERNATIVE_GATEWAYS:
@@ -518,6 +527,26 @@ PARALLEL_AND_LOOP = """<?xml version="1.0" encoding="UTF-8"?>
 </bpmn:definitions>
 """
 
+LOOP_AT_GATEWAY = """<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="d">
+  <bpmn:process id="p">
+    <bpmn:startEvent id="s"/>
+    <bpmn:task id="a" name="Check"/>
+    <bpmn:exclusiveGateway id="g" name="Complete?"/>
+    <bpmn:task id="b" name="Ask the customer"/>
+    <bpmn:task id="c" name="Ask the supplier"/>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="a"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="a" targetRef="g"/>
+    <bpmn:sequenceFlow id="f3" name="yes" sourceRef="g" targetRef="e"/>
+    <bpmn:sequenceFlow id="f4" name="customer" sourceRef="g" targetRef="b"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="b" targetRef="g"/>
+    <bpmn:sequenceFlow id="f6" name="supplier" sourceRef="g" targetRef="c"/>
+    <bpmn:sequenceFlow id="f7" sourceRef="c" targetRef="g"/>
+  </bpmn:process>
+</bpmn:definitions>
+"""
+
 XXE = """<?xml version="1.0"?>
 <!DOCTYPE definitions [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
 <definitions %s><process id="p"><task id="t" name="&xxe;"/></process></definitions>
@@ -561,6 +590,13 @@ def self_test():
           == ["no", "yes"])
     check("parallel+loop: no business process id",
           "bpId" not in result["processes"][0])
+
+    # Two loops that return to their own gateway: one path without a loop
+    # body and one per loop with its body once, never a second repetition.
+    result = analyze(LOOP_AT_GATEWAY.encode("utf-8"))
+    check("loop at the gateway: one repetition at most",
+          [p["activities"] for p in result["paths"]]
+          == [["a"], ["a", "b"], ["a", "c"]])
 
     try:
         analyze(XXE.encode("utf-8"))

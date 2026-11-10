@@ -124,12 +124,12 @@ marketplace/
   owns the construction orchestrators for layer plugins: `/stack`, `/use-case-implement`, `/use-case-test`,
   `/use-case-coverage`, `/test-case-implement`, `/test-case-coverage`.
 - **Layer plugins** (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`, `aiup-vaadin`, `aiup-angular`,
-  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.16.0, for the sections of `/use-case-test` the test skills refer to (`aiup-flyway`, which has no test skill: ≥ 3.12.0, for `docs/open_questions.md`),
+  `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`) — one plugin per technology of one technical layer, combined per project. Requires core ≥ 3.16.1, for the sections of `/use-case-test` and the dependency rule of the decision rights the layer skills refer to (`aiup-flyway`, which has no test skill: ≥ 3.12.0, for `docs/open_questions.md`),
   declared as a plugin dependency in each layer plugin's `.claude-plugin/plugin.json` (Claude Code installs core with
   it). `aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` also declare `aiup-spring-boot` (`aiup-vaadin`: ≥ 3.7.0, for the
   fake of an external system's port and `ExternalSystemException`): their skills build on its service
   layer, and the persistence skills read `spring-service/references/module-layout.md` by glob. `aiup-drizzle` declares
-  `aiup-nestjs` the same way (≥ 3.1.0, for the test runner check of its test setup); `aiup-nextjs` needs only core, so it can sit on any API layer. `aiup-nestjs` declares
+  `aiup-nestjs` the same way (≥ 3.1.1, for the test runner check of its test setup); `aiup-nextjs` needs only core, so it can sit on any API layer. `aiup-nestjs` declares
   only core and reads no file of `aiup-drizzle`, but its skills follow the Handover of the persistence layer below, and its test setup assumes Drizzle. A layer skill that reads a file of another
   plugin must declare that plugin as a dependency. Tessl's plugin manifest has no dependency field — `tessl.json` is the project file that links the directory to
   a Tessl project — so Tessl users install core, and `aiup-spring-boot` or `aiup-nestjs` where it is declared, explicitly.
@@ -257,8 +257,8 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - Business rules stay numbered per use case; there is no syntax for entity references in use cases.
 - A link is no evidence: an `Obsolete` test case counts for nothing, and an NFR or constraint no use case links is
   system-wide, outside the coverage count.
-- `SPEC_CHANGED_AFTER_STATUS` stays WARN, compares with the last commit touching the `**Status:**` line, finds nothing
-  without Git history, and never changes a status.
+- `SPEC_CHANGED_AFTER_STATUS` stays WARN, compares with the commit that gave the use case its current status (a move
+  of the file sets none), finds nothing without Git history, and never changes a status.
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
@@ -299,7 +299,8 @@ Why: [`docs/design/open-questions.md`](docs/design/open-questions.md).
   `/architecture-decision ADR-XXX link <NFR-/C- ids>` only adds ids to the `**Requirements:**` line, on an ADR of
   any status; removing a link from an accepted ADR is a supersede. No other
   skill writes an ADR; `/stack`, `/use-case-implement`, and `/requirements` hand off.
-- `ADR_UNLINKED`, `ADR_STALE`, `ADR_INVALID` stay WARN; the fix of `ADR_UNLINKED` is the `link` action. The Studio never runs the skill (`LEFT_OUT`).
+- `ADR_UNLINKED`, `ADR_STALE`, `ADR_INVALID` stay WARN; the fix of `ADR_UNLINKED` is the `link` action, the fix of
+  `ADR_INVALID` is `ADR-XXX` alone, which asks for the missing status or date and writes only that header line. The Studio never runs the skill (`LEFT_OUT`).
 
 Why: [`docs/design/architecture-decisions.md`](docs/design/architecture-decisions.md).
 
@@ -310,6 +311,8 @@ Why: [`docs/design/architecture-decisions.md`](docs/design/architecture-decision
   refer to it.
 - A project file replaces the first two sections; the "never" section only grows.
 - Only specification questions go to `docs/open_questions.md`.
+- A new dependency is asked first, except a starter or test module the project's BOM already manages: decided
+  alone, named under **Decisions**. Layer skills refer to the rule and never add another dependency unasked.
 - The combined stack plugins keep their own `/implement` rules.
 
 Why: [`docs/design/decision-rights.md`](docs/design/decision-rights.md).
@@ -343,7 +346,8 @@ Why: [`docs/design/business-process.md`](docs/design/business-process.md).
   `<!-- UC-XXX spec=… text=… -->` anchor, and a section without one belongs to the team and is kept. The hashes are
   stamped by `scripts/guide_anchor.py`, never by the agent: an unchanged section stays byte for byte, a changed
   specification is rewritten, and only a hand edit asks (unanswered: kept and reported). The plan waits for a yes
-  unless no one can answer.
+  unless no one can answer. A use case no person performs gets a short anchored section in `README.md`, so `/next`
+  stops offering the guide for it.
 - `/release-notes` reads the use cases at a Git ref with `git show`, matches them by id, and never takes content from
   commit messages. It lists a requirement only when every use case that links it is `Done`, and without a baseline it
   asks and writes nothing.
@@ -395,7 +399,9 @@ or from /use-case-implement, technology sections with where the BR marker goes i
 Handover, Resources. Hilla's `@BrowserCallable` endpoint belongs to `/hilla-ui`, not to an API layer; Vaadin Flow needs
 no API layer; an API layer next to Flow or Hilla serves other clients. Vaadin Flow as the only entry point may also go
 without a service layer (Service `–`, a thin `ui` + `domain` design): `/vaadin-flow-ui` then calls the repositories,
-and the persistence skills make the repository the transaction boundary. `hilla-ui-test` also writes one Java endpoint
+and the persistence skills make the repository the transaction boundary. Such a project has no Client layer and no
+Service row in the Integration layer table: an external system, like an API layer, a Hilla UI, or a use case offered
+through the service alone, needs the service layer. `hilla-ui-test` also writes one Java endpoint
 contract test (access annotation, `EndpointException` message per flow), because neither the mocked view tests nor
 the service tests run the endpoint. Next.js is a client-side UI: it always needs an API layer, no Server Component or
 Server Action touches the database, and `nextjs-ui-test` reports a Server Component as out of its reach. Drizzle has no
@@ -452,7 +458,8 @@ Rules a change must keep:
   close the gaps they report and never restate the agent's checklist.
 - Drift: the agent names both fixes and recommends neither; the front door asks which side is right.
 - Construction skills hand off to the audit; they never run the agent themselves.
-- Each combined stack has its own agent copy with its own markers; the layered agent has none and reads the Markers
+- `aiup-vaadin-jooq` and `aiup-angular-jpa` each have their own agent copy with their own markers (`aiup-blazor-dotnet`
+  and `aiup-nestjs-nextjs` have no agent and no `/coverage-check`); the layered agent has none and reads the Markers
   table of the stack file.
 
 Why: [`docs/design/coverage-agent.md`](docs/design/coverage-agent.md).
@@ -496,19 +503,28 @@ command names and would collide, and a combined plugin next to layer plugins wou
   `artifact_locations` is a prompt hint only: the Werkstatt reads the default paths under `docs/`.
 - The andon cord is read from `docs/open_questions.md` (a blocking `Open` or `Answered` question naming the use
   case or a requirement its `**Requirements:**` line links), not from the agent's answer. `werkstatt.py blocking`
-  keeps its own parser and must read questions as `spec_lint.py` does. A blocked use case keeps only its questions;
+  keeps its own parser and must read questions as `spec_lint.py` does (the same requirement ids, a section ends at
+  the next `#` or `##` heading). After every station `spec_lint.py --questions` checks the file: an error blocks the
+  use case, because a question the lint rejects blocks in no parser. A blocked use case keeps only its questions;
   a stuck one keeps nothing; both drop untracked files too.
 - A use case that is not `Approved`, or has no specification, is never built, also when the `use_cases` input
   names it: it is recorded as `skipped` with the reason, and the run goes on with the next one. A run in which every
   named use case was skipped ends `none` and opens no pull request.
-- G1 is `spec_lint.py`; the build gate runs the Commands table of the stack file, without its end-to-end rows. The plugins come from the Plugins
+- G1 is `spec_lint.py`: exit 1 blocks, a higher exit code (the lint itself failed) ends the use case `stuck`. The
+  build gate runs the Commands table of the stack file, without its end-to-end rows. The plugins come from the Plugins
   table of the layer catalog, never from a third copy of the generate skill lists.
+- A red build goes to the implementer first; when it is still red after that, the tester gets the new log in the same
+  round, because only the tester may repair a test. Both count as one fix round.
 - Stations stay in their lane: the implementer's test changes and the tester's code changes are reverted and listed.
   The tester's changes to build files and to the stack file (the whole file, for its Markers rows) are kept and listed.
 - A station whose session fails (non-zero exit, no result) is started once more; a second failure ends the use case
   `stuck`, and both are recorded in the metrics and the report. Stations that stop without a result (a crash, a
   killed process) end the use case `stuck` too, with a row in the report.
-- The specification diff the stations get is against the merge base.
+- The implementer, the tester, and the fix station all get the specification diff, and it is against the merge base.
+- Where `setsid` exists, the stations of a use case run in their own session, and what is left of it is killed before
+  the tree is dropped or the next use case starts. An id named twice is built once; ids given by hand run in id order.
+- The project checkout keeps no token (`persist-credentials: false`), and the AI secrets reach only the stations
+  step, not `$GITHUB_ENV`; the build commands run without them.
 - The stations stop 10 minutes before `timeout_minutes`, counted from the job's first step, so `timeout_minutes`
   must be a whole number above 10; the use case still running ends stuck, the finished ones still reach the pull request.
 - Git paths are read with `core.quotePath=false`, `-z`, and `--no-renames`: specs carry umlauts, and a move must
@@ -563,14 +579,24 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
   updates the short version here and the design page together.
 - Maintainers changing the shared generation workflows must read
   [`docs/generate-workflow-versioning.md`](docs/generate-workflow-versioning.md) before moving the `v1` tag.
-  `scripts/check-generate-catalogue.sh` keeps the catalogue, the skill lists, and the plugin selection of
-  `.github/workflows/aiup-generate.yml` and `pipelines/aiup-generate.sh` identical and in step with the skills on disk,
-  and runs the plugin selection against a stack file that names its skills without backticks;
-  a new skill is added to both, or to the script's `LEFT_OUT` list when the Studio must never run it.
+  `scripts/check-generate-catalogue.sh` keeps the catalogue, the skill lists, the plugin selection, and the marked
+  blocks (`# >>> name` … `# <<< name`: specification diff, blocking questions, status rank, status write, review
+  report) of `.github/workflows/aiup-generate.yml` and `pipelines/aiup-generate.sh` identical and in step with the
+  skills on disk, and runs the plugin selection against a stack file that names its skills without backticks;
+  a new skill is added to both, or to the script's `LEFT_OUT` list when the Studio must never run it, and a catalogue
+  skill is in the diff and status lists or in the script's `NO_DIFF`/`NO_STATUS`. A fix inside a marked block is made
+  in both files.
+- `aiup-generate` diffs the specification against the merge base with the default branch, never its tip, and checks
+  out the project without persisted credentials.
 - `aiup-generate` does not advance the status when the skill only recorded open questions or a blocking question
-  names the use case.
-- Third-party actions are pinned to commit SHAs and the claude-code CLI to a version (2.1.322), in every workflow and in
-  `pipelines/aiup-generate.sh`; an update is a deliberate change.
+  holds the use case. It reads the questions through `spec_lint.py` (`OQ_BLOCKING`), never with a parser of its own;
+  when the lint cannot run, the status stays.
+- `pipelines/aiup-generate.sh` gives the session what is left of `TIMEOUT_MINUTES`.
+- Third-party actions are pinned to commit SHAs. The claude-code CLI is pinned to a version (2.1.322) where a
+  workflow installs it itself: `aiup-werkstatt.yml` and `pipelines/aiup-generate.sh`. `aiup-generate.yml` installs
+  none; its CLI comes with the SHA-pinned `claude-code-action`. An update is a deliberate change.
+- `scripts/validate-plugin-manifests.sh` also checks every dependency of a `.claude-plugin/plugin.json`: the plugin
+  exists and its version in this repository satisfies the `>=` constraint.
 
 ## Releasing to the Tessl Registry
 

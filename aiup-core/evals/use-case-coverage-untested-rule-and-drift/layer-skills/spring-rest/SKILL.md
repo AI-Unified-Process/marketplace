@@ -423,5 +423,5 @@ UC-XXX`), or `/use-case-test UC-XXX` when the API is the top layer. Never run th
 - Spring Data web support and `PagedModel`: https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web
 - springdoc-openapi (only when the project uses it): https://springdoc.org/
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

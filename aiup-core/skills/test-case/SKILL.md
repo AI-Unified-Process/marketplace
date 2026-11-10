@@ -80,7 +80,7 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
    - Activities are `task`, `userTask`, `manualTask`, `serviceTask`, `sendTask`, `receiveTask`, `scriptTask`, `businessRuleTask`, and `callActivity`. Gateways and events are not use cases.
    - Exclusive, inclusive, event-based, and complex gateways, several outgoing flows on one activity, and boundary events are alternatives — each outgoing flow starts its own path.
    - Parallel gateways run every branch: the branches are serialized within one path in the document order of their sequence flows, up to the converging gateway.
-   - Loops are traversed once: every sequence flow is followed at most twice per path, so a rework loop yields one path without and one with a single repetition.
+   - Loops are traversed once: every sequence flow is followed at most twice per path and every node is left at most twice, so a rework loop yields one path without and one with a single repetition.
 2. **Map every activity to a use case.** If the activity name contains a use case id (`[SB]?UC-[A-Za-z0-9_-]+`, e.g. `UC-001 Place Order` or `Ship Order (UC-002)`), use the spec `docs/use_cases/**/<id>-*.md`. Otherwise compare the name — case-insensitive, whitespace collapsed — with each spec's title (`# Use Case: <name>`) and `**Use Case Name:**`. **If any activity stays unmatched, or its id has no specification, stop without writing a file** and list the unmatched activities with id, name, and lane — the same rule as chaining an unspecified use case.
 3. **Write one test case per path**, following the Writing rules:
    - The Flow follows the sequence flow of the path; an activity visited twice (loop) gets two action rows. Verification rows go between the actions as in use case mode.

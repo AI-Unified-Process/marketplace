@@ -36,8 +36,10 @@ separate application that calls *us* — and never an entry layer. A project tha
 `ui` + `domain` design, usually recorded in an ADR: the Service row is `–`, the view calls the repositories, the
 repository is the transaction boundary, and the view and its form enforce the business rules, with the query
 condition or database constraint below where one fits. This holds only while the Flow UI is the single entry
-point: an API layer needs the service layer, because both entry layers would have to enforce the same rules, and a
-Hilla UI needs it, because its `@BrowserCallable` endpoint is a remote API the browser calls.
+point: an API layer needs the service layer, because both entry layers would have to enforce the same rules, a
+Hilla UI needs it, because its `@BrowserCallable` endpoint is a remote API the browser calls, and a Client layer
+needs it, because the service is what calls an external system's port and lets its failure pass through. A use case
+offered through the service alone (a scheduled job) needs it too.
 
 ## Entry layers of a use case
 
@@ -100,7 +102,7 @@ integration layer is the layer that entry layer calls, by the same rule:
 | Angular     | backend mocked         | API — the UI reaches the service through it               |
 | Next.js     | backend mocked         | API — the UI reaches the service through it               |
 | REST API    | in process             | API                                                       |
-| Service     | in process             | Service (Persistence when the project has no service layer) |
+| Service     | in process             | Service                                                   |
 
 Because the rule starts at the entry point, an API next to a Vaadin Flow or Hilla UI never moves the UI's
 integration layer: the UI does not call it. It is the integration layer only of the use cases offered through it
@@ -109,8 +111,10 @@ alone. A layer built without a layer skill (Skill column `–`) has no `layer.md
 layer and never the integration layer.
 
 **Recorded per entry layer.** The Integration layer table has one row per entry layer of the project, in the order
-UI, API, Service — the service row always, because a use case can be offered through the service alone. A use case
-is tested in the first row its `**Layers:**` line names; a use case without the line, in the first row:
+UI, API, Service — each only when the project has that layer. With a service layer the Service row is always
+there, because a use case can be offered through the service alone; a project without one (footnote ¹) has no
+Service row, and a use case whose `**Layers:**` line names `Service` there names a layer the project does not have.
+A use case is tested in the first row its `**Layers:**` line names; a use case without the line, in the first row:
 
 ```markdown
 **Integration layer:**

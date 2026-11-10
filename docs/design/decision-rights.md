@@ -23,6 +23,13 @@ explicit and a team can move it.
   an ADR are asked first too, but they have no element of the specification, so they are asked and listed in the
   report's **Open questions** without an `OQ-` id. Adding an `Architecture:` element form was rejected: the answer
   lands in an ADR or the build, never in the specification, so the question could never be `Resolved`.
+- **One dependency is decided alone.** A new library, dependency, or build plugin is asked first. The exception is
+  a starter or test module of a framework the project already uses, whose version the project's BOM or parent
+  manages (`spring-boot-starter-validation`, `spring-security-test`): it is added without a version and named
+  under **Decisions**. The layer skills added such modules unasked before, each with its own wording, while the
+  jOOQ code generation plugin and the Vitest packages of `/hilla-ui-test` went in the same way although nothing
+  manages their versions; the rule now lives once, in the defaults and the section "Decision Rights", and those
+  two are asked.
 - **Decisions are reported.** The implementation and test reports list the decisions taken alone under
   **Decisions** — the choices a reviewer would otherwise dig out of the diff, not every name.
 - The combined stack plugins are not part of it: they keep their own `/implement` rules.

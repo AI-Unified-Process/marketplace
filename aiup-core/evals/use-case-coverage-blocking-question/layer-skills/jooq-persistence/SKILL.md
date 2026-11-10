@@ -104,11 +104,13 @@ query the DSL can express.
 - **The project generates already** (`jooq-codegen-maven`, `testcontainers-jooq-codegen-maven-plugin`, a Gradle
   jOOQ plugin): run the generate step or the Build command of `docs/architecture/stack.md` after a migration change, so
   the new tables and columns exist as classes before you write the query.
-- **No code generation yet**: add `org.testcontainers:testcontainers-jooq-codegen-maven-plugin` to the persistence
-  module. It starts the project's database in a container, applies the Flyway migrations, and generates from the
-  real schema, so generated types match production exactly. It needs Docker at build time. Without Docker, jOOQ's
-  `DDLDatabase` (`org.jooq.meta.extensions.ddl.DDLDatabase` reading the migration scripts) works for portable DDL
-  but misreads vendor-specific SQL; say which one you chose and why.
+- **No code generation yet**: a build plugin is a new dependency, so ask first which one the project wants (the
+  decision rights below) and add nothing unasked. Recommend `org.testcontainers:testcontainers-jooq-codegen-maven-plugin`
+  in the persistence module: it starts the project's database in a container, applies the Flyway migrations, and
+  generates from the real schema, so generated types match production exactly. It needs Docker at build time.
+  Without Docker, jOOQ's `DDLDatabase` (`org.jooq.meta.extensions.ddl.DDLDatabase` reading the migration scripts)
+  works for portable DDL but misreads vendor-specific SQL. When no one can answer, write no query and list the
+  question under **Open questions** in the report.
 
 ```xml
 <plugin>
@@ -442,7 +444,7 @@ audit.
   discover it.
 - If configured, use the jOOQ MCP server for the query DSL and code generation (`https://jooq-mcp.martinelli.ch/mcp`)
 - If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
-- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-jooq*/**/rules/mcp-servers.md`; not every host
   installs it — the servers named in this skill are all you need) to configure these optional servers
 - jOOQ manual: https://www.jooq.org/doc/latest/manual/
 - MULTISET: https://www.jooq.org/doc/latest/manual/sql-building/column-expressions/multiset-value-constructor/

@@ -32,8 +32,9 @@ Then assign:
 - **Name each module in business language** ("Billing", not `billing-core`), with one sentence on what it is
   responsible for.
 - **Give each module a slug**: its name in lowercase kebab-case ("Billing" → `billing`, "Guest Management" →
-  `guest-management`). The slug is the `package` alias in the overview, the folder `docs/use_cases/<slug>/`, and the
-  file `docs/entity_model/<slug>.md`, so each name leads to the others.
+  `guest-management`). The slug is the folder `docs/use_cases/<slug>/` and the file `docs/entity_model/<slug>.md`;
+  the `package` alias in the overview is the slug with `_` for each `-` (`guest_management`), because PlantUML reads
+  a hyphen in an alias as a link. So each name leads to the others.
 
 Do not make a module of shared technical code (`common`, `util`, `security`, `config`): its tables and entry points
 join the module they serve, and pure infrastructure is skipped as in stages 4 and 7. Aim for at most about 10 use
@@ -105,8 +106,8 @@ accountant --> UC004
 ```
 
 - The `@startuml` title of a module diagram is the module name; the overview's title is `Modules`.
-  `/use-case-diagram` recognizes the split by it. Every `package` alias of the overview has its folder, and every
-  folder its `package`.
+  `/use-case-diagram` recognizes the split by it. Every `package` alias of the overview has its folder (the alias with `-` for
+  each `_`), and every folder its `package`.
 - Every use case appears in exactly one module diagram. An actor appears in the overview and in every module diagram
   it has a use case in, with the same name and alias each time.
 - An actor links to a module in the overview when it has a use case there.

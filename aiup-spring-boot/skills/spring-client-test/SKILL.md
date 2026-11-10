@@ -267,5 +267,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
   https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

@@ -64,8 +64,7 @@ export function toProductResponse(product: Product): ProductResponse {
 
 ```ts
 // src/products/products.controller.ts
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CreateProductBody } from './dto/create-product.body.js';
 import { ListProductsQuery } from './dto/list-products.query.js';
 import { toProductResponse, type ProductResponse } from './dto/product.response.js';
@@ -83,16 +82,14 @@ export class ProductsController {
 
   /** UC-011 steps 3–4, A1: creates a product. */
   @Post()
-  async create(
-    @Body() body: CreateProductBody,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<ProductResponse> {
-    const product = await this.service.create(body);
-    response.location(`/api/products/${product.id}`); // only with a read by id; without one, no header and no @Res
-    return toProductResponse(product);
+  async create(@Body() body: CreateProductBody): Promise<ProductResponse> {
+    return toProductResponse(await this.service.create(body));
   }
 }
 ```
+
+No `Location` header: this controller has no read by id to point at. Once it has one, inject the response with
+`@Res({ passthrough: true })` and call `response.location(`/api/products/${product.id}`)`.
 
 `CreateProductBody` and `ListProductsQuery` are plain imports on purpose: `import type` erases the class, and the
 `ValidationPipe` then has nothing to validate against.
@@ -159,6 +156,9 @@ export class ProblemDetailsFilter implements ExceptionFilter {
 
   private status(exception: Error): number {
     if (exception instanceof HttpException) return exception.getStatus();
+    // only when the service Handover lists the kind: an external system did not answer.
+    // Add ExternalSystemError to the import and to @Catch as well.
+    // if (exception instanceof ExternalSystemError) return 503;
     return exception instanceof NotFoundError ? 404 : 409;
   }
 

@@ -254,6 +254,7 @@ if (find(Notification.class).exists()) { /* ... */ }
 | `withCaption(String)`                 | Exact caption (label) match          |
 | `withCaptionContaining(String)`       | Substring caption match              |
 | `withId(String)`                      | Component ID                         |
+| `withTestId(String)`                  | Test ID set with `setTestId`         |
 | `withClassName(String...)`            | Has all given CSS class names        |
 | `withAttribute(String[, String])`     | Has attribute (optionally with value) |
 | `withValue(V)`                        | For `HasValue` components            |
@@ -268,7 +269,7 @@ if (find(Notification.class).exists()) { /* ... */ }
 | `last()`           | Last match                           |
 | `atIndex(int)`     | Match at position                    |
 | `all()`            | Return `List`                        |
-| `id(String)`       | Match by ID                          |
+| `id(String)`       | Match by component ID                |
 | `exists()`         | Boolean check, no exception          |
 | `withResultsSize(int)` / `withResultsSize(min, max)` | Assert count |
 
@@ -299,7 +300,7 @@ String value = find(TextField.class).withCaption("Name").single().getValue();
 | NumberField     | `setValue(double)`                                              |
 | Checkbox        | `click()` (toggles)                                             |
 | Button          | `click()`, `rightClick()`, `middleClick()`                      |
-| Select          | `selectItem(String)`, `selectItem(int)`                         |
+| Select          | `selectItem(String)`, `getSelected()`                           |
 | ComboBox        | `selectItem(String)`, `getSuggestionItems()`                    |
 | DatePicker      | `setValue(LocalDate)`                                           |
 | Grid            | `getRow(int)`, `size()`, `getCellText(row, column)`             |
@@ -329,7 +330,7 @@ PersonRecord row = test(grid).getRow(0);
 
 // Component column action — get the renderer's component and click it
 test(grid).getRow(0); // ensure row is materialized
-find(Button.class, grid).withCondition(b -> /* ... */).first().click();
+find(Button.class, grid).withCondition(b -> /* ... */).single().click();
 ```
 
 ### Notification Assertions
@@ -371,8 +372,11 @@ For components without a stable label/text, set a test ID on the server side and
 submitButton.setTestId("submit-button");
 
 // In the test
-Button submit = find(Button.class).id("submit-button");
+Button submit = find(Button.class).withTestId("submit-button").single();
 ```
+
+`id(String)` and `withId(String)` look up the component id (`setId`), not the test id. `first()` is deprecated
+for removal: use `single()`, or `atIndex(int)` when picking one of several matches is intended.
 
 ## Assertions Reference
 

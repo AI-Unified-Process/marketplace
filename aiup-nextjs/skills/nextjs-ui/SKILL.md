@@ -153,7 +153,9 @@ so the page can show the total and the pager.
 
 Messages the specification states (an empty state, a confirmation, an error) appear with exactly its wording. An error
 message the API returns for a rejected business rule is shown as the API sends it; do not translate a status code into
-a message the specification does not state — that is a gap.
+a message the specification does not state — that is a gap. When the specification has no flow for a failure such as a
+failed load, write no message of your own: record the gap as `/use-case-implement` defines it in "Gaps in the
+Specification", and name it in the Handover.
 
 ## Forms and Business Rule Markers
 

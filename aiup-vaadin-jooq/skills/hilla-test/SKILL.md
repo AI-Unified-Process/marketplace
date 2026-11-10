@@ -193,7 +193,8 @@ the installed Vitest major version (newer Vitest uses `provider`/`instances` ins
 ```
 
 The generated endpoint clients must exist before the tests can import them — run
-`mvn clean compile` (or `./mvnw hilla:generate`) if `Frontend/generated/endpoints` is stale.
+`./mvnw compile vaadin:generate` if `Frontend/generated/endpoints` is stale (Vaadin 24.4 and up; older Hilla
+projects with the `hilla-maven-plugin` run `./mvnw compile hilla:generate`).
 
 ## DO NOT
 

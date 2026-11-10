@@ -48,7 +48,7 @@ export class ProductsService {
       return await this.repository.insert({ ...input, inStock: true });
     } catch (err) {
       // UC-011 BR-002: Product names are unique.
-      if (isConstraintViolation(err, '23505')) {
+      if (isConstraintViolation(err, '23505', 'idx_product_name')) {
         throw new DuplicateNameError();
       }
       throw err;
@@ -58,7 +58,8 @@ export class ProductsService {
 ```
 
 The name check gives the rule its message; the catch keeps it when two requests pass the check together, because the
-persistence Handover says `insert` raises `23505` on the unique constraint.
+persistence Handover says `insert` raises `23505` on `idx_product_name`. The constraint name keeps a violation of
+another unique key from getting this rule's message.
 
 `listAvailable` carries no marker: UC-010 BR-010 ("out-of-stock products are never shown") only shapes the read, so its
 marker sits on the query condition in the repository.
@@ -100,9 +101,10 @@ export class NotFoundError extends Error {
   }
 }
 
-export function isConstraintViolation(err: unknown, code: '23505' | '23514'): boolean {
-  const { code: own, cause } = err as { code?: string; cause?: { code?: string } };
-  return own === code || cause?.code === code;
+export function isConstraintViolation(err: unknown, code: '23505' | '23514', constraint?: string): boolean {
+  type PgError = { code?: string; constraint?: string };
+  const { cause, ...own } = err as PgError & { cause?: PgError };
+  return [own, cause].some((e) => e?.code === code && (constraint === undefined || e.constraint === constraint));
 }
 ```
 

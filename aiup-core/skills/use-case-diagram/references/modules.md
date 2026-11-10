@@ -9,8 +9,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 A large project may hold its diagram split by module, as `/reverse-engineer` writes it: `docs/use_cases.puml` holds
 only a `@startuml Modules` diagram — the actors and one `package` per module, no use cases — and each module has a
 folder `docs/use_cases/<slug>/` with its own `use_cases.puml` (`@startuml <Module>`, the module's use cases) next to
-the specifications of those use cases. The slug is the module name in lowercase kebab-case and the `package` alias in
-the overview. Keep that structure when you update the diagrams:
+the specifications of those use cases. The slug is the module name in lowercase kebab-case; the `package` alias in
+the overview is the slug with `_` for each `-` (folder `guest-management`, alias `guest_management`), because PlantUML
+reads a hyphen in an alias as a link. Keep that structure when you update the diagrams:
 
 - Add a new use case to the diagram of the module it belongs to — the module that owns the data it changes. When no
   module fits or two fit equally, ask the user instead of guessing; a new module gets its own folder with a

@@ -277,8 +277,9 @@ public record RegisterGuest(
 ```
 
 - Annotate the service class with `@Validated` and the parameter with `@Valid`; a violation throws
-  `jakarta.validation.ConstraintViolationException` before the method body runs. Add
-  `spring-boot-starter-validation` when the project does not have it.
+  `jakarta.validation.ConstraintViolationException` before the method body runs. A project
+  without `spring-boot-starter-validation` gets it: Spring Boot's BOM manages it, so it is decided alone and named
+  under **Decisions** (section "Decision Rights" of `/use-case-implement`).
 - Limits come from the entity model's Length/Precision and Validation Rules columns and the linked NFRs and
   constraints — not from guesses. A field the use case reads without a rule is a gap, not a reason to invent one.
 - Constraints that need the database or several fields (uniqueness, date ranges across fields, state transitions)
@@ -414,5 +415,5 @@ skill), or `/use-case-test UC-XXX` when the service is the top layer. Never run 
 - Spring method validation: https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html#validation-beanvalidation-spring-method
 - Jakarta Validation constraints: https://jakarta.ee/specifications/bean-validation/
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

@@ -150,11 +150,18 @@ the annotation by short name, so the copies do not conflict.
 | Input validation from the entity model          | one rejected input per constraint the specification or entity model states    |
 | Postcondition                                   | the persisted state, read back through the service's own read method          |
 | Linked NFR or constraint with an observable limit | the limit itself (a maximum count, a length)                                |
+| Action limited to an actor role (the Handover or the service carries `@PreAuthorize`) | the call as that role succeeds; as an authenticated user without it, `AccessDeniedException` |
 
 - **Boundaries**: a rule "at least eighteen years old on the day of arrival" gets the case that is exactly eighteen
   on that day (allowed) and one day younger (rejected) — not 30 and 10.
 - **Messages**: assert the full message with `hasMessage(...)`, never `hasMessageContaining`, when the specification
   states it.
+- **Secured methods**: a service method with `@PreAuthorize` (or the project's equivalent) rejects a test that runs
+  without an authentication. Run the tests of the use case as the actor's role — Spring Security's
+  `@WithMockUser(roles = "…")` on the class, with the role the annotation names — and add one rejected case with
+  another role on the method (`AccessDeniedException`). It needs `org.springframework.security:spring-security-test`
+  in test scope; when it is missing, add it without a version — Spring Boot's BOM manages it — and name it under
+  **Decisions** (section "Decision Rights" of `/use-case-implement`). A project without method security needs none of this.
 - **Time**: replace the `Clock` bean with a fixed clock (`@TestConfiguration` with a `@Primary` bean), never compute
   the expected value from `LocalDate.now()`. A service that reads the system time directly is a finding for the
   report, not a reason to compute the expectation at runtime.
@@ -183,9 +190,10 @@ folder containing this SKILL.md) as the structure: `@SpringBootTest`, a Testcont
 case per rule. It is written for Spring Boot 4 and Testcontainers 2; its comments name the Testcontainers 1 import.
 Do not mock a repository, port, or service of the use case's own call chain with `@MockitoBean`; a
 `@MockitoBean` is only for a boundary the use case does not own — a mail gateway — and the test then verifies the
-call. The port of an external system the use case calls gets the fake `/spring-client-test` wrote, put in place with
-`@TestBean`, as "Which Layer Tests What" of `/use-case-test` says for external systems; drive the alternative flows
-it causes through that fake.
+call. The port of an external system the use case calls gets the fake the Test skill of the stack file's Client
+row wrote (`/spring-client-test` in this plugin), put in place with `@TestBean`, as "Which Layer Tests What" of
+`/use-case-test` says for external systems — that section also says who writes the fake when the Client row has no
+test skill; drive the alternative flows it causes through that fake.
 
 ## Unit Style (Hexagonal Business Module)
 
@@ -269,5 +277,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
   https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

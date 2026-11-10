@@ -16,6 +16,13 @@
 # to be opened before the job's timeout. A use case still running then is stopped and ends stuck; the ones before
 # it keep their result, so finished work is never lost to the timeout.
 #
+# Where setsid and pkill exist (the GitHub runner), the stations of a use case run in a session of their own, and
+# what is left of it is killed before the next step looks at the working tree: a build or a Claude Code session that
+# outlives its use case must not write into the tree after it was dropped or committed. A process that starts a
+# session of its own (a build daemon) is out of reach.
+#
+# An id named twice is built once.
+#
 # Usage: run-change.sh UC-001 UC-002 ...    Env: see run-uc.sh, plus CORRELATION_ID and DEADLINE
 set -uo pipefail
 
@@ -24,6 +31,35 @@ HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
 outcome=ready
 pending_reason=""
 built=0
+
+# An id named twice would be built, find itself Tested on the second pass, and overwrite its result with skipped.
+ucs=""
+for uc in "$@"; do
+  case " $ucs " in *" $uc "*) ;; *) ucs="$ucs $uc" ;; esac
+done
+# shellcheck disable=SC2086
+set -- $ucs
+
+OWN_SESSION=0
+if command -v setsid >/dev/null 2>&1 && command -v pkill >/dev/null 2>&1 && command -v pgrep >/dev/null 2>&1 \
+    && setsid --help 2>&1 | grep -q -- '--wait'; then
+  OWN_SESSION=1
+fi
+
+# reap <sid file>: kill what is left of the stations' session and wait until it is gone.
+reap() {
+  local sid i
+  sid=$(cat "$1" 2>/dev/null || true)
+  rm -f "$1"
+  case "$sid" in ''|*[!0-9]*) return 0 ;; esac
+  pgrep -s "$sid" >/dev/null 2>&1 || return 0
+  pkill -TERM -s "$sid" 2>/dev/null || true
+  sleep 2
+  pkill -KILL -s "$sid" 2>/dev/null || true
+  i=0
+  while pgrep -s "$sid" >/dev/null 2>&1 && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+  return 0
+}
 
 # pending <uc> <reason>
 pending() {
@@ -79,11 +115,18 @@ for uc in "$@"; do
   t0=$(date +%s)
   built=$((built + 1))
   rc=0
-  if [ -n "$left" ]; then
-    # timeout signals the whole process group, so the Claude Code session and a running build stop as well.
-    timeout --kill-after=60 "$left" env UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh" || rc=$?
+  run=(env UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh")
+  # timeout signals its process group, so the Claude Code session and a running build get the signal as well. It
+  # returns as soon as run-uc.sh is gone, though, whatever still runs below it: reap is what ends those.
+  [ -z "$left" ] || run=(timeout --kill-after=60 "$left" "${run[@]}")
+  if [ "$OWN_SESSION" = 1 ]; then
+    mkdir -p ".werkstatt/$uc"
+    sid_file=".werkstatt/$uc/session.sid"
+    # the shell setsid starts leads the new session, so its pid is the session id
+    setsid --wait bash -c 'echo $$ > "$0"; exec "$@"' "$sid_file" "${run[@]}" || rc=$?
+    reap "$sid_file"
   else
-    UC="$uc" bash "$ENGINE/pipelines/werkstatt/run-uc.sh" || rc=$?
+    "${run[@]}" || rc=$?
   fi
 
   if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then

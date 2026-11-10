@@ -166,7 +166,10 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
 
 - a use case (flows, rules, wording, level, a mockup link to a missing file, an API link that does not resolve) → `/use-case-spec UC-XXX`
 - a use case missing from, or extra in, the diagram → `/use-case-diagram`
-- requirements, uncovered FRs, requirement statuses, glossary terms and synonyms → `/requirements`
+- a functional requirement no use case links (`FR_UNCOVERED`) → `/use-case-spec UC-XXX` for the use case that
+  realizes it (the link is missing), or `/use-case-diagram` when no use case fits; `/requirements` only when the
+  requirement is out of scope (`Rejected`, `Deferred`)
+- requirements, requirement statuses, glossary terms and synonyms → `/requirements`
 - data that does not match the entity model → `/entity-model`
 - an answered open question (`OQ_UNRESOLVED`) or a blocking one (`OQ_BLOCKING`) → the skill that owns its element:
   `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`; an `Open` one first needs an answer,
@@ -182,7 +185,7 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
 - an ADR linking a rejected or deferred requirement, or out of step with the ADR that supersedes it (`ADR_STALE`) →
   `/architecture-decision ADR-XXX supersede` with the new decision, `ADR-XXX deprecate`, or `ADR-XXX link` to the
   requirement that replaced the stale one; an ADR without a valid status or date (`ADR_INVALID`) →
-  `/architecture-decision ADR-XXX accept`, `deprecate`, or `reject`, which sets both
+  `/architecture-decision ADR-XXX`, which asks for the missing value and writes only that header line
 - a BPMN activity that is no use case (`BPMN_UNMAPPED`) → `/use-case-diagram` to add the use case the activity
   stands for (it needs no specification for the finding to clear), then `/business-process BP-XXX` so the activity
   carries its id; an activity that only misnames an existing use case is `/business-process BP-XXX` alone
@@ -190,7 +193,8 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   `/business-process BP-XXX`
 
 When the user wants to accept the current lint findings (brownfield start), tell them to run
-`python3 scripts/spec_lint.py --docs docs --update-baseline` and commit `docs/.spec-lint-baseline.json`; accepted
+`python3 <path to spec_lint.py> --docs docs --update-baseline` from the project root (the script lies in this
+skill's `scripts/` folder; give them its full path) and commit `docs/.spec-lint-baseline.json`; accepted
 findings then no longer fail the build, and entries that stop matching are reported as `BASELINE_STALE`.
 
 ## Repeated Runs

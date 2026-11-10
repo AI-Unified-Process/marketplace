@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * a new customer is created (UC-001) and places a first order (UC-004).
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@DisplayName("TC-001: New customer can be onboarded and place a first order")
 class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
 
     private static final String CUSTOMER_NAME = "Jane Doe";
@@ -59,7 +60,6 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
     }
 
     @Test
-    @DisplayName("TC-001: New customer can be onboarded and place a first order")
     void customer_onboarding() {
         // Step 1: Create customer (UC-001)
         createCustomer(CUSTOMER_NAME, "jane.doe@example.com");

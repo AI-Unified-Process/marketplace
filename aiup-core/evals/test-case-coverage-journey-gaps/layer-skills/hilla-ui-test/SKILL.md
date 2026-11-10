@@ -90,6 +90,10 @@ Run one use case's tests with `npx vitest run -t "UC-XXX"`.
 
 Skip this when the project already runs Vitest (`vitest` in `package.json`, an existing `vitest.config.ts`).
 
+These packages are new dependencies no BOM manages, so they are asked first (section "Decision Rights" of `/use-case-implement`): name them and
+what they are for, and install them only on a yes. When no one can answer, write no view test, list the question
+under **Open questions** in the report, and still write the endpoint contract test.
+
 ```sh
 npm install -D vitest @vitest/browser-webdriverio pretty-format \
   @testing-library/react @testing-library/user-event
@@ -191,10 +195,19 @@ endpoint, a `@SpringBootTest` with `@AutoConfigureMockMvc`:
   the `EndpointException` the endpoint throws carries the full message the specification states. A direct call of
   the endpoint bean is enough here; over HTTP the same rejection is a `400` with the message in the JSON body.
 
+- **External systems** — the endpoint test starts the whole application context, so it would call the real adapter.
+  When the use case calls a system of the stack file's `## External systems` table, put the fake of its port in
+  place with `@TestBean`, as "Which Layer Tests What" of `/use-case-test` says for external systems (locate it with
+  a glob for `**/*use-case-test/references/which-layer-tests-what.md`; the folder may carry a host prefix such as
+  `tessl__use-case-test`). The fake comes from the Test skill of the Client row; when it does not exist yet, follow
+  that section rather than mocking the adapter ad hoc. A flow the system causes is a rejection like any other:
+  switch the fake to it — test data cannot arrange it — and assert the `EndpointException` carries the message the
+  specification states for that flow.
+
 Nothing else: no business rule boundaries (the integration layer's tests own them) and no happy-path data checks
 beyond one call that proves the endpoint delegates. Annotate each method with `@UseCase` (see below). `@AutoConfigureMockMvc` needs the test dependency "Versions" names for the
 installed Spring Boot; MockMvc's `with(csrf())` and `@WithMockUser` need `org.springframework.security:spring-security-test` in test scope. Add a
-missing one. `@SpringBootTest` starts from the application class; a module without a `@SpringBootApplication`
+missing one without a version — Spring Boot's BOM manages both — and name it under **Decisions** (section "Decision Rights" of `/use-case-implement`). `@SpringBootTest` starts from the application class; a module without a `@SpringBootApplication`
 (the endpoint's module in a hexagonal project) gets the test in the composition-root module when it exists, and
 otherwise a minimal `@SpringBootConfiguration @EnableAutoConfiguration class EndpointTestConfiguration {}` in the
 root package of its test sources that `@Import`s the endpoint and the service behind it. When the
@@ -287,5 +300,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Vitest: https://vitest.dev/guide/
 - React Testing Library: https://testing-library.com/docs/react-testing-library/intro/
 - Vaadin MCP server (`https://mcp.vaadin.com/docs`) for the React component APIs; see the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it) to
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host installs it) to
   configure it

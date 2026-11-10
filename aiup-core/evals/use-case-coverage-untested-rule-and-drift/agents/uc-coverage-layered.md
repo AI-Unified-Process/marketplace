@@ -142,11 +142,12 @@ writes it. Do not derive the layer yourself: judge the test
 evidence of every layer, and state that the audit could not tell which layer integrates.
 
 When the Markers table has no row for a layer the Layers table lists, report that under Gaps as a
-traceability gap of the layer skill, not of the use case — except for a test skill that has not run
+traceability gap of the layer skill, not of the use case — except for a skill that has not run
 yet, which leaves no rows and is not a gap: a test skill below the integration layer, which
-`/use-case-test` does not run (a second entry layer excepted, see below), and the test skill of an entry layer that no use case is offered
+`/use-case-test` does not run (a second entry layer excepted, see below); the build and the test skill of an entry layer that no use case is offered
 through yet (every specification under `docs/use_cases/`, module subfolders included, has a `**Layers:**` line that leaves it
-out).
+out); and the build and the test skill of the Client layer while no use case calls a system of the stack file's
+`## External systems` table (no specification's Secondary Actors line names one).
 
 Units are not multiplied per layer: each unit gets one row, with the evidence from whichever layers
 realize it. A business rule belongs in the service layer (and possibly also in the persistence or UI

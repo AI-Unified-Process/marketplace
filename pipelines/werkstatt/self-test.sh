@@ -22,6 +22,14 @@
 #   6. select-ucs.sh: an umlaut and a space in a file name, a specification moved into a module folder.
 #   7. a session that fails once is started again and the use case still ends ready; a session that fails twice
 #      ends stuck, also where no coverage audit would catch it, and leaves no untracked file behind.
+#   8. a red build caused by a test: the implementer cannot repair it, the tester gets the new log in the same round
+#      and does; the specification diff reaches the implementer, the tester and the fix station; an id named twice
+#      is built once and reported once.
+#   9. a spec lint that fails itself (exit 2) ends the use case stuck, not blocked.
+#  10. a question the lint rejects (`**Blocking:** Yes (...)`) blocks the use case, although no parser reads it as
+#      blocking; the question stays, the code is dropped.
+# Where setsid exists (Linux), 2 also checks that a process that outlives the stopped stations is killed before it
+# writes into the working tree.
 #
 # Usage: pipelines/werkstatt/self-test.sh     (CI: validate-plugins.yml)
 set -uo pipefail
@@ -47,9 +55,22 @@ cat > "$WORK/bin/claude" <<'FAKE'
 # test gap. FAKE_LOG collects the audit prompts. FAKE_LANES names the use cases whose stations cross their lanes on
 # awkward paths, FAKE_CRASH the ones whose implementer kills the stations (no summary.json). FAKE_FAIL names the
 # use cases whose every session fails, FAKE_FAIL_ONCE the ones whose first session fails (FAKE_STATE holds the mark).
+# FAKE_BADTEST names the use cases whose tester first writes a test that breaks the build and repairs it when asked,
+# FAKE_BADQ the ones whose implementer writes a question the lint rejects. FAKE_PROMPTS is a folder that collects
+# every prompt as <station>-<uc>.log.
 prompt="$2"
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
+if [ -n "${FAKE_PROMPTS:-}" ]; then
+  case "$prompt" in
+    *uc-coverage*) kind=audit ;;
+    *use-case-test*) kind=test ;;
+    *"Fix round"*) kind=fix ;;
+    *) kind=implement ;;
+  esac
+  mkdir -p "$FAKE_PROMPTS"
+  printf '%s\n----\n' "$prompt" >> "$FAKE_PROMPTS/$kind-$uc.log"
+fi
 failing=0
 case " ${FAKE_FAIL:-} " in *" $uc "*) failing=1 ;; esac
 case " ${FAKE_FAIL_ONCE:-} " in *" $uc "*)
@@ -79,6 +100,10 @@ case "$prompt" in
   *use-case-test*)
     mkdir -p src/test src/main
     echo "class UC${n}Test {}" > "src/test/UC${n}Test.java"
+    case " ${FAKE_BADTEST:-} " in *" $uc "*)
+      # a test that does not compile, until the tester is asked to repair it
+      printf '%s' "$prompt" | grep -q "Repair round" || echo "class UC${n}Test { BROKEN }" > "src/test/UC${n}Test.java" ;;
+    esac
     echo "<project>test dependency $uc</project>" > pom.xml
     echo "// the tester may not change production code" >> "src/main/UC${n}.java"
     # the Markers rows the test skills keep in the stack file
@@ -105,13 +130,37 @@ case "$prompt" in
       printf '\n## OQ-0%s: Which rate?\n\n**Element:** %s BR-001\n**Blocking:** Yes\n**Status:** Open\n' \
         "$n" "$uc" >> docs/open_questions.md ;;
     esac
-    case " ${FAKE_SLEEP:-} " in *" $uc "*) sleep 300 ;; esac
+    case " ${FAKE_BADQ:-} " in *" $uc "*)
+      printf '\n## OQ-0%s: Which rate?\n\n**Element:** %s BR-001\n**Blocking:** Yes (decides the result)\n**Status:** Open\n' \
+        "$n" "$uc" >> docs/open_questions.md ;;
+    esac
+    case " ${FAKE_SLEEP:-} " in *" $uc "*)
+      # a process that takes its time over the stop signal and writes into the tree after the use case was dropped
+      ( trap 'sleep 3; echo late > written-after-the-drop.txt' TERM; sleep 300 ) > /dev/null 2>&1 &
+      sleep 300 ;;
+    esac
     ;;
 esac
 echo '{"total_cost_usd": 0.25, "subtype": "success"}'
 FAKE
 chmod +x "$WORK/bin/claude"
-printf 'print("spec lint: no errors")\n' > "$WORK/bin/spec_lint.py"
+# The fake lint: FAKE_LINT_RC makes it fail itself; --questions rejects a blocking value that is not Yes or No.
+cat > "$WORK/bin/spec_lint.py" <<'LINT'
+import os, sys
+rc = int(os.environ.get("FAKE_LINT_RC", "0"))
+if rc:
+    print("spec_lint.py: no such directory: docs")
+    sys.exit(rc)
+if "--questions" in sys.argv:
+    try:
+        text = open("docs/open_questions.md", encoding="utf-8").read()
+    except OSError:
+        text = ""
+    if "**Blocking:** Yes (" in text:
+        print("ERROR OQ_INVALID docs/open_questions.md: **Blocking:** is 'Yes (decides the result)', not Yes or No")
+        sys.exit(1)
+print("spec lint: no errors")
+LINT
 
 # ---------------------------------------------------------------- the fixture repository
 # fixture <dir>: three Approved use cases, a stack file whose build always passes
@@ -142,14 +191,14 @@ fixture() {
   )
 }
 
-# change <dir> <log> [env...]: run-change.sh for UC-001..UC-003 in the fixture
+# change <dir> <log> [env...]: run-change.sh for UC-001..UC-003 in the fixture, or for the ids in CHANGE_UCS
 change() {
   local dir="$1" log="$2"; shift 2
   mkdir -p "$dir.state"
   (cd "$dir" && env PATH="$WORK/bin:$PATH" SPEC_LINT="$WORK/bin/spec_lint.py" MAX_TURNS=5 MAX_ROUNDS=1 \
       SPEC_LINT_MODULE="$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py" \
       GITHUB_OUTPUT="$dir.output" RETRY_WAIT=0 FAKE_STATE="$dir.state" "$@" \
-      bash "$ENGINE/pipelines/werkstatt/run-change.sh" UC-001 UC-002 UC-003 > "$log" 2>&1)
+      bash "$ENGINE/pipelines/werkstatt/run-change.sh" ${CHANGE_UCS:-UC-001 UC-002 UC-003} > "$log" 2>&1)
 }
 
 outcome_of() { jq -r .outcome "$1/.werkstatt/$2/summary.json" 2>/dev/null; }
@@ -212,6 +261,14 @@ if command -v timeout >/dev/null; then
   expect_eq "2 UC-003 outcome" "$(outcome_of "$R" UC-003)" pending
   expect_eq "2 working tree clean" "$(cd "$R" && git status --porcelain)" ""
   pgrep -f "sleep 300" >/dev/null && fail "2 the stopped session still runs"
+  if command -v setsid >/dev/null && setsid --help 2>&1 | grep -q -- '--wait'; then
+    # the stations ran in their own session: what outlived them was killed before it could write
+    sleep 8
+    expect_no_file "2 nothing written after the drop" "$R/written-after-the-drop.txt"
+    expect_eq "2 working tree still clean" "$(cd "$R" && git status --porcelain)" ""
+  else
+    echo "SKIP the check for processes that outlive the stations: no setsid --wait (util-linux)"
+  fi
 
   # ------------------------------------------------------------ 3. a deadline already past builds nothing
   R="$WORK/three"; fixture "$R"
@@ -303,6 +360,59 @@ expect_no_file "7 untracked file of the failed session removed" "$R/scratch.tmp"
 expect_eq "7 UC-002 outcome" "$(outcome_of "$R" UC-002)" pending
 expect_eq "7 nothing committed" "$(cd "$R" && git rev-list --count HEAD)" 1
 expect_eq "7 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+# ---------------------------------------------------------------- 8. a test breaks the build; the spec diff; an id twice
+R="$WORK/eight"; fixture "$R"
+(
+  cd "$R" || exit 1
+  printf '1. The old step that is removed.\n' >> docs/use_cases/UC-001-case.md
+  # the build fails while a test holds the marker of the fake's broken test
+  printf '# Stack\n\n## Commands\n\n| Purpose | Command |\n|---|---|\n| Build | `! grep -rq BROKEN src/test` |\n' \
+    > docs/architecture/stack.md
+  git add -A && git commit -qm "default branch"
+  git update-ref refs/remotes/origin/main HEAD
+  grep -v 'old step' docs/use_cases/UC-001-case.md > spec.tmp && mv spec.tmp docs/use_cases/UC-001-case.md
+  git add -A && git commit -qm "change: the step is removed"
+)
+CHANGE_UCS="UC-001 UC-001" change "$R" "$WORK/eight.log" FAKE_BADTEST=UC-001 FAKE_PROMPTS="$WORK/eight.prompts"
+expect_grep "8 outcome" "^outcome=ready$" "$R.output"
+expect_grep "8 use cases named once" "^use_cases=UC-001$" "$R.output"
+expect_eq "8 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
+expect_eq "8 UC-001 status" "$(status_of "$R" UC-001)" Tested
+expect_eq "8 UC-001 one round" "$(jq -r .fix_rounds "$R/.werkstatt/UC-001/summary.json")" 1
+expect_eq "8 the stations" "$(jq -r .station "$R/.werkstatt/UC-001/metrics.jsonl" | paste -sd' ' -)" \
+  "implement test fix test audit"
+expect_eq "8 the test was repaired" "$(cat "$R/src/test/UC001Test.java")" "class UC001Test {}"
+expect_file "8 build log after the fix" "$R/.werkstatt/UC-001/build-r1-fix.log"
+expect_grep "8 the tester gets the new log" "Repair round 1" "$WORK/eight.prompts/test-UC-001.log"
+expect_grep "8 the fix station may not repair tests" "A separate session repairs the tests" "$WORK/eight.prompts/fix-UC-001.log"
+for station in implement test fix; do
+  expect_grep "8 spec diff in the $station prompt" "^-1. The old step that is removed." "$WORK/eight.prompts/$station-UC-001.log"
+done
+expect_eq "8 one row in the report" "$(grep -c '^| UC-001 |' "$R/.werkstatt/report.md")" 1
+expect_grep "8 report row" "| UC-001 | \*\*ready\*\* | Approved -> Tested |" "$R/.werkstatt/report.md"
+expect_eq "8 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+# ---------------------------------------------------------------- 9. the lint itself fails
+R="$WORK/nine"; fixture "$R"
+change "$R" "$WORK/nine.log" FAKE_LINT_RC=2
+expect_grep "9 outcome" "^outcome=stuck$" "$R.output"
+expect_eq "9 UC-001 outcome" "$(outcome_of "$R" UC-001)" stuck
+expect_grep "9 UC-001 reason" "spec_lint.py failed for UC-001 (exit 2)" "$R/.werkstatt/UC-001/summary.json"
+expect_no_file "9 nothing built" "$R/src/main/UC001.java"
+expect_eq "9 UC-002 outcome" "$(outcome_of "$R" UC-002)" pending
+
+# ---------------------------------------------------------------- 10. a question the lint rejects
+R="$WORK/ten"; fixture "$R"
+change "$R" "$WORK/ten.log" FAKE_BADQ=UC-001
+expect_grep "10 outcome" "^outcome=blocked$" "$R.output"
+expect_eq "10 UC-001 outcome" "$(outcome_of "$R" UC-001)" blocked
+expect_grep "10 UC-001 reason" "has errors after the implement station of UC-001" "$R/.werkstatt/UC-001/summary.json"
+expect_eq "10 UC-001 status" "$(status_of "$R" UC-001)" Approved
+expect_no_file "10 UC-001 code dropped" "$R/src/main/UC001.java"
+expect_grep "10 the question stays" "Yes (decides the result)" "$R/docs/open_questions.md"
+expect_grep "10 the lint output in the report" "OQ_INVALID" "$R/.werkstatt/report.md"
+expect_eq "10 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
 if [ "$FAILURES" -gt 0 ]; then
   echo "--- run logs"; tail -n 30 "$WORK"/*.log

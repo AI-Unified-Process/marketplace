@@ -96,6 +96,9 @@ repository":
   persistence exceptions (`DuplicateKeyException`, `DataIntegrityViolationException`, an empty `Optional`) onto
   the alternative flow's message, on the field it concerns.
 - The view's access annotation is the only access check; there is no service to repeat it.
+- No call to an external system. A Client layer needs the service layer (the layer catalog of `/stack`), so a view
+  never calls a `<System>Client` port: when the use case's Secondary Actors line names a system of the stack file's
+  `## External systems` table and Service is `–`, stop and hand off to `/stack`, which asks to add the service layer.
 
 ## Views and Routing
 
@@ -162,8 +165,8 @@ alone — the service enforces it too. An actor that maps to no existing role is
 - Show every outcome the specification names with the message **verbatim** — the tests assert the full text:
   `Notification.show("Person saved")` with `addThemeVariants(NotificationVariant.SUCCESS)` on success and
   `NotificationVariant.ERROR` for a failure. The unprefixed variants exist from Vaadin 25.1; on older versions
-  use `LUMO_SUCCESS` / `LUMO_ERROR`. A message the specification does not word is a label, not a gap — follow
-  the project's conventions.
+  use `LUMO_SUCCESS` / `LUMO_ERROR`. A confirmation or an error the specification does not word is a gap, asked
+  first, never a text of your own (section "Decision Rights" of `/use-case-implement`).
 - Map each exception the service Handover lists for an alternative flow onto that flow's message: catch the
   specific exception around the service call, never a bare `Exception`, and never swallow it silently.
 - An `ExternalSystemException` the Handover lists (an external system the use case calls is unavailable or timed
@@ -259,5 +262,5 @@ Never run the coverage audit.
 - Binder: https://vaadin.com/docs/latest/flow/binding-data/components-binder
 - Security: https://vaadin.com/docs/latest/flow/security
 - Signals: https://vaadin.com/docs/latest/flow/ui-state
-- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host
   installs it — the servers named in this skill are all you need) to configure the optional servers

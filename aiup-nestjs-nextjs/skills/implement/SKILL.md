@@ -219,6 +219,9 @@ imported produces a 404 that looks like a routing bug.
   stub and the endpoint e2e testable against a real schema.
 - **The controller returns a mapped response type**, never the Drizzle row, which leaks columns
   and changes silently with the schema.
+- **The API lives under `/api`.** `main.ts` calls `app.setGlobalPrefix('api')`, so
+  `@Controller('products')` serves `/api/products` — the path the frontend fetches and the e2e
+  tests call. Add the call when the project lacks it; never write the prefix into a controller.
 - **Validation is a global pipe.** Projects on this stack typically configure `ValidationPipe`
   with `whitelist`, `forbidNonWhitelisted`, and `transform`. That means a query DTO is not
   decoration — it is the only reason an unknown query parameter is rejected rather than ignored.

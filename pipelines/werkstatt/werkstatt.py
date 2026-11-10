@@ -211,11 +211,18 @@ def requirements(args):
         if args.uc not in linked[rid] or rid not in catalog:
             continue
         number, status, _ = catalog[rid]
-        if lint.normalize(status) not in progress:
+        # A German catalog (Offen, Verifiziert) is read and written in its language; an older spec_lint.py without
+        # the helpers knows the English values only.
+        german = hasattr(lint, "requirement_progress") and hasattr(lint, "progress_like")
+        current = lint.requirement_progress(status) if german else (
+            status if lint.normalize(status) in progress else None)
+        if current is None:
             continue
         derived = lint.derived_status([specs[uid] for uid in linked[rid]])
-        if derived is None or lint.normalize(derived) == lint.normalize(status):
+        if derived is None or lint.normalize(derived) == lint.normalize(current):
             continue
+        if german:
+            derived = lint.progress_like(derived, status)
         lines[number - 1] = replace_cell(lines[number - 1], columns.get(number), derived)
         changes.append(f"{rid}: {status} -> {derived}")
     if changes:
@@ -262,11 +269,12 @@ def replace_last_cell(line, value):
 
 
 # The open questions as spec_lint.py reads them (read_open_questions): a '## OQ-XXX' heading with or without a colon,
-# field lines '**Label:** value' with the first one of a label winning, fenced code skipped, any other heading ends
-# the section. Kept here on its own, so a change of spec_lint.py's internals cannot cut the andon cord.
+# field lines '**Label:** value' with the first one of a label winning, fenced code skipped, the next '# ' or '## '
+# heading ends the section (a '###' sub-heading inside a question does not). Kept here on its own, so a change of spec_lint.py's internals cannot cut the andon cord.
 OQ_HEADING = re.compile(r"^##\s+(OQ-[A-Za-z0-9-]+)\s*:?\s*(.*)$")
 OQ_FIELD = re.compile(r"^\*\*([A-Za-z ]+):\*\*\s*(.*)$")
-REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
+# The ids spec_lint.py accepts (its REQ_ID): FR-001, FR-GUEST-001, FR-A01, NFR-PERF-1, C-2a
+REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)")
 REQUIREMENTS_FIELDS = ("**Requirements:**", "**Anforderungen:**")
 
 
@@ -284,7 +292,7 @@ def read_questions(path):
             current = (match.group(1), {})
             questions.append(current)
             continue
-        if line.startswith("#"):
+        if line.startswith(("# ", "## ")):
             current = None
             continue
         match = OQ_FIELD.match(line.strip()) if current else None
@@ -450,6 +458,34 @@ SELF_TEST_QUESTIONS = """# Open Questions
 **Blocking:** Yes
 **Status:** Open
 ```
+
+## OQ-011: On a requirement whose id starts with a letter
+
+**Element:** FR-A01
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-012: On a requirement with a category in its id
+
+**Element:** NFR-PERF-1
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-013: Fields after a sub-heading
+
+### Readings
+
+Two readings are possible.
+
+**Element:** UC-001 step 4
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-014: A blocking value the lint rejects blocks in no parser
+
+**Element:** UC-001
+**Blocking:** Yes (decides the result)
+**Status:** Open
 """
 
 
@@ -535,7 +571,7 @@ def self_test():
         # spec: found in a module folder, missing one exits
         en = os.path.join(docs, "use_cases", "booking", "UC-001-book-a-room.md")
         write(en, "# UC-001: Book a Room\n\n**Status:** Approved  \n**Primary Actor:** Guest\n"
-                  "**Requirements:** [FR-001, NFR-002](../../requirements.md)\n")
+                  "**Requirements:** [FR-001, NFR-002, FR-A01, NFR-PERF-1](../../requirements.md)\n")
         de = os.path.join(docs, "use_cases", "UC-002-zimmer-stornieren.md")
         write(de, "# UC-002: Zimmer stornieren\n\n## Übersicht\n\n**Use-Case-ID:** UC-002\n"
                   "**Status:** Genehmigt <!-- by the PO -->\n")
@@ -567,7 +603,7 @@ def self_test():
         # blocking: Open or Answered, Yes or Ja, element names exactly this use case or a requirement it links
         expect("blocking without file", run(blocking, uc="UC-001", docs=docs), "")
         write(os.path.join(docs, "open_questions.md"), SELF_TEST_QUESTIONS)
-        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\nOQ-006\nOQ-007\n")
+        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\nOQ-006\nOQ-007\nOQ-011\nOQ-012\nOQ-013\n")
         expect("blocking other id", run(blocking, uc="UC-0010", docs=docs), "OQ-005\n")
         expect("blocking hyphen id", run(blocking, uc="UC-2-1", docs=docs), "OQ-009\n")
         expect("blocking hyphen prefix", run(blocking, uc="UC-2", docs=docs), "")
@@ -661,6 +697,20 @@ def self_test():
             with open(os.path.join(docs, "requirements.md"), "rb") as handle:
                 expect("requirements no trailing pipe, CRLF kept", handle.read().decode("utf-8"),
                        catalog.replace("| High | Open", "| High | Verified").replace("\n", "\r\n"))
+
+        # requirements: a German catalog keeps its language (Offen -> Verifiziert)
+        with tempfile.TemporaryDirectory() as root:
+            docs = os.path.join(root, "docs")
+            write(os.path.join(docs, "requirements.md"),
+                  "# Requirements\n\n## Functional Requirements\n\n"
+                  "| ID | Title | User Story | Use Cases | Priority | Status |\n"
+                  "|---|---|---|---|---|---|\n"
+                  "| FR-001 | Zimmer | Als Manager will ich ein Zimmer. | UC-001 | High | Offen |\n")
+            write(os.path.join(docs, "use_cases", "UC-001-zimmer-erfassen.md"),
+                  "# Use Case: zimmer-erfassen\n\n## Overview\n\n**Use Case ID:** UC-001  \n"
+                  "**Status:** Getestet  \n**Requirements:** [FR-001](../requirements.md)\n")
+            expect("requirements German", run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path),
+                   "FR-001: Offen -> Verifiziert\n")
 
     for failure in failures:
         print("FAIL " + failure)

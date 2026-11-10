@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 > **Deprecated.** This combined plugin is superseded by the layer plugins `aiup-flyway`, `aiup-jooq`,
 > `aiup-spring-boot`, and `aiup-vaadin`, run by `/stack`, `/use-case-implement`, `/use-case-test`, and `/use-case-coverage` in
-> `aiup-core` (3.16.0 or later). The layer plugins also cover a REST API without a Vaadin UI. This plugin keeps
+> `aiup-core` (3.16.1 or later). The layer plugins also cover a REST API without a Vaadin UI. This plugin keeps
 > working and will be removed with `aiup-core` 4.0.0; do not install it together with the layer plugins in one
 > project. See [Layered stacks](../docs/workflow.md#workflow) and the [migration guide](../docs/migration.md)
 > for moving an existing project.
@@ -71,8 +71,8 @@ with "work in progress" so it lists remaining work instead of defects:
 
 In Claude Code it is available as a sub-agent once the plugin is installed. Hosts without sub-agent support can use
 [`agents/uc-coverage.md`](agents/uc-coverage.md) as an instruction document — its checklist does not depend on
-Claude Code. The traceability markers it searches for (`@UseCase`, `UC<id>…Test`, `describe('UC-XXX: …')`, `@UC-XXX`)
-are the ones the skills above produce.
+Claude Code. The traceability markers it searches for (`@UseCase`, `UC<id>…Test`, `describe('UC-XXX: …')`,
+`UC<id>…IT` / `TC<id>…IT`, `@DisplayName("TC-XXX: …")`) are the ones the skills above produce.
 
 ## Installation
 

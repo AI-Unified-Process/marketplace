@@ -158,9 +158,10 @@ its `which-layer-tests-what.md` reference (locate it with a glob for
 `**/*use-case-test/references/which-layer-tests-what.md`; the folder may carry a host prefix such as
 `tessl__use-case-test`). This skill's tests start the application in the test's own process
 (`@SpringBootTest(webEnvironment = RANDOM_PORT)`), which is the case that section gives the port's fake to: put the
-fake `/spring-client-test` wrote in place with `@TestBean`, exactly as that skill shows, and switch it for the
-alternative flow a step needs. When the fake does not exist yet, report it and name `/spring-client-test UC-XXX`
-rather than leaving the steps out or mocking the adapter ad hoc.
+fake the Test skill of the stack file's Client row wrote in place with `@TestBean`, exactly as that skill shows, and
+switch it for the alternative flow a step needs. When the fake does not exist yet, report it and name that test
+skill with the use case id, rather than leaving the steps out or mocking the adapter ad hoc; when the Client row
+has no test skill (`–`), that section says who writes the fake.
 
 ## Use Case Tests (UC-*)
 
@@ -334,5 +335,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Drama Finder (`org.vaadin.addons:dramafinder`) Javadoc: https://javadoc.io/doc/org.vaadin.addons/dramafinder
 - Playwright for Java: https://playwright.dev/java/
 - Playwright MCP server (`npx @playwright/mcp@latest`) to explore the running application while writing tests;
-  see the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host
+  see the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host
   installs it) to configure it

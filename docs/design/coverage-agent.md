@@ -42,8 +42,9 @@ The constraints that hold this design together apply to both and must survive ed
 
 **Construction skills hand off; they never run the agent themselves.** In a layered project `/use-case-implement`
 hands off to `/use-case-test`, and `/use-case-test` and `/test-case-implement` end with one hand-off line to
-`/use-case-coverage UC-XXX` or `/test-case-coverage TC-XXX`, so the audit runs once, after the tests exist. In the
-combined plugins every implementation and testing skill ends with a `## Coverage Check` section the same way: the
+`/use-case-coverage UC-XXX` or `/test-case-coverage TC-XXX`, so the audit runs once, after the tests exist. In
+`aiup-vaadin-jooq` and `aiup-angular-jpa`, the two combined plugins with an agent, every implementation and testing
+skill ends with a `## Coverage Check` section the same way: the
 test skills hand off to `/coverage-check UC-XXX`, and `/implement` hands off to its test skill. This is deliberate:
 every audit re-reads the specification and the code base and takes minutes, and running it inside the implementation
 skill, again inside the test skill, and once more at the front door turned a two-minute construction round into

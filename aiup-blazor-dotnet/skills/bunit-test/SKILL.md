@@ -111,17 +111,17 @@ digits of the id plus the PascalCase use case name — unless the project alread
 ## Workflow
 
 1. **Locate Target Component**:
-   - Identify the Blazor component under test (e.g. `Features/UC001_PlaceOrder/PlaceOrderPage.razor`).
+   - Identify the Blazor component under test (e.g. `Features/UC001_PlaceOrder/UC001_Page.razor`, the name `/implement` gives it).
    - Check whether tests for it already exist. If they do, follow "If Tests for This Component Already Exist" above and update them instead of adding a parallel test class.
 2. **Setup bUnit Test Class**:
    - Create the `UseCaseAttribute` if the test project lacks it (see "Traceability").
    - Name the class `UC<id><UseCaseName>Test` (e.g. `UC001PlaceOrderTest`).
-   - Inherit from `Bunit.TestContext` (or use `bUnit` test fixture).
+   - Inherit from `Bunit.BunitContext` (bUnit 2; in a project still on bUnit 1.x the class is `Bunit.TestContext` — follow the version the test project references).
    - Register mock services using `Services.AddSingleton` or `Services.AddScoped`.
-   - Setup authentication context if required (`var authContext = this.AddTestAuthorization();`).
+   - Setup authentication context if required (`var authContext = AddAuthorization();`, then `authContext.SetAuthorized("ada")` and `SetRoles(...)`; bUnit 1.x: `this.AddTestAuthorization()`).
    - Mock JSInterop calls if the component invokes browser APIs (`JSInterop.SetupVoid("localStorage.setItem").SetVoidResult();`).
 3. **Render & Test Component**:
-   - Render component: `var cut = RenderComponent<PlaceOrderPage>();`
+   - Render component: `var cut = Render<UC001_Page>();` (bUnit 1.x: `RenderComponent<UC001_Page>()`, which bUnit 2 rejects at compile time).
    - Interact with elements: `cut.Find("button#submit").Click();`
    - **Handle Asynchronous State**: For async operations or data fetching (`OnInitializedAsync`), use `cut.WaitForState(() => cut.Find(".alert-success").TextContent.Contains("Order Placed"))` or `cut.WaitForAssertion(() => ...)` before making assertions.
    - Mark every test method with `[UseCase(...)]` for the scenario and business rules it covers.

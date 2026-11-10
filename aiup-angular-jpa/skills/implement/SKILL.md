@@ -277,6 +277,8 @@ them, explicit getters/setters:
    public class RoomTypeEntity {
        @Id
        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_type_seq")
+       // allocationSize equals the sequence's INCREMENT BY; Hibernate's default of 50 fails validation against 1
+       @SequenceGenerator(name = "room_type_seq", sequenceName = "room_type_seq", allocationSize = 1)
        private Long id;
        private String name;
        private String description;

@@ -112,18 +112,22 @@ public async Task RejectsInvalidPostalCode()
         await setup.SaveChangesAsync();
     }
 
-    // Act
-    UC001_Result result;
-    await using (var act = new AppDbContext(options))
-    {
-        var handler = new UC001_Handler(act);
-        result = await handler.HandleAsync(new UC001_Command(1, PostalCode: "12"), CancellationToken.None);
-    }
+    // Act: the handler takes the factory and the validator, as /implement writes it;
+    // the factory hands it a fresh context on the same connection
+    var handler = new UC001_Handler(new TestDbContextFactory(options), new UC001_Validator());
+    var result = await handler.HandleAsync(new UC001_Command(1, PostalCode: "12"), CancellationToken.None);
 
     // Assert: the message of A2, and nothing stored
     Assert.Equal("Please enter a valid postal code.", result.Error);
     await using var verify = new AppDbContext(options);
     Assert.Empty(await verify.Orders.ToListAsync());
+}
+
+// Once per test project: the handlers take an IDbContextFactory, never a DbContext
+internal sealed class TestDbContextFactory(DbContextOptions<AppDbContext> options)
+    : IDbContextFactory<AppDbContext>
+{
+    public AppDbContext CreateDbContext() => new(options);
 }
 ```
 
@@ -136,7 +140,7 @@ convention; then follow that one.
 ## Workflow
 
 1. **Identify Target Service/Handler**:
-   - Locate the target handler or EF Core repository (e.g. `PlaceOrderHandler.cs`).
+   - Locate the target handler or EF Core repository (e.g. `Features/UC001_PlaceOrder/UC001_Handler.cs`, the name `/implement` gives it).
    - Check whether tests for it already exist. If they do, follow "If Tests for This Handler Already Exist" above and update them instead of adding a parallel test class.
 2. **Setup Test Class**:
    - Create the `UseCaseAttribute` if the test project lacks it (see "Traceability").
@@ -145,7 +149,7 @@ convention; then follow that one.
    - **Prefer SQLite in-memory or Testcontainers**: Use `UseSqlite("DataSource=:memory:")` (keeping connection open during test execution) or `Testcontainers` for realistic relational database behavior. Avoid `UseInMemoryDatabase` for EF Core tests as it does not enforce relational constraints or raw SQL behavior.
 4. **Execute & Assert (AAA Pattern with Fresh DbContext Instances)**:
    - **Arrange**: Seed test data using an initial `DbContext` instance, then dispose or save changes.
-   - **Act**: Execute the handler or service method using a *new, separate* `DbContext` instance to prevent EF Core change tracking from masking bugs.
+   - **Act**: Construct the handler as `/implement` wrote it — with an `IDbContextFactory<AppDbContext>` over the test connection (the `TestDbContextFactory` above) and its validator — so it works on a *new, separate* `DbContext` instance and EF Core change tracking cannot mask bugs. A service that takes a `DbContext` directly gets a fresh instance.
    - **Assert**: Verify expected outcome, returned DTOs, or database state using a *third* fresh `DbContext` instance.
 5. **Verification**:
    - Execute `dotnet test` to confirm tests pass; on a failure, decide first whether the test or the code is wrong — see [When a Test Fails](#when-a-test-fails).

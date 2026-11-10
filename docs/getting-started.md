@@ -199,7 +199,9 @@ persistence` for a lower layer.
 With a combined stack plugin (`aiup-blazor-dotnet`, or a deprecated one), use its commands instead. For example, the construction workflow normally consists of a
 migration, `/implement UC-001`, stack-specific unit or integration tests, and `/playwright-test UC-001`.
 
-For a journey across several use cases, first create a test-case document:
+For a journey across several use cases, first create a test-case document. Automating it needs an E2E layer:
+`aiup-vaadin` (`/vaadin-e2e-test`) or `aiup-playwright` (`/playwright-e2e-test`). A project without a UI, such as
+the three plugins installed above, has no browser journey to automate, and `/test-case-implement` stops and says so:
 
 ```text
 /test-case UC-001 UC-004

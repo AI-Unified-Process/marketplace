@@ -86,8 +86,9 @@ docs/
     └── ordering.md
 ```
 
-The module slug — the name in lowercase kebab-case — is the `package` alias in the overview, the folder under
-`docs/use_cases/`, and the file under `docs/entity_model/`. Every reader finds a specification with the recursive glob
+The module slug — the name in lowercase kebab-case — is the folder under `docs/use_cases/` and the file under
+`docs/entity_model/`; the `package` alias in the overview is the slug with `_` for each `-`, because PlantUML takes no
+hyphen in an alias. Every reader finds a specification with the recursive glob
 `docs/use_cases/**/UC-XXX-*.md`, reads the module diagrams `docs/use_cases/*/use_cases.puml` next to the overview, and
 the module files `docs/entity_model/*.md` the `## Modules` table links. `/use-case-diagram`, `/use-case-spec`, and
 `/entity-model` keep the split on update and place new use cases and entities in their module; only

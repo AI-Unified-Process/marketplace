@@ -133,6 +133,7 @@ Standalone components are imported directly into the testing module — no
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { RoomTypeOverview } from './room-type-overview';
 
 describe('UC-010: Browse Room Type Catalog', () => {
@@ -154,7 +155,7 @@ describe('UC-010: Browse Room Type Catalog', () => {
         const fixture = TestBed.createComponent(RoomTypeOverview);
         fixture.detectChanges();
 
-        const req = httpMock.expectOne('/api/room-types');
+        const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/room-types`);
         req.flush([{ id: 1, name: 'Deluxe Suite', description: '', capacity: 2, price: 199 }]);
 
         await fixture.whenStable();
@@ -175,10 +176,12 @@ describe('UC-010: Browse Room Type Catalog', () => {
 
 ## Mocking HTTP with `HttpTestingController`
 
-This is Angular's own, built-in mechanism — reach for it instead of MSW:
+This is Angular's own, built-in mechanism — reach for it instead of MSW. `expectOne` with a string
+matches the whole URL, so build it the way the service does — with `environment.apiBaseUrl`, as
+`/implement` writes it — and not as a bare `/api/...` path, which only matches while the base URL is empty:
 
 ```ts
-const req = httpMock.expectOne('/api/room-types');
+const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/room-types`);
 expect(req.request.method).toBe('GET');
 req.flush([{ id: 1, name: 'Deluxe Suite', description: '', capacity: 2, price: 199 }]);
 ```
@@ -233,7 +236,7 @@ describe('RoomTypeService', () => {
             expect(roomTypes).toHaveLength(1);
         });
 
-        httpMock.expectOne('/api/room-types').flush([{ id: 1, name: 'Deluxe Suite' }]);
+        httpMock.expectOne(`${environment.apiBaseUrl}/api/room-types`).flush([{ id: 1, name: 'Deluxe Suite' }]);
     });
 });
 ```
@@ -269,7 +272,7 @@ await fixture.whenStable();
 | Signal value           | `expect(component.roomTypes()).toHaveLength(1)`                       |
 | DOM text content       | `expect(fixture.nativeElement.textContent).toContain('Deluxe Suite')` |
 | Element present        | `expect(fixture.debugElement.query(By.css('.error'))).toBeTruthy()`   |
-| HTTP request made      | `httpMock.expectOne('/api/room-types')`                               |
+| HTTP request made      | `httpMock.expectOne(roomTypesUrl)` — the URL the service builds       |
 | No unexpected requests | `httpMock.verify()` in `afterEach`                                    |
 
 ## Workflow

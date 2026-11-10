@@ -9,7 +9,7 @@
     },
     {
       "name": "Module overview diagram",
-      "description": "docs/use_cases.puml holds only the module overview: a @startuml Modules block that shows the modules as packages whose aliases match the folder names under docs/use_cases/, and the actors linked to them; it contains NO usecase element and no UC-XXX id",
+      "description": "docs/use_cases.puml holds only the module overview: a @startuml Modules block that shows the modules as packages whose aliases match the folder names under docs/use_cases/ (a hyphen of the folder name is an underscore in the alias), and the actors linked to them; it contains NO usecase element and no UC-XXX id",
       "max_score": 9
     },
     {

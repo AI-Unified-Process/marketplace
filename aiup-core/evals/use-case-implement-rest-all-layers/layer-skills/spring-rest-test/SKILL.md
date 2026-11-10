@@ -155,6 +155,7 @@ everything else; never remove or rename an attribute, other tests use it.
 | Postcondition                           | the persisted state read back through the API's own read endpoint when the response does not expose it |
 | Invalid input                           | `400`, one Problem Details body with an `errors` entry per invalid field           |
 | Entity not found                        | `404` with a Problem Details body, when the use case addresses an entity by id     |
+| Access, when the project secures the API | the actor's role gets the flow's status; without authentication `401`, an authenticated user without the role `403` |
 | External system unavailable (a flow the use case has) | the port's fake switched to that flow: `503`, `type`, and the flow's full `detail` message — never the provider's text |
 | JSON contract                           | field names and formats the client relies on: dates `YYYY-MM-DD`, amounts, nulls   |
 
@@ -162,9 +163,18 @@ everything else; never remove or rename an attribute, other tests use it.
   or the status table of `/spring-rest` when neither names one; the message from the specification.
 - **Full stack, nothing mocked**: no `@MockitoBean` on a service, port, or repository of the use case's own call
   chain. A test that mocks the service proves only the controller's wiring, not that the rejection reaches the
-  caller. An external system the use case calls is the exception: its port gets the fake `/spring-client-test`
-  wrote, as "Which Layer Tests What" of `/use-case-test` says for external systems, and an alternative flow it
-  causes is tested through that fake.
+  caller. An external system the use case calls is the exception: its port gets the fake the Test skill of the
+  stack file's Client row wrote (`/spring-client-test` in this plugin), as "Which Layer Tests What" of
+  `/use-case-test` says for external systems — also for a Client row without a test skill — and an alternative
+  flow it causes is tested through that fake.
+- **Secured endpoints**: when the project has Spring Security, every request of the use case runs as the actor's
+  role, or it is rejected before the controller: `@WithMockUser(roles = "…")` on the class for a MockMvc or
+  `MockMvcTester` test, and `.with(csrf())` on a writing request when the project keeps CSRF protection; a test
+  against a live server authenticates the way the API contract of `docs/architecture/stack.md` names (a token, HTTP
+  Basic). Add the two rejected cases of the table once per use case, not per endpoint. `@WithMockUser` and
+  `csrf()` need `org.springframework.security:spring-security-test` in test scope; when it is missing, add it
+  without a version — Spring Boot's BOM manages it — and name it under **Decisions** (section "Decision Rights" of `/use-case-implement`).
+  A project without a security setup needs none of this.
 - **Test data**: an existing convention of the project comes first. Without one, the rows the preconditions and the
   rejected flows need (the guest whose email is already registered) come from the repeatable Flyway test migration
   of the use case, `src/test/resources/db/migration/R__uc<id>_<slug>.sql` — the same file the persistence and service
@@ -306,5 +316,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
   https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
-  `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host installs it — the
+  `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

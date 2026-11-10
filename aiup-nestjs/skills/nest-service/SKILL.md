@@ -218,6 +218,11 @@ template, or provider type in a service.
   method for the Client layer (`/use-case-implement UC-XXX client`). A system the `## External systems` table of the
   stack file does not list goes to `/stack` first, as `/use-case-implement` defines it in "Which Layers Run". Never
   write the call into the service.
+- **A failing system is an `ExternalSystemError`**, the kind `/use-case-implement` defines in "Which Layers Run" for
+  an external system that is unavailable or timed out. The port throws it — the kind the Client Handover names, or,
+  when the project has none yet, `ExternalSystemError extends Error` in `src/common/errors.ts`, next to and never
+  below `BusinessRuleError`. Never wrap it in a domain error and never turn it into a `BusinessRuleError`: the API
+  layer tells it apart by its kind. List it under the Handover's error kinds, only for a use case that calls a system.
 - Turn the port's errors into the specification's outcome: let the flow's error reach the layer above when the step
   stops there, or catch it where the specification continues differently. Whatever the flow does next — a
   compensating write, a status — is the specification's, not a retry or fallback of your own.
@@ -279,6 +284,8 @@ Handover from nest-service (UC-001)
 - RegisterGuest { firstName: string; lastName: string; email: string; birthDate: string; arrivalDate: string }
 - Guest, GuestListItem, GuestFilter — the types of the persistence Handover, unchanged
 - Error kinds: BusinessRuleError (rule violated), NotFoundError (unknown id) — apps/api/src/common/errors.ts
+- ExternalSystemError (system unavailable or timed out): PaymentProviderUnavailableError (A3), passed through
+  unchanged   (only when the use case calls an external system)
 - Messages: EmailAlreadyRegisteredError "The email address <email> is already registered."
 Nothing to do: <reason>   (when the use case needs no service change)
 ```

@@ -107,7 +107,8 @@ deliverable; if you disagree with a verdict, say so underneath it and leave the 
   it — `/stack` when the report says `docs/architecture/stack.md` or its
   Integration layer table is missing, and a rerun of the layer skill named in the Layers table when the report says its Markers rows
   are missing (the layer skills own those rows; `/stack` adds only the `All` row; a test skill below
-  the integration layer that never ran has none to add). Offer them; run one only if the user says yes.
+  the integration layer that never ran has none to add, and neither has the skill of a Client or entry layer no use
+  case has needed yet — the report does not list those). Offer them; run one only if the user says yes.
 - Drift is not a gap with a known fix. For each drift item, ask the user which side is right — the
   specification (`/use-case-spec UC-XXX` adds the behaviour) or the code (`/use-case-implement` removes it) —
   and offer only the command that matches the answer. Never pick a side yourself: changing the
@@ -164,7 +165,7 @@ yourself — above all "no `file:line`, no `Covered`".
 ## Sweeps
 
 With no id: if the conversation has just been working on a specific `UC-*`, propose that
-one and ask. Otherwise list what is there — a glob over both use case directories plus a grep
+one and ask. Otherwise list what is there — a glob for `docs/use_cases/**/UC-*.md` plus a grep
 for the `**Status:**` line — and ask which to audit. Do not audit everything by default.
 
 When the user does ask for a sweep ("all", "every use case", "sweep"), it is **a triage pass, not

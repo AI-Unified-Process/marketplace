@@ -109,6 +109,7 @@ the `describe` title is what `/use-case-coverage` searches for.
 | Postcondition                            | the persisted state read back through the API's own read endpoint when the response does not expose it |
 | Invalid input                            | `400` and the error body with `errors: [{ field, message }]` naming the rejected field, as the Handover lists it; an unknown query parameter or body field where the `ValidationPipe` forbids it |
 | Entity not found                         | `404` with the error body, when the use case addresses an entity by id             |
+| External system unavailable (a flow the use case has) | the port's fake switched to that flow: `503`, the error format's `type`, and the flow's full `detail` message, never the provider's text |
 | JSON contract                            | field names and formats the client relies on: dates `YYYY-MM-DD`, amounts, nulls, and columns that must stay out of the response |
 
 - The status per flow comes from the use case's agreed operation, then the API contract of `docs/architecture/stack.md`,

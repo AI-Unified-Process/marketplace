@@ -144,8 +144,7 @@ without `requirements` predates that attribute: add it with its default `{}` and
   inherit it from.
 
 **Without a service layer** (the Layers table of `docs/architecture/stack.md` marks Service `–`), the repository is
-the transaction boundary, as `/jpa-persistence` builds it, and persistence is the integration layer of a use case
-offered through the service. `@DataJpaTest` wraps every test in a transaction that rolls back, which hides that
+the transaction boundary, as `/jpa-persistence` builds it. `@DataJpaTest` wraps every test in a transaction that rolls back, which hides that
 boundary: a writing method's `@Transactional` joins the test's transaction, nothing commits, and a missing boundary
 still passes. So in this layout:
 
@@ -247,7 +246,7 @@ the coverage audit.
 ## Resources
 
 - Optional MCP server: JavaDocs (`https://www.javadocs.dev/mcp`) — see the plugin's `rules/mcp-servers.md` (locate
-  it with a glob for `**/rules/mcp-servers.md`; not every host installs it).
+  it with a glob for `**/*aiup-jpa*/**/rules/mcp-servers.md`; not every host installs it).
 - Spring Boot testing, data JPA slice: https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html
 - Testcontainers service connections: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - Flyway repeatable migrations: https://documentation.red-gate.com/fd/repeatable-migrations-273973335.html

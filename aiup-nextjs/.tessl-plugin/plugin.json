@@ -1,7 +1,7 @@
 {
   "name": "ai-unified-process/aiup-nextjs",
   "description": "AI Unified Process UI layer - Next.js App Router pages on an API layer, and their component tests",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",

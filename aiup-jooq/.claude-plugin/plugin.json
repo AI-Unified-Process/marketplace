@@ -2,7 +2,7 @@
   "name": "aiup-jooq",
   "displayName": "AI Unified Process jOOQ",
   "description": "AI Unified Process persistence layer - jOOQ repositories, projections, and repository tests",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "author": {
     "name": "Simon Martinelli",
     "email": "simon@martinelli.ch",
@@ -11,7 +11,7 @@
   "dependencies": [
     {
       "name": "aiup-core",
-      "version": ">=3.16.0"
+      "version": ">=3.16.1"
     },
     {
       "name": "aiup-spring-boot",

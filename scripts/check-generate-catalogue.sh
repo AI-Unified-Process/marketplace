@@ -5,9 +5,12 @@
 # mirror each other (docs/generate-workflow-versioning.md): the catalogue of allowed plugin/skill pairs, the skills whose
 # run gets the specification diff or advances the status, and the plugin selection block are the same in both. A skill
 # added to a plugin but not to the catalogue can never be run from the Studio, and one that is renamed leaves a dead
-# entry behind; neither fails anywhere else. The block that hands the report of spec-review to the Studio is the same in
-# both as well. Every skill on disk is either in the catalogue or listed below as one that
-# is deliberately left out.
+# entry behind; neither fails anywhere else. The blocks that do the work are the same in both as well, line for line
+# between their `# >>> name` and `# <<< name` markers: the specification diff against the merge base, the blocking
+# questions read through spec_lint.py, the status rank and the status write, and the report of spec-review for the
+# Studio - a fix made in one implementation only fails here. Every skill on disk is either in the catalogue or listed
+# below as one that is deliberately left out, and every skill of the catalogue is either in the list that gets the
+# specification diff and in one that advances the status, or listed below as one that deliberately is not.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -28,6 +31,24 @@ LEFT_OUT = {
     "aiup-core/user-guide", "aiup-core/acceptance-protocol", "aiup-core/release-notes",
     "aiup-vaadin-jooq/coverage-check", "aiup-angular-jpa/coverage-check", "aiup-vaadin-jooq/karibu-test",
 }
+# Catalogue skills whose run gets no specification diff: they write a document or a schema as a whole.
+NO_DIFF = {
+    "requirements", "entity-model", "use-case-diagram", "business-process", "use-case-spec", "test-case",
+    "reverse-engineer", "stack", "spec-review", "flyway-migration", "ef-migration", "drizzle-migration",
+}
+# Skills with a specification diff whose run moves no status: one layer does not make a use case Implemented or
+# Tested, and an end-to-end test follows a test case. Everything else with a diff must be in the implement or the
+# test list of the status advance.
+NO_STATUS = {
+    "playwright-test", "test-case-implement", "vaadin-e2e-test", "playwright-e2e-test",
+    "flyway-schema", "jooq-persistence", "jooq-persistence-test", "jpa-persistence", "jpa-persistence-test",
+    "spring-service", "spring-service-test", "spring-rest", "spring-rest-test", "spring-client", "spring-client-test",
+    "vaadin-flow-ui", "vaadin-flow-ui-test", "hilla-ui", "hilla-ui-test", "angular-ui", "angular-ui-test",
+    "drizzle-schema", "drizzle-persistence", "drizzle-persistence-test",
+    "nest-service", "nest-service-test", "nest-rest", "nest-rest-test", "nextjs-ui", "nextjs-ui-test",
+}
+# The blocks both implementations hold word for word, besides the plugin selection.
+SHARED_BLOCKS = ("specification diff", "blocking questions", "status rank", "status write", "review report")
 NOT_LAYER = {"aiup-core", "aiup-vaadin-jooq", "aiup-angular-jpa", "aiup-blazor-dotnet", "aiup-nestjs-nextjs"}
 errors = 0
 
@@ -75,6 +96,29 @@ for entry, count in ((e, listed.count(e)) for e in set(listed)):
 
 if skill_cases(workflow) != skill_cases(script):
     error(f'the `case "$SKILL"` lists (specification diff, status advance) differ between {WORKFLOW} and {SCRIPT}')
+else:
+    # The lists agree with each other; do they agree with the catalogue? A new implement or test skill in the
+    # catalogue but in neither list runs without its specification diff and never moves a status.
+    arms = skill_cases(script)
+    with_diff = [a for a in arms if "use-case-implement" in a and "use-case-test" in a]
+    implement = [a for a in arms if "use-case-implement" in a and "use-case-test" not in a]
+    test = [a for a in arms if "use-case-test" in a and "use-case-implement" not in a]
+    if len(with_diff) != 1 or len(implement) != 1 or len(test) != 1:
+        error(f'{SCRIPT}: expected one `case "$SKILL"` list for the specification diff, one for Implemented and '
+              f"one for Tested (found {len(with_diff)}, {len(implement)}, {len(test)})")
+    else:
+        with_diff, with_status = set(with_diff[0]), set(implement[0]) | set(test[0])
+        names = {entry.split("/")[1] for entry in listed}
+        for skill in sorted(names - with_diff - NO_DIFF):
+            error(f"{skill} is in the catalogue but not in the specification diff list of {SCRIPT} and {WORKFLOW}; "
+                  f"add it there (or to NO_DIFF of this script)")
+        for skill in sorted(with_diff - with_status - NO_STATUS):
+            error(f"{skill} gets the specification diff but is in neither status list of {SCRIPT} and {WORKFLOW}; "
+                  f"add it to the implement or the test list (or to NO_STATUS of this script)")
+        for skill in sorted((with_diff | with_status | NO_DIFF | NO_STATUS) - names):
+            error(f"{skill} is in a skill list of {SCRIPT} or of this script but not in the catalogue")
+        for skill in sorted((with_diff & NO_DIFF) | (with_status & NO_STATUS) | (with_status - with_diff)):
+            error(f"{skill} is listed two ways: with and without the specification diff or the status advance")
 
 on_disk = {"/".join(p.split("/")[0:3:2]) for p in glob.glob("aiup-*/skills/*/SKILL.md")}
 for entry in sorted(set(listed)):
@@ -151,12 +195,22 @@ if block is not None and selection(workflow) == block:
             error(f"plugin selection: the generate workflow selects {got}, the Werkstatt "
                   f"{sorted(werkstatt.stdout.split())} for the same stack file")
 
-# The report of spec-review is read by the Studio from the log; both implementations must print the same block.
-review = selection(script, "review report")
-if review is None or selection(workflow, "review report") is None:
-    error("the review report block (# >>> review report ... # <<< review report) is missing")
-elif selection(workflow, "review report") != review:
-    error(f"the review report block differs between {WORKFLOW} and {SCRIPT}")
+# The report of spec-review is read by the Studio from the log, and the diff, the question check and the status
+# advance decide what a run builds and claims; both implementations must hold the same blocks.
+for name in SHARED_BLOCKS:
+    shared = selection(script, name)
+    if shared is None or selection(workflow, name) is None:
+        error(f"the {name} block (# >>> {name} ... # <<< {name}) is missing")
+    elif selection(workflow, name) != shared:
+        error(f"the {name} block differs between {WORKFLOW} and {SCRIPT}")
+# What the blocks must not fall back to: the tip of the default branch as the base of the diff, and a parser of
+# open_questions.md of their own next to spec_lint.py.
+for path, text in ((WORKFLOW, workflow), (SCRIPT, script)):
+    if re.search(r"git diff\s+FETCH_HEAD\b", text):
+        error(f"{path}: the specification diff is taken against FETCH_HEAD, the tip of the default branch; diff "
+              f"against the merge base")
+    if re.search(r"\*\*(Blocking|Element):", text):
+        error(f"{path}: parses docs/open_questions.md itself; read the blocking questions through spec_lint.py")
 
 if errors:
     sys.exit(1)

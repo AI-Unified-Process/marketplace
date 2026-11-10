@@ -6,7 +6,8 @@
 # src/test/java/<root package>/usecase/UseCase.java and the others reuse it, so two different shapes make the second
 # skill's tests fail to compile (an attribute it uses is missing). This check takes every java code block that
 # declares @interface UseCase in the layer plugins - meta-annotations and body, everything but the package and import
-# lines, which some copies leave out - requires one in each Java test skill, and fails when any two differ. The
+# lines, which some copies leave out - requires one in each skill that annotates a test with it, and fails when any
+# two differ. The
 # deprecated combined stack plugins keep their own shape and are not checked.
 set -euo pipefail
 
@@ -20,11 +21,10 @@ import glob, os, re, sys
 NOT_LAYER = {"aiup-core", "aiup-vaadin-jooq", "aiup-angular-jpa", "aiup-blazor-dotnet", "aiup-nestjs-nextjs"}
 LAYER_PLUGINS = sorted(os.path.dirname(p) for p in glob.glob("aiup-*/plugin.json")
                        if os.path.dirname(p) not in NOT_LAYER)
-# The Java test skills that create the annotation when it is missing; each must carry it.
-REQUIRED = ("aiup-jooq/skills/jooq-persistence-test", "aiup-jpa/skills/jpa-persistence-test",
-            "aiup-spring-boot/skills/spring-service-test", "aiup-spring-boot/skills/spring-rest-test",
-            "aiup-spring-boot/skills/spring-client-test",
-            "aiup-vaadin/skills/vaadin-flow-ui-test", "aiup-vaadin/skills/hilla-ui-test")
+# A skill that annotates a test with @UseCase(...) must also carry the definition: it may be the first test skill to
+# run, and then it creates the file. The list is derived from the skills, like LAYER_PLUGINS, so a new Java test skill
+# is checked without an edit here.
+USES = re.compile(r"@UseCase\s*\(")
 # A fence opens with three or more backticks or tildes, at any indentation (a code block inside a list item), and
 # closes with a line of the same character, at least as long, and nothing else.
 OPEN = re.compile(r"^\s*(`{3,}|~{3,})\s*([^\s`]*)")
@@ -53,10 +53,13 @@ def normalize(block):
 
 shapes = {}
 per_skill = {}
+required = {}
 for plugin in LAYER_PLUGINS:
     for path in sorted(glob.glob(f"{plugin}/skills/*/**/*.md", recursive=True)):
         skill = "/".join(path.split(os.sep)[:3])
         text = open(path, encoding="utf-8").read()
+        if USES.search(text):
+            required.setdefault(skill, path)
         for lang, body in code_blocks(text):
             if lang != "java" or not re.search(r"@interface\s+UseCase\b", body):
                 continue
@@ -64,10 +67,17 @@ for plugin in LAYER_PLUGINS:
             per_skill[skill] = per_skill.get(skill, 0) + 1
 
 errors = 0
-for skill in REQUIRED:
+if not required:
+    print("ERROR: no layer skill uses @UseCase(...); the check would pass on nothing", file=sys.stderr)
+    errors += 1
+for skill, path in sorted(required.items()):
     if not per_skill.get(skill):
-        print(f"ERROR: {skill} has no java code block defining @interface UseCase", file=sys.stderr)
+        print(f"ERROR: {skill} uses @UseCase ({path}) but has no java code block defining @interface UseCase",
+              file=sys.stderr)
         errors += 1
+if not shapes:
+    print("ERROR: no java code block defines @interface UseCase in a layer plugin", file=sys.stderr)
+    sys.exit(1)
 if len(shapes) > 1:
     print("ERROR: the layer test skills define @UseCase in different shapes:", file=sys.stderr)
     for shape, paths in shapes.items():
@@ -77,5 +87,5 @@ if len(shapes) > 1:
 if errors:
     sys.exit(1)
 paths = next(iter(shapes.values()))
-print(f"@UseCase annotation identical in {len(paths)} definitions")
+print(f"@UseCase annotation identical in {len(paths)} definitions, present in all {len(required)} skills that use it")
 PY

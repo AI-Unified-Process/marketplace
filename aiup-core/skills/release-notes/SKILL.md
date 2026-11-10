@@ -60,8 +60,9 @@ quoting the text itself.
 6. **Earlier notes** — `docs/release-notes.md` when it exists.
 
 Use Git to read the specification files at the baseline and, for the report only, to find when a use case was set to
-`Done`: `git log --format='%H %as' --follow -- <path>` lists the commits of its file, and `git show <commit>:<path>`
-reads each version's `**Status:**`. Never read the commit messages; the content comes only from the specification
+`Done`: `git -c core.quotePath=false log --format='%H %as' --name-only --follow -- <path>` lists the commits of its
+file, each with the path the file had in that commit, and `git show <commit>:<that path>` reads each version's
+`**Status:**` — a file that moved into a module folder is not at its current path in an older commit. Never read the commit messages; the content comes only from the specification
 files.
 
 ## What Goes into the Notes

@@ -96,6 +96,31 @@ An expected value changes only when the specification has changed — see the se
 - Render a Server Component in jsdom
 - Refactor the component to make it testable — report the obstacle instead
 
+## Setup
+
+Check the web app's Vitest setup before writing a test; a project without one needs this, once.
+`@testing-library/jest-dom` gives `toBeVisible` and `toBeInTheDocument`, and `globals: true` is what
+turns on React Testing Library's automatic cleanup — without it, renders pile up between tests and a
+query finds several elements. Name the config `.mts`, because the web app is usually not
+`type: module`. `@testing-library/jest-dom`, `jsdom`, and `@vitejs/plugin-react` are packages to
+check for in `package.json` like `user-event` below: name a missing one instead of importing it.
+
+```ts
+// vitest.config.mts
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  plugins: [react()],
+  test: { environment: 'jsdom', globals: true, setupFiles: ['./vitest.setup.ts'], include: ['src/**/*.test.tsx'] },
+});
+```
+
+```ts
+// vitest.setup.ts
+import '@testing-library/jest-dom/vitest';
+```
+
 ## Worked example
 
 ```tsx

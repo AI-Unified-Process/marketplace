@@ -152,6 +152,15 @@ written before the requirement existed. It works on an ADR of any status, `Accep
 Set **Date** to today in each case. Moving an ADR back (`Superseded` to `Accepted`) is not a transition: write a new
 ADR.
 
+**An ADR whose header is incomplete** (`ADR_INVALID` of `/spec-review`: no status, a status that is none of the five,
+no date, or `Superseded` without the ADR that replaced it) — usually one written by hand before this skill — has no
+transition to take: `accept` would refuse an `Accepted` ADR, and `deprecate` would change the decision. Whichever
+action was asked for, or `ADR-XXX` alone: show what is missing, ask the user for the status the decision has, the
+date it was taken, and for a `Superseded` one the ADR that replaced it, and write only those header lines
+(`**Status:**`, `**Date:**`, `**Superseded by:**`). Never guess a value — not the status from the wording, not the
+date from the file or the Git history unless the user says to take it — and change nothing else. A status action
+asked for runs after that, on the completed header.
+
 ## Listing ADRs
 
 Print one table, by id:
@@ -178,7 +187,8 @@ No other skill writes an ADR. These hand off by naming this command in their rep
 - `/requirements`, when it changes, rejects, or defers an NFR or constraint that ADRs link: the decision is
   superseded (`ADR-XXX supersede …`) or deprecated (`ADR-XXX deprecate`), or it stands and the user says so.
 - `/spec-review`, for the findings `ADR_UNLINKED` (`ADR-XXX link NFR-YYY`), `ADR_STALE` (supersede, deprecate, or
-  `link` to the requirement that replaced the stale one), and `ADR_INVALID`.
+  `link` to the requirement that replaced the stale one), and `ADR_INVALID` (`ADR-XXX` alone: the incomplete header
+  under "Changing the Status").
 
 ## DO NOT
 

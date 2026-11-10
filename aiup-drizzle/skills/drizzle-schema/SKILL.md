@@ -110,16 +110,20 @@ pg-core's `bytea()` where the installed `drizzle-orm` exports it; otherwise decl
 
 ### Money columns: detect, don't decide
 
-There are two defensible choices and this skill does not impose one:
+There are three accepted choices and this skill does not impose one on a project that has chosen:
+
+- **`integer` minor units** (whole cents) is exact and arrives as a JavaScript **number**. The amount is divided by
+  100 only for display, and an amount beyond the 32-bit range needs `bigint({ mode: 'number' })`. The examples of the
+  layer skills use it.
 
 - **`numeric`** is exact decimal. The `pg` driver parses it into a **string**, to avoid losing precision that
   JavaScript's `number` cannot hold. Every read then needs explicit conversion, and aggregates come back as strings
   too.
-- **`doublePrecision`** arrives as a JavaScript **number**, which is far more ergonomic, but it is not decimal-exact,
-  so repeated arithmetic can accumulate sub-cent drift.
+- **`doublePrecision`** arrives as a JavaScript **number**, but it is not decimal-exact, so repeated arithmetic can
+  accumulate sub-cent drift. Keep it only where the project already uses it; never choose it for a new schema.
 
 **Read the existing schema and follow what it already does.** A project that has settled on one has built its rounding
-and comparison logic around that choice, and mixing the two inside one schema is worse than either. Where a project
+and comparison logic around that choice, and mixing them inside one schema is worse than any of them. Where a project
 is choosing for the first time, list the choice under **Decisions** with the reason. Never switch an existing
 convention as a side effect of adding a table.
 
@@ -147,7 +151,7 @@ export const products = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: text().notNull(),
     category: text().notNull(),
-    price: integer().notNull(), // whole cents: an amount of money is never a floating-point column
+    price: integer().notNull(), // whole cents: a new schema never stores money as floating point
     inStock: boolean('in_stock').notNull().default(true),
     supplierId: integer('supplier_id').references(() => supplier.id),
   },

@@ -216,8 +216,8 @@ The bundled [references/dramafinder-api.md](references/dramafinder-api.md) is th
 
 If the bundled reference doesn't cover a class you need (or the dependency has been upgraded past `1.1.0`) and the **JavaDocs MCP server** is configured, look it up there and add it to the reference:
 
-- `get_javadoc_content_list` with the coordinates above lists all element and base classes.
-- `get_javadoc_symbol_contents` with a `link` from that list returns the full API for a class (methods, parameters, return types, inherited methods).
+- `list_javadoc_symbols` with the coordinates above lists all element and base classes.
+- `get_javadoc_symbol` with a `link` from that list returns the full API for a class (methods, parameters, return types, inherited methods).
 
 See the plugin's `rules/mcp-servers.md` (locate it with a glob for
 `**/rules/mcp-servers.md`; not every host installs it — the servers named in this skill

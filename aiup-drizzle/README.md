@@ -23,7 +23,7 @@ The migration layer has no test skill: the tests of the layers above exercise th
 
 ## How it is driven
 
-`aiup-core` (3.16.0 or later) orchestrates the layer plugins:
+`aiup-core` (3.16.1 or later) orchestrates the layer plugins:
 
 ```text
 /stack                     → docs/architecture/stack.md records the Drizzle skills

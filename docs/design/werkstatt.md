@@ -56,9 +56,15 @@ result decide it, not the build: unchanged code builds green, and on a stack wit
 would stand between a rejected key and a use case reported `ready`. The station is started once more, because a
 rate limit or a dropped connection passes; a second failure ends the use case `stuck`. Both are recorded in the
 metrics and the report. `stuck` and `blocked` drop the untracked files too: a report or a new source file left in the
-tree would reach the pull request with the next commit. The stations get the specification's diff against the merge
+tree would reach the pull request with the next commit. The same holds for a process that outlives its use case: a
+build or a session that is stopped at the deadline can still flush a file after the tree was cleaned, and the pull
+request step would commit it for a use case reported `stuck`. `timeout` returns as soon as the script it started is
+gone, so the stations run in a session of their own (`setsid`) and what is left of it is killed before the drop.
+An id named twice in `use_cases` is built once: the second pass would find the use case `Tested` and overwrite its
+result with `skipped`. The stations get the specification's diff against the merge
 base, not against the tip of the default branch, where a later change there would read as a removed line to delete
-the code for; and `artifact_locations` stays a hint in the prompts, because the Werkstatt itself reads the default
+the code for. All three writing stations get it, not only the implementer: a tester that sees only the current text
+keeps the tests of a removed step, and they fail against the reduced code. And `artifact_locations` stays a hint in the prompts, because the Werkstatt itself reads the default
 paths under `docs/`.
 
 ## The andon cord is read from the file
@@ -71,14 +77,21 @@ again from the answered specification. The Werkstatt reads the file the way `spe
 without a colon, a backticked element, fenced examples skipped), and a question on a requirement stops every use case
 that links it, as `/spec-review` assigns it. The parser is a small copy of those rules rather than an import of
 `spec_lint.py`'s internals: a refactoring there must not cut the andon cord silently, and the self-test pins the
-rules.
+rules. The copy can only read a question that is well formed. One written as `**Blocking:** Yes (decides the
+result)` is blocking for neither parser, and the use case would reach the pull request as `ready` with a question
+the lint then fails on. So `spec_lint.py --questions` runs after every station, and its errors block.
 
 ## Gates before review
 
 Only `spec_lint.py` decides G1, for the same reason only it may fail a build in `/spec-review`: the same input
-gives the same result. The build gate runs the commands the stack file records rather than guessing a build tool.
+gives the same result. Its exit code 1 means findings, and the domain expert fixes the specification; a higher one
+means the lint did not run (a wrong path, a traceback), which ends the use case `stuck`, not `blocked`, so nobody is
+sent to correct a specification that is fine. The build gate runs the commands the stack file records rather than guessing a build tool.
 The coverage audit (G5) is read-only and reports gaps in code and tests separately, so a gap in the tests goes back
-to the tester, not to the implementer. Each gap costs a round, so the audit is asked for all of them at once, and a
+to the tester, not to the implementer. A red build has no such label: the log does not say whether the code or a
+test is wrong, and the audit only runs on a green build. So the implementer goes first, and when the build is still
+red, the tester gets the new log in the same round. Without that second step a test that does not compile could
+never be repaired, because the lane guard reverts every test change of the implementer. Each gap costs a round, so the audit is asked for all of them at once, and a
 later audit gets the previous matrix to re-check row by row: in the first runs, audits that each found one new gap
 used up the rounds of a use case whose code was right. The cost budget is the real limit of a station; `max_turns` only stops a
 session that loops, so its default is high (150). A session it cuts off is recorded, not failed: what it wrote may
@@ -100,7 +113,10 @@ the plugins. A third hand-written copy of the list, next to the two in the gener
 
 GitHub starts no workflow for a pull request opened with `GITHUB_TOKEN`, to prevent workflows from triggering each
 other without end. The Werkstatt's gates are no replacement for the project's CI: a reviewer expects the same checks
-on every pull request. So the stub may pass `AIUP_PR_TOKEN`, a fine-grained token with Contents and Pull requests
+on every pull request. The project checkout keeps no token: the stations run with `bypassPermissions`, and a
+blocked `git` tool does not stop a build script from pushing with a token in `.git/config`, which would break "never
+a commit on the change branch". For the same reason the AI secrets are the environment of the stations step only,
+and the build commands run without them. So the stub may pass `AIUP_PR_TOKEN`, a fine-grained token with Contents and Pull requests
 write, and the pull request is opened with it. The secret is optional: without it the result arrives all the same,
 only without checks, because a missing token must not cost a finished run.
 

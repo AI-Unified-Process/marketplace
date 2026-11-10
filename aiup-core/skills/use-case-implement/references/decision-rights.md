@@ -15,6 +15,8 @@ there, not remove one. A decision no rule names is asked first.
 - Endpoint paths and DTO shapes, within the API contract of `docs/architecture/stack.md`, except for an operation
   the use case's `**API:**` line links, which is built as its contract says
 - Test data and the structure of the tests
+- Adding a starter or test module of a framework the project already uses, at the version the project's BOM or
+  parent manages (`spring-boot-starter-validation`, `spring-security-test`)
 
 ## The agent asks first
 
@@ -24,7 +26,7 @@ there, not remove one. A decision no rule names is asked first.
 - Changes to the data model beyond `docs/entity_model.md`
 - A deviation from a constraint (`C-*`) or from the Rationale of a requirement
 - A deviation from an accepted architecture decision record
-- A new library or dependency
+- Any other new library, dependency, or build plugin
 - The retry, timeout, and fallback policy for a call to an external system
 
 ## The agent never

@@ -203,6 +203,9 @@ SKILL.md). Both have the same three sections: *The agent decides alone*, *The ag
   `docs/open_questions.md`. A question about the architecture — a new library or dependency, a deviation from an
   ADR, the retry, timeout, or fallback policy of an external system — has no element there: ask it, and when no one can answer, leave the part out and list the question under
   **Open questions** in the report, without an `OQ-` id. Never add a dependency or deviate from an ADR unasked.
+  The one dependency the defaults let you add alone is a starter or test module of a framework the project already
+  uses, whose version the project's BOM or parent manages, so no version is written: add it and name it under
+  **Decisions**. A library, a build plugin, or a package with a version of its own is asked first.
 - **Never** — do not take the decision, also when a request implies it; report what would have to change and who
   changes it: `/use-case-spec` or `/requirements` for a specification, the team for an ADR, the user for the status
   line (the coverage audit only suggests the next value).

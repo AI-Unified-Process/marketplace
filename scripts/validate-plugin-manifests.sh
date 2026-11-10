@@ -69,6 +69,33 @@ for dir in aiup-*/; do
   printf '%s\n' "$publish_matrix" | grep -qx "$plugin" || error "$publish: $plugin is missing from the job matrix"
   printf '%s\n' "$publish_paths" | grep -qxF -- "$plugin/**" || error "$publish: '$plugin/**' is missing from on.push.paths"
 
+  # A dependency on a plugin that does not exist, or on a version above the one in this repository, passes
+  # everywhere else and breaks every install: Claude Code cannot resolve it. Only the Claude Code manifest
+  # carries dependencies (the Agent Plugins and Tessl manifests have no such field).
+  for manifest in "$root" "$tessl"; do
+    [ "$(jq 'has("dependencies")' "$manifest")" = false ] ||
+      error "$manifest: dependencies belong in $claude only"
+  done
+  jq -e '(.dependencies // []) | type == "array" and all(.[]; type == "object" and (.name | type == "string") and (.version | type == "string"))' \
+    "$claude" > /dev/null || error "$claude: dependencies must be a list of {name, version}"
+  while IFS=$'\t' read -r dep_name dep_constraint; do
+    [ -n "$dep_name" ] || continue
+    dep_manifest="$dep_name/.claude-plugin/plugin.json"
+    if [ "$dep_name" = "$plugin" ]; then
+      error "$claude: depends on itself"
+    elif [ ! -f "$dep_manifest" ]; then
+      error "$claude: dependency $dep_name is not a plugin of this marketplace"
+    elif ! printf '%s\n' "$dep_constraint" | grep -Eq '^>=[0-9]+\.[0-9]+\.[0-9]+$'; then
+      error "$claude: dependency $dep_name has the constraint '$dep_constraint'; this check knows only >=MAJOR.MINOR.PATCH"
+    else
+      dep_version=$(jq -r .version "$dep_manifest")
+      # jq compares arrays element by element, so [3,16,0] >= [3,7,0]
+      jq -en --arg have "$dep_version" --arg want "${dep_constraint#>=}" \
+        '($have | split(".") | map(tonumber)) >= ($want | split(".") | map(tonumber))' > /dev/null ||
+        error "$claude: requires $dep_name $dep_constraint, but $dep_manifest is at $dep_version"
+    fi
+  done < <(jq -r '(.dependencies // [])[]? | objects | [.name // "", .version // ""] | @tsv' "$claude" 2>/dev/null)
+
   # A "rules" directory declared in a manifest that does not exist ships no rules.
   for manifest in "$root" "$claude" "$tessl"; do
     rules=$(jq -r '.rules // empty | if type == "array" then .[] else . end' "$manifest")

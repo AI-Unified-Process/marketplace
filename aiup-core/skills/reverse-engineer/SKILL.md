@@ -284,10 +284,11 @@ First run the use case spec validator bundled with the `/use-case-spec` skill
 over every spec file you wrote and fix everything it reports (the script is
 bundled with that skill — locate it with a glob for
 `**/*use-case-spec/scripts/validate_use_case.py`; the skill folder may carry a host prefix such
-as `tessl__use-case-spec`, and the path never resolves relative to this skill's folder):
+as `tessl__use-case-spec`, and the path never resolves relative to this skill's folder). Given the folder, it
+checks every use case file in it and in the module folders:
 
 ```bash
-python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases/UC-*.md docs/use_cases/*/UC-*.md
+python3 <path found by the glob>/validate_use_case.py --strict docs/use_cases
 ```
 
 Then check the three documents agree:

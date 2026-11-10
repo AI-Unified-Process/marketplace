@@ -81,14 +81,14 @@ Each station has one clear output. A station never fixes the work of another sta
 
 | # | Station | Input | Output | Tool |
 | --- | --- | --- | --- | --- |
-| 1 | Select | The change branch | The UCs whose specification changed against the default branch and that are *Approved*, in id order | `select-ucs.sh` |
+| 1 | Select | The change branch | The UCs whose specification changed against the merge base with the default branch and that are *Approved*, in id order | `select-ucs.sh` |
 | 2 | G1 spec lint | One UC | Pass, or blocked with the findings | `spec_lint.py --only UC-XXX` (no LLM) and the blocking open questions |
-| 3 | Implement | The UC, its diff against the default branch | Code with `UC-XXX BR-YYY` markers, or a new blocking open question | `/aiup-core:use-case-implement` or `/<plugin>:implement` |
-| 4 | Test | The same UC, fresh session | Tests per layer; a test that disagrees with the code stays red | `/aiup-core:use-case-test` or the plugin's test skills |
+| 3 | Implement | The UC, its diff against the merge base with the default branch | Code with `UC-XXX BR-YYY` markers, or a new blocking open question | `/aiup-core:use-case-implement` or `/<plugin>:implement` |
+| 4 | Test | The same UC and diff, fresh session | Tests per layer; a test that disagrees with the code stays red | `/aiup-core:use-case-test` or the plugin's test skills |
 | 5 | G2 to G4 build | The branch | Green or red, with the log | The Build, Unit tests and Integration tests commands of the stack file |
 | 6 | G5 audit | UC, code, tests | Coverage matrix, gaps in code and in tests | `uc-coverage-layered` or the plugin's `uc-coverage` agent, read-only |
-| 7 | Fix round | Build log or code gaps | New commit; at most `max_rounds` rounds | The implement command with the findings |
-| 8 | Test round | Test gaps | The missing tests | The test command with the gaps |
+| 7 | Fix round | Build log or code gaps, the diff | New commit; at most `max_rounds` rounds | The implement command with the findings |
+| 8 | Test round | Test gaps, or the log of a build that is still red after station 7 | The missing tests; tests that do not compile or contradict the specification repaired | The test command with the gaps or the log |
 | 9 | Pull request | The commits of every UC that passed | One pull request against the change branch, status *Tested* | `peter-evans/create-pull-request` |
 | 10 | Review | The pull request | Merge into the change branch, or change request | Software engineer |
 | 11 | Change pull request | The change branch | Specification, code and tests reach the default branch together | Software engineer |
@@ -96,12 +96,15 @@ Each station has one clear output. A station never fixes the work of another sta
 
 **Why separate sessions for implement, test and audit.** The tester and the auditor read the specification, not the
 implementer's reasoning. So the specification stays the oracle, and no agent grades its own work. A test that
-disagrees with the code stays red and goes into the fix round.
+disagrees with the code stays red and goes into the fix round. A test that is wrong itself (it does not compile, or
+it contradicts the specification) is repaired by the tester in the same round, when the build is still red after the
+implementer's fix.
 
-**Lanes.** The implementer may not change tests, and the tester may only change tests, the open questions and
-build files (`pom.xml`, `package.json`, a test runner's configuration), because a test may need a dependency. What
+**Lanes.** The implementer may not change tests, and the tester may only change tests, the open questions, build
+files (`pom.xml`, `package.json`, a test runner's configuration), because a test may need a dependency, and the
+stack file `docs/architecture/stack.md`, because the test skills keep their rows of its Markers table. What
 crosses the lane is reverted and listed in the pull request, so a drifting skill shows up in review; the tester's
-build file changes are kept and listed.
+changes to build files and to the stack file are kept and listed.
 
 ## Quality gates and the andon cord
 
@@ -110,7 +113,7 @@ never forward.
 
 | Gate | Checks | On failure |
 | --- | --- | --- |
-| G1 Spec lint | `spec_lint.py` for the UC: ids, links, format, weak words; and no blocking open question on the UC | Blocked: only the findings, no code |
+| G1 Spec lint | `spec_lint.py` for the UC: ids, links, format, weak words; no blocking open question on the UC; and an open questions file the lint accepts | Blocked: only the findings, no code. Stuck when the lint itself fails |
 | G2 Build | Compiles, migrations run, code generation works | Fix round |
 | G3 Tests | All tests the stack file's commands run are green | Fix round |
 | G4 Harness | What the build enforces (for example ArchUnit rules), plus the lane guard | Fix round; lane crossings are reverted |
@@ -119,15 +122,18 @@ never forward.
 
 **The andon cord.** When a station finds a gap in the specification, it does not guess. It records a question with
 `/open-questions` in `docs/open_questions.md`, marked `**Blocking:** Yes`. The Werkstatt reads that file after every
-station; it does not ask the agent. A blocking question that names the UC stops it, and only the question goes into
+station; it does not ask the agent. It first runs `spec_lint.py --questions` on it: a question the lint rejects
+would be read as blocking by no parser, so an error there stops the UC as well. A blocking question that names the UC stops it, and only the question goes into
 the pull request. The domain expert answers it in the change branch and updates the UC; the next run builds the UC
 again.
 
 This is the main difference from code-first agent pipelines: a gap becomes a question for a person, not a hidden
 assumption in the code.
 
-**Outcomes.** `ready` (all gates green), `blocked` (G1 or a blocking question), `stuck` (G6), `pending` (not built
-because an earlier UC of the run stopped). The run stops at the first UC that is not `ready`, because later UCs of
+**Outcomes.** `ready` (all gates green), `blocked` (G1 or a blocking question), `stuck` (G6, a session that failed
+twice, a lint that failed itself, stations that stopped without a result, or the run's time was up), `pending` (not
+built because an earlier UC of the run stopped), `skipped` (not built because the UC is not *Approved* or has no
+specification, also when its id was given by hand; the run goes on with the next UC). The run stops at the first UC that is not `ready`, because later UCs of
 the same change may build on it.
 
 ## Spec checks

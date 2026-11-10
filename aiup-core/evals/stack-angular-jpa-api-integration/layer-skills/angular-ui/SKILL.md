@@ -178,8 +178,8 @@ list(page: number, size: number, lastName?: string): Observable<PageResponse<Gue
 ## Pages and Components
 
 The routed page component carries the use case id in a one-line class comment, so the page can be found from the
-specification. In this example the specification of UC-010 states both messages: alternative flow A1 "No Room Types"
-says *No room types found.*, and A2 "Catalog Unavailable" says *The room type catalog is currently unavailable.*
+specification. In this example the specification of UC-010 states both messages: alternative flow A2 "No Room Type
+Matches" says *No room types found.*, and A3 "Catalog Unavailable" says *The room type catalog is currently unavailable.*
 
 ```ts
 // pages/room-type-overview/room-type-overview.ts
@@ -207,7 +207,7 @@ export class RoomTypeOverview implements OnInit {
                 this.isLoading.set(false);
             },
             error: () => {
-                // UC-010 A2: the message as the specification states it
+                // UC-010 A3: the message as the specification states it
                 this.errorMessage.set('The room type catalog is currently unavailable.');
                 this.isLoading.set(false);
             },

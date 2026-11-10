@@ -125,6 +125,9 @@ jobs:
         with:
           # the merge base with the default branch selects the use cases of the change
           fetch-depth: 0
+          # The stations run with bypassPermissions and build code they wrote: no token stays in .git/config for
+          # them to push with. The pull request step authenticates with its own token.
+          persist-credentials: false
 
       - name: Check out the Werkstatt engine
         uses: actions/checkout@v4
@@ -132,6 +135,7 @@ jobs:
           repository: AI-Unified-Process/marketplace
           ref: ${{ inputs.engine_ref }}
           path: .aiup-werkstatt-engine
+          persist-credentials: false
 
       - name: Prepare
         run: |
@@ -155,7 +159,8 @@ jobs:
           if [ -n "$USE_CASES" ]; then
             # Ids given by hand are not checked here: run-change.sh builds only an Approved one and reports every
             # other one as skipped, with its status, in the step summary and the pull request.
-            ucs=$(printf '%s' "$USE_CASES" | grep -oE 'UC-[0-9]+' | paste -sd' ' - || true)
+            # Each id once and in id order, as select-ucs.sh gives them: a later use case may build on an earlier.
+            ucs=$(printf '%s' "$USE_CASES" | grep -oE 'UC-[0-9]+' | sort -u | sort -t- -k2,2n | paste -sd' ' - || true)
           else
             ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$DEFAULT_BRANCH")
           fi
@@ -185,23 +190,20 @@ jobs:
         if: steps.select.outputs.use_cases != ''
         env:
           PLUGINS: ${{ steps.plugins.outputs.list }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # only to say early that neither secret arrived; the secrets themselves reach the stations step alone
+          HAS_AI_SECRET: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
         run: |
           set -euo pipefail
+          if [ "$HAS_AI_SECRET" != "true" ]; then
+            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN reached the workflow; the stub passes them explicitly."
+            exit 1
+          fi
           # A fixed version: the stations hold the AI secrets, and a new release is taken over on purpose.
           npm install -g @anthropic-ai/claude-code@2.1.322
           claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.git
           for plugin in $PLUGINS; do
             claude plugin install "$plugin@ai-unified-process-marketplace"
           done
-          # One of the two secrets is enough. Only a set one is passed on: an empty variable would still count.
-          [ -n "$ANTHROPIC_API_KEY" ] && echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> "$GITHUB_ENV"
-          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] && echo "CLAUDE_CODE_OAUTH_TOKEN=$CLAUDE_CODE_OAUTH_TOKEN" >> "$GITHUB_ENV"
-          if [ -z "$ANTHROPIC_API_KEY$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN reached the workflow; the stub passes them explicitly."
-            exit 1
-          fi
           # The deterministic lint of /spec-review, from the installed aiup-core so it matches the skills.
           lint=$(find "$HOME/.claude/plugins" -path '*aiup-core*/skills/spec-review/scripts/spec_lint.py' | sort | tail -1)
           echo "SPEC_LINT=${lint:-$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py}" >> "$GITHUB_ENV"
@@ -218,7 +220,14 @@ jobs:
           MAX_TURNS: ${{ inputs.max_turns }}
           MAX_ROUNDS: ${{ inputs.max_rounds }}
           MAX_COST_USD: ${{ inputs.max_cost_usd }}
+          # The AI secrets belong to this step alone, not to the job: the pull request step, the upload, and the
+          # install before it never see them, and run-uc.sh takes them out of the build commands' environment.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
+          # One of the two secrets is enough. Only a set one is passed on: an empty variable would still count.
+          [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
           bash "$ENGINE/pipelines/werkstatt/run-change.sh" $USE_CASES
           cat .werkstatt/report.md >> "$GITHUB_STEP_SUMMARY"
 

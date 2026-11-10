@@ -99,7 +99,8 @@ about is left out and listed in the report. Every test skill run from here follo
 The decision rights `/use-case-implement` defines in its section "Decision Rights" — `docs/architecture/decision-rights.md`,
 or its defaults — apply to the tests too: by default, test data and the structure of the tests are decided alone,
 an expected value the specification does not give is asked first, and changing an existing test to make it pass is
-never done. A new test library or dependency is asked first, like any other. Every test skill run from here follows
+never done. A new test library or dependency is asked first, like any other, with the one exception that section
+names: a test module the project's BOM already manages. Every test skill run from here follows
 this section, and the report lists the decisions taken alone under **Decisions** — test data that encodes a
 choice, such as a boundary value or a date the specification does not name.
 

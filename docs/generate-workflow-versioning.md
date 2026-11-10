@@ -19,7 +19,25 @@ per Git provider one of each:
   [`pipelines/aiup-generate.sh`](../pipelines/aiup-generate.sh). The two mirror each other — the catalogue of allowed
   plugin/skill pairs is the same list in both, and a new skill changes both in the same pull request.
   `scripts/check-generate-catalogue.sh` fails CI when the catalogues, the skill lists of the diff and status steps,
-  or the plugin selection block differ, or when a skill on disk is in neither catalogue.
+  or the plugin selection block differ, or when a skill on disk is in neither catalogue. The logic both run word for
+  word sits between `# >>> name` and `# <<< name` markers (specification diff, blocking questions, status rank,
+  status write, review report), and the check fails when a marked block differs: a fix inside one is made in both
+  files.
+- **The specification diff** — taken against the merge base of the branch and the default branch, not against the tip
+  of the default branch: a change the default branch made to the same specification after the branch was cut would
+  otherwise read as lines the branch removed, and the prompt tells the skill to delete the code of a removed line.
+  Both hosts clone shallow, so both histories are deepened (50, 500, 5000 commits) until they meet; without a common
+  commit the run works from the specification alone and says so.
+- **The status advance** — the run leaves the status alone while a blocking open question holds the use case. Both
+  implementations ask `spec_lint.py` of the published `aiup-core` (`OQ_BLOCKING`) instead of reading
+  `docs/open_questions.md` themselves, so a question on a requirement the use case links counts as it does in the
+  lint. When the lint cannot be fetched or run, the status stays as it is.
+- **The deadline** — `timeout_minutes` is the limit of the job on GitHub. On Bitbucket the script gives the session
+  what is left of `TIMEOUT_MINUTES` since its start (with the `timeout` command of the image; without one it warns and
+  the pipeline's own limit applies).
+- **Credentials** — the GitHub workflow checks the project out with `persist-credentials: false`: the session runs
+  with bypassed permissions, and the token of the job must not lie in `.git/config`. The step that fetches the default
+  branch passes the token for its own calls, and the pull request step has its `token` input.
 - **The plugin selection** — a run installs only `aiup-core` and the plugins it needs, never the layer plugins next
   to a combined stack plugin: a combined stack plugin alone; for a layer run, the layer plugins whose skills the
   project's `docs/architecture/stack.md` names (every layer plugin when the project has no stack file,
@@ -81,9 +99,12 @@ pass the tag again as `engine_ref`. To try an unreleased change of it, a test st
 `engine_ref: main` instead.
 
 The workflows pin what they run themselves: third-party actions by commit SHA, and the claude-code CLI by version
-(2.1.322 at the time of writing) in the workflows and in `pipelines/aiup-generate.sh`. A newer action or CLI reaches
-the project repositories only through a commit here and a moved `v1`, so update them deliberately and move the tag
-after a run on a test repository.
+(2.1.322 at the time of writing) where they install it themselves — `.github/workflows/aiup-werkstatt.yml` and
+`pipelines/aiup-generate.sh`. The reusable workflow `aiup-generate.yml` installs no CLI: it runs
+`anthropics/claude-code-action` at a pinned commit, and the CLI comes with that commit. A newer action or CLI reaches
+the project repositories only through a commit here and a moved `v1`, so update them deliberately — when the action's
+SHA moves, check which CLI it brings and move the two pins to the same version — and move the tag after a run on a
+test repository.
 
 Commits that do not touch the shared implementation (skills, docs) do not require moving the tag — the project
 repositories check out the marketplace at the tag's commit only for the workflow and script themselves; the plugins

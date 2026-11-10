@@ -67,7 +67,7 @@ in one project. See the
 
 ## Prerequisites
 
-- `aiup-core` 3.16.0 or later, and `docs/architecture/stack.md` written by `/stack`.
+- `aiup-core` 3.16.1 or later, and `docs/architecture/stack.md` written by `/stack`.
 - Node.js and `@playwright/test` (the skill sets it up when the project has no E2E tooling yet).
 - The application running locally, with seed data that satisfies the preconditions of the use cases and test cases.
 

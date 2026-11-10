@@ -70,7 +70,9 @@ layer reaches the real system, a provider's sandbox included:
   the integration layer's test skill writes the fake of the port itself, once per system, where its own rules place
   test doubles, and puts it in place the same way.
 - **A UI above the integration layer that mocks the backend** sees only the service's exceptions and needs nothing
-  of its own.
+  of its own. The exception is a test of that layer that starts the application context all the same — the
+  endpoint contract test `/hilla-ui-test` writes: it puts the same fake in place and drives the flows the system
+  causes through it, exactly as the integration layer does.
 - **E2E** depends on how its test starts the application:
   - *In the test's own process* — a Spring Boot test on a random port, as `/vaadin-e2e-test` writes it: the test
     puts the same fake in place of the adapter (`@TestBean` or the project's equivalent), exactly as the integration

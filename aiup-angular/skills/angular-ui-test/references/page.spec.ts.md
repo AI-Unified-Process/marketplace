@@ -100,7 +100,7 @@ describe('UC-010: Browse Room Type Catalog', () => {
         await fixture.whenStable();
 
         const alert: HTMLElement = fixture.nativeElement.querySelector('[role="alert"]');
-        expect(alert.textContent?.trim()).toBe('Room types could not be loaded.');
+        expect(alert.textContent?.trim()).toBe('The room type catalog is currently unavailable.');
     });
 });
 ```

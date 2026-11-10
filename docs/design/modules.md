@@ -13,7 +13,8 @@ without scrolling through the others: `docs/use_cases.puml` keeps only the `@sta
 `package`s, no use cases), and each module has `docs/use_cases/<slug>/` with its `use_cases.puml` and the
 specifications of its use cases; `docs/entity_model.md` keeps only the `## Modules` table, and each module has
 `docs/entity_model/<slug>.md` in the normal entity model format. The slug (module name in kebab-case) is the
-`package` alias, the folder, and the file name. The two entry files stay at their paths, and every reader finds a
+folder and the file name; the `package` alias is the slug with `_` for each `-`, because PlantUML reads a hyphen in
+an alias as a link, and `spec_lint.py` compares the two that way. The two entry files stay at their paths, and every reader finds a
 specification with the recursive glob `docs/use_cases/**/UC-XXX-*.md` — a change to how specifications are located
 is made in all readers (skills, the coverage agents, `spec_lint.py`) together, as defined in `docs/workflow.md`.
 An earlier design kept the split inside the two fixed files as `@startuml` blocks and `## Module:` sections; it was

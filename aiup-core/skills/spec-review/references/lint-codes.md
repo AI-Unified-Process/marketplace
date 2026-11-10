@@ -38,13 +38,13 @@ errors.
 | ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, a `**Process:**` link or `BP-XXX` id, the `**Element:**` of an open question, or an id in an ADR's `**Requirements:**`, `**Supersedes:**`, or `**Superseded by:**` line points to nothing | the owning skill |
 | ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-diagram`, then `/business-process BP-XXX` |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
-| ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias | `/use-case-diagram` |
+| ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias; a `_` in the alias stands for a `-` in the folder name | `/use-case-diagram` |
 | ERROR    | `OQ_BLOCKING`           | A use case at `Tested` or `Done` while a blocking open question on it is `Open` or `Answered`; a question on an FR, NFR, or C counts against every use case that links it | `/use-case-spec`, `/requirements` |
 | ERROR    | `OQ_INVALID`            | An open question without an `**Element:**`, `**Raised by:**`, `**Blocking:**`, or `**Status:**` line, with an unknown status, Blocking other than Yes or No, an element of no known form or naming more than one element (`UC-001 A1, A2`), or `Answered` without `**Answer:**`, `Resolved` without `**Resolved in:**`, `Withdrawn` without `**Withdrawn:**` | `/open-questions` |
 | ERROR    | `BP_ID_MISMATCH`        | A process model whose `BP-XXX` process id and file name prefix (`BP-XXX-<name>.bpmn`) differ  | `/business-process` |
 | WARN     | `ACTOR_MISMATCH`        | A primary or secondary actor of a specification that `use_cases.puml` does not connect to the use case (or does not declare), or an actor the diagram connects that the specification does not list. Actors are compared by name, primary and secondary together; an actor inherits its parent's links (`Manager --|> Clerk`); a use case the diagram connects to no actor is skipped | `/use-case-spec` or `/use-case-diagram` |
 | WARN     | `MODULE_MISMATCH`       | A specification that does not lie in the folder of the module whose diagram holds its use case | move the file       |
-| WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no active use case lists in `**Requirements:**`      | `/use-case-spec`    |
+| WARN     | `FR_UNCOVERED`          | An FR (not `Rejected` or `Deferred`) that no active use case lists in `**Requirements:**`      | `/use-case-spec` (or `/use-case-diagram` when no use case fits) |
 | WARN     | `REQ_STATUS_DRIFT`      | A requirement's progress status (Open, In Progress, Implemented, Verified) differs from the one the `**Status:**` of its linking use cases gives it | `/requirements` |
 | WARN     | `SPEC_CHANGED_AFTER_STATUS` | A use case at `Implemented`, `Tested`, or `Done` whose text, or the text of a requirement it links, changed after the commit that set its status; a new priority or status does not count. Needs Git history, and finds nothing without it | `/use-case-coverage UC-XXX` (`/coverage-check UC-XXX`); see the skill's After the Report |
 | WARN     | `OQ_BLOCKING`           | The same at `Approved` or `Implemented`: the use case should not have been approved, or the answer is still missing | `/open-questions`, `/use-case-spec` |
@@ -71,9 +71,11 @@ errors.
 `spec_lint.py` runs `validate_use_case.py` from the `use-case-spec` skill over every use case and passes its findings
 through unchanged: `ERROR` means the document does not parse (`TITLE_MISSING`, `OVERVIEW_MISSING`, `FIELD_MISSING`,
 `STATUS_INVALID`, `FLOW_INCOMPLETE`, `UNEXPECTED_CONTENT`), and `WARN` means a rule of the use-case-spec skill is
-broken (`SECTION_MISSING`, `NUMBERING`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_REF`, `FLOW_TERMINATION`,
-`POSTCONDITIONS_EMPTY`, `RULE_LABEL_MISSING`, `RULE_NUMBERING`, `TECHNICAL_TERM`, `UC_TRIGGER_EMPTY`,
-`UC_TRIGGER_STEP_REF`, `UC_TRIGGER_IS_PRECONDITION`, `MOCKUP_NO_LINK`, `API_NO_LINK`, …). Fix them with `/use-case-spec`.
+broken (`ID_GRAMMAR`, `ID_FILENAME_MISMATCH`, `SECTION_MISSING`, `MAIN_SCENARIO_EMPTY`, `NUMBERING`,
+`SUBBULLET_FLATTENED`, `NO_ALTERNATIVE_FLOWS`, `TRIGGER_STEP_REF`, `FLOW_TERMINATION`, `POSTCONDITIONS_EMPTY`,
+`RULE_LABEL_MISSING`, `RULE_NUMBERING`, `TECHNICAL_TERM`, `UC_TRIGGER_EMPTY`, `UC_TRIGGER_STEP_REF`,
+`UC_TRIGGER_IS_PRECONDITION`, `LAYERS_EMPTY`, `LAYERS_INVALID`, `LAYERS_DUPLICATE`, `MOCKUP_NO_LINK`, `API_NO_LINK`).
+Fix them with `/use-case-spec`.
 
 ## Options
 

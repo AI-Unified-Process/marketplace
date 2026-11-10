@@ -137,8 +137,8 @@ LINT_ONLY=$lint_only
 # --- Determine the change of the specification ------------------------------------
 # A specification edit that only removes a requirement is invisible to the skill:
 # the remaining text is already satisfied by the existing code, so the run finds
-# nothing to do and the dropped behaviour survives. The diff against the default
-# branch makes every change explicit - removals included - and travels with the
+# nothing to do and the dropped behaviour survives. The diff since the branch left
+# the default branch makes every change explicit - removals included - and travels with the
 # prompt so the skill reconciles the code with the change instead of re-checking a
 # specification it already fulfils.
 hint=""
@@ -153,12 +153,39 @@ case "$SKILL" in
     if [ -n "${SUBJECT:-}" ] && [ -f "$SUBJECT" ]; then
       # HEAD alone identifies the default branch without a remote round trip.
       default_branch=$(git ls-remote --symref origin HEAD | sed -n 's|^ref: refs/heads/\(.*\)\tHEAD$|\1|p')
-      # The clone of the pipeline is shallow; the tip of the default branch is
-      # enough for a two-point diff of a single file.
-      git fetch --quiet --depth=1 origin "refs/heads/$default_branch"
-      diff=$(git diff FETCH_HEAD HEAD -- "$SUBJECT")
-      if [ -z "$diff" ]; then
-        echo "The specification matches '$default_branch'; the run works from the specification alone."
+      head_ref=""
+      if [ -n "${BITBUCKET_BRANCH:-}" ]; then
+        head_ref="refs/heads/$BITBUCKET_BRANCH"
+      fi
+      # >>> specification diff - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+      # Against the merge base, not the tip of the default branch: a change the default branch made to the
+      # same specification after this branch was cut would read as lines this branch removed, and the
+      # prompt tells the skill to delete the code of a removed line. The clone is shallow on both hosts, so
+      # both histories are deepened until they meet; without a common commit there is no diff and no hint.
+      diff=""
+      base=""
+      for depth in 50 500 5000; do
+        # a fetch that fails costs the hint, not the run: git says why in the log. No maintenance in the
+        # background: it would hold the lock on the shallow file while the next fetch deepens.
+        if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$default_branch"; then
+          default_tip=$(git rev-parse FETCH_HEAD)
+          if [ -n "$head_ref" ]; then
+            git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "$head_ref" || true
+          fi
+          base=$(git merge-base "$default_tip" HEAD 2>/dev/null || true)
+        fi
+        if [ -n "$base" ]; then
+          break
+        fi
+      done
+      if [ -n "$base" ]; then
+        diff=$(git diff "$base" HEAD -- "$SUBJECT")
+      fi
+      # <<< specification diff
+      if [ -z "$base" ]; then
+        echo "This branch and '$default_branch' share no commit within reach; the run works from the specification alone."
+      elif [ -z "$diff" ]; then
+        echo "The specification is unchanged since this branch left '$default_branch'; the run works from the specification alone."
       elif [ "${#diff}" -gt 20000 ]; then
         # A diff of a single specification is small. Anything larger is not a
         # specification edit and would drown the prompt - better no hint than a
@@ -167,7 +194,7 @@ case "$SKILL" in
       else
         # Tildes fence the diff because a Markdown specification may itself contain
         # backtick fences.
-        hint=$(printf '\nThe specification named above was changed on this branch. Its diff against `%s`:\n\n~~~diff\n%s\n~~~\n\nReconcile the result with every change in this diff, not only with the current text of the specification. A removed line means the behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour.' "$default_branch" "$diff")
+        hint=$(printf '\nThe specification named above was changed on this branch. Its diff since the branch left `%s`:\n\n~~~diff\n%s\n~~~\n\nReconcile the result with every change in this diff, not only with the current text of the specification. A removed line means the behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour.' "$default_branch" "$diff")
       fi
     fi ;;
 esac
@@ -257,11 +284,38 @@ $hint"
 # git stays blocked: the changes are meant to stay in the working directory so that
 # they can be turned into a branch below. The deny rule outranks the permission mode,
 # so the block holds.
-IS_SANDBOX=1 claude -p "$prompt" \
+#
+# TIMEOUT_MINUTES is the deadline of the whole run, as timeout-minutes is for the job of the GitHub
+# workflow: the Studio gives up on the run at that moment, so a session still running then only
+# costs. The session gets what is left of it; the time is counted from the start of this script
+# (SECONDS). A run that reaches the deadline fails without a result, like the GitHub job.
+case "${TIMEOUT_MINUTES:-}" in
+  '' | *[!0-9]*) TIMEOUT_MINUTES=30 ;;
+esac
+left=$((TIMEOUT_MINUTES * 60 - SECONDS))
+if [ "$left" -le 0 ]; then
+  echo "ERROR: the run's time (TIMEOUT_MINUTES=$TIMEOUT_MINUTES) was up before the session started" >&2
+  exit 1
+fi
+limit=()
+if command -v timeout > /dev/null 2>&1; then
+  # seconds without a unit and the short option: GNU coreutils and BusyBox both take them
+  limit=(timeout -k 60 "$left")
+else
+  echo "WARNING: this image has no 'timeout' command; TIMEOUT_MINUTES is not enforced" >&2
+fi
+session_status=0
+IS_SANDBOX=1 ${limit[@]+"${limit[@]}"} claude -p "$prompt" \
   --model "$MODEL" \
   --max-turns "$MAX_TURNS" \
   --permission-mode bypassPermissions \
-  --disallowedTools "Bash(git:*)"
+  --disallowedTools "Bash(git:*)" || session_status=$?
+if [ "$session_status" -eq 124 ] || [ "$session_status" -eq 137 ]; then
+  echo "ERROR: the session was stopped after $TIMEOUT_MINUTES minutes (TIMEOUT_MINUTES); the run has no result" >&2
+fi
+if [ "$session_status" -ne 0 ]; then
+  exit "$session_status"
+fi
 fi
 
 # --- Hand the review over to the Studio -------------------------------------------
@@ -351,32 +405,46 @@ advance_status() {
     echo "The skill changed nothing; the status was left alone."
     return 0
   fi
-  # A skill that stopped on a gap of the specification recorded an open question and built
-  # nothing, or not everything: the question log alone is no result, and a use case a blocking
-  # question names is not Implemented or Tested (OQ_BLOCKING of spec_lint.py).
+  # The question log alone is no result.
   if [ -z "$(git status --porcelain -- . ':(exclude)docs/open_questions.md')" ]; then
     echo "The skill only recorded open questions; the status was left alone."
     return 0
   fi
-  local uc blocking
+  local uc blocking questions lint lint_status current rank value advance
   uc=$(sed -n -e 's/^\*\*Use[ -]Case[ -]ID:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' "$SUBJECT" | head -n 1)
+  # >>> blocking questions - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+  # A skill that stopped on a gap of the specification recorded an open question and built nothing,
+  # or not everything: a use case a blocking question holds is not Implemented or Tested. The
+  # questions are read by spec_lint.py itself (OQ_BLOCKING), from the published aiup-core the
+  # session installs too, so this step and the lint cannot disagree: a question on a requirement the
+  # use case links counts, a section inside a fenced example does not. When the lint cannot be run,
+  # the status stays as it is - a status set too early fails the lint of the pull request.
+  blocking=""
   if [ -n "$uc" ] && [ -f docs/open_questions.md ]; then
-    blocking=$(awk -v uc="$uc" '
-      function flush() {
-        if (id != "" && index(el, uc) == 1 && substr(el, length(uc) + 1, 1) !~ /[A-Za-z0-9_-]/ \
-            && bl ~ /^(yes|ja)/ && st ~ /^(open|answered|offen|beantwortet)/) printf "%s ", id
-      }
-      /^## OQ-/ { flush(); id = $2; sub(/:.*/, "", id); el = ""; bl = ""; st = ""; next }
-      /^\*\*Element:\*\*/ { el = $0; sub(/^\*\*Element:\*\*[ \t]*/, "", el) }
-      /^\*\*Blocking:\*\*/ { bl = tolower($0); sub(/^\*\*blocking:\*\*[ \t]*/, "", bl) }
-      /^\*\*Status:\*\*/ { st = tolower($0); sub(/^\*\*status:\*\*[ \t]*/, "", st) }
-      END { flush() }' docs/open_questions.md)
-    if [ -n "$blocking" ]; then
-      echo "Blocking open questions on $uc (${blocking% }); the status was left alone."
-      return 0
+    questions=$(mktemp -d)
+    lint="$questions/marketplace/aiup-core/skills/spec-review/scripts/spec_lint.py"
+    if git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/AI-Unified-Process/marketplace.git "$questions/marketplace" \
+        && git -C "$questions/marketplace" sparse-checkout set aiup-core/skills; then
+      lint_status=0
+      python3 "$lint" --docs docs --no-baseline --format json --only "$uc" > "$questions/lint.json" || lint_status=$?
+      # 1 only says that the lint found errors
+      if [ "$lint_status" -gt 1 ]; then
+        blocking="not known: spec_lint.py failed with exit code $lint_status"
+      else
+        # one line: the block is indented differently in the two files, and Python minds
+        blocking=$(python3 -c 'import json, re, sys; print(" ".join(dict.fromkeys(q for f in json.load(open(sys.argv[1], encoding="utf-8"))["findings"] if f["code"] == "OQ_BLOCKING" for q in re.findall(r"blocking question (OQ-[A-Za-z0-9_-]+)", f["message"]))))' "$questions/lint.json") \
+          || blocking="not known: the result of spec_lint.py could not be read"
+      fi
+    else
+      blocking="not known: the marketplace with spec_lint.py could not be cloned"
     fi
   fi
-  local current rank value
+  # <<< blocking questions
+  if [ -n "$blocking" ]; then
+    echo "Blocking open questions on $uc ($blocking); the status was left alone."
+    return 0
+  fi
+  # >>> status rank - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
   current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
     -e '/^\*\*Status:\*\*/q' "$SUBJECT")
   # The AI Unified Process status values in their order, English and German.
@@ -388,17 +456,23 @@ advance_status() {
     implemented | implementiert) rank=3 ;;
     tested | getestet) rank=4 ;;
     done | abgeschlossen) rank=5 ;;
-    # Obsolete, a value the format does not know, or no status line at all: none of
-    # them is a state this run may advance out of.
+    # Obsolete, a value the format does not know, or no status line at all: none of them is a
+    # state this run may advance out of.
     *) rank=-1 ;;
   esac
-  # Forward only, and only out of a status the step is allowed at: below Approved
-  # neither the implementation nor the tests are a step of the AI Unified Process process, and a
-  # status already at or beyond the one this run stands for never moves backwards.
+  # Forward only, and only out of a status the step is allowed at: below Approved neither the
+  # implementation nor the tests are a step of the AI Unified Process, and a status already at or
+  # beyond the one this run stands for never moves backwards.
+  advance=true
   if [ "$rank" -lt 2 ] || [ "$rank" -ge "$target" ]; then
+    advance=false
+  fi
+  # <<< status rank
+  if [ "$advance" != true ]; then
     echo "Status '$current' of '$SUBJECT' was left alone."
     return 0
   fi
+  # >>> status write - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
   # A specification is written back in the language it is written in.
   if grep -qE '^\*\*Use-Case-ID:\*\*|^## Übersicht' "$SUBJECT"; then
     value=$german
@@ -408,6 +482,7 @@ advance_status() {
   # Only the first status line and only its value: what follows it - the trailing spaces
   # of a Markdown hard break, a comment, a note - stays as it is.
   sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*/\1 $value/" "$SUBJECT"
+  # <<< status write
   echo "Status of '$SUBJECT': $current -> $value"
 }
 advance_status

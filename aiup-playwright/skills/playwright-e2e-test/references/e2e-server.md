@@ -13,7 +13,8 @@ Browser tests run against a started application that must load the same test dat
 test skills write that data as one seed per use case, `test/data/uc<id>-<slug>.ts`, each exporting `seed(db)`, and the
 helper `test/utils/apply-seeds.ts` that runs them all after the migrations. Reuse both. When the project has no such
 helper, apply the seeds the same way in the entry point: import every `test/data/uc*.ts` file in name order and call
-its `seed(db)`. Never write a seed here: the test data belongs to the backend test skills.
+its `seed(db)`. Never put seed rows into the entry point: a missing
+precondition goes into the use case's `test/data/uc<id>-<slug>.ts`, the file the backend test skills share.
 
 `src/` never imports `test/`, so a small entry point starts the application, migrates, seeds, and then listens:
 

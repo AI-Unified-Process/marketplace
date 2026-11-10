@@ -306,10 +306,16 @@ abstract class IntegrationTestBase {
 ```
 
 ```java
-class RoomTypeIntegrationTest extends IntegrationTestBase {
+class UC001ListRoomTypesTest extends IntegrationTestBase {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void insertRoomType() {
+        jdbcTemplate.update(
+                "INSERT INTO room_type (id, name, capacity, price) VALUES (9001, 'Deluxe Suite', 2, 250.00)");
+    }
 
     @Test
     @UseCase(id = "UC-001")
@@ -318,12 +324,13 @@ class RoomTypeIntegrationTest extends IntegrationTestBase {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$[0].name").isEqualTo("Deluxe Suite");
+                .jsonPath("$[?(@.id == 9001)].name").isEqualTo("Deluxe Suite");
     }
 
     @AfterEach
     void cleanUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "room_type");
+        // only the row this test created, never the whole table
+        jdbcTemplate.update("DELETE FROM room_type WHERE id = 9001");
     }
 }
 ```
@@ -364,10 +371,16 @@ abstract class IntegrationTestBase {
 ```
 
 ```java
-class RoomTypeIntegrationTest extends IntegrationTestBase {
+class UC001ListRoomTypesTest extends IntegrationTestBase {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void insertRoomType() {
+        jdbcTemplate.update(
+                "INSERT INTO room_type (id, name, capacity, price) VALUES (9001, 'Deluxe Suite', 2, 250.00)");
+    }
 
     @Test
     @UseCase(id = "UC-001")
@@ -375,12 +388,13 @@ class RoomTypeIntegrationTest extends IntegrationTestBase {
         given()
                 .when().get("/api/room-types")
                 .then().statusCode(200)
-                .body("[0].name", equalTo("Deluxe Suite"));
+                .body("find { it.id == 9001 }.name", equalTo("Deluxe Suite"));
     }
 
     @AfterEach
     void cleanUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "room_type");
+        // only the row this test created, never the whole table
+        jdbcTemplate.update("DELETE FROM room_type WHERE id = 9001");
     }
 }
 ```
@@ -393,7 +407,7 @@ class RoomTypeIntegrationTest extends IntegrationTestBase {
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RoomTypeControllerTest {
+class UC001ListRoomTypesTest {
 
     @Autowired
     private MockMvcTester mockMvc;
@@ -421,7 +435,7 @@ project already has this convention, and do not migrate it.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RoomTypeControllerTest {
+class UC001ListRoomTypesTest {
 
     @Autowired
     private MockMvc mockMvc;

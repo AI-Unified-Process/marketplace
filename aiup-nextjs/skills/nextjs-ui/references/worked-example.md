@@ -33,7 +33,8 @@ export default function ProductsPage() {
         return res.json();
       })
       .then(setProducts)
-      .catch(() => setErrorMessage('Products could not be loaded.'));
+      // UC-010 A2: the message as the specification states it
+      .catch(() => setErrorMessage('The product catalog is currently unavailable.'));
   }, [category]);
 
   return (
@@ -61,7 +62,9 @@ export default function ProductsPage() {
 }
 ```
 
-The texts stand in for what the specification states; a message it does not state is a gap, not a choice.
+In this example the specification of UC-010 states both messages: alternative flow A1 "No Products" says *No products
+found.*, and A2 "Catalog Unavailable" says *The product catalog is currently unavailable.* A message the specification
+does not state is a gap, not a choice: write none of your own.
 
 ## Route indirection
 

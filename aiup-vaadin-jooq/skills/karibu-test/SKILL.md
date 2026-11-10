@@ -174,7 +174,62 @@ root). It demonstrates the `UC<id><Name>Test` class naming, the `@UseCase` annot
 every test method, and how to map alternative flows (`scenario = "A1: …"`) and business rules
 (`businessRules = {"BR-…"}`) onto the spec headings.
 
+It extends the project's `KaribuTest` base class, which mocks the Vaadin environment for every
+test. Search the test sources for it first (`class KaribuTest`, or another class that calls
+`MockVaadin.setup`) and extend what is there. Only when the suite has none, create it once, with
+the application's root package in `autoDiscoverViews`:
+
+```java
+package com.example.app.views;
+
+import com.github.mvysny.kaributesting.v10.MockVaadin;
+import com.github.mvysny.kaributesting.v10.Routes;
+import com.github.mvysny.kaributesting.v10.spring.MockSpringServlet;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.spring.SpringServlet;
+import kotlin.jvm.functions.Function0;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+
+@SpringBootTest
+public abstract class KaribuTest {
+
+    private static Routes routes;
+
+    @Autowired
+    protected ApplicationContext ctx;
+
+    @BeforeAll
+    static void discoverRoutes() {
+        routes = new Routes().autoDiscoverViews("com.example.app");
+    }
+
+    @BeforeEach
+    void setUpVaadin() {
+        Function0<UI> uiFactory = UI::new;
+        SpringServlet servlet = new MockSpringServlet(routes, ctx, uiFactory);
+        MockVaadin.setup(uiFactory, servlet);
+    }
+
+    @AfterEach
+    void tearDownVaadin() {
+        MockVaadin.tearDown();
+    }
+}
+```
+
+`MockSpringServlet` comes with `com.github.mvysny.kaributesting:karibu-testing-v10-spring`, which an
+existing Karibu suite of a Spring Boot project already has.
+
 ## Common Patterns
+
+The `_get`, `_find`, `_click`, and `_setValue` calls below are static imports from `LocatorJ`. In Java
+they take the component as their first argument — `_click(button)`, never `button._click()`, which is
+the Kotlin form.
 
 ### Navigate to View
 
@@ -214,20 +269,23 @@ GridKt._getCellComponent(grid, 0, "actions")
     .map(Button.class::cast)
     .ifPresent(Button::click);
 
-// Get cell value
-String name = GridKt._getFormattedRow(grid, 0).get("name");
+// Get the formatted value of one cell, by column key
+String name = GridKt._getFormatted(grid, 0, "name");
+
+// Get all formatted values of a row, in column order
+List<String> row = GridKt._getFormattedRow(grid, 0);
 ```
 
 ### Form Interactions
 
 ```java
 // Set field values
-_get(TextField.class, spec -> spec.withLabel("Name"))._setValue("John");
-_get(ComboBox.class, spec -> spec.withLabel("Country"))._setValue(country);
-_get(DatePicker.class, spec -> spec.withLabel("Birth Date"))._setValue(LocalDate.of(1990, 1, 1));
+_setValue(_get(TextField.class, spec -> spec.withLabel("Name")), "John");
+_setValue(_get(ComboBox.class, spec -> spec.withLabel("Country")), country);
+_setValue(_get(DatePicker.class, spec -> spec.withLabel("Birth Date")), LocalDate.of(1990, 1, 1));
 
 // Click button
-_get(Button.class, spec -> spec.withCaption("Save"))._click();
+_click(_get(Button.class, spec -> spec.withCaption("Save")));
 ```
 
 ### Notification Assertions

@@ -167,8 +167,13 @@ jobs:
               exit 1 ;;
           esac
 
+      # The token of the job is not left in .git/config: the session runs with bypassed permissions,
+      # and the deny rule on git stops the tool, not a build script or `env git push`. The one step
+      # that fetches passes the token for that call alone; the pull request step has its own.
       - name: Check out the repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # Only aiup-core and the plugins this run needs are installed; the selection reads the
       # stack file of the checked-out repository, so it runs after the checkout.
@@ -283,8 +288,8 @@ jobs:
 
       # A specification edit that only removes a requirement is invisible to the skill:
       # the remaining text is already satisfied by the existing code, so the run finds
-      # nothing to do and the dropped behaviour survives. The diff against the default
-      # branch makes every change explicit - removals included - and travels with the
+      # nothing to do and the dropped behaviour survives. The diff since the branch left
+      # the default branch makes every change explicit - removals included - and travels with the
       # prompt so the skill reconciles the code with the change instead of re-checking
       # a specification it already fulfils.
       - name: Determine the change of the specification
@@ -295,6 +300,7 @@ jobs:
           # through the environment, not into the script: the subject is free text
           SUBJECT: ${{ inputs.subject }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           # Only the skills that turn a specification into code or tests care how the
@@ -310,13 +316,47 @@ jobs:
           if [ ! -f "$SUBJECT" ]; then
             exit 0
           fi
-          # The checkout is shallow; the tip of the default branch is enough for a
-          # two-point diff of a single file. FETCH_HEAD instead of a remote ref because
-          # actions/checkout narrows the fetch refspec to the dispatched ref.
-          git fetch --quiet --depth=1 origin "refs/heads/$DEFAULT_BRANCH"
-          diff=$(git diff FETCH_HEAD HEAD -- "$SUBJECT")
+          # The checkout keeps no credentials (step "Check out the repository"), so the fetches of
+          # this step carry the token of the job themselves - through the environment of this
+          # step only, nothing is written to .git/config. FETCH_HEAD instead of a remote ref
+          # because actions/checkout narrows the fetch refspec to the dispatched ref.
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader"
+          GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          export GIT_CONFIG_VALUE_0
+          default_branch=$DEFAULT_BRANCH
+          head_ref=$GITHUB_REF
+          # >>> specification diff - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+          # Against the merge base, not the tip of the default branch: a change the default branch made to the
+          # same specification after this branch was cut would read as lines this branch removed, and the
+          # prompt tells the skill to delete the code of a removed line. The clone is shallow on both hosts, so
+          # both histories are deepened until they meet; without a common commit there is no diff and no hint.
+          diff=""
+          base=""
+          for depth in 50 500 5000; do
+            # a fetch that fails costs the hint, not the run: git says why in the log. No maintenance in the
+            # background: it would hold the lock on the shallow file while the next fetch deepens.
+            if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$default_branch"; then
+              default_tip=$(git rev-parse FETCH_HEAD)
+              if [ -n "$head_ref" ]; then
+                git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "$head_ref" || true
+              fi
+              base=$(git merge-base "$default_tip" HEAD 2>/dev/null || true)
+            fi
+            if [ -n "$base" ]; then
+              break
+            fi
+          done
+          if [ -n "$base" ]; then
+            diff=$(git diff "$base" HEAD -- "$SUBJECT")
+          fi
+          # <<< specification diff
+          if [ -z "$base" ]; then
+            echo "This branch and \`$DEFAULT_BRANCH\` share no commit within reach; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           if [ -z "$diff" ]; then
-            echo "The specification matches \`$DEFAULT_BRANCH\`; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            echo "The specification is unchanged since this branch left \`$DEFAULT_BRANCH\`; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           # A diff of a single specification is small. Anything larger is not a
@@ -332,7 +372,7 @@ jobs:
           {
             echo "hint<<AI-UNIFIED-PROCESS-DIFF-$GITHUB_SHA"
             echo ""
-            echo "The specification named above was changed on this branch. Its diff against \`$DEFAULT_BRANCH\`:"
+            echo "The specification named above was changed on this branch. Its diff since the branch left \`$DEFAULT_BRANCH\`:"
             echo ""
             echo '~~~diff'
             printf '%s\n' "$diff"
@@ -484,30 +524,45 @@ jobs:
             echo "The skill changed nothing; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          # A skill that stopped on a gap of the specification recorded an open question and built
-          # nothing, or not everything: the question log alone is no result, and a use case a blocking
-          # question names is not Implemented or Tested (OQ_BLOCKING of spec_lint.py).
+          # The question log alone is no result.
           if [ -z "$(git status --porcelain -- . ':(exclude)docs/open_questions.md')" ]; then
             echo "The skill only recorded open questions; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           uc=$(sed -n -e 's/^\*\*Use[ -]Case[ -]ID:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' "$SUBJECT" | head -n 1)
+          # >>> blocking questions - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
+          # A skill that stopped on a gap of the specification recorded an open question and built nothing,
+          # or not everything: a use case a blocking question holds is not Implemented or Tested. The
+          # questions are read by spec_lint.py itself (OQ_BLOCKING), from the published aiup-core the
+          # session installs too, so this step and the lint cannot disagree: a question on a requirement the
+          # use case links counts, a section inside a fenced example does not. When the lint cannot be run,
+          # the status stays as it is - a status set too early fails the lint of the pull request.
+          blocking=""
           if [ -n "$uc" ] && [ -f docs/open_questions.md ]; then
-            blocking=$(awk -v uc="$uc" '
-              function flush() {
-                if (id != "" && index(el, uc) == 1 && substr(el, length(uc) + 1, 1) !~ /[A-Za-z0-9_-]/ \
-                    && bl ~ /^(yes|ja)/ && st ~ /^(open|answered|offen|beantwortet)/) printf "%s ", id
-              }
-              /^## OQ-/ { flush(); id = $2; sub(/:.*/, "", id); el = ""; bl = ""; st = ""; next }
-              /^\*\*Element:\*\*/ { el = $0; sub(/^\*\*Element:\*\*[ \t]*/, "", el) }
-              /^\*\*Blocking:\*\*/ { bl = tolower($0); sub(/^\*\*blocking:\*\*[ \t]*/, "", bl) }
-              /^\*\*Status:\*\*/ { st = tolower($0); sub(/^\*\*status:\*\*[ \t]*/, "", st) }
-              END { flush() }' docs/open_questions.md)
-            if [ -n "$blocking" ]; then
-              echo "Blocking open questions on $uc (${blocking% }); the status was left alone." >> "$GITHUB_STEP_SUMMARY"
-              exit 0
+            questions=$(mktemp -d)
+            lint="$questions/marketplace/aiup-core/skills/spec-review/scripts/spec_lint.py"
+            if git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/AI-Unified-Process/marketplace.git "$questions/marketplace" \
+                && git -C "$questions/marketplace" sparse-checkout set aiup-core/skills; then
+              lint_status=0
+              python3 "$lint" --docs docs --no-baseline --format json --only "$uc" > "$questions/lint.json" || lint_status=$?
+              # 1 only says that the lint found errors
+              if [ "$lint_status" -gt 1 ]; then
+                blocking="not known: spec_lint.py failed with exit code $lint_status"
+              else
+                # one line: the block is indented differently in the two files, and Python minds
+                blocking=$(python3 -c 'import json, re, sys; print(" ".join(dict.fromkeys(q for f in json.load(open(sys.argv[1], encoding="utf-8"))["findings"] if f["code"] == "OQ_BLOCKING" for q in re.findall(r"blocking question (OQ-[A-Za-z0-9_-]+)", f["message"]))))' "$questions/lint.json") \
+                  || blocking="not known: the result of spec_lint.py could not be read"
+              fi
+            else
+              blocking="not known: the marketplace with spec_lint.py could not be cloned"
             fi
           fi
+          # <<< blocking questions
+          if [ -n "$blocking" ]; then
+            echo "Blocking open questions on $uc ($blocking); the status was left alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # >>> status rank - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
           current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
             -e '/^\*\*Status:\*\*/q' "$SUBJECT")
           # The AI Unified Process status values in their order, English and German.
@@ -519,18 +574,23 @@ jobs:
             implemented | implementiert) rank=3 ;;
             tested | getestet) rank=4 ;;
             done | abgeschlossen) rank=5 ;;
-            # Obsolete, a value the format does not know, or no status line at all: none
-            # of them is a state this run may advance out of.
+            # Obsolete, a value the format does not know, or no status line at all: none of them is a
+            # state this run may advance out of.
             *) rank=-1 ;;
           esac
-          # Forward only, and only out of a status the step is allowed at: below
-          # Approved neither the implementation nor the tests are a step of the AI Unified Process
-          # process, and a status already at or beyond the one this run stands for never
-          # moves backwards.
+          # Forward only, and only out of a status the step is allowed at: below Approved neither the
+          # implementation nor the tests are a step of the AI Unified Process, and a status already at or
+          # beyond the one this run stands for never moves backwards.
+          advance=true
           if [ "$rank" -lt 2 ] || [ "$rank" -ge "$target" ]; then
+            advance=false
+          fi
+          # <<< status rank
+          if [ "$advance" != true ]; then
             echo "Status \`$current\` of \`$SUBJECT\` was left alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          # >>> status write - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
           # A specification is written back in the language it is written in.
           if grep -qE '^\*\*Use-Case-ID:\*\*|^## Übersicht' "$SUBJECT"; then
             value=$german
@@ -540,6 +600,7 @@ jobs:
           # Only the first status line and only its value: what follows it - the trailing spaces
           # of a Markdown hard break, a comment, a note - stays as it is.
           sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*/\1 $value/" "$SUBJECT"
+          # <<< status write
           echo "Status of \`$SUBJECT\`: $current -> $value" >> "$GITHUB_STEP_SUMMARY"
 
       # Title and description name the artifact the run was set on. The subject is not

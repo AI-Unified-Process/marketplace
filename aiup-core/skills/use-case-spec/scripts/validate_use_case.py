@@ -18,8 +18,12 @@ which is the executable source of truth for what "parses":
 Exit code 0 when clean, 1 when any ERROR was found (with --strict also
 when any WARN was found), 2 on usage errors.
 
+A folder stands for every use case file in it and in its subfolders
+(UC-*.md, SUC-*.md, BUC-*.md), so `docs/use_cases` covers a flat project and
+one split by module alike, in any shell.
+
 Usage:
-    validate_use_case.py [--strict] [--quiet] FILE...
+    validate_use_case.py [--strict] [--quiet] FILE|FOLDER...
     validate_use_case.py --self-test
 
 Requires Python 3.9+, standard library only.
@@ -1142,6 +1146,28 @@ def self_test():
         if code != 1:
             failures.append("latin-1: the command should exit 1")
 
+    # A folder stands for the use case files in it and in its module folders.
+    with tempfile.TemporaryDirectory() as folder:
+        names = ("UC-001-create-reservation.md",
+                 os.path.join("guests", "UC-001-create-reservation.md"),
+                 "use_cases.puml", "README.md")
+        os.mkdir(os.path.join(folder, "guests"))
+        for name in names:
+            with open(os.path.join(folder, name), "w",
+                      encoding="utf-8") as handle:
+                handle.write(VALID_EN)
+        found = [os.path.relpath(p, folder) for p in use_case_files(folder)]
+        if found != sorted(names[:2]):
+            failures.append("folder: expected the two use case files, got "
+                            + str(found))
+        os.mkdir(os.path.join(folder, "empty"))
+        with contextlib.redirect_stdout(io.StringIO()):
+            codes = (main([folder, "--strict", "--quiet"]),
+                     main([os.path.join(folder, "empty")]))
+        if codes != (0, 2):
+            failures.append("folder: expected exit 0 for the folder and 2 "
+                            "for an empty one, got " + str(codes))
+
     if failures:
         for failure in failures:
             print("SELF-TEST FAIL: " + failure)
@@ -1154,10 +1180,23 @@ def self_test():
 # CLI
 # ---------------------------------------------------------------------------
 
+def use_case_files(path):
+    """The files an argument names: itself, or for a folder every use case
+    file in it and in its subfolders, in a stable order."""
+    if not os.path.isdir(path):
+        return [path]
+    found = []
+    for folder, _, names in os.walk(path):
+        found += [os.path.join(folder, name) for name in names
+                  if re.match(r"[SB]?UC-.*\.md$", name)]
+    return sorted(found)
+
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="Validate AI Unified Process use case specifications.")
-    parser.add_argument("files", nargs="*", help="UC-*.md files to validate")
+    parser.add_argument("files", nargs="*", help="UC-*.md files to validate, "
+                        "or folders to search for them")
     parser.add_argument("--strict", action="store_true",
                         help="treat warnings as failures")
     parser.add_argument("--quiet", action="store_true",
@@ -1173,7 +1212,11 @@ def main(argv):
         return 2
 
     errors = warnings = 0
-    for path in args.files:
+    files = [path for name in args.files for path in use_case_files(name)]
+    if not files:
+        print("no use case file (UC-*.md) in " + ", ".join(args.files))
+        return 2
+    for path in files:
         try:
             problems = validate_file(path)
         except OSError as exc:
@@ -1189,7 +1232,7 @@ def main(argv):
                 warnings += 1
     if not args.quiet:
         print("%d file(s) checked: %d error(s), %d warning(s)"
-              % (len(args.files), errors, warnings))
+              % (len(files), errors, warnings))
     if errors or (args.strict and warnings):
         return 1
     return 0

@@ -287,6 +287,11 @@ UC_PROGRESS = {
     "getestet": 2, "abgeschlossen": 2,
 }
 REQUIREMENT_PROGRESS = ("Open", "In Progress", "Implemented", "Verified")
+# The same values in a German catalog, next to the German use case statuses
+REQUIREMENT_PROGRESS_GERMAN = {
+    "Offen": "Open", "In Arbeit": "In Progress",
+    "Implementiert": "Implemented", "Verifiziert": "Verified",
+}
 
 # Weak words: vague, unverifiable, or optional wording, after the classic
 # requirements-engineering rules (ISO/IEC/IEEE 29148, SOPHIST). A hit is a
@@ -659,6 +664,36 @@ def module_of(project, path):
     return parts[0] if len(parts) > 1 and parts[0] != ".." else None
 
 
+# note left of UC001 : text | note "text" as N1 | note as N1 ... end note |
+# legend ... end legend. A note without text on its line runs to its end line.
+PUML_NOTE = re.compile(r"^\s*(?:[rh]?note\s+(?:left|right|top|bottom|as)\b"
+                       r'|[rh]?note\s*"|legend\s*(?:$|left|right|top|bottom'
+                       r"|center)\b)", re.IGNORECASE)
+PUML_NOTE_END = re.compile(r"^\s*end\s*(?:[rh]?note|legend)\b", re.IGNORECASE)
+PUML_NOTE_LINE = re.compile(r'^\s*[rh]?note\b(?:[^:"]*:|\s*")', re.IGNORECASE)
+
+
+def diagram_lines(path, labels=False):
+    """The lines of a diagram that declare something, as (number, line).
+
+    Comments, notes, and legends are prose: a use case id they name
+    ("replaces UC-099", "invoiced by UC-002 of Billing") declares nothing.
+    The same goes for the label after a link ("Guest --> UC001 : uses
+    UC-002"), which only a reader of the relations asks for (labels)."""
+    block = False
+    for number, line in enumerate(read_lines(path), 1):
+        if block:
+            block = not PUML_NOTE_END.match(line)
+            continue
+        if line.lstrip().startswith("'"):
+            continue
+        if PUML_NOTE.match(line):
+            block = not PUML_NOTE_LINE.match(line)
+            continue
+        link = PUML_LINK.match(line)
+        yield number, line[:link.end()] if link and not labels else line
+
+
 def check_diagram(project, specs):
     """Every use case of the diagram has a spec and vice versa.
 
@@ -667,9 +702,7 @@ def check_diagram(project, specs):
         return {}
     diagram, names, twice = {}, {}, set()
     for path in project.diagram_paths:
-        for number, line in enumerate(read_lines(path), 1):
-            if line.lstrip().startswith("'"):
-                continue
+        for number, line in diagram_lines(path):
             for uid in PUML_UC.findall(line):
                 first = diagram.setdefault(uid, (path, number))
                 if first[0] != path and (uid, path) not in twice:
@@ -709,7 +742,10 @@ def check_modules(project, specs, diagram):
         for number, line in enumerate(read_lines(project.diagram_path), 1):
             match = PUML_PACKAGE.match(line)
             if match:
-                packages.setdefault(match.group(2) or match.group(1), number)
+                # PlantUML takes no hyphen in an alias: the package of the
+                # folder guest-management/ has the alias guest_management
+                alias = (match.group(2) or match.group(1)).replace("_", "-")
+                packages.setdefault(alias, number)
     for alias, number in packages.items():
         if alias not in folders:
             project.add(ERROR, "MODULE_UNKNOWN", project.diagram_path, number,
@@ -719,8 +755,8 @@ def check_modules(project, specs, diagram):
         if folder not in packages:
             project.add(ERROR, "MODULE_UNKNOWN", path, 1, folder,
                         "module folder use_cases/" + folder + "/ has no "
-                        "package with the alias '" + folder + "' in the "
-                        "overview use_cases.puml")
+                        "package with the alias '" + folder.replace("-", "_")
+                        + "' in the overview use_cases.puml")
     for uid, spec in specs.items():
         if uid not in diagram:
             continue
@@ -750,9 +786,7 @@ def read_diagram_actors(path):
     as written: (UC-002, "include", UC-003) is UC-002 ..> UC-003 : <<include>>.
     """
     actors, aliases, uc_aliases = {}, {}, {}
-    lines = [(number, line) for number, line in
-             enumerate(read_lines(path), 1)
-             if not line.lstrip().startswith("'")]
+    lines = list(diagram_lines(path, labels=True))
 
     def declare(number, name, alias=None):
         key = normalize(name)
@@ -984,22 +1018,45 @@ def derived_status(use_cases):
     return "In Progress" if max(ranks) > 0 else "Open"
 
 
+def requirement_progress(status):
+    """The progress value of REQUIREMENT_PROGRESS a status cell states, in
+    English or German, or None (Deferred, Rejected, anything else)."""
+    known = {normalize(value): value for value in REQUIREMENT_PROGRESS}
+    known.update({normalize(german): value for german, value
+                  in REQUIREMENT_PROGRESS_GERMAN.items()})
+    return known.get(normalize(status))
+
+
+def progress_like(derived, status):
+    """The derived progress in the language of the status cell."""
+    if normalize(status) in {normalize(g) for g in REQUIREMENT_PROGRESS_GERMAN}:
+        return next(german for german, value
+                    in REQUIREMENT_PROGRESS_GERMAN.items() if value == derived)
+    return derived
+
+
+def progress_drifts(status, derived):
+    """A status differs from what the use cases make it."""
+    return bool(derived) and (requirement_progress(status)
+                              or normalize(status)) != derived
+
+
 def check_requirement_status(project, specs, requirements):
     """A requirement's progress status matches its linking use cases."""
-    progress = {normalize(value): value for value in REQUIREMENT_PROGRESS}
     for rid, uids in linking_use_cases(specs).items():
         if rid not in requirements:
             continue
         number, status, _ = requirements[rid]
-        if normalize(status) not in progress:
+        if requirement_progress(status) is None:
             continue
         linked = [specs[uid] for uid in uids]
         derived = derived_status(linked)
-        if derived is None or normalize(derived) == normalize(status):
+        if derived is None or derived == requirement_progress(status):
             continue
         project.add(WARN, "REQ_STATUS_DRIFT", project.requirements_path,
                     number, rid, "status '" + status + "' but its use cases "
-                    "make it '" + derived + "' (" + ", ".join(
+                    "make it '" + progress_like(derived, status) + "' ("
+                    + ", ".join(
                         spec.id + " " + spec.status for spec in linked
                         if not spec.obsolete) + ")")
 
@@ -1274,7 +1331,8 @@ def read_open_questions(project):
                        "body": []}
             questions.append(current)
             continue
-        if line.startswith("#"):
+        # A ### heading inside the body belongs to the question
+        if line.startswith(("# ", "## ")):
             current = None
             continue
         if current is None:
@@ -1718,14 +1776,47 @@ def specification_text(lines):
             and field_value(line, (STATUS_FIELD,)) is None]
 
 
+def status_set_at(docs, rel, status):
+    """(commit, text) of the commit that gave the file its status, or
+    (None, None).
+
+    Walks the file's history back, across a move (--follow), while the
+    status is the current one: the oldest of these commits set it. A commit
+    that only moves the file into a module folder adds its **Status:** line
+    at the new path without setting anything, so the line alone is no sign.
+    The walk ends where the file was added or copied from another one: a
+    specification started from a copy has no history before that.
+    """
+    # core.quotePath: a path with an umlaut is printed as it is
+    log = git_output(docs, "-c", "core.quotePath=false", "log", "--follow",
+                     "--format=%x01%H", "--name-status", "--", rel)
+    found = (None, None)
+    for entry in (log or "").split("\x01")[1:]:
+        lines = [line for line in entry.splitlines() if line.strip()]
+        if len(lines) < 2:
+            continue
+        change = lines[-1].split("\t")
+        # The name is relative to the repository root, as git show reads it
+        text = git_output(docs, "show", lines[0] + ":" + change[-1])
+        if text is None:
+            continue
+        if Spec(rel, text.splitlines()).status != status:
+            break
+        found = (lines[0], text)
+        if change[0][:1] in ("A", "C"):
+            break
+    return found
+
+
 def check_changed_after_status(project, specs):
     """A use case at Implemented or later still says what was built.
 
-    The last commit that touched the **Status:** line is when the status was
-    set; the use case and the requirements it links are compared with that
-    commit. A status not committed yet is being set right now, so there is
-    nothing to compare. Needs Git history: without it, or in a shallow clone
-    that ends after the status was set, the check finds nothing.
+    The commit that gave the use case its current status is when the status
+    was set; the use case and the requirements it links are compared with
+    that commit. A move of the file changes nothing. A status not committed
+    yet is being set right now, so there is nothing to compare. Needs Git
+    history: without it, or in a shallow clone that ends after the status was
+    set, the check finds nothing.
 
     The message carries a digest of the current text: a baseline entry
     accepts this very state, and the next change is reported again.
@@ -1748,15 +1839,10 @@ def check_changed_after_status(project, specs):
 
     for uid, spec in sorted(built.items()):
         rel = os.path.relpath(spec.path, docs).replace(os.sep, "/")
-        commit = git_output(docs, "log", "-1", "--format=%H",
-                            "-G^" + re.escape(STATUS_FIELD), "--", rel)
-        then = git_output(docs, "show", (commit or "") + ":./" + rel) \
-            if commit else None
+        commit, then = status_set_at(docs, rel, spec.status)
         if then is None:
             continue
         lines = then.splitlines()
-        if Spec(spec.path, lines).status != spec.status:
-            continue
         changed = []
         text = specification_text(spec.lines)
         if specification_text(lines) != text:
@@ -2009,8 +2095,9 @@ def render_trace(matrix):
 
     def requirement_status(r):
         status, derived = r["requirement_status"], r["derived_status"]
-        if derived and normalize(derived) != normalize(status):
-            return (status or "—") + " (use cases: " + derived + ")"
+        if progress_drifts(status, derived):
+            return (status or "—") + " (use cases: " + progress_like(
+                derived, status) + ")"
         return status or "—"
 
     lines = ["## Requirements → Use Cases → Business Rules → Test Cases", ""]
@@ -2782,8 +2869,8 @@ document.getElementById('filter').addEventListener('input', function (e) {
 
 STATUS_CLASS = {
     "verified": "s-ok", "tested": "s-ok", "done": "s-ok", "getestet": "s-ok",
-    "abgeschlossen": "s-ok", "implemented": "s-warn",
-    "implementiert": "s-warn", "in progress": "s-warn",
+    "abgeschlossen": "s-ok", "verifiziert": "s-ok", "implemented": "s-warn",
+    "implementiert": "s-warn", "in progress": "s-warn", "in arbeit": "s-warn",
     "approved": "s-info", "reviewed": "s-info", "genehmigt": "s-info",
     "geprüft": "s-info", "obsolete": "s-muted", "obsolet": "s-muted",
     "rejected": "s-muted", "deferred": "s-muted", "abgelehnt": "s-muted",
@@ -2890,8 +2977,9 @@ def render_report(matrix, findings, suppressed, docs):
     def requirement_status(r):
         status, derived = r["requirement_status"], r["derived_status"]
         cell = badge(status)
-        if derived and normalize(derived) != normalize(status):
-            cell += ' <span class="muted">use cases:</span> ' + badge(derived)
+        if progress_drifts(status, derived):
+            cell += ' <span class="muted">use cases:</span> ' + badge(
+                progress_like(derived, status))
         return cell
 
     out.append("<h2>Traceability</h2>")
@@ -3183,6 +3271,10 @@ Questions about the specification that the specification does not answer yet.
 **Raised by:** /use-case-implement, 2026-10-01
 **Blocking:** Yes
 **Status:** Resolved
+
+### Readings
+
+A sub-heading belongs to the question: the fields after it still count.
 
 **Answer:** No exception; BR-001 applies to every guest.
 **Answered by:** P. Meier, 2026-10-02
@@ -4030,6 +4122,62 @@ def self_test():
                 failures.append("modular: expected %s %s, got %s"
                                 % (expected + (sorted(found),)))
 
+    # A module of two words: the folder is kebab-case, the package alias
+    # takes an underscore, because PlantUML reads a hyphen as a link. A note
+    # that names a use case of another module, or one that no longer
+    # exists, declares nothing.
+    with tempfile.TemporaryDirectory() as root:
+        two_words = {}
+        for name, text in MODULAR.items():
+            name = name.replace("use_cases/reservations/",
+                                "use_cases/room-reservations/")
+            two_words[name] = text.replace(
+                "use_cases/reservations/", "use_cases/room-reservations/")
+        two_words["use_cases.puml"] = MODULAR["use_cases.puml"].replace(
+            "as reservations", "as room_reservations").replace(
+            "clerk --> reservations", "clerk --> room_reservations").replace(
+            "reservations ..> guests", "room_reservations ..> guests").replace(
+            "@enduml", 'note "replaces UC-099 of the old system" as N1\n'
+            "@enduml")
+        module = "use_cases/room-reservations/use_cases.puml"
+        two_words[module] = two_words[module].replace(
+            "@enduml", "note right of UC002 : invoiced by UC-001 of Guests\n"
+            "note left of UC002\n  UC-098 was merged into it\nend note\n"
+            "clerk --> UC002 : see UC-097\n@enduml")
+        write_fixture(root, two_words)
+        found = [f for f in lint(root, validator, bpmn) if f.severity != INFO]
+        for f in found:
+            failures.append("module of two words: unexpected %s %s %s:%d %s"
+                            % (f.severity, f.code,
+                               os.path.relpath(f.path, root), f.line,
+                               f.message))
+
+    # A German catalog states its progress in German: it drifts like an
+    # English one, and the finding names the value in the catalog's language.
+    with tempfile.TemporaryDirectory() as root:
+        german = dict(CLEAN)
+        german["requirements.md"] = CLEAN["requirements.md"].replace(
+            "| Open   |", "| Offen  |")
+        write_fixture(root, german)
+        if [f for f in lint(root, validator, bpmn)
+                if f.code == "REQ_STATUS_DRIFT"]:
+            failures.append("German progress: Offen with approved use cases "
+                            "is no drift")
+        write_fixture(root, {"use_cases/UC-001-create-guest.md": german[
+            "use_cases/UC-001-create-guest.md"].replace(
+            "**Status:** Approved", "**Status:** Getestet")})
+        got = [f.message for f in lint(root, validator, bpmn)
+               if f.code == "REQ_STATUS_DRIFT"]
+        if len(got) != 1 or "make it 'Verifiziert'" not in got[0]:
+            failures.append("German progress: Offen with a use case at "
+                            "Getestet should drift to Verifiziert, got "
+                            + str(got))
+    for status, expected in (("In Arbeit", "In Progress"), ("open", "Open"),
+                             ("Zurückgestellt", None), ("Deferred", None)):
+        if requirement_progress(status) != expected:
+            failures.append("requirement_progress(%s): expected %s"
+                            % (status, expected))
+
     def uc(status):
         spec = Spec.__new__(Spec)
         spec.id, spec.status = "UC-X", status
@@ -4450,6 +4598,20 @@ def self_test():
                 failures.append("changed: a later change should report again")
             os.remove(accepted)
 
+            # A move into a module folder sets no status: the change made
+            # after the status was set is still reported, at either path.
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "change")
+            moved = os.path.join(root, "use_cases", "guests",
+                                 os.path.basename(uc1))
+            os.makedirs(os.path.dirname(moved))
+            for source, target in ((uc1, moved), (moved, uc1)):
+                git_fixture(root, "mv", source, target)
+                git_fixture(root, "commit", "-q", "-m", "move")
+                if [f.element for f in codes_of(changed)] != ["UC-001"]:
+                    failures.append("changed: a move of the specification "
+                                    "should not clear the finding")
+
             # A status set again, committed or not, starts over.
             set_status(uc1, "Implemented")
             if codes_of(changed):
@@ -4524,6 +4686,20 @@ def self_test():
             if done_at(root, "v1.0.0") != {"UC-003"}:
                 failures.append("done_at: a file name with an umlaut was "
                                 "missed, got " + str(done_at(root, "v1.0.0")))
+            if status_set_at(root, "use_cases/UC-003-bestellung-pr\u00fcfen"
+                             ".md", "Done")[0] is None:
+                failures.append("status_set_at: the history of a file name "
+                                "with an umlaut was missed")
+
+    # /next answers in a project that has no docs folder yet.
+    with tempfile.TemporaryDirectory() as root:
+        missing = os.path.join(root, "docs")
+        if next_commands(missing, validator, bpmn, anchors)[:1] \
+                != ["/requirements"]:
+            failures.append("next: without a docs folder the first step is "
+                            "/requirements")
+        if os.path.exists(missing):
+            failures.append("next: it created the docs folder")
 
     if failures:
         for failure in failures:
@@ -4617,7 +4793,8 @@ def main(argv):
 
     if args.self_test:
         return self_test()
-    if not os.path.isdir(args.docs):
+    # --next answers in a project that has no docs folder yet: /requirements
+    if not os.path.isdir(args.docs) and not args.next:
         print("spec_lint.py: no such directory: " + args.docs,
               file=sys.stderr)
         return 2

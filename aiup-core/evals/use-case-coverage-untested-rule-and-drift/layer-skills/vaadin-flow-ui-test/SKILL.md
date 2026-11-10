@@ -75,8 +75,9 @@ Run directly, read the use case, the linked requirement rows, `docs/entity_model
 `/use-case-test UC-XXX` runs all test layers.
 
 An external system the use case calls (its secondary actor in the `## External systems` table of the stack file) is
-replaced by the fake of its port that the client test skill wrote, put in place with `@TestBean`, as "Which Layer
-Tests What" of `/use-case-test` says for external systems; an alternative flow it causes is tested through that fake.
+replaced by the fake of its port that the Test skill of the stack file's Client row wrote, put in place with
+`@TestBean`, as "Which Layer Tests What" of `/use-case-test` says for external systems — that section also says who
+writes the fake when the Client row has no test skill; an alternative flow it causes is tested through that fake.
 
 Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
 Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
@@ -254,7 +255,8 @@ UiTestConfiguration {}`) and `@Import` the service and adapter the view needs. S
 the module. For non-Spring projects extend `com.vaadin.browserless.BrowserlessTest`.
 
 When the view is secured, log in with the role the use case's actor has: Spring Security's
-`@WithMockUser(roles = "ADMIN")` on the class, matching the view's `@RolesAllowed` from the Handover. It needs `org.springframework.security:spring-security-test` in test scope; add it when it is missing.
+`@WithMockUser(roles = "ADMIN")` on the class, matching the view's `@RolesAllowed` from the Handover. It needs `org.springframework.security:spring-security-test` in test scope; when it is missing, add it without a
+version — Spring Boot's BOM manages it — and name it under **Decisions** (section "Decision Rights" of `/use-case-implement`).
 
 ## Template
 
@@ -316,7 +318,7 @@ String value = find(TextField.class).withCaption("Name").single().getValue();
 | NumberField   | `setValue(double)`                                             |
 | Checkbox      | `click()` (toggles)                                            |
 | Button        | `click()`, `rightClick()`, `middleClick()`                     |
-| Select        | `selectItem(String)`, `selectItem(int)`                        |
+| Select        | `selectItem(String)`                                           |
 | ComboBox      | `selectItem(String)`, `getSuggestionItems()`                   |
 | DatePicker    | `setValue(LocalDate)`                                          |
 | Grid          | `getRow(int)`, `size()`, `getCellText(row, column)`            |
@@ -425,4 +427,4 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
   https://github.com/AI-Unified-Process/intellij-plugin
 - Vaadin MCP server (`https://mcp.vaadin.com/docs`); see the plugin's `rules/mcp-servers.md` (locate it with a glob
-  for `**/rules/mcp-servers.md`; not every host installs it) to configure it
+  for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host installs it) to configure it

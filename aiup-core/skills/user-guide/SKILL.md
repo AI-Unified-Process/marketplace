@@ -75,6 +75,13 @@ docs/user_guide/
 - **`README.md`.** The guide's title (the system name from the diagram), a table of the chapters with one line each on
   who it is for, and a `## Terms` section with the glossary's Term and Definition columns (not the Avoid column) for
   the terms the guide uses.
+- **A use case no person performs.** When every primary actor of a use case is a system or a timer (a nightly job,
+  an import another system starts), it has no chapter to appear in. It still gets its anchored section, in
+  `README.md` under `## What the system does by itself` (German: "Was das System selbst erledigt"): a `###` heading
+  with the use case's goal, the anchor comment on the next line, and one or two sentences from `**Goal:**`,
+  `**Trigger:**`, and the success postconditions — what happens, when, and what the reader can rely on afterwards.
+  No steps. The anchor is what tells a re-run, and `/next`, that the use case is covered; without it `/next` would
+  offer `/user-guide` for this use case on every run. Stamp it like any other section.
 - **Language.** The language of the specifications. Headings and fixed words such as "Before you start" follow it
   too (German: "Bevor Sie beginnen", "Wenn …", "Gut zu wissen", "Ergebnis").
 

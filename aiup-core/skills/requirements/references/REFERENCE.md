@@ -33,6 +33,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 | Deferred    | Postponed to a future release.                 |
 | Rejected    | Removed from scope.                            |
 
+A catalog written in German states the same values in German — Offen, In Arbeit, Implementiert, Verifiziert,
+Zurückgestellt, Abgelehnt — and `/spec-review` reads both.
+
 Deferred and Rejected are scope decisions and are set by hand. Open, In Progress, Implemented, and Verified are
 progress, and progress follows the use cases that list the requirement in their `**Requirements:**` line:
 

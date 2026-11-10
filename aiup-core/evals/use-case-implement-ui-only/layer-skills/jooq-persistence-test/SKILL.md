@@ -193,8 +193,7 @@ With `@SpringBootTest`, do not add `@Transactional` to the test; remove in `@Aft
 created. The one exception is the test method of a flow the shared test data rules out (see Test Data Strategy).
 
 **Without a service layer** (the Layers table of `docs/architecture/stack.md` marks Service `–`), the repository is
-the transaction boundary, as `/jooq-persistence` builds it, and persistence is the integration layer of a use case
-offered through the service. A wrapping test transaction would hide that boundary: the repository's `@Transactional`
+the transaction boundary, as `/jooq-persistence` builds it. A wrapping test transaction would hide that boundary: the repository's `@Transactional`
 joins it, nothing commits, and a missing or misplaced boundary still passes. So in this layout:
 
 - No test transaction around a repository call: `@SpringBootTest` without `@Transactional`, or — where the project
@@ -310,7 +309,7 @@ or `Next: /use-case-coverage UC-001` when this was the last test layer. Never ru
 
 - If configured, use the JavaDocs MCP server for API documentation (`https://www.javadocs.dev/mcp`)
 - If configured, use the jOOQ MCP server for the query DSL (`https://jooq-mcp.martinelli.ch/mcp`)
-- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-jooq*/**/rules/mcp-servers.md`; not every host
   installs it — the servers named in this skill are all you need) to configure these optional servers
 - Spring Boot Testcontainers support: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - Testcontainers PostgreSQL module: https://java.testcontainers.org/modules/databases/postgres/

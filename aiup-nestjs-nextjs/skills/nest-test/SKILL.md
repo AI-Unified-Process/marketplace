@@ -90,6 +90,29 @@ Two things to verify, not one:
 Check both before writing tests. If either is missing, add it and say so. If both are already
 present, say that too rather than adding them a second time.
 
+The e2e specs run under their own config, with the same transformer:
+
+```ts
+// vitest.config.e2e.ts
+import swc from 'unplugin-swc';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  plugins: [swc.vite({ module: { type: 'es6' } })],
+  oxc: false,
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['test/**/*.e2e-spec.ts'],
+    globalSetup: ['test/utils/global-setup.ts'],
+    fileParallelism: false,
+    hookTimeout: 120_000,
+  },
+});
+```
+
+Run them with `npx vitest run --config vitest.config.e2e.ts`, or the project's script for it.
+
 ## The Testcontainers lifecycle
 
 One container for the whole run, started in global setup and published to the workers:
@@ -97,11 +120,12 @@ One container for the whole run, started in global setup and published to the wo
 ```ts
 // test/utils/global-setup.ts
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import type { GlobalSetupContext } from 'vitest/node';
+import type { TestProject } from 'vitest/node';
 
-export default async function setup({ provide }: GlobalSetupContext): Promise<() => Promise<void>> {
+// Vitest 3 and up. Vitest 2 passes a `GlobalSetupContext` instead: `({ provide }: GlobalSetupContext)`.
+export default async function setup(project: TestProject): Promise<() => Promise<void>> {
   const container = await new PostgreSqlContainer('postgres:17-alpine').start();
-  provide('DATABASE_URL', container.getConnectionUri());
+  project.provide('DATABASE_URL', container.getConnectionUri());
   return async () => {
     await container.stop();
   };
@@ -119,6 +143,13 @@ produces a clean slate:
 
 ```ts
 // test/utils/create-app.ts
+import { ValidationPipe } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import { Test } from '@nestjs/testing';
+import pg from 'pg';
+import { inject } from 'vitest';
+import { AppModule } from '../../src/app.module.js';
+
 async function resetSchema(connectionString: string): Promise<void> {
   const client = new pg.Client({ connectionString });
   await client.connect();
@@ -130,7 +161,25 @@ async function resetSchema(connectionString: string): Promise<void> {
     await client.end();
   }
 }
+
+export async function createTestApp(): Promise<NestExpressApplication> {
+  const url = inject('DATABASE_URL');
+  process.env.DATABASE_URL = url;
+  await resetSchema(url);
+  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const app = moduleRef.createNestApplication<NestExpressApplication>();
+  // What main.ts adds on top of the modules is missing in a testing module: repeat it here,
+  // exactly as main.ts has it, or call the function main.ts shares for it.
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  await app.init();
+  return app;
+}
 ```
+
+A test application without the prefix and the pipe of `main.ts` passes against an application that
+does not exist: the prefix decides the paths the tests call (`/api/products`), the pipe the `400`
+of an unknown parameter. A global exception filter registered in `main.ts` belongs here too.
 
 This design imposes two constraints that are worth stating plainly, because otherwise they are
 discovered through intermittent, confusing failures:
@@ -244,10 +293,9 @@ describe('UC-010: Browse Product Catalog', () => {
   it('main scenario — GET /api/products returns the seeded catalogue', async () => {
     const response = await request(app.getHttpServer()).get('/api/products').expect(200);
 
+    // the values of the seeded row; the generated id is the only field left open
     expect(response.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: expect.any(Number), name: expect.any(String) }),
-      ]),
+      expect.arrayContaining([{ id: expect.any(Number), name: 'Hammer', category: 'tools', price: 12.5 }]),
     );
   });
 
@@ -298,9 +346,9 @@ inside a commit labelled "add tests".
 
 1. Read the use case specification, listing the main scenario, every alternative flow, and every
    business rule
-2. Check `vitest.config.ts` for `unplugin-swc` **and** `oxc: false`; add whichever is missing
-3. Check that the Testcontainers global setup and the per-file schema reset exist; create them if
-   this is the project's first e2e test
+2. Check `vitest.config.ts` and `vitest.config.e2e.ts` for `unplugin-swc` **and** `oxc: false`; add whichever is missing
+3. Check that the Testcontainers global setup, the per-file schema reset, and `createTestApp` exist;
+   create them if this is the project's first e2e test
 4. Look for existing tests for this use case and reconcile rather than duplicate
 5. Write unit specs for service logic and mapping
 6. Write e2e specs covering the main scenario and every alternative flow, asserting status **and**

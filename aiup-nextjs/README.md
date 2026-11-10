@@ -72,7 +72,7 @@ agents.
 
 ## Prerequisites
 
-- `aiup-core` 3.16.0 or later, and `docs/architecture/stack.md` written by `/stack`.
+- `aiup-core` 3.16.1 or later, and `docs/architecture/stack.md` written by `/stack`.
 - A Next.js project using the App Router; Vitest with jsdom and React Testing Library for the tests.
 - An API layer plugin that hands over its endpoints and DTOs.
 

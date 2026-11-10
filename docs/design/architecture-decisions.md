@@ -38,6 +38,8 @@ ADR skills on Tessl or in `~/.claude/skills`. Its description triggers on "ADR".
   an ADR" rule of the decision rights stays.
 - **Lint.** `DANGLING_REF` and `DUPLICATE_ID` cover ADR ids and their links (ERROR); `ADR_UNLINKED`, `ADR_STALE`,
   `ADR_INVALID` are WARN only, because the ADRs are the team's documents and a brownfield ADR without the line must
-  not fail CI; the fix of `ADR_UNLINKED` is the `link` action. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
+  not fail CI; the fix of `ADR_UNLINKED` is the `link` action, and the fix of `ADR_INVALID` is `ADR-XXX` alone, which
+  asks for the missing status or date and writes only that header line — no status action fits an `Accepted` ADR
+  without a date. `--trace` and `--report` list the ADRs with their requirements. Part B checks contradicting accepted
   ADRs and broken constraints.
 - The Studio never runs it (`LEFT_OUT`): a decision needs a person.

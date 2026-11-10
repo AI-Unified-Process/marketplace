@@ -6,18 +6,23 @@
 #
 # AI Unified Process Werkstatt - the stations for one use case.
 #
-#   G1 spec lint -> implement -> test -> [ build (G2-G4) -> audit (G5) -> fix ]* -> outcome
+#   G1 spec lint -> implement -> test -> [ build (G2-G4) -> audit (G5) -> fix and/or test ]* -> outcome
 #
 # Each agent station is its own headless Claude Code session, so the tester and the auditor never see the
 # implementer's reasoning. Agents never run git; this script commits after each station. The outcome:
 #
 #   ready    all gates green; the status moves to Tested (Implemented when no coverage audit exists for the stack),
 #            and the requirements the use case links follow it (werkstatt.py requirements)
-#   blocked  a blocking open question names the use case (the andon cord), or the spec lint fails;
+#   blocked  a blocking open question names the use case (the andon cord), the spec lint finds errors, or a
+#            station left docs/open_questions.md in a state the lint rejects (the andon cord cannot be read then);
 #            only the new open questions stay, the code of this use case is dropped
-#   stuck    the gates stay red after MAX_ROUNDS fix rounds, the cost budget is used up, or a session failed
-#            twice (no access, an unknown model, a rate limit); the code is dropped and kept as a diff in the
-#            run records
+#   stuck    the gates stay red after MAX_ROUNDS fix rounds, the cost budget is used up, a session failed
+#            twice (no access, an unknown model, a rate limit), or the spec lint itself failed (exit code above 1);
+#            the code is dropped and kept as a diff in the run records
+#
+# A fix round: a red build goes to the implementer first (production code only). When the build is still red after
+# that, the tester gets the new log in the same round (test code only): a test that does not compile or contradicts
+# the specification is the tester's to repair, and no other station may touch it.
 #
 # Env: UC, ENGINE (marketplace checkout), MODEL, MAX_TURNS, MAX_ROUNDS, MAX_COST_USD, STACK_PLUGIN (empty for
 #      layer plugins), DEFAULT_BRANCH, ARTIFACT_LOCATIONS (a hint in the prompts only: the Werkstatt itself reads
@@ -85,7 +90,8 @@ $d
 ~~~
 
 Reconcile the result with every change in this diff, not only with the current text. A removed line means the
-behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour."
+behaviour it described was dropped deliberately: delete what exists only for that behaviour, in the files this
+session may change."
   fi
 fi
 
@@ -204,6 +210,29 @@ commit() {
 
 blocking_questions() { python3 "$HELPER" blocking "$UC" | paste -sd, - | sed 's/,/, /g'; }
 
+# questions_gate <when>: the andon cord is read from docs/open_questions.md, so the file must be one the lint
+# accepts. A question a station wrote with `**Blocking:** Yes (decides the result)` or without an element blocks in
+# no parser; spec_lint.py --questions reports it, and the use case ends blocked with the lint's findings instead of
+# reaching the pull request as ready. A lint that fails itself (exit code above 1) ends the use case stuck.
+questions_gate() {
+  local rc
+  [ -f "$OQ_FILE" ] || return 0
+  python3 "$SPEC_LINT" --docs docs --questions > "$F/questions-lint.txt" 2>&1
+  rc=$?
+  [ $rc -ne 0 ] || return 0
+  cat "$F/questions-lint.txt"
+  cp "$F/questions-lint.txt" "$F/lint.txt"
+  [ $rc -eq 1 ] || finish stuck "spec_lint.py --questions failed $1 of $UC (exit $rc); see the lint output in the run records."
+  finish blocked "docs/open_questions.md has errors $1 of $UC, so its blocking questions cannot be read. Correct the questions the lint names and start the run again."
+}
+
+# after_station <station> <what stopped>: the questions file first, then the andon cord.
+after_station() {
+  questions_gate "after the $1 station"
+  OQ=$(blocking_questions)
+  [ -z "$OQ" ] || finish blocked "$2 stopped on blocking open questions: $OQ."
+}
+
 finish() {
   local outcome="$1" reason="$2" status="" reqs=""
   case "$outcome" in
@@ -236,7 +265,11 @@ python3 "$SPEC_LINT" --docs docs --only "$UC" > "$F/lint.txt" 2>&1
 LINT_RC=$?
 cat "$F/lint.txt"
 endlog
+# Exit 1: the lint found errors, which the domain expert fixes. Above 1: the lint itself failed (a wrong path, a bad
+# argument, a traceback), and the specification may be fine.
+[ $LINT_RC -le 1 ] || finish stuck "spec_lint.py failed for $UC (exit $LINT_RC), so the specification was not checked. See the lint output in the run records; this is a fault of the run, not of the specification."
 [ $LINT_RC -eq 0 ] || finish blocked "The spec lint found errors in $UC. Fix them in the specification and start the run again."
+questions_gate "before the first station"
 OQ=$(blocking_questions)
 [ -z "$OQ" ] || finish blocked "Blocking open questions on $UC: $OQ. Answer them in the specification first."
 
@@ -249,21 +282,21 @@ $RULES
 Do not create or change tests; a separate session writes them."
 guard tests implement
 commit "implement"
-OQ=$(blocking_questions)
-[ -z "$OQ" ] || finish blocked "The implementation of $UC stopped on blocking open questions: $OQ."
+after_station implement "The implementation of $UC"
 
 # ------------------------------------------------------------------ Test
+# run_tests <task for this round> <commit suffix>
 run_tests() {
   station test "$TEST
 $ARTIFACT_LOCATIONS
+$SPEC_DIFF
 $1
 
 $RULES
 The specification is the oracle. A test that disagrees with the code stays failing; do not change production code."
   guard code test
   commit "tests${2:+ ($2)}"
-  OQ=$(blocking_questions)
-  [ -z "$OQ" ] || finish blocked "Testing $UC stopped on blocking open questions: $OQ."
+  after_station test "Testing $UC"
 }
 run_tests "" ""
 
@@ -275,24 +308,39 @@ if [ ${#BUILD_COMMANDS[@]} -eq 0 ]; then
   if [ -x ./mvnw ]; then BUILD_COMMANDS=("./mvnw -B -ntp verify")
   elif [ -x ./gradlew ]; then BUILD_COMMANDS=("./gradlew build")
   elif [ -f package.json ]; then BUILD_COMMANDS=("npm ci" "npm test")
-  elif ls ./*.sln >/dev/null 2>&1; then BUILD_COMMANDS=("dotnet test")
+  # .NET 10 writes the XML solution format (.slnx) for a new solution
+  elif ls ./*.sln >/dev/null 2>&1 || ls ./*.slnx >/dev/null 2>&1; then BUILD_COMMANDS=("dotnet test")
   else BUILD_COMMANDS=()
   fi
 fi
 
-while true; do
-  over_budget && finish stuck "The cost budget of \$$MAX_COST_USD for $UC is used up."
-
+# build <log file>: the build gate; sets BUILD_RC and BUILD_LOG. The commands run code the stations wrote, so they
+# do not get the AI secrets.
+build() {
+  local cmd
   log "$UC: G2-G4 build and tests (round $ROUNDS)"
-  BUILD_LOG="$F/build-r$ROUNDS.log"
+  BUILD_LOG="$1"
   : > "$BUILD_LOG"
   BUILD_RC=0
   for cmd in ${BUILD_COMMANDS[@]+"${BUILD_COMMANDS[@]}"}; do
     echo "\$ $cmd" >> "$BUILD_LOG"
-    bash -c "$cmd" >> "$BUILD_LOG" 2>&1 || { BUILD_RC=$?; break; }
+    env -u ANTHROPIC_API_KEY -u CLAUDE_CODE_OAUTH_TOKEN bash -c "$cmd" >> "$BUILD_LOG" 2>&1 || { BUILD_RC=$?; break; }
   done
   tail -n 40 "$BUILD_LOG"
   endlog
+}
+
+build_feedback() {
+  echo "The build or the tests failed. The end of the log:
+~~~text
+$(tail -n 150 "$BUILD_LOG")
+~~~"
+}
+
+while true; do
+  over_budget && finish stuck "The cost budget of \$$MAX_COST_USD for $UC is used up."
+
+  build "$F/build-r$ROUNDS.log"
   [ ${#BUILD_COMMANDS[@]} -gt 0 ] || finish stuck "No build command: fill the Commands table of docs/architecture/stack.md."
 
   CODE_GAPS=""; TEST_GAPS=""
@@ -328,31 +376,44 @@ Change no other file. Do not run git."
   ROUNDS=$((ROUNDS + 1))
   [ "$ROUNDS" -le "$MAX_ROUNDS" ] || finish stuck "The gates for $UC are still red after $MAX_ROUNDS fix rounds."
 
+  TEST_TASK=""
   if [ $BUILD_RC -ne 0 ] || [ -n "$CODE_GAPS" ]; then
+    WAS_RED=$BUILD_RC
     FEEDBACK=""
-    [ $BUILD_RC -ne 0 ] && FEEDBACK="The build or the tests failed. The end of the log:
-~~~text
-$(tail -n 150 "$BUILD_LOG")
-~~~"
+    [ $BUILD_RC -ne 0 ] && FEEDBACK=$(build_feedback)
     [ -n "$CODE_GAPS" ] && FEEDBACK="$FEEDBACK
 The coverage audit found these gaps in the code:
 $CODE_GAPS"
     station fix "$IMPLEMENT
 $ARTIFACT_LOCATIONS
+$SPEC_DIFF
 
 Fix round $ROUNDS. Change production code only, never tests.
 $FEEDBACK
 
 $RULES
-When a failing test contradicts the specification, do not change the test: record a blocking open question."
+When a failing test contradicts the specification or does not compile, do not change the test: leave it failing.
+A separate session repairs the tests after this one."
     guard tests fix
     commit "fix round $ROUNDS"
-    OQ=$(blocking_questions)
-    [ -z "$OQ" ] || finish blocked "Fix round $ROUNDS of $UC stopped on blocking open questions: $OQ."
+    after_station fix "Fix round $ROUNDS of $UC"
+
+    # A red build may be the tests' fault: a test that does not compile, or one that contradicts the specification.
+    # The implementer may not touch it, so when the build is still red after the fix, the tester gets the new log.
+    if [ "$WAS_RED" -ne 0 ]; then
+      over_budget && finish stuck "The cost budget of \$$MAX_COST_USD for $UC is used up."
+      build "$F/build-r$ROUNDS-fix.log"
+      [ $BUILD_RC -eq 0 ] || TEST_TASK="Repair round $ROUNDS. The build is still red after the production code was fixed. Repair only
+tests that do not compile or that contradict the specification; a test that follows the specification and fails
+because the code is wrong stays as it is.
+$(build_feedback)"
+    fi
   fi
 
   if [ -n "$TEST_GAPS" ]; then
-    run_tests "Add only the missing tests. The coverage audit found these gaps in the tests:
-$TEST_GAPS" "round $ROUNDS"
+    TEST_TASK="$TEST_TASK
+Add only the missing tests. The coverage audit found these gaps in the tests:
+$TEST_GAPS"
   fi
+  [ -z "$TEST_TASK" ] || run_tests "$TEST_TASK" "round $ROUNDS"
 done

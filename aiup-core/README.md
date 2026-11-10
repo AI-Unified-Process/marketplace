@@ -47,7 +47,7 @@ Inception          Elaboration                             Construction         
 ```
 
 The six Construction skills from `/stack` on drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
-`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.16.0 or later (`aiup-flyway`: 3.12.0): install one per layer of
+`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.16.1 or later (`aiup-flyway`: 3.12.0): install one per layer of
 your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only

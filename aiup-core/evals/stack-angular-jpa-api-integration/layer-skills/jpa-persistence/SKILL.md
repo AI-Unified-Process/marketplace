@@ -260,7 +260,10 @@ project uses it). Add only the methods this use case calls.
   Vaadin Flow view calls the repository), the repository is the transaction boundary: Spring Data's own methods are
   transactional already; a custom writing method or a `@Modifying` query gets `@Transactional`, and a use case step
   that needs two writes to succeed together gets one repository method (a `default` method or a fragment) that
-  performs both — never two calls from the view.
+  performs both — never two calls from the view. Each call's transaction ends when the method returns and
+  `open-in-view` is off, so a lazy association the view reads afterwards throws `LazyInitializationException`: a
+  method the view calls returns a record or projection, or an entity with every association the use case shows
+  fetched in the query (see "Fetch strategy and N+1"), and the Handover says which.
 
 ### Fetch strategy and N+1
 
@@ -374,7 +377,7 @@ Service is `–`), or
 - [references/layer.md](references/layer.md) — this skill's row of the layer catalog, which `/stack` reads to
   discover it.
 - Optional MCP server: JavaDocs (`https://www.javadocs.dev/mcp`) — see the plugin's `rules/mcp-servers.md` (locate
-  it with a glob for `**/rules/mcp-servers.md`; not every host installs it).
+  it with a glob for `**/*aiup-jpa*/**/rules/mcp-servers.md`; not every host installs it).
 - Spring Data JPA reference: https://docs.spring.io/spring-data/jpa/reference/
 - Spring Data JPA projections: https://docs.spring.io/spring-data/jpa/reference/repositories/projections.html
 - Hibernate ORM user guide: https://docs.hibernate.org/orm/current/userguide/html_single/

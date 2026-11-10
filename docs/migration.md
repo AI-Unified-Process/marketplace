@@ -28,7 +28,7 @@ Read [Workflow and artifacts](workflow.md#workflow) for how the two forms differ
 
 ## 1. Replace the plugins
 
-Remove the combined plugin and install `aiup-core` 3.16.0 or later with one plugin
+Remove the combined plugin and install `aiup-core` 3.16.1 or later with one plugin
 per layer of the project. Never
 keep both forms in one project: the combined plugin does not read `docs/architecture/stack.md`, and its `/implement` and
 the layer skills would build the same use case twice.

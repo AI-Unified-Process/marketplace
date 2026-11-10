@@ -16,7 +16,6 @@ import java.util.Set;
 
 import com.example.app.usecase.UseCase;
 import com.github.mvysny.kaributesting.v10.GridKt;
-import com.github.mvysny.kaributesting.v10.Routes;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -34,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Use case test for UC-001 "Manage Persons".
  */
 class UC001ManagePersonsTest extends KaribuTest {
-
-    private static Routes routes;
 
     @Test
     @UseCase(id = "UC-001")

@@ -202,8 +202,12 @@ use case's agreed operation, or the `## API contract` section — says otherwise
 | Not authenticated / not allowed                           | `401` / `403` (security)   |
 | Entity the path refers to does not exist                  | `404 Not Found`            |
 | Rule the service rejects, duplicate, wrong state          | `409 Conflict`             |
+| External system unavailable or timed out                  | `503 Service Unavailable`  |
 
 Some projects use `422 Unprocessable Content` for a violated rule; follow the API contract or the existing filter.
+`ExternalSystemError` is the kind the service lets pass when an external system is unavailable or timed out. Map it
+only when the service Handover lists it: `503`, with the specification's message of that flow as `detail` — never the
+provider's error text. A use case without an external system gets no such branch.
 Nest answers a `POST` with `201` by default: an action that creates nothing needs `@HttpCode(200)`.
 
 ## Paging
@@ -257,6 +261,7 @@ Handover from nest-rest (UC-001)
 - POST /api/guests  RegisterGuestBody → 201 GuestResponse, no Location (no GET /api/guests/:id yet)
     400 invalid input (BR-001), 409 urn:problem:EmailAlreadyRegisteredError (A1, BR-002),
     409 urn:problem:GuestTooYoungError (A2, BR-003)
+    503 urn:problem:PaymentProviderUnavailableError (A3)   (only when the service Handover lists ExternalSystemError)
 - RegisterGuestBody { firstName: string(1..100), lastName: string(1..100), email: string(email, ..255),
   birthDate: date "YYYY-MM-DD", arrivalDate: date }
 - GuestResponse { id: number, firstName: string, lastName: string, email: string, birthDate: date }

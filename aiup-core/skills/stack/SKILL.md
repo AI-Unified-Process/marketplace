@@ -184,13 +184,14 @@ report that it is no longer read.
    names it in its `**Layers:**` line (`/use-case-spec`). A layer skill needs the layer below it unless the catalog
    says otherwise. Report a combination that does not fit and ask. External systems need a Client layer, and a
    Client layer needs at least one external system: a confirmed system with Client `–` is a question (which
-   technology calls it), not a silent row.
+   technology calls it), not a silent row. A Client layer also needs the service layer, as an API layer and a Hilla
+   UI do (footnote ¹ of the catalog): with Service `–` and any of the three, ask whether to add the service layer.
 5. **Write the stack file** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
-   - the Integration layer table under the Layers table — in the order UI, API, Service: a UI and an API row only
-     when the project has that layer, and the Service row always, because a use case can be offered through the
-     service alone (a scheduled job); in a project without a service layer its Tested in cell is Persistence. The
+   - the Integration layer table under the Layers table — in the order UI, API, Service: a row only when the
+     project has that layer. With a service layer the Service row is always there, because a use case can be
+     offered through the service alone (a scheduled job); a project without one has no Service row. The
      Test skill cell is the one the Layers table has for the layer named in Tested in, `–` while the skill is not
      installed — by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
      start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read

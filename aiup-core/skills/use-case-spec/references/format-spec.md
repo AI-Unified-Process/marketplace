@@ -273,8 +273,10 @@ referenced from another document is qualified with the use case id
 ## Validation
 
 ```bash
-python3 scripts/validate_use_case.py [--strict] docs/use_cases/UC-*.md docs/use_cases/*/UC-*.md
+python3 scripts/validate_use_case.py [--strict] docs/use_cases
 ```
+
+A folder stands for every use case file in it and in its module folders; single files can be named as well.
 
 Exit 0 when clean; 1 on any ERROR (with `--strict` also on any WARN);
 `--self-test` runs the built-in fixtures. Newly generated documents must

@@ -210,5 +210,5 @@ Never run the coverage audit.
 - File-based routing: https://vaadin.com/docs/latest/hilla/guides/routing
 - Forms and validation: https://vaadin.com/docs/latest/hilla/guides/forms/binder-validation
 - Security: https://vaadin.com/docs/latest/hilla/guides/security
-- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/rules/mcp-servers.md`; not every host
+- See the plugin's `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host
   installs it — the servers named in this skill are all you need) to configure the optional servers

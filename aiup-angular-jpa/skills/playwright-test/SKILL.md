@@ -2,7 +2,7 @@
 name: playwright-test
 description: >
   Creates Playwright browser-based end-to-end tests for Angular views using
-  Playwright's native accessibility-first locators (getByRole, getByLabelText,
+  Playwright's native accessibility-first locators (getByRole, getByLabel,
   getByText). Covers two test types: tests for a single use case (UC-*) and
   end-to-end journey tests for a test case (TC-*) spanning multiple use cases.
   Use when the user asks to "write Playwright tests", "create e2e tests",
@@ -28,7 +28,7 @@ the Angular dev server (frontend) and the Spring Boot backend must be up,
 since this is a split client/server architecture and the browser only ever
 talks to the frontend origin, which proxies API calls to the backend.
 
-Use Playwright's own locators (`getByRole`, `getByLabelText`, `getByText`) —
+Use Playwright's own locators (`getByRole`, `getByLabel`, `getByText`) —
 they are accessibility-first by default and work directly against Angular's
 plain HTML/ARIA output. Unlike a Vaadin app (whose web components live behind
 shadow DOM and need a wrapper library), an Angular app rendered with semantic
@@ -138,7 +138,10 @@ your test creates data, clean it up in a `test.afterEach` hook, ideally
 through the API rather than a raw DB call, and make the cleanup idempotent (the
 test may have failed midway, leaving only part of the data behind). Test case
 **Preconditions** should be satisfied by the Flyway test data; if they aren't,
-extend the test migrations rather than inserting through back doors. For test
+extend the test migrations rather than inserting through back doors. A backend
+whose tests seed through `JdbcTemplate` or the API (`/spring-boot-test`,
+Convention A) has no test migrations: create the precondition data through the
+API in a `test.beforeEach` there, and remove it in the `test.afterEach`. For test
 case journeys, the document's **Postconditions** section is the cleanup
 contract — remove exactly the records it lists, in the stated order.
 

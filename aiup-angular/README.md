@@ -67,7 +67,7 @@ agents.
 
 ## Prerequisites
 
-- `aiup-core` 3.16.0 or later, and `docs/architecture/stack.md` written by `/stack`.
+- `aiup-core` 3.16.1 or later, and `docs/architecture/stack.md` written by `/stack`.
 - An Angular project using standalone components; Vitest through `@angular/build:unit-test` (or a Vitest config).
 - An API layer plugin that hands over its endpoints and DTOs.
 

@@ -29,7 +29,7 @@
     },
     {
       "name": "ConfirmDialog found with $()",
-      "description": "ConfirmDialog is located using the $() query (e.g. $(ConfirmDialog.class).first() or similar $(ConfirmDialog.class) call)",
+      "description": "ConfirmDialog is located using the $() query (e.g. $(ConfirmDialog.class).single() or similar $(ConfirmDialog.class) call)",
       "max_score": 8
     },
     {

@@ -7,7 +7,8 @@ layers are recorded in `docs/architecture/stack.md`. UC-020 is specified at `doc
 implemented: the endpoint `com.example.hotel.guest.GuestEndpoint` delegates to `GuestService`, and the view is
 `src/main/frontend/views/guests.tsx`. The generated client is `Frontend/generated/endpoints` (`GuestEndpoint`
 with `list()` and `register(registration)`); the generated types live under
-`Frontend/generated/com/example/hotel/guest/`. The frontend does not run Vitest yet. The service layer is tested
+`Frontend/generated/com/example/hotel/guest/`. The frontend does not run Vitest yet. The team has agreed to add Vitest and
+the packages its browser mode and the Testing Library need. The service layer is tested
 by `src/test/java/com/example/hotel/guest/UC020RegisterGuestServiceTest.java`, which uses the `UseCase` annotation
 in `src/test/java/com/example/hotel/usecase/`.
 
