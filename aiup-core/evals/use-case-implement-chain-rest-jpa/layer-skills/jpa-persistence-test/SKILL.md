@@ -55,10 +55,17 @@ data, never from what the code returns; never weaken, delete, or disable an asse
 states — leave the test failing and report the expected and the actual value; update an existing test class instead
 of writing a second one. `/use-case-test UC-XXX` runs the tests of all layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## What Deserves a Persistence Test
 
 Test each unit of the specification where it is decided. The integration layer's tests named in
-`docs/architecture/stack.md` (the API or service tests) already run the repositories against a real database, so
+`docs/architecture/stack.md` (the Browserless view, API, or service tests) already run the repositories against a
+real database, so
 `/use-case-test` runs this skill only to reconcile existing tests, for the queries the integration layer's skill reported
 it cannot reach, or when the arguments name the persistence layer — and a persistence test is worth writing only for
 a query with logic of its own:
@@ -72,10 +79,18 @@ a query with logic of its own:
 | fetch joins and entity graphs — the association is loaded                  | business rules the integration layer's tests cover   |
 | `AttributeConverter`s — a round trip through the column                    |                                                      |
 | the hexagonal adapter's conversion between entity and domain record        |                                                      |
+| the hexagonal adapter's own version check in `save` — see below            |                                                      |
+| a writing method that is the transaction boundary and performs two writes (a project without a service layer) | |
 
 For each query, test the boundary the specification states: the row that just matches and the row that just does
 not (the arrival date equal to the departure date of another reservation, the inactive guest that must not appear).
 When the use case has no query with logic of its own, write no test and say so in the report.
+
+**The adapter's version check.** Hibernate's `@Version` increment is not tested, but the comparison
+`/jpa-persistence` writes by hand into a hexagonal adapter's `save` is the project's code: load the row, call the
+port's `save` with a domain record that carries an older version than the row has, and assert
+`ObjectOptimisticLockingFailureException` and that the row is unchanged; a record with the current version saves
+and returns the next version.
 
 Business rules are tested here only when persistence is itself the integration layer, or when the skill runs
 directly in a project with no layer above it: then every rule gets its allowed and its rejected case. Otherwise a
@@ -128,6 +143,21 @@ without `requirements` predates that attribute: add it with its default `{}` and
   embedded database Hibernate defaults to `none`, and a hexagonal adapter module has no `application.properties` to
   inherit it from.
 
+**Without a service layer** (the Layers table of `docs/architecture/stack.md` marks Service `–`), the repository is
+the transaction boundary, as `/jpa-persistence` builds it, and persistence is the integration layer of a use case
+offered through the service. `@DataJpaTest` wraps every test in a transaction that rolls back, which hides that
+boundary: a writing method's `@Transactional` joins the test's transaction, nothing commits, and a missing boundary
+still passes. So in this layout:
+
+- Suspend the slice's transaction for the tests of writing methods: `@Transactional(propagation =
+  Propagation.NOT_SUPPORTED)` on the test class or on those methods. Such a test commits, so it removes in
+  `@AfterEach` exactly the rows it created; `TestEntityManager` needs a transaction and is not used in it — read back
+  through the repository or a `JdbcClient`.
+- Every repository method that performs two writes gets an atomicity test: let the second write fail through the
+  test data (a duplicate key, a missing parent row), assert the exception, and read back that the first write is
+  not in the database.
+- Read-only query tests keep the slice's rollback.
+
 Spring Boot 4 moved the test slice annotations into new modules (`spring-boot-data-jpa-test`, package
 `org.springframework.boot.data.jpa.test.autoconfigure`); Spring Boot 3 has them in
 `org.springframework.boot.test.autoconfigure.orm.jpa`. Check the version in the build file and the imports of
@@ -151,7 +181,8 @@ Test data comes from a Flyway test migration, not from `save` calls in the test 
 - Insert with the table's sequence (`nextval('guest_seq')`) or with explicit ids in a range the tests own; reference
   other rows by a natural key subquery rather than by an id you hope for.
 - The data names the boundary rows the tests need, and nothing else.
-- `@DataJpaTest` rolls every test back, so a test may insert or change rows freely. A flow whose trigger the shared
+- `@DataJpaTest` rolls every test back, so a test may insert or change rows freely — except a test that suspends
+  the transaction in a project without a service layer (see Database), which cleans up after itself. A flow whose trigger the shared
   test data rules out (an empty list; "Which Layer Tests What" of `/use-case-test`) deletes the rows it needs gone
   in the test itself and then calls the repository; the rollback restores the shared test data. Delete nothing
   else, and never in cleanup.

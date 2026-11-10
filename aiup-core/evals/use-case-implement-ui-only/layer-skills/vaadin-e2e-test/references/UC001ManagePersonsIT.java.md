@@ -15,10 +15,7 @@ package com.example.app.views;
 import java.util.List;
 
 import com.example.app.TestcontainersConfiguration;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
-import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +26,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
+import org.vaadin.addons.dramafinder.element.ConfirmDialogElement;
 import org.vaadin.addons.dramafinder.element.GridElement;
 import org.vaadin.addons.dramafinder.element.NotificationElement;
 import org.vaadin.addons.dramafinder.element.TextFieldElement;
@@ -75,20 +73,11 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
         if (!rows.isEmpty()) {
             grid.select(rows.get(0));
             ButtonElement.getByText(page, "Delete").click();
-            Locator confirm = confirmDialog("Confirm Delete");
-            ButtonElement.getByText(confirm, "Delete").click();
-            PlaywrightAssertions.assertThat(confirm).isHidden();
+            ConfirmDialogElement confirm = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");
+            confirm.assertConfirmText("Delete");
+            confirm.confirm();
+            confirm.assertClosed();
         }
-    }
-
-    /**
-     * The view's ConfirmDialog. Drama Finder has no wrapper for it, and DialogElement matches
-     * <vaadin-dialog> only: <vaadin-confirm-dialog> carries the role "alertdialog" and its header
-     * as accessible name (Vaadin 25), so locate it by role and name, narrowed to its tag.
-     */
-    private Locator confirmDialog(String header) {
-        return page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName(header))
-                .and(page.locator("vaadin-confirm-dialog"));
     }
 
     // One @Nested group per scenario of the specification, named with its heading: the main success
@@ -186,14 +175,14 @@ class UC001ManagePersonsIT extends AbstractBasePlaywrightIT {
             ButtonElement deleteButton = ButtonElement.getByText(page, "Delete");
             deleteButton.click();
 
-            Locator dialog = confirmDialog("Confirm Delete");
-            PlaywrightAssertions.assertThat(dialog).isVisible();
+            ConfirmDialogElement dialog = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");
+            dialog.assertOpen();
+            dialog.assertCancelText("Cancel");
 
-            ButtonElement cancelButton = ButtonElement.getByText(dialog, "Cancel");
-            cancelButton.click();
+            dialog.cancel();
 
             // A2: cancelling keeps the person
-            PlaywrightAssertions.assertThat(dialog).isHidden();
+            dialog.assertClosed();
             var firstCell = grid.findCell(0, "Name");
             PlaywrightAssertions.assertThat(firstCell.get().getCellContentLocator()).hasText("Eula Lane");
         }

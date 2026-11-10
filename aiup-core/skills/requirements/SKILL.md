@@ -74,7 +74,9 @@ The **Source** column is optional — omit it when no constraint comes from an o
 constraint comes from — a law, regulation, standard, or internal policy, down to the article or paragraph and, where it
 matters, the version (`GDPR Art. 17(1)`, `ISO 27001:2022 A.8.24`, `Operating Policy OP-12 v3`) — so the origin of a
 mandated rule stays traceable. When the column is present, fill it for every `Regulatory` constraint and leave it empty
-for the others. Keep Status the last column.
+for the others. Keep Status the last column of the tables you write. `/spec-review` finds the Status column by
+its header, so a column a team added after it (Notes) is tolerated, and a further table without a Status column — a
+change log that names requirement ids — is not read as catalog rows.
 
 ## Glossary
 
@@ -126,9 +128,13 @@ Every requirement must pass these checks before finalizing:
 > **Format survives error recovery.** Ambiguity, conflict, and provisional
 > status never justify abandoning the user-story form. Every FR row — even one
 > you are flagging as conflicting or unconfirmed — must still read
-> "As a [role], I want [goal] so that [benefit]." Record the issue in a note or
-> in the Status column (e.g., `Conflict`, `Needs review`); never by dropping the
-> requirement to a flat statement like "Support real-time sync."
+> "As a [role], I want [goal] so that [benefit]." The Status column holds only
+> the values of the reference (Open, In Progress, Implemented, Verified,
+> Deferred, Rejected) — never an invented one such as `Conflict` or
+> `Needs review`. Record an unsettled conflict or an unconfirmed requirement
+> as a question on that requirement in `docs/open_questions.md`, as step 2
+> defines, and report it under **Open**; never by dropping the requirement to
+> a flat statement like "Support real-time sync."
 
 ## Workflow
 
@@ -175,6 +181,7 @@ Every requirement must pass these checks before finalizing:
 12. Report the **Clarified**, **Assumed**, and **Open** items as described in the clarification checklist. When
     the project has architecture decision records (glob `docs/**/decisions/*.md`, `docs/**/adr/*.md`, or `docs/**/adrs/*.md`) and this run changed, rejected, or
     deferred an NFR or constraint, or removed one, name the ADRs whose `**Requirements:**` line links it and hand off
-    to `/architecture-decision ADR-XXX` to revisit each; never edit an ADR. When the user states an architecture
+    to `/architecture-decision` to revisit each — `ADR-XXX supersede` with the new decision, `ADR-XXX deprecate`,
+    or, when a new row replaces the one the ADR linked, `ADR-XXX link NFR-YYY`; never edit an ADR. When the user states an architecture
     decision while you gather requirements, write the NFR or constraint behind it here and hand the decision itself
     to `/architecture-decision`

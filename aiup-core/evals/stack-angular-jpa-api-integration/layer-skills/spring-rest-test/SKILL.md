@@ -3,7 +3,7 @@ name: spring-rest-test
 description: >
   Writes the REST API tests of a use case (UC-XXX) in a Spring Boot application: status codes, Location headers, the
   JSON contract (field names, date formats), RFC 9457 Problem Details bodies, and — as the integration layer of a
-  REST service or behind an Angular client — every business rule's allowed and rejected request at the boundary,
+  REST service or behind an Angular or Next.js client — every business rule's allowed and rejected request at the boundary,
   through the real service and database. Uses MockMvcTester against the full stack
   or live HTTP with RestTestClient and Testcontainers, detecting and keeping a project's existing convention
   (including MockMvc or RestAssured) and asking before the first API test. Classes are named UC001<Name>ApiTest
@@ -44,7 +44,7 @@ out.
   field names and formats of request and response, the Problem Details body of every rejection, and field errors
   for invalid input.
 - **Tests the business rules too** when the Integration layer table of `docs/architecture/stack.md` names
-  the API for this use case (behind an Angular client, in a REST service, or for an `API`-only use case): every rule gets its allowed and its rejected
+  the API for this use case (behind an Angular or Next.js client, in a REST service, or for an `API`-only use case): every rule gets its allowed and its rejected
   request at the boundary the rule names, with the full `detail` message, and the postconditions are read back
   through the API. Units no endpoint of the use case reaches are listed in the report. Next to a Vaadin Flow or Hilla
   UI, for a use case offered through both, these tests cover the endpoint's contract only — the main success
@@ -70,6 +70,12 @@ Run directly, the same rules apply:
   leave it failing and report the flow, the expected and the actual value. Fix only the test's mechanics.
 - Update an existing `UC<id>…ApiTest` instead of writing a second class.
 - Write this layer's tests only, and say that `/use-case-test UC-XXX` runs all layers.
+
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
 
 ## Step 0: Detect the Existing Convention
 
@@ -149,6 +155,7 @@ everything else; never remove or rename an attribute, other tests use it.
 | Postcondition                           | the persisted state read back through the API's own read endpoint when the response does not expose it |
 | Invalid input                           | `400`, one Problem Details body with an `errors` entry per invalid field           |
 | Entity not found                        | `404` with a Problem Details body, when the use case addresses an entity by id     |
+| External system unavailable (a flow the use case has) | the port's fake switched to that flow: `503`, `type`, and the flow's full `detail` message — never the provider's text |
 | JSON contract                           | field names and formats the client relies on: dates `YYYY-MM-DD`, amounts, nulls   |
 
 - The status per flow comes from the use case's agreed operation, then the API contract of `docs/architecture/stack.md`,
@@ -287,7 +294,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification or the API contract, with the flow, the
   expected value, and the actual value.
 - When run directly, one `Next:` line: the UI test skill of the Layers table when the project has a UI layer
-  (`/angular-ui-test UC-XXX`), otherwise `/use-case-coverage UC-XXX`. Never run the coverage audit.
+  (`/angular-ui-test UC-XXX`, `/nextjs-ui-test UC-XXX`), otherwise `/use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources
 

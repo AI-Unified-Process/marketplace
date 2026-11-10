@@ -127,6 +127,11 @@ it.
   technology maps them without overrides; a persistence layer skill may add its own naming needs, follow them.
 - Every attribute, type, length, precision, nullability, and uniqueness comes from the entity model. Validation
   rules the entity model states as ranges or formats become `CHECK` constraints; relationships become foreign keys.
+- Name every constraint that enforces a business rule — a `UNIQUE`, a `CHECK`, a foreign key a rule relies on —
+  with `CONSTRAINT {table}_{column}_{uk|ck|fk}` (`guest_email_uk`, `room_type_capacity_ck`), never anonymously: the
+  layer above tells the violated rule apart by that name when it translates the database's error into the rule's
+  rejection, and a generated name differs between databases. Follow the project's existing naming when it has one.
+  List each of them by name in the Handover.
 - An entity with a `version` attribute gets `version INTEGER NOT NULL DEFAULT 0` for optimistic locking.
 - An attribute the entity model types `String`, with Length/Precision `-` and a Description that begins with
   `Binary content:` (a photo, a signed contract as PDF), is a binary column: `BYTEA` on PostgreSQL, `BLOB` (or
@@ -143,11 +148,14 @@ CREATE SEQUENCE room_type_seq START WITH 1 INCREMENT BY 1 CACHE 50;
 CREATE TABLE room_type
 (
     id          BIGINT DEFAULT nextval('room_type_seq') PRIMARY KEY,
-    name        VARCHAR(50)    NOT NULL UNIQUE,
+    name        VARCHAR(50)    NOT NULL,
     description VARCHAR(500),
+    capacity    INTEGER        NOT NULL,
+    price       DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    -- UC-004 BR-001: A room type name is used only once.
+    CONSTRAINT room_type_name_uk UNIQUE (name),
     -- UC-004 BR-002: A room type sleeps between one and ten guests.
-    capacity    INTEGER        NOT NULL CHECK (capacity BETWEEN 1 AND 10),
-    price       DECIMAL(10, 2) NOT NULL CHECK (price >= 0)
+    CONSTRAINT room_type_capacity_ck CHECK (capacity BETWEEN 1 AND 10)
 );
 ```
 

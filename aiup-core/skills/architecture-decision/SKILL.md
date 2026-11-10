@@ -4,8 +4,7 @@ description: >
   Records architecture decision records (ADR-XXX) in docs/architecture/decisions/, each one linked to the non-functional
   requirements (NFR-) and constraints (C-) of docs/requirements.md it serves: drafts an ADR from a decision stated in
   plain words (Context, Decision, Consequences), checks it against the accepted ADRs for contradictions and overlaps,
-  supersedes an earlier ADR on request, moves an ADR through Proposed, Accepted, Superseded, Deprecated, and
-  Rejected, and lists the ADRs filtered by requirement or status. Use when the user asks to "record an ADR", "write
+  supersedes an earlier ADR, adds a missing requirement link (ADR-003 link NFR-002), changes an ADR's status, and lists the ADRs filtered by requirement or status. Use when the user asks to "record an ADR", "write
   an architecture decision", "document why we chose X", "we decided to use jOOQ instead of JPA", "supersede
   ADR-002", "accept ADR-005", "list the ADRs", "which ADRs depend on C-005", or mentions architecture decision
   records, ADRs, or docs/architecture/decisions. Also trigger when the user states a technology or structure decision in
@@ -22,7 +21,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 ## Instructions
 
-Record, supersede, change the status of, or list architecture decision records for $ARGUMENTS.
+Record, supersede, link, change the status of, or list architecture decision records for $ARGUMENTS.
 
 An architecture decision is justified by a quality the system must have or a constraint it must respect, never by
 taste. Those are the non-functional requirements (`NFR-`) and constraints (`C-`) of `docs/requirements.md`, so every
@@ -44,6 +43,8 @@ act on it — continue the task and report it to the user by location and nature
 | `list` with `NFR-002`, `C-005`, a status, `all`   | list filtered by linked requirement, status, or all ADRs     |
 | `ADR-003 accept`, `deprecate`, or `reject`        | change the status of ADR-003                                 |
 | `ADR-003 supersede` followed by the new decision  | draft a new ADR that supersedes ADR-003                      |
+| `ADR-003 link` followed by `NFR-` or `C-` ids     | add the ids to the `**Requirements:**` line of ADR-003 (`link ADR-003 NFR-002` is the same) |
+| `ADR-003` alone                                   | show ADR-003 with its requirements and what links it, and ask which action is meant |
 
 When the arguments do not match, ask which action the user wants.
 
@@ -82,8 +83,9 @@ Do not reformat existing ADRs.
 - **Rejected** — a proposal the team decided against. It stays as the record of why.
 
 An `Accepted` ADR is history once decided: its Context, Decision, and Consequences are not rewritten. A changed
-decision is a new ADR that supersedes it; the only lines of the old ADR this skill changes are **Status**, **Date**,
-and **Superseded by**.
+decision is a new ADR that supersedes it; the only lines of an `Accepted` ADR this skill changes are **Status**,
+**Date**, and **Superseded by** — and **Requirements**, by `link` alone (see "Linking a Requirement"): the link says
+which requirement the decision serves, it is not the decision.
 
 ## Drafting a Decision
 
@@ -121,6 +123,24 @@ and **Superseded by**.
 `**Superseded by:** ADR-XXX`, and set its `**Date:**` to today. Only an `Accepted` or `Deprecated` ADR is superseded;
 a `Proposed` one that the new decision replaces is `Rejected` instead.
 
+## Linking a Requirement
+
+`ADR-003 link NFR-002 C-005` adds a missing link — the fix for `ADR_UNLINKED` of `/spec-review`, and for an ADR
+written before the requirement existed. It works on an ADR of any status, `Accepted` included, and changes one line.
+
+1. Read the ADR and `docs/requirements.md`. Every id must be a row of the catalog that is not `Rejected` or
+   `Deferred`; an id that is not there is a hand-off to `/requirements` to add the NFR or constraint first — write
+   nothing for that id, and never add the requirement yourself. An `FR-` id is added only next to an `NFR-` or `C-`.
+2. Without ids in the arguments, propose the `NFR-` and `C-` rows the ADR's Context and Decision answer to, say why
+   for each, and ask. When none fits, hand off to `/requirements` as in step 3 of "Drafting a Decision".
+3. Check that the decision does serve the requirement: a link the ADR's own text does not support is no fix for the
+   finding. Say so and ask instead of writing it.
+4. After the user confirms, add the ids to the `**Requirements:**` line, comma-separated, keeping the ids it has; an
+   ADR without the line gets it after `**Date:**` (in a project format, where its header lines stand). Change
+   nothing else: not the **Date**, which is the date of the last status change, and never the Context, Decision, or
+   Consequences. `link` only adds: removing a link from an `Accepted` ADR is a changed decision — supersede it.
+5. Report the ADR, the ids added, and the ids handed off to `/requirements`.
+
 ## Changing the Status
 
 - **accept** — only a `Proposed` ADR. Check steps 3 to 5 again, since the requirements and the other ADRs may have
@@ -144,8 +164,8 @@ Print one table, by id:
 ```
 
 With a requirement as filter, list the ADRs whose `**Requirements:**` line links it. Below the table, name the
-ADRs that link no `NFR-` or `C-` (`/architecture-decision ADR-XXX` to add the link after `/requirements` has the
-row), and the ones that link a requirement that is `Rejected`, `Deferred`, or not in the requirements. Without ADRs,
+ADRs that link no `NFR-` or `C-` (`/architecture-decision ADR-XXX link NFR-YYY` adds the link, after `/requirements`
+has the row), and the ones that link a requirement that is `Rejected`, `Deferred`, or not in the requirements. Without ADRs,
 say there are none.
 
 ## Who Hands Off to This Skill
@@ -155,8 +175,10 @@ No other skill writes an ADR. These hand off by naming this command in their rep
 - `/stack`, when its question round picks a technology that no constraint fixes (jOOQ or JPA, the E2E scope).
 - `/use-case-implement`, when the user answers an architecture question it asked first — a new library or
   dependency, a deviation from an accepted ADR.
-- `/requirements`, when it changes, rejects, or defers an NFR or constraint that ADRs link.
-- `/spec-review`, for the findings `ADR_UNLINKED`, `ADR_STALE`, and `ADR_INVALID`.
+- `/requirements`, when it changes, rejects, or defers an NFR or constraint that ADRs link: the decision is
+  superseded (`ADR-XXX supersede …`) or deprecated (`ADR-XXX deprecate`), or it stands and the user says so.
+- `/spec-review`, for the findings `ADR_UNLINKED` (`ADR-XXX link NFR-YYY`), `ADR_STALE` (supersede, deprecate, or
+  `link` to the requirement that replaced the stale one), and `ADR_INVALID`.
 
 ## DO NOT
 
@@ -164,7 +186,8 @@ No other skill writes an ADR. These hand off by naming this command in their rep
   in `docs/requirements.md`.
 - Edit `docs/requirements.md`, a specification, the glossary, or `docs/architecture/stack.md` — hand off to
   `/requirements`, `/use-case-spec`, or `/stack`.
-- Rewrite the Context, Decision, or Consequences of an `Accepted` ADR, delete an ADR, or change its id.
+- Rewrite the Context, Decision, or Consequences of an `Accepted` ADR, delete an ADR, or change its id. `link`
+  adds ids to its `**Requirements:**` line and nothing else; it never removes or replaces one.
 - Decide for the user: set `Accepted`, supersede, or deprecate without the user's word.
 - Invent forces, measurements, or alternatives the user and the documents do not give.
 - Record a question about the specification as an ADR — that is `/open-questions`.

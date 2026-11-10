@@ -78,6 +78,12 @@ An external system the use case calls (its secondary actor in the `## External s
 replaced by the fake of its port that the client test skill wrote, put in place with `@TestBean`, as "Which Layer
 Tests What" of `/use-case-test` says for external systems; an alternative flow it causes is tested through that fake.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## Test Class Naming and `@UseCase` Annotation
 
 Browserless tests are **use case tests**: each test class verifies exactly one use case

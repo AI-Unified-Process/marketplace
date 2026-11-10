@@ -77,6 +77,8 @@ UC_ID = re.compile(r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+)")
 BP_ID = re.compile(r"^BP-\d{3,}$")
 FORBIDDEN_DECLARATION = re.compile(rb"<!\s*(DOCTYPE|ENTITY)", re.IGNORECASE)
 MAX_PATHS = 500
+# Backstop for models whose loops multiply the walks without adding paths
+MAX_WALKS = 200000
 
 
 class BpmnError(Exception):
@@ -97,8 +99,41 @@ def bp_id(process_id):
 
 
 def uc_id(name):
+    """The use case id an activity name carries, or None.
+
+    The grammar allows hyphens (UC-2-1), and a name may be joined to the id
+    with one ("UC-001-Create Guest"): segments without a digit after one
+    with a digit are the name, not the id."""
     match = UC_ID.search(name)
-    return match.group(1).rstrip("-_") if match else None
+    if not match:
+        return None
+    parts = re.split(r"([_-])", match.group(1).rstrip("-_"))
+    end = len(parts)
+    while end > 3 and len(parts[end - 1]) > 1 \
+            and not any(c.isdigit() for c in parts[end - 1]) \
+            and any(c.isdigit() for c in "".join(parts[2:end - 2])):
+        end -= 2
+    return "".join(parts[:end]).rstrip("-_")
+
+
+def forbidden_declaration(data):
+    """True when the file declares a DOCTYPE or an ENTITY, in any encoding
+    the XML parser reads: the bytes of a UTF-16 or UTF-32 file hide them
+    from a search for the ASCII text."""
+    if FORBIDDEN_DECLARATION.search(data):
+        return True
+    if b"\x00" not in data[:400] and not data.startswith(
+            (b"\xff\xfe", b"\xfe\xff")):
+        return False
+    for encoding in ("utf-16", "utf-16-le", "utf-16-be", "utf-32",
+                     "utf-32-le", "utf-32-be"):
+        try:
+            text = data.decode(encoding, errors="ignore")
+        except (LookupError, ValueError):
+            continue
+        if FORBIDDEN_DECLARATION.search(text.encode("utf-8", "ignore")):
+            return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +141,7 @@ def uc_id(name):
 # ---------------------------------------------------------------------------
 
 def parse_xml(data):
-    if FORBIDDEN_DECLARATION.search(data):
+    if forbidden_declaration(data):
         raise BpmnError("DOCTYPE or ENTITY declarations are not allowed "
                         "in a BPMN file")
     try:
@@ -189,6 +224,7 @@ class Walker:
         self.p = process
         self.warnings = warnings
         self.truncated = False
+        self.walks = 0
 
     def warn(self, message):
         if message not in self.warnings:
@@ -213,6 +249,13 @@ class Walker:
         return result
 
     def walk(self, node_id, used, in_split):
+        self.walks += 1
+        if self.walks > MAX_WALKS:
+            if not self.truncated:
+                self.truncated = True
+                self.warn("more than %d paths; the rest were dropped"
+                          % MAX_PATHS)
+            return []
         kind = self.p.kind(node_id)
 
         if kind == "parallelGateway":
@@ -254,7 +297,8 @@ class Walker:
                 decision_at = node_id if len(choices) > 1 else None
                 results.extend(self.follow(node_id, prefix, [flow], used,
                                            in_split, decision_at))
-            self.check_limit(results)
+            if self.check_limit(results):
+                break
         return results
 
     def follow(self, node_id, prefix, flows, used, in_split, decision_at):
@@ -281,7 +325,8 @@ class Walker:
             for steps, terminal, u in self.walk(target, used + (flow_id,),
                                                 in_split):
                 results.append((head + steps, terminal, u))
-            self.check_limit(results)
+            if self.check_limit(results):
+                break
         return results
 
     def split(self, node_id, outgoing, used, in_split):
@@ -310,6 +355,8 @@ class Walker:
                     last_end = terminal
             if not joins:
                 results.append((steps, last_end, merged))
+                if self.check_limit(results):
+                    break
                 continue
             if len(joins) > 1:
                 self.warn("parallel gateway " + node_id + " converges in "
@@ -319,16 +366,23 @@ class Walker:
                     join, [], self.p.outgoing.get(join, []), merged,
                     in_split, None):
                 results.append((steps + rest, terminal, u))
-            self.check_limit(results)
+            if self.check_limit(results):
+                break
         return results
 
     def check_limit(self, results):
+        """Cut the list at MAX_PATHS; True when the caller must stop.
+
+        Once paths were dropped, a full list is final: walking the other
+        alternatives would only build paths to drop, and with n decisions
+        in a row that is 2^n walks."""
         if len(results) > MAX_PATHS:
             del results[MAX_PATHS:]
             if not self.truncated:
                 self.truncated = True
                 self.warn("more than %d paths; the rest were dropped"
                           % MAX_PATHS)
+        return self.truncated and len(results) >= MAX_PATHS
 
 
 def analyze(data):
@@ -518,6 +572,62 @@ def self_test():
         failures.append("non-bpmn: accepted")
     except BpmnError:
         pass
+
+    for name, wanted in (("UC-001 Create Guest", "UC-001"),
+                         ("UC-001-Create Guest", "UC-001"),
+                         ("UC-001: Create", "UC-001"),
+                         ("Create (UC-2-1)", "UC-2-1"),
+                         ("UC-013a Mitteilung", "UC-013a"),
+                         ("SUC-GUEST-001 Create", "SUC-GUEST-001"),
+                         ("Create Guest", None)):
+        check("uc id of '" + name + "'", uc_id(name) == wanted)
+
+    # The declaration guard reads UTF-16 too
+    hidden = ('<?xml version="1.0" encoding="UTF-16"?><!DOCTYPE d [<!ENTITY a '
+              '"AAAA">]><definitions xmlns="http://www.omg.org/spec/BPMN/'
+              '20100524/MODEL"/>')
+    for encoding in ("utf-16", "utf-16-le", "utf-16-be"):
+        try:
+            parse_xml(hidden.encode(encoding))
+            failures.append("xxe: DOCTYPE in " + encoding + " was accepted")
+        except BpmnError:
+            pass
+
+    # n decisions in a row are 2^n paths: the walk stops with the list
+    nodes = ['<startEvent id="s"/>', '<endEvent id="e"/>']
+    flows = []
+    previous = "s"
+    for i in range(40):
+        nodes += ['<exclusiveGateway id="g%d"/>' % i,
+                  '<task id="a%d" name="A"/>' % i,
+                  '<task id="b%d" name="B"/>' % i,
+                  '<exclusiveGateway id="j%d"/>' % i]
+        flows += [(previous, "g%d" % i), ("g%d" % i, "a%d" % i),
+                  ("g%d" % i, "b%d" % i), ("a%d" % i, "j%d" % i),
+                  ("b%d" % i, "j%d" % i)]
+        previous = "j%d" % i
+    flows.append((previous, "e"))
+    chain = ('<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/'
+             'MODEL"><process id="BP-009">' + "".join(nodes) + "".join(
+                 '<sequenceFlow id="f%d" sourceRef="%s" targetRef="%s"/>'
+                 % (i, a, b) for i, (a, b) in enumerate(flows))
+             + "</process></definitions>")
+    walker_walks = []
+    original = Walker.walk
+
+    def counted(self, node_id, used, in_split):
+        walker_walks.append(1)
+        return original(self, node_id, used, in_split)
+
+    Walker.walk = counted
+    try:
+        result = analyze(chain.encode("utf-8"))
+    finally:
+        Walker.walk = original
+    check("chain: cut at MAX_PATHS", len(result["paths"]) == MAX_PATHS)
+    check("chain: says so", any("more than" in w for w in result["warnings"]))
+    check("chain: the walk is bounded, got %d walks" % len(walker_walks),
+          len(walker_walks) < 20000)
 
     if failures:
         for failure in failures:

@@ -67,6 +67,12 @@ Run directly, the same rules apply:
 - Update an existing `UC<id>…ServiceTest` instead of writing a second class.
 - Write this layer's tests only, and say that `/use-case-test UC-XXX` runs all layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## Choose the Test Style
 
 Detect what the project already does before choosing; never switch an established convention.

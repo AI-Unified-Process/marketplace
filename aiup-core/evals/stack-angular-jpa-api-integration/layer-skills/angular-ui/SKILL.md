@@ -37,7 +37,8 @@ the file it lives in and leave the value out.
 
 ## Scope
 
-- **Consumes** the Handover of the API layer: the endpoints (method, path, status codes), the request and response
+- **Consumes** the Handover of the API layer, whichever skill built it (`/spring-rest`, `/nest-rest`, or another
+  backend): the endpoints (method, path, status codes), the request and response
   DTOs with their field names, types, and nullability, and the error format. Without a Handover, read the existing
   controllers and DTOs of the API layer at the location `docs/architecture/stack.md` gives.
 - **Produces** the routed page, its components, the HTTP service and models, and the route — what the E2E layer
@@ -106,15 +107,15 @@ interceptor unless the project already has one.
 
 The models mirror the Handover's DTOs **field by field**:
 
-| DTO (Java)                         | TypeScript model                                    |
-|------------------------------------|-----------------------------------------------------|
-| `Long`, `Integer`, `int`           | `number`                                            |
-| `BigDecimal`                       | `number` (or `string` when the API serialises it as a string — check the Handover) |
-| `String`, enum                     | `string`, or a string literal union of the enum constants |
-| `boolean` / `Boolean`              | `boolean`                                           |
-| `LocalDate`, `LocalDateTime`, `Instant` | `string` (ISO 8601) — parse for display, never send a `Date` object |
-| nullable field (`@Nullable`, wrapper type the API may leave empty) | `field: T \| null`             |
-| `List<X>`                          | `X[]`                                               |
+| DTO field in the Handover                          | TypeScript model                                    |
+|----------------------------------------------------|-----------------------------------------------------|
+| `number`; Java `Long`, `Integer`, `int`            | `number`                                            |
+| decimal; Java `BigDecimal`                         | `number` (or `string` when the API serialises it as a string — check the Handover) |
+| `string`, enum                                     | `string`, or a string literal union of the enum constants |
+| `boolean`                                          | `boolean`                                           |
+| date and time; Java `LocalDate`, `LocalDateTime`, `Instant` | `string` (ISO 8601) — parse for display, never send a `Date` object |
+| nullable field (a field the API may leave empty)   | `field: T \| null`                                  |
+| list                                               | `X[]`                                               |
 
 Use the same field names as the DTO's JSON — never rename (`fullName` stays `fullName`), never add a field the DTO
 does not have. A request DTO gets its own interface (`GuestRequest`) when it differs from the response.
@@ -150,10 +151,10 @@ export class RoomTypeService {
 }
 ```
 
-A paged list endpoint (the Paging section of `/spring-rest`) takes `page` and `size` query parameters and answers
-with the page shape its Handover lists — `PageResponse<T> { content, page, size, totalElements }` without Spring
-Data, Spring Data's `PagedModel` (`{ content, page: { size, number, totalElements, totalPages } }`) with it. Model
-that shape once and pass the page through, so the page component can show the total and the pager:
+A paged list endpoint takes the paging query parameters and answers with the page shape the API Handover lists —
+`{ content, page, size, totalElements }` is the default of both `/spring-rest` and `/nest-rest`; a Spring project on
+Spring Data may hand over its `PagedModel` (`{ content, page: { size, number, totalElements, totalPages } }`)
+instead. Model the shape the Handover names, never one assumed from the backend's technology, once and pass the page through, so the page component can show the total and the pager:
 
 ```ts
 // services/page.model.ts
@@ -254,10 +255,12 @@ this.form = this.fb.nonNullable.group({
   counts, and a UI marker without a service check would hide a rule any other API client bypasses.
 - A rejection from the API — the status and Problem Details body the API Handover lists (typically `409` for a
   business rule, `400` for invalid input) — is shown to the actor at the place the alternative flow names, not
-  swallowed into a generic message. The body is `application/problem+json`
+  swallowed into a generic message. Read the error body from the Handover and the API contract section of the stack
+  file. The default of both `/spring-rest` and `/nest-rest` is `application/problem+json`
   `{ type, title, status, detail, errors?: [{ field, message }] }`: show `detail` (on an `HttpErrorResponse`,
   `error.error.detail`) as the message, and put each entry of `errors` on the form control its `field` names — the
-  field names are those of the request DTO, so they match the form's control names:
+  field names are those of the request DTO, so they match the form's control names. When the Handover's `errors`
+  carry no `field`, show the messages at the form and report that the API names no field:
 
   ```ts
   error: (error: HttpErrorResponse) => {
@@ -293,7 +296,8 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
    use case's mockups when it has a `**Mockup:**` line.
 2. Read the API layer's Handover; without one, read the controllers and DTOs this use case calls.
 3. Check the existing frontend: `package.json` (Angular version, state library, test runner), `app.config.ts`
-   (zoneless or zone.js), `app.routes.ts`, the folder structure, and whether a page for this use case already
+   (zoneless or zone.js: from Angular 21 zoneless is the default and `provideZoneChangeDetection()` opts back into
+   zone.js; before 21 zone.js is the default and `provideZonelessChangeDetection()` opts out), `app.routes.ts`, the folder structure, and whether a page for this use case already
    exists — if so, reconcile it in place.
 4. Create or update the models and the HTTP service, field by field from the DTOs.
 5. Create or update the page and its components, the template, and the route.

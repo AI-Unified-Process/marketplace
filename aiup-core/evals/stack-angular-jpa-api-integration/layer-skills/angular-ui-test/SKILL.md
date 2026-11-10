@@ -53,6 +53,12 @@ a commented-out `expect`) an assertion whose value the specification states — 
 expected and the actual value; update an existing spec file for this use case instead of creating a second one.
 `/use-case-test UC-XXX` runs the tests of all layers.
 
+Either way, follow `/use-case-test` in its sections "Status of the Specification", "Gaps in the Specification", and
+"Decision Rights": check the `**Status:**` line first; an expected value the specification does not give is a gap —
+ask, or leave the test out and record it in `docs/open_questions.md` with this skill as **Raised by** — never a value
+read off the code; and take decisions by the decision rights, listing those taken alone under **Decisions** in the
+report.
+
 ## Test Naming and Markers
 
 - File name `UC-XXX-<slug>.spec.ts` (always `.spec.ts`, never `.test.tsx`), colocated with the page or service under
@@ -82,8 +88,12 @@ Start from these, adapted to the project:
 - Provide `provideHttpClient()` and `provideHttpClientTesting()` for anything that makes HTTP calls; call
   `httpMock.verify()` in `afterEach`.
 - `fixture.detectChanges()` triggers the first render and `ngOnInit`. After a flush or an interaction, call
-  `fixture.detectChanges()` and `await fixture.whenStable()`. Check `app.config.ts` for
-  `provideZonelessChangeDetection()` before you reach for `fakeAsync`/`tick()` — only a zone.js project has them.
+  `fixture.detectChanges()` and `await fixture.whenStable()`. Decide whether the project runs on zone.js before you
+  reach for `fakeAsync`/`tick()` — only a zone.js project has them — and decide it by the Angular version in
+  `package.json`: **from Angular 21 an application is zoneless by default**, and it is a zone.js project only when
+  `app.config.ts` calls `provideZoneChangeDetection()` and `zone.js` is in the `polyfills` of `angular.json` (build
+  and test target); **before 21** zone.js is the default, and the project is zoneless when `app.config.ts` calls
+  `provideZonelessChangeDetection()`. A missing `provideZonelessChangeDetection()` proves nothing on Angular 21.
 - Read signal state through its public accessor (`fixture.componentInstance.roomTypes()`), never a private field;
   prefer asserting the rendered DOM, which is what the actor sees.
 
@@ -100,11 +110,13 @@ req.flush([{ id: 1, name: 'Deluxe Suite', description: null, capacity: 2, price:
 - Match the URL the service builds, `environment.apiBaseUrl` included — a bare `'/api/room-types'` stops matching
   once the base URL is set.
 - An alternative flow the API decides: flush the status and Problem Details body the API Handover lists (typically
-  `409` for a business rule, `400` for invalid input), e.g.
+  `409` for a business rule, `400` for invalid input), with the `type` exactly as the Handover writes it, e.g.
   `req.flush({ type: 'urn:problem:EmailAlreadyRegisteredException', title: 'Business rule violated', status: 409,
   detail: 'Email already registered' }, { status: 409, statusText: 'Conflict' })` for the `409
-  urn:problem:EmailAlreadyRegisteredException` of the `spring-rest` Handover,
-  and assert the message the specification states at the place it names.
+  urn:problem:EmailAlreadyRegisteredException` of a `/spring-rest` Handover (a `/nest-rest` Handover names
+  `urn:problem:EmailAlreadyRegisteredError`), and assert the message the specification states at the place it names.
+  For invalid input, flush the `errors` entries in the shape the Handover lists (`[{ field, message }]`) and assert
+  the message at the field.
 - A non-HTTP dependency the page injects (i18n, a clock, a dialog service) is overridden through DI:
   `providers: [{ provide: I18nService, useClass: MockI18nService }]`. Reserve `HttpTestingController` for the HTTP
   boundary; never mock the component's own HTTP service when the request itself is part of what you test.
@@ -159,7 +171,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 1. Read the inputs — from `/use-case-test`, or the use case, its linked requirements, and `docs/architecture/stack.md` when run
    directly — and the Handover of `/angular-ui` or the page, service, and models it names.
 2. Look for an existing `UC-XXX-*.spec.ts` or `describe('UC-XXX: …')`; if there is one, reconcile it.
-3. Check `package.json` and `app.config.ts`: test runner, `@testing-library/angular`, zoneless or zone.js.
+3. Check `package.json`, `app.config.ts`, and `angular.json`: Angular version, test runner,
+   `@testing-library/angular`, zoneless or zone.js — the version-dependent check of
+   [Setting Up a Component Test](#setting-up-a-component-test).
 4. Plan the tests: the main scenario, every alternative flow the UI shows, every rule the UI validates, every API
    rejection the actor must see.
 5. Write `UC-XXX-<slug>.spec.ts` from the templates, colocated with the page or service.

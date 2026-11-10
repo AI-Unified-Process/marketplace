@@ -133,7 +133,8 @@ covers, **stop without writing the model** and report:
 - each missing step as a proposed use case — name (a user goal, see the goal-level check in `/use-case-diagram`),
   primary actor, and the `FR-*` it realizes, or "no requirement" when the catalog lacks one;
 - the hand-off: `/requirements` when a requirement is missing, then `/use-case-diagram` to add the use case, then
-  `/business-process` again. The new use case needs no specification for the model.
+  `/business-process BP-XXX` again, so the activity carries its id. The new use case needs no specification for the
+  model. This is also the fix for a `BPMN_UNMAPPED` finding of `/spec-review` on an existing model.
 
 Likewise, when a use case reads like a summary (it hands work to another role, waits for an event, or runs parallel
 branches), do not model its inside: name it and hand off to `/use-case-diagram` to split it.
@@ -153,7 +154,10 @@ python3 <skill directory>/scripts/bpmn_layout.py docs/processes/BP-001-book-loan
 every flow that has none, lays a new process out left to right with one row per lane, and keeps every shape that
 already exists — so a layout an analyst tidied in a modeler survives an update. New elements of an existing model
 are placed next to their predecessor; report its notes and suggest a look in the modeler when it says a lane grew.
-`--check` lists elements without DI. The script imports the BPMN parser of the test-case skill; when it exits with
+Relay every `NOTE` line to the user as it stands: a parent lane added to a drawn model prints
+`lane X was drawn around its lanes; check its label band in a modeler`, and in a file with several processes and no
+collaboration only the first is drawn — the note names the others, and `--check` does not fail on them.
+`--check` lists elements without DI, a message flow without an edge included (`missing edge of message flow …`). The script imports the BPMN parser of the test-case skill; when it exits with
 code 2 because that skill is not installed, tell the user and stop. Where Python is unavailable, write the semantic
 model and tell the user that it has no layout yet: a modeler shows it only after the script has run.
 

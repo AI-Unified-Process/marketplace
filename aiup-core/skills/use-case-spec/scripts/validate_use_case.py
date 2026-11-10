@@ -817,9 +817,22 @@ def check_contract(doc, path):
                         + step)
 
 
+def read_text(path):
+    """The file as text, without a UTF-8 byte order mark.
+
+    A file that is not UTF-8 is an OSError: the caller reports it as a file
+    it cannot read, not as a traceback."""
+    with open(path, "rb") as handle:
+        data = handle.read()
+    try:
+        return data.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise OSError("not UTF-8 (byte %d); save the file as UTF-8"
+                      % exc.start)
+
+
 def validate_file(path):
-    with open(path, encoding="utf-8") as handle:
-        text = handle.read()
+    text = read_text(path)
     doc = parse_document(text)
     check_contract(doc, path)
     return doc.problems
@@ -1105,6 +1118,28 @@ def self_test():
     expect("invalid", doc.problems,
            ["STATUS_INVALID", "UNEXPECTED_CONTENT", "FLOW_INCOMPLETE",
             "UC_TRIGGER_IS_PRECONDITION", "LAYERS_INVALID"])
+
+    # A byte order mark is no content; a file that is not UTF-8 is a file
+    # that cannot be read, not a traceback.
+    import tempfile
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "UC-001-create-reservation.md")
+        with open(path, "wb") as handle:
+            handle.write(b"\xef\xbb\xbf" + VALID_EN.encode("utf-8"))
+        expect("bom", validate_file(path), [], forbidden_severity=ERROR)
+        with open(path, "wb") as handle:
+            handle.write(VALID_EN.encode("utf-8") + b"\nGr\xfc\xdfe\n")
+        try:
+            validate_file(path)
+            failures.append("latin-1: expected an OSError")
+        except OSError:
+            pass
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = main([path, "--quiet"])
+        if code != 1:
+            failures.append("latin-1: the command should exit 1")
 
     if failures:
         for failure in failures:

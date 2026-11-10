@@ -59,8 +59,8 @@ describe('UC-020: Register Guest', () => {
                 .register({ fullName: 'Mia Keller', email: 'mia.keller@example.com', dateOfBirth: '1990-04-12' })
                 .subscribe({ error: (e: HttpErrorResponse) => (error = e) });
 
-            // The status and Problem Details body the API Handover lists for this rejection: spring-rest
-            // sets type urn:problem:<exception class> and the title of its exception handler
+            // The status and Problem Details body the API Handover lists for this rejection, copied from it:
+            // here a /spring-rest Handover (type urn:problem:<exception class>); /nest-rest names <…Error>
             httpMock.expectOne(GUESTS).flush(
                 {
                     type: 'urn:problem:EmailAlreadyRegisteredException',

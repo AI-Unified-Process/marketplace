@@ -10,7 +10,8 @@ description: >
   whenever the user lists several use case IDs (UC-*) and wants one test
   definition spanning them, or wants test cases derived from a business
   process (BP-001), a BPMN process model, or a .bpmn file (one test case per path
-  through the process) — the resulting TC-* document is what /test-case-implement
+  through the process), or wants an existing one brought back in line with its
+  use cases (/test-case TC-001) — the resulting TC-* document is what /test-case-implement
   TC-001 (layer plugins) or a stack's /playwright-test TC-001 automates.
 ---
 
@@ -39,7 +40,7 @@ A test case is triggered by a **business flow**, never by an overlap of use case
 
 ## Inputs
 
-$ARGUMENTS selects one of two modes. Text after the arguments that says where the project keeps its artifacts (e.g. "The BPMN process models live under `docs/processes/`") replaces the default folders named in this skill.
+$ARGUMENTS selects one of three modes. Text after the arguments that says where the project keeps its artifacts (e.g. "The BPMN process models live under `docs/processes/`") replaces the default folders named in this skill.
 
 **Use case mode** — the user names the use cases the journey includes (e.g. `/test-case UC-001 UC-004`). For each one:
 
@@ -47,6 +48,8 @@ $ARGUMENTS selects one of two modes. Text after the arguments that says where th
 - If a named use case has no specification file, stop and tell the user — a test case must not chain unspecified use cases.
 
 **Process mode** — the argument is a business process id (`/test-case BP-001` → `docs/processes/BP-001-*.bpmn`), a `.bpmn` file (`/test-case docs/processes/BP-001-order-fulfillment.bpmn`), or the name of a process model in `docs/processes/` (`/test-case order` → `docs/processes/order.bpmn`). Process models are written by `/business-process`; when the named process does not exist, stop and hand off to `/business-process`. Each activity of the process is carried out by one use case, and each path from a start event to an end event becomes one test case; see [Process mode](#process-mode-bpmn) below.
+
+**Update mode** — the argument is the id of an existing test case (`/test-case TC-001` → `docs/test_cases/TC-001-*.md`). This is what a coverage audit, `/spec-review`, or `/acceptance-protocol` hands off to when a journey no longer matches its use cases. Read the test case, then the specification of every use case its Flow links; a test case with a `**Process:**` line is reconciled with its path in the process model as well (run the script as in process mode). Bring the document back in line — see [Update mode](#update-mode-tc-xxx) below. If no test case has the id, stop and list the existing ones; never create a test case under an id the user chose.
 
 If no argument is given, list the specs in `docs/use_cases/` and its module folders and the process models `docs/processes/*.bpmn` (with their `BP-XXX` ids), and ask the user which use cases the journey should include or which process to derive test cases from.
 
@@ -87,6 +90,16 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
    - The kebab-case file name describes the path's outcome (e.g. `order-shipped`, `order-cancelled`), usually after its end event.
 4. **Rerun on an existing process.** Before assigning IDs, search `docs/test_cases/` for test cases whose `**Process:**` line names the same `BP-XXX` id or links the same file (a model renamed to its `BP-` file name keeps its test cases; update their link). A test case whose path still exists is updated in place — same ID, same file name — and set back to `Draft` if its Flow changed. Only paths without a test case get new IDs. A test case whose path no longer exists is set to `Obsolete`, never deleted. Report which files were created, updated, and made obsolete.
 
+## Update mode (TC-XXX)
+
+The test case keeps its id and its file name; nothing is renumbered and no second file is written.
+
+1. **Compare** every Flow row with the specification it links: a step, message, or business rule the use case no longer has, test data the use case's rules now reject, a linked use case that is `Obsolete` or whose file moved (a module folder), and a precondition or postcondition the changed use cases no longer produce. With a `**Process:**` line, also compare the Flow with the path the script prints for the process.
+2. **Change only what disagrees**, by the Writing rules. Rows that still hold stay word for word, because an automated test is tied to their step numbers and names; when a row is added or removed, renumber the steps without gaps and say so in the report.
+3. **Status.** A changed Flow sets the test case back to `Draft` — it was approved, or automated, as it was. A test case whose path no longer exists in its process, or whose journey no use case supports any more, is set to `Obsolete`, never deleted. An `Obsolete` test case is not revived: say so and stop.
+4. **A gap is not yours to close.** When a use case does not say what the journey needs (an expected value, a hand-over state), record it on that use case in `docs/open_questions.md` — the format is owned by `/open-questions`; locate its skill with a glob for `**/*open-questions/SKILL.md` (the skill folder may carry a host prefix such as `tessl__open-questions`) — and leave the row as it was. Questions are answered into the use case by `/use-case-spec`, never into the test case.
+5. Run the Completeness Checklist and report what changed, row by row. An automated test of a changed test case is stale: hand off to `/test-case-implement TC-XXX` (or the combined stack plugin's `/playwright-test TC-XXX`) once the test case is `Approved` again.
+
 ## Status and priority values
 
 | Status    | Description                                                                |
@@ -119,12 +132,12 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 
 ## Workflow
 
-1. Determine the mode from $ARGUMENTS (ask if nothing was given). Use case mode: read each named spec in `docs/use_cases/` (module folders included). Process mode: enumerate the paths, map every activity to its spec, and stop if any activity is unmatched (see [Process mode](#process-mode-bpmn)).
+1. Determine the mode from $ARGUMENTS (ask if nothing was given). Update mode (a `TC-XXX` id): follow [Update mode](#update-mode-tc-xxx) and skip steps 2–4. Use case mode: read each named spec in `docs/use_cases/` (module folders included). Process mode: enumerate the paths, map every activity to its spec, and stop if any activity is unmatched (see [Process mode](#process-mode-bpmn)).
 2. Determine the next free `TC-XXX` ID from `docs/test_cases/`; in process mode first match the existing test cases of the same process.
 3. Design the journey: the business-meaningful order of the use cases (in process mode, the path's sequence flow), the roles involved, the state carried between steps, and where verification steps belong.
 4. Write the document from the template: Overview (ID, Goal, Priority, Status, and in process mode Process), Roles, Preconditions, Flow table, Validation, Postconditions. Process mode writes one document per path.
 5. Run the Completeness Checklist below; fix anything that fails.
-6. Report the created (and in process mode updated or obsoleted) files and suggest the matching e2e test command: `/test-case-implement TC-XXX` when `docs/architecture/stack.md` exists (layer plugins), otherwise the combined stack plugin's `/playwright-test TC-XXX`. Automating a journey needs an E2E layer: when the stack file's E2E row is missing or its Test skill is `–` (a REST service without a UI), say that the test case stays a manual script until `/stack` adds an E2E layer, and suggest no command.
+6. Report the created (and in process or update mode updated or obsoleted) files. A new test case is a `Draft`: say that the product owner sets it to `Approved` before it is automated, and name the command that automates it then: `/test-case-implement TC-XXX` when `docs/architecture/stack.md` exists (layer plugins), otherwise the combined stack plugin's `/playwright-test TC-XXX`. Automating a journey needs an E2E layer: when the stack file's E2E row is missing or its Test skill is `–` (a REST service without a UI), say that the test case stays a manual script until `/stack` adds an E2E layer, and suggest no command.
 
 ## Completeness Checklist
 
@@ -148,4 +161,5 @@ A business process model (BPMN 2.0 XML) is the map of the business: every activi
 - Duplicate a test case on rerun — update the one whose `**Process:**` line names the same path
 - Use placeholder test data ("a valid email") where a literal value belongs
 - Repeat a use case's alternative flows or field-level validations in the journey
-- Renumber or reuse an existing `TC-XXX` ID
+- Renumber or reuse an existing `TC-XXX` ID — `/test-case TC-XXX` updates that test case in its file
+- Put the answer to an open question into a test case — it belongs in the use case, written by `/use-case-spec`

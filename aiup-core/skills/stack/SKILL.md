@@ -188,9 +188,11 @@ report that it is no longer read.
 5. **Write the stack file** from the template, within the sections this skill owns. Write:
    - the Layers table: one row per layer, `–` in every column of a layer the project does not have; the Location
      column names the module or package of the layer's code;
-   - the Integration layer table under the Layers table — one row per entry layer the project has, in the order UI,
-     API, Service, with no row for an absent one; its Test skill cell is the one the Layers table has for that layer,
-     `–` while the skill is not installed — by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
+   - the Integration layer table under the Layers table — in the order UI, API, Service: a UI and an API row only
+     when the project has that layer, and the Service row always, because a use case can be offered through the
+     service alone (a scheduled job); in a project without a service layer its Tested in cell is Persistence. The
+     Test skill cell is the one the Layers table has for the layer named in Tested in, `–` while the skill is not
+     installed — by the section "Tests run, and the integration layer" of the [layer catalog](references/layer-catalog.md):
      start at the entry layer and take it when its test skill runs in process, otherwise the layer it calls. Read
      Tests run from each `layer.md`; for a team's own skill without one, use the answer to step 3. You are the only
      skill that derives this table; the others look it up;

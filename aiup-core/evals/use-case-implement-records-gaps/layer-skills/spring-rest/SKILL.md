@@ -8,7 +8,7 @@ description: >
   case's **API:** line links in an agreed OpenAPI contract exactly as written; holds no business rule the service
   does not enforce. Use when the user asks to "build the REST API", "create an endpoint", "expose the use case over
   HTTP", "add a controller", "map errors to Problem Details", or mentions @RestController, @RequestMapping, DTOs,
-  ProblemDetail, RFC 9457, status codes, or a JSON contract for a separate client such as Angular. Normally run by
+  ProblemDetail, RFC 9457, status codes, or a JSON contract for a separate client such as Angular or Next.js. Normally run by
   /use-case-implement after the service layer; it can also be run directly.
 ---
 
@@ -23,7 +23,7 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 ## Instructions
 
 Implement the REST API layer of use case $ARGUMENTS with Spring Boot (Spring MVC): the endpoints, the JSON contract,
-and the error format that a separate client — an Angular UI, another system — relies on. The controller translates
+and the error format that a separate client — an Angular or Next.js UI, another system — relies on. The controller translates
 between HTTP and the service; the service decides.
 
 If the JavaDocs MCP server is configured, use it for Spring Framework and Spring Boot API lookups — the web APIs moved
@@ -43,7 +43,7 @@ in and leave the value out.
 - **Consumes** the Handover of `/spring-service`: the service methods, their input records, return types, and the
   domain exceptions they throw. In a project without a service skill run, the existing service classes.
 - **Produces** the endpoints a client calls: method, path, request and response JSON, status codes per flow, and the
-  error body — what a client-side UI skill such as `/angular-ui` builds its models on.
+  error body — what a client-side UI skill such as `/angular-ui` or `/nextjs-ui` builds its models on.
 - **Never touches** the service and persistence code, the UI, the tests, or anything under `docs/` other than the
   Markers table of `docs/architecture/stack.md` and new sections of `docs/open_questions.md`.
 
@@ -102,9 +102,10 @@ controllers, and the status table below.
 - **Generated interfaces.** When the build already generates server stubs from the contract (openapi-generator with
   `interfaceOnly`), implement the generated interface instead of writing the mapping by hand. Never add a generator
   to a project that has none — that is a new dependency.
-- **Disagreements** — a required field nothing supplies, a rejecting flow without a documented response, a
-  documented response without a flow — are recorded as `/use-case-implement` defines; build nothing for the part in
-  question.
+- **Disagreements** between the contract and the specification — a required field nothing supplies, a rejecting
+  flow without a documented response, a documented response without a flow — are handled exactly as section
+  "API Contract" of `/use-case-implement` says for each case: what is built, what is left out, and which open
+  question is recorded. This skill adds no rule of its own to it.
 - **AsyncAPI.** A linked AsyncAPI channel or operation needs an inbound message listener, which this skill does not
   build: build nothing for it and say so under **Open questions**.
 - Operations of the same file the use case does not link are not built.
@@ -232,6 +233,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.CONFLICT, "Business rule violated", e);
     }
 
+    // only when the service Handover lists the kind: an external system did not answer
+    @ExceptionHandler(ExternalSystemException.class)
+    ProblemDetail externalSystemUnavailable(ExternalSystemException e) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "External system unavailable", e);
+    }
+
     // the service's own Bean Validation, reached when a client bypasses the request DTO's constraints
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail invalid(ConstraintViolationException e) {
@@ -285,6 +292,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   the client tell two flows with the same status apart.
 - A mapping for a specific exception goes into the advice only when its status differs from its kind's; never
   catch a domain exception inside a controller.
+- `ExternalSystemException` is the kind `/spring-client` creates for an external system that is unavailable or
+  timed out, and the service lets it pass. Map it only when the service Handover lists it: `503 Service
+  Unavailable`, with the specification's message of that flow as `detail` — never the provider's error text. A
+  use case without an external system gets no such handler.
 - Never put a stack trace, SQL, or a class name of the persistence layer in a response. An unexpected exception is a
   500 with a generic detail; Spring Boot logs it.
 
@@ -303,6 +314,7 @@ use case's agreed operation, or the `## API contract` section — says otherwise
 | Not authenticated / not allowed                           | `401` / `403` (security)   |
 | Entity the path refers to does not exist                  | `404 Not Found`            |
 | Business rule violated, duplicate, wrong state            | `409 Conflict`             |
+| External system unavailable or timed out                  | `503 Service Unavailable`  |
 
 Some projects use `422 Unprocessable Content` for a violated rule; follow the API contract or the existing advice.
 
@@ -325,7 +337,10 @@ Page a list endpoint when the use case, a linked NFR, or the entity model sugges
 Check the Spring Boot version in the build file before writing imports:
 
 - Spring Boot 4 names the web starter `spring-boot-starter-webmvc` and uses Jackson 3 (`tools.jackson.*` packages);
-  Spring Boot 3 uses `spring-boot-starter-web` and Jackson 2 (`com.fasterxml.jackson.*`). Never mix them.
+  Spring Boot 3 uses `spring-boot-starter-web` and Jackson 2 (`com.fasterxml.jackson.*`). Never mix the two for
+  `ObjectMapper`/`JsonMapper`, `JsonNode`, serializers, modules, and exceptions. The annotations are the one
+  exception: Jackson 3 keeps `@JsonProperty`, `@JsonIgnore`, `@JsonFormat`, and the others in
+  `com.fasterxml.jackson.annotation` — import them from there on both versions.
 - `ProblemDetail`, `ResponseEntityExceptionHandler`, and `@RestControllerAdvice` exist in both; `MockMvcTester`
   from Spring Boot 3.4 (Spring Framework 6.2) on.
   Spring Framework 7 API versioning (`@GetMapping(version = …)`) only when the API contract asks for it.
@@ -386,13 +401,14 @@ Handover from spring-rest (UC-001)
 - GuestResponse { id: number, firstName: string, lastName: string, email: string, birthDate: date }
 - PageResponse<GuestListItemResponse> { content: [{ id, firstName, lastName, email }], page, size, totalElements }
 - Errors: application/problem+json { type, title, status, detail, errors?: [{ field, message }] }
+- 503 urn:problem:PaymentProviderUnavailableException (A3)   (only when the service Handover lists ExternalSystemException)
 - Contract: docs/api/booking.yaml#createBooking followed (path, properties, statuses); not built: flow A3 has no
   documented response (OQ-014)   (only when the use case has an **API:** line)
 Nothing to do: <reason>   (when the use case has no API change)
 ```
 
-When run directly, add one `Next:` line: the UI skill of the Layers table (`/angular-ui UC-XXX`), or `/use-case-test
-UC-XXX` when the API is the top layer. Never run the coverage audit.
+When run directly, add one `Next:` line: the UI skill of the Layers table (`/angular-ui UC-XXX`, `/nextjs-ui
+UC-XXX`), or `/use-case-test UC-XXX` when the API is the top layer. Never run the coverage audit.
 
 ## Resources
 

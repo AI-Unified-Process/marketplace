@@ -6,13 +6,19 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Drama Finder API Reference
 
-Vendored from the Drama Finder `1.1.0` Javadoc (`org.vaadin.addons:dramafinder:1.1.0`). This is the
-authoritative API reference for writing Playwright tests — use it instead of fetching docs at runtime.
-If you need a class not listed here, or have upgraded the dependency, look it up in the published Javadoc
-(https://javadoc.io/doc/org.vaadin.addons/dramafinder) and update this file.
+Vendored from the Drama Finder `2.0.1` sources and Javadoc (`org.vaadin.addons:dramafinder:2.0.1`, built against
+Vaadin 25.3, Playwright 1.63, and Java 21). This is the authoritative API reference for writing Playwright tests —
+use it instead of fetching docs at runtime. If you need a class not listed here, or the project pins another
+version, look it up in the published Javadoc (https://javadoc.io/doc/org.vaadin.addons/dramafinder) for that
+version: a project on Drama Finder 1.x has none of what is marked *(2.x)* below.
 
 All element wrappers live under `org.vaadin.addons.dramafinder.element` (shared mixins under
-`...element.shared`). The test base class is `org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT`.
+`...element.shared`). The test base class is `org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT`: it opens a
+fresh `page` before each test at `getUrl() + getView()` and waits for Vaadin; the test class implements
+`String getUrl()` and overrides `String getView()`. It also offers `navigate(Class<?> view)`,
+`navigate(Class<?> view, Object parameter)`, `assertAt(Class<?> view)`, `assertPath(String path)`, and
+`assertQueryParameter(String name, String value)` *(2.x)*, and writes a failure report with a screenshot to
+`target/agent-report/<TestClass>/<testMethod>/` for every failing test *(2.x)*.
 
 ## Locator levels
 
@@ -25,16 +31,22 @@ CSS selectors pierce shadow DOM automatically; XPath does NOT.
 
 ## Available element classes
 
-`AccordionElement`, `AccordionPanelElement`, `AvatarElement`, `BigDecimalFieldElement`,
-`ButtonElement`, `CardElement`, `CheckboxElement`, `ComboBoxElement`, `ContextMenuElement`,
-`DatePickerElement`, `DateTimePickerElement`, `DetailsElement`, `DialogElement`, `EmailFieldElement`,
-`GridElement` (+ `RowElement`, `CellElement`, `HeaderCellElement`), `IntegerFieldElement`,
-`ListBoxElement`, `MenuBarElement`, `MenuElement`, `MenuItemElement`, `MessageInputElement`,
-`MessageListElement`, `MultiSelectComboBoxElement`, `NotificationElement`, `NumberFieldElement`,
-`PasswordFieldElement`, `PopoverElement`, `ProgressBarElement`, `RadioButtonGroupElement`,
-`SelectElement`, `SideNavigationElement`, `SideNavigationItemElement`, `SplitLayoutElement`,
-`TabElement`, `TabSheetElement`, `TextAreaElement`, `TextFieldElement`, `TimePickerElement`,
+`AccordionElement`, `AccordionPanelElement`, `AppLayoutElement`, `AvatarElement`, `AvatarGroupElement`,
+`BadgeElement`, `BigDecimalFieldElement`, `BreadcrumbsElement`, `BreadcrumbsItemElement`, `ButtonElement`,
+`CardElement`, `CheckboxElement`, `CheckboxGroupElement`, `ComboBoxElement`, `ConfirmDialogElement`,
+`ContextMenuElement`, `CustomFieldElement`, `DatePickerElement`, `DateTimePickerElement`, `DetailsElement`,
+`DialogElement`, `EmailFieldElement`, `FormLayoutElement`,
+`GridElement` (+ `RowElement`, `CellElement`, `HeaderCellElement`, `FooterCellElement`), `IntegerFieldElement`,
+`ListBoxElement`, `LoginFormElement`, `LoginOverlayElement`, `MarkdownElement`, `MenuBarElement`, `MenuElement`,
+`MenuItemElement`, `MessageInputElement`, `MessageListElement`, `MultiSelectComboBoxElement`,
+`NotificationElement`, `NumberFieldElement`, `PasswordFieldElement`, `PopoverElement`, `ProgressBarElement`,
+`RadioButtonElement`, `RadioButtonGroupElement`, `SelectElement`, `SideNavigationElement`,
+`SideNavigationItemElement`, `SliderElement`, `SplitLayoutElement`, `SwitchElement`, `TabElement`, `TabsElement`,
+`TabSheetElement`, `TextAreaElement`, `TextFieldElement`, `TimePickerElement`, `TooltipElement`,
 `TreeGridElement` (+ `TreeRowElement`), `UploadElement`, `VirtualListElement`.
+
+Every wrapper also has `getById(Page|Locator, String id)` and `getByTestId(Page|Locator, String testId)`
+factories *(2.x)* — fallbacks for a component without a user-visible name; prefer the label and text lookups.
 
 ## Shared methods (available on every element)
 
@@ -43,7 +55,7 @@ CSS selectors pierce shadow DOM automatically; XPath does NOT.
 - `void click()` — click the component root
 - `String getText()` — text content of the root (or `null`)
 - `com.microsoft.playwright.Locator getLocator()`
-- `boolean isVisible()` / `void assertVisible()`
+- `boolean isVisible()` / `void assertVisible()` / `void assertVisible(boolean visible)` *(2.x)*
 - `boolean isHidden()` / `void assertHidden()`
 - `Object getProperty(String name)` / `void setProperty(String name, Object value)` — raw DOM property access
 
@@ -59,9 +71,14 @@ CSS selectors pierce shadow DOM automatically; XPath does NOT.
 - **`HasHelperElement`**: `String getHelperText()`, `void assertHelperHasText(String)`
 - **`HasClearButtonElement`**: `void clickClearButton()`, `boolean isClearButtonVisible()`,
   `void assertClearButtonVisible()` / `assertClearButtonNotVisible()`
-- **`FocusableElement`**: `void focus()`, `void blur()`, `void assertIsFocused()`, `void assertIsNotFocused()`, `int getTabIndex()`
+- **`FocusableElement`**: `void focus()`, `void blur()`, `void assertIsFocused()`, `void assertIsNotFocused()`, `String getTabIndex()`
+- **`HasCheckedElement`** *(2.x; on the element class itself in 1.x)*: `void check()`, `void uncheck()`,
+  `void setChecked(boolean)`, `boolean isChecked()`, `void assertChecked()`, `void assertNotChecked()`
+- **`HasReadOnlyElement`** *(2.x; on the element class itself in 1.x)*: `boolean isReadOnly()`,
+  `void assertReadOnly()`, `void assertNotReadOnly()`
 - **`HasAriaLabelElement`**: `String getAriaLabel()`, `void assertAriaLabel(String)`
-- **`HasThemeElement`**: `String getTheme()`, `void assertTheme(String)`
+- **`HasThemeElement`**: `String getTheme()`, `void assertTheme(String)`, `void assertHasThemeVariant(String)` and
+  `void assertHasNoThemeVariant(String)` *(2.x)*
 - **`HasStyleElement`**: `void assertCssClass(String...)`, `String getCssClass()`
 - **`HasTooltipElement`**: `String getTooltipText()`, `void assertTooltipHasText(String)`
 - **`HasPrefixElement`** / **`HasSuffixElement`**: `assertPrefixHasText(String)` / `assertSuffixHasText(String)`
@@ -75,6 +92,7 @@ Implements `HasValueElement`, `HasValidationPropertiesElement`, `HasEnabledEleme
 
 - `static TextFieldElement getByLabel(Page page, String label)`
 - `static TextFieldElement getByLabel(Locator scope, String label)`
+- `static TextFieldElement getByLabelContaining(Page page, String text)` / `(Locator scope, String text)` *(2.x)*
 - `Integer getMinLength()` / `void setMinLength(int)` / `void assertMinLength(Integer)`
 - `Integer getMaxLength()` / `void setMaxLength(int)` / `void assertMaxLength(Integer)`
 - `String getPattern()` / `void setPattern(String)` / `void assertPattern(String)`
@@ -88,6 +106,7 @@ server-side, then look up with `getByText(page, "<aria label>")`.
 - `static ButtonElement getByText(Page page, String text)`
 - `static ButtonElement getByText(Locator scope, String text)`
 - `static ButtonElement getByLabel(Page page, String text)` — alias for `getByText`
+- `static ButtonElement getByTextContaining(Page page, String text)` / `(Locator scope, String text)` *(2.x)*
 - inherits `click()`, `assertEnabled()/assertDisabled()`, `focus()`, theming/tooltip asserts
 
 ### `ComboBoxElement`
@@ -104,12 +123,13 @@ Implements `HasValueElement` (read-only `getValue`/`assertValue` — value is th
 - `int getOverlayItemCount()` / `void assertItemCount(int)`
 - `boolean isReadOnly()` / `assertReadOnly()` / `assertNotReadOnly()`
 - `String getValue()` / `void assertValue(String)`
+- `String getSelectedItemLabel()` / `List<String> getItemLabels()` *(2.x)*
 
 ### `CheckboxElement`
 
 Implements `HasValueElement`, `HasValidationPropertiesElement`, `HasEnabledElement`, `HasLabelElement`.
 
-- `static CheckboxElement getByLabel(Page page, String label)`
+- `static CheckboxElement getByLabel(Page page, String label)` / `(Locator scope, String label)`
 - `void check()` / `void uncheck()`
 - `boolean isChecked()` / `void assertChecked()` / `void assertNotChecked()`
 - `boolean isIndeterminate()` / `void setIndeterminate(boolean)` / `assertIndeterminate()` / `assertNotIndeterminate()`
@@ -139,18 +159,44 @@ Works with `java.time.LocalDate`. The String value/`setValue(String)` uses the v
 Scope lookups within a dialog by passing `dialog.getLocator()` to another element's factory, e.g.
 `ButtonElement.getByText(dialog.getLocator(), "Confirm")`.
 
-`DialogElement` matches `<vaadin-dialog>` only. There is no wrapper for `<vaadin-confirm-dialog>` (checked up to
-`1.2.0`); in Vaadin 25 that element has the role `alertdialog` with its header as accessible name, so locate it
-with `page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName(header)).and(page.locator("vaadin-confirm-dialog"))`
-and pass that locator to `ButtonElement.getByText(locator, text)`.
+`DialogElement` matches `<vaadin-dialog>` only; a `<vaadin-confirm-dialog>` is a `ConfirmDialogElement`.
+
+### `ConfirmDialogElement` *(2.x)*
+
+Wraps `<vaadin-confirm-dialog>`, found by its `alertdialog` role with the header as accessible name (Vaadin 25). A
+Flow `ConfirmDialog` is attached to the page only while it is open, so look it up again after it was answered
+instead of reusing the wrapper.
+
+- `static ConfirmDialogElement get(Page page)` — the one open confirm dialog
+- `static ConfirmDialogElement getByHeaderText(Page page, String header)` — the full header, case-sensitive
+- `new ConfirmDialogElement(Locator locator)`
+- `void confirm()` / `void cancel()` / `void reject()` — click the button; `cancel` and `reject` fail when the
+  dialog has no such button
+- `void closeWithEscape()`
+- `boolean isOpen()` / `void assertOpen()` / `void assertClosed()` — `assertClosed` also passes once the dialog
+  is gone
+- `String getHeaderText()` / `void assertHeaderText(String)`
+- `String getMessage()` / `void assertMessage(String)` — the message text, whitespace collapsed
+- `ButtonElement getConfirmButton()` / `getCancelButton()` / `getRejectButton()`
+- `void assertConfirmText(String)` / `assertCancelText(String)` / `assertRejectText(String)`
+- `void assertCancelable()` / `assertNotCancelable()` / `assertRejectable()` / `assertNotRejectable()`
+- `Locator getHeaderLocator()` / `getMessageLocator()` / `getOverlayLocator()`
+
+Drama Finder 1.x has no such class. There, and on Vaadin 24 (where the role sits on
+`vaadin-confirm-dialog-overlay`), locate the dialog by role and name narrowed to its tag —
+`page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName(header)).and(page.locator("vaadin-confirm-dialog"))`
+— and pass that locator to `ButtonElement.getByText(locator, text)`.
 
 ### `NotificationElement`
 
 Wraps `<vaadin-notification-card>`.
 
 - `new NotificationElement(Page page)` / `new NotificationElement(Locator locator)`
+- `static NotificationElement getByText(Page page, String text)` — the open notification containing `text` *(2.x)*
 - `boolean isOpen()` / `void assertOpen()` / `void assertClosed()`
 - `Locator getContentLocator()`
+- `void assertContent(String content)` — the notification contains the text *(2.x)*; for the full message assert
+  `hasText` on `getContentLocator()`
 
 ### `GridElement`
 
@@ -172,6 +218,11 @@ Always use `getTotalRowCount()` for data assertions — the viewport limits how 
 - select-all: `checkSelectAll()` / `uncheckSelectAll()` / `isSelectAllChecked()` / `isSelectAllIndeterminate()`
 - `void scrollToRow(int)` / `scrollToStart()` / `scrollToEnd()`
 - `void waitForGridToStopLoading()` — call after opening a view with a lazy grid, before the first `findCell`/`getTotalRowCount`, and after scrolling
+- retrying asserts *(2.x)*: `assertRowCount(int)`, `assertEmpty()`, `assertCellContent(int row, int column, String)` /
+  `(int row, String columnHeaderText, String)`, `assertRowIndexesWithColumnText(int column, String text, Integer...)`,
+  `assertHeaderCellContents(String...)`, `assertColumnPresent(String)` / `assertColumnNotPresent(String)`,
+  `assertRowSelected(int)` / `assertRowNotSelected(int)`, `assertSelectedItemCount(int)`
+- `List<String> getColumnTexts(int columnIndex)` *(2.x)*
 
 #### `GridElement.RowElement`
 
@@ -186,6 +237,7 @@ Always use `getTotalRowCount()` for data assertions — the viewport limits how 
 - `Locator getTableCellLocator()` — the `td`/`th`
 - `int getColumnIndex()` (`-1` for details cells)
 - `void click()`
+- `String getText()` / `void assertText(String expected)` *(2.x)*
 
 ## Notes
 

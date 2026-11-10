@@ -68,8 +68,13 @@ library or dependency included), never take one they forbid, and list the decisi
 ## Where the Code Lives
 
 Take the module and package from the Location column of the Persistence row of `docs/architecture/stack.md`, and the
-module layout from its Module layout section. Follow an existing repository of the project before anything this
-skill shows.
+module layout from its Module layout section. Then confirm the layout against the build files with the shared
+detection rules of the Spring Boot layer plugin: locate them with a glob for
+`**/*spring-service/references/module-layout.md` (the folder may carry a host prefix such as
+`tessl__spring-service`). When the two disagree, follow the code and report the difference so `/stack` can correct
+the document. Without that file, detect the layout from the reactor's modules: a hexagonal split has a `domain`
+module and at least two of a business/application, a persistence adapter, and an inbound adapter module; anything
+else is a flat single module. Follow an existing repository of the project before anything this skill shows.
 
 **Flat single module:** the repository class is what the service injects; its record types live next to it (or
 where the existing ones do).
@@ -85,7 +90,7 @@ on it exactly as handed over:
    next to the service, or a `port`/`port.out` subpackage; with no feature to imitate, a plain sibling file in the
    feature package. Never create an inbound port, a service, or an API DTO.
 3. **Persistence adapter module** — the `@Repository` that implements the port with the `DSLContext`
-   (`JooqGuestRepository`, or the project's naming), and the generated jOOQ classes.
+   (`GuestRepositoryImpl`, or the project's naming), and the generated jOOQ classes.
 
 When a port already exists, add the methods the use case needs to it and implement them in the adapter; never create
 a second port for the same aggregate. jOOQ types and generated records never cross the port.
@@ -111,6 +116,17 @@ query the DSL can express.
     <artifactId>testcontainers-jooq-codegen-maven-plugin</artifactId>
     <version>${testcontainers-jooq-codegen.version}</version>
     <dependencies>
+        <!-- the plugin bundles an old jOOQ generator and an old Testcontainers core: replace both with the project's -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <!-- Testcontainers 2 (Spring Boot 4); Testcontainers 1 (Spring Boot 3): postgresql -->
@@ -158,8 +174,12 @@ query the DSL can express.
 ```
 
 Take the versions from the project's dependency management (Spring Boot manages `jooq`, `postgresql`, and
-Testcontainers). Dependency management does not reach a plugin's `<dependencies>`: the template's
-`${testcontainers.version}` and `${postgresql.version}` are properties that `spring-boot-starter-parent` defines.
+Testcontainers). Dependency management does not reach a plugin's `<dependencies>`: the template's `${jooq.version}`,
+`${testcontainers.version}`, and `${postgresql.version}` are properties that `spring-boot-starter-parent` defines.
+The first two dependencies are not optional: the plugin (0.0.4) declares jOOQ 3.18 and Testcontainers 1.19 itself,
+and a plugin's own dependency wins over a transitive one, so without them the old Testcontainers core runs next to
+the new database module (it cannot talk to a current Docker Engine) and the old generator fails on the schema or
+writes classes the project's jOOQ runtime does not compile against.
 A project that imports the `spring-boot-dependencies` BOM instead of inheriting the parent has no such properties —
 define them in its `<properties>` with the versions the imported Spring Boot release manages, and reuse properties
 the project already has. Take the
@@ -408,7 +428,7 @@ Handover from jooq-persistence (UC-001)
   - long insert(Guest guest)                       — returns the new id
   - boolean existsByEmail(String email)            — UC-001 BR-002
 - records Guest, GuestListItem, GuestFilter (domain) — hotel-domain/src/main/java/com/example/hotel/domain/
-- JooqGuestRepository implements GuestRepository — hotel-persistence/src/main/java/com/example/hotel/persistence/
+- GuestRepositoryImpl implements GuestRepository — hotel-persistence/src/main/java/com/example/hotel/persistence/
 ```
 
 Run directly, end with a `Next:` line naming the service skill of `docs/architecture/stack.md` (for example

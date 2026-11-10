@@ -166,6 +166,10 @@ alone — the service enforces it too. An actor that maps to no existing role is
   the project's conventions.
 - Map each exception the service Handover lists for an alternative flow onto that flow's message: catch the
   specific exception around the service call, never a bare `Exception`, and never swallow it silently.
+- An `ExternalSystemException` the Handover lists (an external system the use case calls is unavailable or timed
+  out) is such a flow: catch its specific subclass and show the message the specification states for it as an
+  error notification — never the provider's error text, never the default error page — and leave the form open,
+  so the actor can retry.
 - Give components without a stable label a test id (`setId("person-grid")`), and icon-only buttons an
   `aria-label`, so the UI and E2E tests can find them by role and name.
 

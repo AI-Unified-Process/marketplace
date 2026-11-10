@@ -50,6 +50,11 @@ the file it lives in and leave the value out.
   `docs/open_questions.md`. When the view needs a service method or a field that does not exist, stop and report it as a
   gap of the service layer instead of reaching into a repository.
 
+Hilla needs the service layer: the endpoint is a thin adapter over it and never a transaction boundary. When the
+Layers table of `docs/architecture/stack.md` marks Service `–`, build nothing — an endpoint that calls repositories
+would put the business rules into the UI layer. Stop and hand off to `/stack`, which adds the service layer (only
+Vaadin Flow may go without one; `/vaadin-flow-ui` has the section for it).
+
 ## Run Directly or from /use-case-implement
 
 Run from `/use-case-implement`, this skill inherits the inputs, the status check, the gap answers, and the reconcile
@@ -89,6 +94,9 @@ and recorded in `docs/open_questions.md` as a non-blocking question raised by th
 - Let the service's exceptions for alternative flows reach the browser with their message: when they are not
   already `com.vaadin.hilla.exception.EndpointException` subclasses, catch the specific exception and rethrow an
   `EndpointException` with the message the specification states. Never return `null` to signal an error.
+  An `ExternalSystemException` the service Handover lists (an external system is unavailable or timed out) is such a
+  flow: rethrow it with the message the specification states for it, never with the provider's error text, and the
+  view shows it like any other rejection.
 - Nullability: the generated types follow `@NonNull` (`org.jspecify.annotations.NonNull`, or the one the project
   uses) and Jakarta Bean Validation annotations. A field the entity model requires must be non-optional in
   TypeScript; when the service's types lack the annotation, report it rather than adding a parallel DTO.

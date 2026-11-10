@@ -76,6 +76,15 @@ anything:
 An expected value changes only when the specification has changed — see the section above. Every test skill run
 from here follows this section; it is not repeated in the layer skills.
 
+## Status of the Specification
+
+Check the `**Status:**` line before any test skill runs, as `/use-case-implement` does in its section "Gaps in the
+Specification": a `Draft` or `Reviewed` use case is not yet approved, so its expected values may still change — say
+so and ask the user whether to go ahead or to run `/spec-review UC-XXX` first; when no one can answer (a pipeline
+run, a host without a way to ask, or the user said not to ask), go ahead and name the status in the report. Write no
+tests for an `Obsolete` use case: say so and stop — tests that exist for it are the user's to delete. Never change
+the status line. Every test skill run directly follows this section too.
+
 ## Gaps in the Specification
 
 An expected value a test needs that the specification does not give — a message it does not state, a limit without a
@@ -122,7 +131,9 @@ layers run. In short:
 - **No test reaches an external system.** For a use case whose secondary actors match the `## External systems`
   table, the client test skill runs first: it tests the adapters against a stub of the contract and writes a fake of
   each port. The integration layer puts the fake in place of the adapter and drives through it every alternative
-  flow the external system causes; E2E runs against a stub the test profile points the application at.
+  flow the external system causes. E2E takes the same fake when its test starts the application in the test's own
+  process, and otherwise runs against a stub the test profile points the application at — section "External
+  systems" of the reference.
 
 ## Running a Test Skill
 
@@ -137,8 +148,8 @@ whether the E2E scope leaves out the E2E layer.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (module subfolders included; also `docs/use-cases/`). A `TC-*` id is a journey: hand
-   off to `/test-case-implement TC-XXX` and stop. Read the requirements the use case links on its
+1. Read the use case specification from `docs/use_cases/**/UC-XXX-*.md` (module subfolders included). A `TC-*` id is a journey: hand
+   off to `/test-case-implement TC-XXX` and stop. Check its `**Status:**` line — see "Status of the Specification". Read the requirements the use case links on its
    `**Requirements:**` line — exactly those rows — because a linked NFR or constraint with an observable limit needs
    a test too.
 2. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data, and `docs/glossary.md` when it exists.

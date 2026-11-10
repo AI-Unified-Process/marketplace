@@ -28,7 +28,10 @@ coordinates.
   of elements this script does not lay out (text annotations, data objects,
   associations, groups) is kept as it is.
 - Only the BPMNDiagram block of the file is rewritten; the semantic model
-  stays untouched.
+  stays untouched. The file keeps the encoding it declares and its line
+  endings.
+- Without a collaboration a diagram shows one process: the first is drawn,
+  a further one is named in a NOTE and is nothing --check misses.
 
 The XML parsing is not copied here: the script imports bpmn_paths.py from the
 sibling test-case skill folder (a host may prefix the folder name, e.g.
@@ -258,6 +261,24 @@ class Proc:
         return self.lane_of.get(host or node_id)
 
 
+def number(element, name, ref):
+    """A coordinate of the diagram; LayoutError when it is no number."""
+    value = element.get(name, 0)
+    try:
+        result = float(value)
+        if result != result or result in (float("inf"), float("-inf")):
+            raise ValueError(value)
+        return result
+    except (TypeError, ValueError):
+        raise LayoutError('the diagram of %s has %s="%s", which is no number'
+                          % (ref, name, value))
+
+
+def drawn(model, proc):
+    """Without a collaboration a diagram shows one process: the first."""
+    return bool(model.collaboration) or proc is model.processes[0]
+
+
 class Model:
     def __init__(self, data):
         root = BP.parse_xml(data)
@@ -296,13 +317,11 @@ class Model:
                                    if BP.local(b.tag) == "Bounds"), None)
                     if bounds is not None:
                         self.shapes[ref] = Box(
-                            float(bounds.get("x", 0)),
-                            float(bounds.get("y", 0)),
-                            float(bounds.get("width", 0)),
-                            float(bounds.get("height", 0)))
+                            *(number(bounds, name, ref)
+                              for name in ("x", "y", "width", "height")))
                 elif tag == "BPMNEdge" and ref:
                     self.edges[ref] = [
-                        (int(float(p.get("x", 0))), int(float(p.get("y", 0))))
+                        (int(number(p, "x", ref)), int(number(p, "y", ref)))
                         for p in element if BP.local(p.tag) == "waypoint"]
 
     def pool_of(self, process_id):
@@ -405,7 +424,7 @@ class Layout:
         laid_out = set()
         for proc in self.m.processes:
             pool = self.m.pool_of(proc.id)
-            if not self.m.collaboration and proc is not self.m.processes[0]:
+            if not drawn(self.m, proc):
                 self.notes.append("process " + proc.id + " has no pool in a "
                                   "collaboration; only the first process is "
                                   "drawn")
@@ -506,6 +525,7 @@ class Layout:
                           if n not in self.shapes and n not in proc.attached),
                          key=lambda n: (rank[n], proc.order.index(n)))
         self.add_missing_lanes(proc, pool)
+        new_pool = bool(pool) and pool not in self.shapes
         for node in missing:
             lane = proc.lane_for(node)
             lane_box = self.shapes.get(lane) if lane else None
@@ -536,7 +556,48 @@ class Layout:
                 box = centered(proc.nodes[node], box.cx + COL_W, cy)
             self.put(node, box)
         self.place_boundaries(proc)
+        self.add_missing_parents(proc)
+        if new_pool:
+            self.add_missing_pool(proc, pool)
         self.grow(proc, pool)
+
+    def add_missing_parents(self, proc):
+        """A lane that groups other lanes and was added to a drawn process
+        is drawn around them, one label band to their left."""
+        for lane in sorted(proc.all_lanes(), key=lambda l: -l.depth):
+            if not lane.children or lane.id in self.shapes:
+                continue
+            inner = [self.shapes[c.id] for c in lane.children
+                     if c.id in self.shapes]
+            if not inner:
+                continue
+            box = inner[0]
+            for other in inner[1:]:
+                box = box.union(other)
+            self.put(lane.id, Box(box.x - LABEL_BAND, box.y,
+                                  box.w + LABEL_BAND, box.h))
+            self.notes.append("lane " + lane.id + " was drawn around its "
+                              "lanes; check its label band in a modeler")
+
+    def add_missing_pool(self, proc, pool):
+        """A pool added to a drawn process is drawn around what is there."""
+        lanes = [self.shapes[l.id] for l in proc.lanes
+                 if l.id in self.shapes]
+        nodes = [self.shapes[n] for n in proc.order
+                 if n in self.shapes and n not in proc.attached]
+        if lanes:
+            box = lanes[0]
+            for other in lanes[1:]:
+                box = box.union(other)
+        elif nodes:
+            left = min(b.x for b in nodes) - MARGIN
+            top = min(b.y for b in nodes) - 20
+            box = Box(left, top, max(b.right for b in nodes) + MARGIN - left,
+                      max(b.bottom for b in nodes) + 20 - top)
+        else:
+            return
+        self.put(pool, Box(box.x - LABEL_BAND, box.y, box.w + LABEL_BAND,
+                           box.h))
 
     def add_missing_lanes(self, proc, pool):
         for lane in proc.leaf_lanes():
@@ -570,8 +631,12 @@ class Layout:
             box = self.shapes.get(lane.id)
             if box is None:
                 continue
+            # A boundary event hangs 18 below its host and stays inside the
+            # 20 kept below the host: counting it would grow the lane on
+            # every rerun.
             members = [self.shapes[n] for n in proc.order
-                       if n in self.shapes and proc.lane_for(n) == lane.id]
+                       if n in self.shapes and n not in proc.attached
+                       and proc.lane_for(n) == lane.id]
             bottom = max([b.bottom + 20 for b in members] + [box.bottom])
             if bottom > box.bottom:
                 self.notes.append("lane " + lane.id + " grew; check that it "
@@ -763,6 +828,8 @@ def missing_di(model):
     """Flow nodes, lanes, pools and flows without DI, as readable strings."""
     result = []
     for proc in model.processes:
+        if not drawn(model, proc):
+            continue
         for node in proc.order:
             if node not in model.shapes:
                 result.append("shape of " + proc.nodes[node] + " " + node)
@@ -775,11 +842,58 @@ def missing_di(model):
     for pool, _ in model.participants:
         if pool not in model.shapes:
             result.append("shape of pool " + pool)
+    for flow, source, target in model.message_flows:
+        if flow not in model.edges and source in model.ids \
+                and target in model.ids:
+            result.append("edge of message flow " + flow)
     return result
 
 
+XML_ENCODING = re.compile(
+    rb"""^<\?xml[^>]*?encoding\s*=\s*["']([A-Za-z0-9._-]+)["']""")
+
+
+def read_xml(path):
+    """(text, encoding, line ending) of a BPMN file.
+
+    The encoding is the one the file declares (byte order mark, then the
+    XML declaration, else UTF-8), so a model saved as ISO-8859-1 is read
+    and written back as it came. The text has LF line endings."""
+    with open(path, "rb") as handle:
+        data = handle.read()
+    if data.startswith(b"\xef\xbb\xbf"):
+        encoding = "utf-8-sig"
+    elif data.startswith((b"\xff\xfe", b"\xfe\xff")):
+        encoding = "utf-16"
+    else:
+        declared = XML_ENCODING.match(data.lstrip())
+        encoding = declared.group(1).decode("ascii") if declared else "utf-8"
+    try:
+        text = data.decode(encoding)
+    except LookupError:
+        raise LayoutError("unknown encoding " + encoding)
+    except UnicodeDecodeError:
+        raise LayoutError("the file is not " + encoding
+                          + ", the encoding it declares")
+    ending = "\r\n" if "\r\n" in text else "\n"
+    return text.replace("\r\n", "\n"), encoding, ending
+
+
+def write_xml(path, text, encoding, ending):
+    if ending != "\n":
+        text = text.replace("\n", ending)
+    with open(path, "wb") as handle:
+        handle.write(text.encode(encoding))
+
+
+def xml_bytes(text):
+    """The text as bytes the parser reads whatever the declaration says."""
+    return re.sub(r"^(\s*<\?xml[^>]*?)\s+encoding\s*=\s*[\"'][^\"']*[\"']",
+                  r"\1", text, count=1).encode("utf-8")
+
+
 def layout_text(text):
-    data = text.encode("utf-8")
+    data = xml_bytes(text)
     try:
         model = Model(data)
     except BP.BpmnError as exc:
@@ -916,6 +1030,114 @@ def self_test():
     except LayoutError:
         pass
 
+    # A boundary event hangs below its host: a rerun grows no lane
+    attached = SEMANTIC.replace(
+        '<bpmn:endEvent id="EndEvent_BookLent"',
+        '<bpmn:boundaryEvent id="Event_Late" attachedToRef="Activity_'
+        'ReserveBook" />\n    <bpmn:endEvent id="EndEvent_BookLent"')
+    once, _, _ = layout_text(attached)
+    twice, new, notes = layout_text(once)
+    check("boundary: rerun changes nothing",
+          twice == once and not new and not notes)
+    shapes = Model(once.encode("utf-8")).shapes
+    check("boundary: lanes still stacked",
+          shapes["Lane_Member"].bottom == shapes["Lane_Librarian"].y)
+
+    # A pool or a parent lane added to a drawn process gets a shape
+    plain = SEMANTIC.replace(SEMANTIC[SEMANTIC.index("  <bpmn:collaboration"):
+                                      SEMANTIC.index("  <bpmn:process")], "")
+    drawn_plain, _, _ = layout_text(plain)
+    pooled = drawn_plain.replace(
+        "  <bpmn:process", SEMANTIC[SEMANTIC.index("  <bpmn:collaboration"):
+                                    SEMANTIC.index("  <bpmn:process")]
+        + "  <bpmn:process", 1)
+    with_pool, new, _ = layout_text(pooled)
+    after = Model(with_pool.encode("utf-8"))
+    check("late pool: has a shape", missing_di(after) == []
+          and new == {"Participant_Library"})
+    check("late pool: around the lanes",
+          after.shapes["Participant_Library"].x
+          < after.shapes["Lane_Member"].x
+          and after.shapes["Participant_Library"].bottom
+          == after.shapes["Lane_Librarian"].bottom)
+    check("late pool: plane shows the collaboration",
+          'bpmnElement="Collaboration_1"' in with_pool)
+    check("late pool: rerun changes nothing",
+          layout_text(with_pool)[0] == with_pool)
+    grouped = first.replace(
+        '<bpmn:lane id="Lane_Member" name="Member">',
+        '<bpmn:lane id="Lane_Library" name="Library">'
+        '<bpmn:childLaneSet id="LaneSet_2">'
+        '<bpmn:lane id="Lane_Member" name="Member">').replace(
+        "</bpmn:lane>\n    </bpmn:laneSet>",
+        "</bpmn:lane></bpmn:childLaneSet></bpmn:lane>\n    </bpmn:laneSet>")
+    with_parent, new, _ = layout_text(grouped)
+    after = Model(with_parent.encode("utf-8"))
+    check("late parent lane: has a shape", missing_di(after) == []
+          and "Lane_Library" in new)
+    check("late parent lane: old shapes unchanged",
+          all(after.shapes[n].same(model.shapes[n])
+              for n in model.processes[0].order))
+    check("late parent lane: rerun changes nothing",
+          layout_text(with_parent)[0] == with_parent)
+
+    # Two processes without a collaboration: one is drawn, --check agrees
+    two = plain.replace(
+        "</bpmn:definitions>",
+        '  <bpmn:process id="BP-002"><bpmn:startEvent id="Start_2" />'
+        "</bpmn:process>\n</bpmn:definitions>")
+    drawn_two, _, notes = layout_text(two)
+    check("two processes: the second is named, not missing",
+          any("BP-002" in note for note in notes)
+          and missing_di(Model(drawn_two.encode("utf-8"))) == [])
+
+    # A message flow needs an edge like a sequence flow
+    message = SEMANTIC.replace(
+        "  </bpmn:collaboration>",
+        '    <bpmn:participant id="Participant_Publisher" />\n'
+        '    <bpmn:messageFlow id="Message_1" sourceRef="Activity_LendBook" '
+        'targetRef="Participant_Publisher" />\n  </bpmn:collaboration>')
+    check("message flow: reported without DI",
+          "edge of message flow Message_1"
+          in missing_di(Model(message.encode("utf-8"))))
+    check("message flow: drawn",
+          missing_di(Model(layout_text(message)[0].encode("utf-8"))) == [])
+
+    # Numbers that are none are an error, not a traceback
+    try:
+        layout_text(re.sub(r'Bounds x="\d+"', 'Bounds x=""', first,
+                           count=1))
+        failures.append("bounds: an empty x was accepted")
+    except LayoutError:
+        pass
+
+    # The declared encoding and the line endings of the file are kept
+    import tempfile
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "BP-001-loan.bpmn")
+        latin = SEMANTIC.replace('encoding="UTF-8"', 'encoding="ISO-8859-1"'
+                                 ).replace("City Library", "Bücherei")
+        with open(path, "wb") as handle:
+            handle.write(latin.replace("\n", "\r\n").encode("iso-8859-1"))
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()):
+            check("encoding: ISO-8859-1 is laid out", main([path]) == 0)
+            check("encoding: and checks", main(["--check", path]) == 0)
+        with open(path, "rb") as handle:
+            data = handle.read()
+        check("encoding: written back as ISO-8859-1",
+              "Bücherei".encode("iso-8859-1") in data
+              and "Bücherei".encode("utf-8") not in data)
+        check("encoding: CRLF kept",
+              data.count(b"\r\n") == data.count(b"\n") > 0)
+        with open(path, "wb") as handle:
+            handle.write(SEMANTIC.replace("City Library", "Bücherei")
+                         .encode("iso-8859-1"))
+        with contextlib.redirect_stderr(io.StringIO()):
+            check("encoding: a wrong declaration is an error, exit 1",
+                  main([path]) == 1)
+
     if failures:
         for failure in failures:
             print("SELF-TEST FAIL: " + failure)
@@ -950,11 +1172,10 @@ def main(argv):
     status = 0
     for path in args.files:
         try:
-            with open(path, encoding="utf-8") as handle:
-                text = handle.read()
+            text, encoding, ending = read_xml(path)
             if args.check:
                 try:
-                    missing = missing_di(Model(text.encode("utf-8")))
+                    missing = missing_di(Model(xml_bytes(text)))
                 except BP.BpmnError as exc:
                     raise LayoutError(str(exc))
                 for item in missing:
@@ -964,8 +1185,7 @@ def main(argv):
                 continue
             result, new, notes = layout_text(text)
             if result != text:
-                with open(path, "w", encoding="utf-8") as handle:
-                    handle.write(result)
+                write_xml(path, result, encoding, ending)
             print("%s: %d shape(s) added or resized" % (path, len(new)))
             for note in notes:
                 print(path + ": NOTE " + note)

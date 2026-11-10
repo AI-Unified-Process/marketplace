@@ -57,7 +57,8 @@ location and nature, never by quoting the text itself.
 
 - Edit, create, rename, or delete any file under `docs/` — not a specification, not the glossary, not the
   `**Status:**` line, not `docs/open_questions.md`, and not the baseline file `docs/.spec-lint-baseline.json`. The
-  one exception is the generated page `docs/spec-report.html`, written only by `/spec-review report`
+  one exception is the generated page `docs/spec-report.html`, written only by `/spec-review report`. Outside
+  `docs/` the skill writes one file, and only when asked: the JSON result the caller names with `--output`
 - Record a semantic finding as an open question; an ambiguity is a finding of this report, and the user records it
   with `/open-questions` when nobody can settle it now
 - Run `spec_lint.py --update-baseline` unless the user explicitly asks to accept the current findings
@@ -135,8 +136,9 @@ moves to Approved?>
 
 When `$ARGUMENTS` contains `--output <file>` (the AI Unified Process Studio passes `--output .aiup-report/review.json`), write the
 report as usual and then the semantic part (Part B) and the verdict as JSON to that file. Strip `--output <file>` from
-the arguments before resolving the scope. The path must lie outside `docs/`; refuse any other. This file and
-`docs/spec-report.html` are the only files the skill ever writes. Lint findings do not go into it: the caller runs
+the arguments before resolving the scope. The path must lie outside `docs/`; refuse any other. The skill writes two
+files and no others: `docs/spec-report.html`, on `/spec-review report`, and the JSON result at the path the caller
+names with `--output`. Lint findings do not go into it: the caller runs
 `spec_lint.py --format json` itself, so the lint stays deterministic.
 
 ```json
@@ -175,12 +177,17 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   and the work runs again; a status set anew and committed clears the finding. When the audit confirms the use case,
   or the change was only wording, the user accepts this state with `--update-baseline`; the next change is reported
   again
-- an ADR without an NFR or constraint (`ADR_UNLINKED`), linking a rejected or deferred one or out of step with the ADR
-  that supersedes it (`ADR_STALE`), or without a valid status or date (`ADR_INVALID`) →
-  `/architecture-decision ADR-XXX`; when the quality or constraint it serves is not in the requirements yet,
-  `/requirements` first
-- a BPMN activity without a use case, a process model without a `BP-XXX` id, or a summary use case whose flow belongs
-  in a process → `/business-process BP-XXX` (it hands a missing use case on to `/use-case-diagram`)
+- an ADR without an NFR or constraint (`ADR_UNLINKED`) → `/architecture-decision ADR-XXX link NFR-YYY`; when the
+  quality or constraint it serves is not in the requirements yet, `/requirements` first
+- an ADR linking a rejected or deferred requirement, or out of step with the ADR that supersedes it (`ADR_STALE`) →
+  `/architecture-decision ADR-XXX supersede` with the new decision, `ADR-XXX deprecate`, or `ADR-XXX link` to the
+  requirement that replaced the stale one; an ADR without a valid status or date (`ADR_INVALID`) →
+  `/architecture-decision ADR-XXX accept`, `deprecate`, or `reject`, which sets both
+- a BPMN activity that is no use case (`BPMN_UNMAPPED`) → `/use-case-diagram` to add the use case the activity
+  stands for (it needs no specification for the finding to clear), then `/business-process BP-XXX` so the activity
+  carries its id; an activity that only misnames an existing use case is `/business-process BP-XXX` alone
+- a process model without a `BP-XXX` id, or a summary use case whose flow belongs in a process →
+  `/business-process BP-XXX`
 
 When the user wants to accept the current lint findings (brownfield start), tell them to run
 `python3 scripts/spec_lint.py --docs docs --update-baseline` and commit `docs/.spec-lint-baseline.json`; accepted
@@ -299,7 +306,8 @@ Then write the assessment:
   regulatory, or operational risks the documents do not support; when there are none, leave the section out.
 - **Next** orders the hand-offs from the source of the change outward: `/requirements` for a requirement, then
   `/use-case-spec UC-XXX` for each affected use case (`/use-case-diagram` when include or extend changes),
-  `/business-process BP-XXX`, `/test-case TC-XXX`, `/architecture-decision ADR-XXX`. For every affected use case at
+  `/business-process BP-XXX`, `/test-case TC-XXX` (its update mode), and for an ADR `/architecture-decision ADR-XXX supersede`
+  or `ADR-XXX deprecate`. For every affected use case at
   `Implemented`, `Tested`, or `Done`, add `/use-case-implement UC-XXX` and `/use-case-test UC-XXX` (with a combined
   stack plugin its `/implement` and test skills) and `/use-case-coverage UC-XXX` (or `/coverage-check UC-XXX`) before
   it may claim `Tested` again.

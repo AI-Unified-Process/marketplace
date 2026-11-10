@@ -53,6 +53,11 @@ these sections of it to the journey, reading "use case" as "test case":
   or the Validation items, never from what the application shows.
 - **Test Markers** — the test carries the `TC-XXX` id and names each step after its Flow row; where the E2E rows of
   the Markers table prescribe it, it also names the use cases the Flow links (`@TestCase(useCases = …)` in Vaadin).
+- **Status of the Specification** — the status checked is the test case's own, and that of every use case its Flow
+  links: at `Draft` or `Reviewed` ask whether to go ahead or to run `/spec-review` first; write nothing for an
+  `Obsolete` test case, and name an `Obsolete` use case in the Flow as a hand-off to `/test-case TC-XXX`.
+- **Gaps in the Specification** — an expected value the test case and its use cases do not give is asked or left
+  out, and recorded in `docs/open_questions.md` on the use case concerned, never read off the application.
 - **Decision Rights** — test data and the test's structure are decided alone by default, an expected value the test
   case does not give is asked first, and an existing test is never changed to make it pass; the report lists the
   decisions taken alone under **Decisions**.
@@ -62,7 +67,7 @@ If `/use-case-test` is not installed, say so and stop; aiup-core ships both skil
 ## Workflow
 
 1. Read the test case from `docs/test_cases/TC-XXX-*.md` and every use case its Flow table links, from
-   `docs/use_cases/` (module subfolders included; also `docs/use-cases/`). Stop and list the near matches when the id resolves to no file.
+   `docs/use_cases/**/UC-XXX-*.md` (module subfolders included). Stop and list the near matches when the id resolves to no file.
 2. Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) for the test data, and `docs/glossary.md` when it exists.
 3. Read the stack file, `docs/architecture/stack.md`, and the Test skill of its E2E row. When the
    stack file does not exist, stop and hand off to `/stack`. When the E2E row's Test skill is not
@@ -72,7 +77,8 @@ If `/use-case-test` is not installed, say so and stop; aiup-core ships both skil
    `aiup-vaadin` (`vaadin-e2e-test`) for a Vaadin UI, `aiup-playwright` (`playwright-e2e-test`) for a TypeScript
    UI; a project without a UI (a REST service) has no browser journey to automate — the test case stays a manual
    script, and the use cases it chains are tested with `/use-case-test UC-YYY`.
-4. Check the use cases the journey chains: their `**Status:**` line and whether the markers of the Markers table
+4. Check the test case's `**Status:**` line and that of the use cases the journey chains — "Status of the
+   Specification" under Shared Rules — and whether the markers of the Markers table
    find code for them. Name every use case that is not implemented yet, with `/use-case-implement UC-YYY`, and
    continue — the journey test is written against the specification, and the step that reaches the missing use case
    fails, which is the correct report.

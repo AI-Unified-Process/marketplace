@@ -317,6 +317,11 @@ Handover names, and only its listed methods. No HTTP client, message template, o
   the step stops there, or catch it where the specification continues differently (A3: the booking is kept as
   *awaiting payment*). Whatever the flow does next — a compensating write, a status — is the specification's,
   not a retry or fallback of your own.
+- The client Handover names two kinds: a rejection by the system is a `BusinessRuleException`, and unavailability or
+  a timeout is an `ExternalSystemException`. Never catch `ExternalSystemException` to hide it or wrap it in another
+  type: unless the specification has a flow that continues without the system, it passes through the service
+  unchanged, and the Handover lists it as a third exception kind, so the API layer maps it to its own status and
+  the UI shows the flow's message.
 - Mind the transaction. A call whose answer the step needs (the charge before the booking is confirmed) is a plain
   port call; keep it before the writes that depend on it, or outside the transaction when the specification allows,
   so a slow provider does not hold a database connection. A call that must happen only after the commit (a
@@ -392,6 +397,8 @@ Handover from spring-service (UC-001)
   — @NotBlank/@Size(max = 100) names, @Email/@Size(max = 255) email, @NotNull dates
 - Guest, GuestListItem, GuestFilter(String lastName) — the records of the persistence Handover, unchanged
 - Exception kinds: BusinessRuleException (rule violated), NotFoundException (unknown id)
+  (+ ExternalSystemException (external system unavailable or timed out, passed through from the client Handover)
+  when the use case calls an external system — with the method that throws it and its flow)
 - Messages: EmailAlreadyRegisteredException "The email address <email> is already registered."
 Nothing to do: <reason>   (when the use case needs no service change)
 ```

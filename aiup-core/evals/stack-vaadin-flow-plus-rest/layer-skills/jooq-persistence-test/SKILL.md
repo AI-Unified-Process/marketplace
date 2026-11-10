@@ -57,6 +57,12 @@ specification or the test data, never from a run of the code; never weaken, dele
 value the specification states — leave the test failing and report the expected and the actual value; update an
 existing test class instead of writing a second one. Say that `/use-case-test UC-XXX` runs all test layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## What to Test in This Layer
 
 Following "Which Layer Tests What" of `/use-case-test`: the integration layer's tests named in `docs/architecture/stack.md` (the
@@ -73,6 +79,8 @@ logic of its own:
 - optimistic locking — an update with a stale version changes nothing and reports it
 - a constraint the database enforces — the violation surfaces as `DuplicateKeyException` or
   `DataIntegrityViolationException`
+- a repository method that is the transaction boundary (a project without a service layer) and performs two
+  writes — when the second fails, the first is not in the database; see "Without a service layer" below
 
 A plain `findById` or `insert` that the integration layer's tests already run is not tested again. When no query of
 the use case has logic of its own, write no class and say so in the report.
@@ -175,11 +183,28 @@ passes on H2 proves nothing about PostgreSQL.
 - **`@SpringBootTest`** with `@Import(TestcontainersConfiguration.class)` is the default: the full context, Flyway
   applies the main and the test migrations, and the repository is autowired.
 - **`@JooqTest`** is the slice when the project already uses it; import the repository under test with
-  `@Import(...)`. It runs each test in a transaction that rolls back, which is fine for a repository: repositories
-  own no transaction boundary.
+  `@Import(...)`. Spring Boot 4 has it in `org.springframework.boot.jooq.test.autoconfigure` (module
+  `spring-boot-jooq-test`, brought by `spring-boot-starter-jooq-test`); Spring Boot 3 in
+  `org.springframework.boot.test.autoconfigure.jooq` (`spring-boot-starter-test`). It runs each test in a transaction
+  that rolls back, which is fine while the service layer owns the transaction boundary and the repository carries no
+  `@Transactional`.
 
 With `@SpringBootTest`, do not add `@Transactional` to the test; remove in `@AfterEach` only the rows the test
 created. The one exception is the test method of a flow the shared test data rules out (see Test Data Strategy).
+
+**Without a service layer** (the Layers table of `docs/architecture/stack.md` marks Service `–`), the repository is
+the transaction boundary, as `/jooq-persistence` builds it, and persistence is the integration layer of a use case
+offered through the service. A wrapping test transaction would hide that boundary: the repository's `@Transactional`
+joins it, nothing commits, and a missing or misplaced boundary still passes. So in this layout:
+
+- No test transaction around a repository call: `@SpringBootTest` without `@Transactional`, or — where the project
+  uses `@JooqTest` — `@Transactional(propagation = Propagation.NOT_SUPPORTED)` on the test class. Each test removes
+  the rows it created in `@AfterEach`.
+- Every repository method that performs two writes gets an atomicity test: let the second write fail through the
+  test data (a duplicate key, a missing parent row), assert the exception, and read back that the first write is
+  not in the database.
+- The read-only test of a flow the shared test data rules out keeps its `@Transactional` method (see Test Data
+  Strategy); it is the only one.
 
 ## Location
 

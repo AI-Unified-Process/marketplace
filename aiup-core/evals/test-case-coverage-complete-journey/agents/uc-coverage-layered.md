@@ -51,7 +51,7 @@ of `aiup-core` is the usual entry point and handles that triage before it delega
 
 Read the specification first and completely, before you look at any code:
 
-- Use cases: `docs/use_cases/**/UC-XXX-*.md` (some projects use `docs/use-cases/` — check both).
+- Use cases: `docs/use_cases/**/UC-XXX-*.md` (module folders included).
 - Test cases: `docs/test_cases/TC-XXX-*.md`.
 - Read `docs/entity_model.md` (with a `## Modules` table, also the module files `docs/entity_model/*.md` it links) when the specification's data requirements matter for the audit.
 - Read the requirements a use case links on its `**Requirements:**` line — exactly those `FR-*`,
@@ -340,8 +340,9 @@ Report rules:
   row, Validation item, and postcondition has a step in the journey test. `Automated` says the journey
   is automated, not that it passes — a journey that fails against the test case points at a use case it
   chains — so it needs no confirmed run. Never suggest `Automated` while a blocking question is `Open`
-  or `Answered`, for the same reason and with the same commands (`/test-case TC-XXX` puts an answer
-  into the test case). Never suggest a use case status (`Implemented`, `Tested`, `Done`) for a test
+  or `Answered`, for the same reason and with the same commands: a test case's questions are those on the use
+  cases it chains, so the answer goes into the use case (`/use-case-spec UC-YYY`), never into the
+  test case. Never suggest a use case status (`Implemented`, `Tested`, `Done`) for a test
   case; `Draft`, `Reviewed`, and `Obsolete` are the author's decision, not the audit's.
 - List the questions of Step 1 under **Open questions** — id, element, blocking, status, the
   question — or leave the section out when there are none.

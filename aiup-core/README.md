@@ -47,7 +47,7 @@ Inception          Elaboration                             Construction         
 ```
 
 The six Construction skills from `/stack` on drive the layer plugins (`aiup-flyway`, `aiup-jooq`, `aiup-jpa`, `aiup-spring-boot`,
-`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.3.0 or later (`aiup-playwright`: 3.2.0, `aiup-spring-boot`: 3.10.0, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`: 3.14.0): install one per layer of
+`aiup-vaadin`, `aiup-angular`, `aiup-playwright`, `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`), which require `aiup-core` 3.16.0 or later (`aiup-flyway`: 3.3.0): install one per layer of
 your project, run `/stack` once,
 then `/use-case-implement UC-001`, `/use-case-test UC-001`, and `/use-case-coverage UC-001`; a journey goes
 through `/test-case-implement TC-001` and `/test-case-coverage TC-001`. `/use-case-coverage` delegates to the read-only
@@ -103,16 +103,29 @@ your-project/
     ├── vision.md                    # maintained by the team
     ├── requirements.md              # /requirements
     ├── glossary.md                  # /requirements (domain terms and synonyms to avoid)
+    ├── open_questions.md            # /open-questions (created with the first question)
     ├── entity_model.md              # /entity-model
+    ├── entity_model/
+    │   └── <module>.md              # /entity-model, in a project split by module
     ├── use_cases.puml               # /use-case-diagram
     ├── architecture/
-    │   └── stack.md                 # /stack (layer plugins only)
+    │   ├── stack.md                 # /stack (layer plugins only)
+    │   ├── decision-rights.md       # /stack, on request (optional)
+    │   └── decisions/
+    │       └── ADR-001-*.md         # /architecture-decision
     ├── processes/
     │   └── BP-001-*.bpmn            # /business-process (optional), read by /test-case
     ├── use_cases/
-    │   └── UC-001-*.md              # /use-case-spec
-    └── test_cases/
-        └── TC-001-*.md              # /test-case
+    │   ├── UC-001-*.md              # /use-case-spec
+    │   └── <module>/UC-001-*.md     # in a project split by module
+    ├── test_cases/
+    │   └── TC-001-*.md              # /test-case
+    ├── user_guide/
+    │   └── *.md                     # /user-guide
+    ├── acceptance/
+    │   └── <round>.md               # /acceptance-protocol
+    ├── release-notes.md             # /release-notes
+    └── spec-report.html             # /spec-review report (generated)
 ```
 
 `/spec-review` checks these files against each other. Its bundled script `spec_lint.py` needs only Python and can
@@ -126,8 +139,9 @@ specifications, and test journeys without depending on which coding agent produc
 
 ## Project structure
 
-`aiup-core` does not impose a source-code layout. Its specification skills write only to the documentation paths
-above and inspect an existing source tree when `/reverse-engineer` runs; `/stack` writes the stack file
+`aiup-core` does not impose a source-code layout. Its specification and transition skills write only to the
+documentation paths above — `/spec-review` only its generated report, and the JSON result a caller asks for with
+`--output` outside `docs/` — and inspect an existing source tree when `/reverse-engineer` runs; `/stack` writes the stack file
 under `docs/architecture/`. The construction orchestrators `/use-case-implement`, `/use-case-test`, and
 `/test-case-implement` produce code and tests, but only by running the layer skills that
 `docs/architecture/stack.md` names — the layout is theirs, not core's. `/use-case-coverage` and

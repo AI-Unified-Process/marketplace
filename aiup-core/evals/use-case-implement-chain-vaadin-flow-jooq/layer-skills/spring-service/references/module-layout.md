@@ -7,7 +7,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # Backend module layout
 
 This is a lookup used by the Spring Boot layer skills (`/spring-service`, `/spring-rest`, `/spring-client`,
-`/spring-service-test`, `/spring-rest-test`, `/spring-client-test`) and by `/jpa-persistence` before writing any code. It is the only copy; the other skills
+`/spring-service-test`, `/spring-rest-test`, `/spring-client-test`) and by the persistence skills of the plugins
+that declare this one as a dependency (`/jooq-persistence`, `/jooq-persistence-test`, `/jpa-persistence`) before
+writing any code. It is the only copy; the other skills
 locate it by a glob for `**/*spring-service/references/module-layout.md`. Its job is to answer one question: **does this Spring Boot backend
 split hexagonal layers across separate Maven or Gradle modules, or is it one flat module?** Generating flat-style
 code into a hexagonal reactor (or the other way round) breaks the project's module dependency direction — for

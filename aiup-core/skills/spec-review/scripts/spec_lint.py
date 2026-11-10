@@ -208,7 +208,9 @@ PUML_LINK = re.compile(r"^\s*(" + PUML_NODE + r")\s*(<\|?|)([-.]+(?:(?:\[[^\]]*\
                        r"\s*(" + PUML_NODE + r")")
 PUML_RELATION = re.compile(r"<<\s*(include|extend)s?\s*>>", re.IGNORECASE)
 REQ_ROW = re.compile(r"^\|\s*((?:FR|NFR|C)-[A-Za-z0-9_-]+)\s*\|")
-REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
+# The same ids a catalog row may carry (REQ_ROW): FR-001, FR-GUEST-001, C-2a
+REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-[A-Za-z0-9]+"
+                    r"(?:[_-][A-Za-z0-9]+)*)")
 RULE_HEADING = re.compile(r"^###\s+(BR-[A-Za-z0-9_-]+)\s*:?\s*(.*)$")
 RULE_REF = re.compile(
     r"(?<![A-Za-z0-9])([SB]?UC-[A-Za-z0-9_-]+?)[\s,]+(BR-[A-Za-z0-9_-]+)")
@@ -224,7 +226,7 @@ FRONT_MATTER = re.compile(r"^(status|date):\s*(.*)$", re.IGNORECASE)
 STEP_LINE = re.compile(r"^(\d+)\.\s+\S")
 FLOW_HEADING = re.compile(r"^###\s+(A\d+)\b")
 # The element forms of an open question (open-questions skill, Elements)
-ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+)(?:\s+(?:(?:step|schritt)\s+"
+ELEMENT_UC = re.compile(r"^([SB]?UC-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)(?:\s+(?:(?:step|schritt)\s+"
                         r"(\d+)|(A\d+)|(BR-[A-Za-z0-9_-]+)))?$",
                         re.IGNORECASE)
 ELEMENT_GLOSSARY = re.compile(r"^(?:Glossary|Glossar):\s*(.+)$", re.IGNORECASE)
@@ -359,9 +361,26 @@ def load_sibling(pattern, module_name):
 # Reading the artifacts
 # ---------------------------------------------------------------------------
 
+NOT_UTF8 = set()
+
+
 def read_lines(path):
-    with open(path, encoding="utf-8") as handle:
-        return handle.read().splitlines()
+    """The lines of a text artifact.
+
+    A UTF-8 byte order mark is dropped. A file that is not UTF-8 is still
+    read, with the undecodable bytes replaced, and named once on stderr:
+    a traceback would look like a lint failure to a CI gate."""
+    with open(path, "rb") as handle:
+        data = handle.read()
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = data.decode("utf-8-sig", errors="replace")
+        if path not in NOT_UTF8:
+            NOT_UTF8.add(path)
+            print("spec_lint.py: " + path + " is not UTF-8; save it as "
+                  "UTF-8 (undecodable bytes were replaced)", file=sys.stderr)
+    return text.splitlines()
 
 
 def prose_lines(lines):
@@ -381,6 +400,38 @@ def table_cells(line):
 
 def normalize(text):
     return " ".join(re.sub(r"[^\w\s]", " ", text.casefold()).split())
+
+
+def resolve_uc(ref, known):
+    """The use case id a reference means.
+
+    A link text or an activity name may run on after the id
+    ("UC-001-create-guest", "UC-001-Create Guest"), and the id grammar allows
+    hyphens too (UC-2-1). So the longest prefix that is a known use case
+    wins; without one, a trailing slug (segments without a digit after one
+    with a digit) is cut off."""
+    parts = re.split(r"([_-])", ref)
+    for end in range(len(parts), 2, -2):
+        candidate = "".join(parts[:end])
+        if candidate in known:
+            return candidate
+    end = len(parts)
+    while end > 3 and len(parts[end - 1]) > 1 \
+            and not any(c.isdigit() for c in parts[end - 1]) \
+            and any(c.isdigit() for c in "".join(parts[2:end - 2])):
+        end -= 2
+    return "".join(parts[:end])
+
+
+def first_word(text):
+    """The first word of a status, normalized: an annotation after the value
+    ("Obsolete (replaced by UC-002)", "Rejected 2026") changes nothing."""
+    words = normalize(text).split()
+    return words[0] if words else ""
+
+
+def inactive_requirement(status):
+    return first_word(status) in INACTIVE_REQUIREMENT
 
 
 def field_value(line, labels):
@@ -475,7 +526,7 @@ class Spec:
 
     @property
     def obsolete(self):
-        return normalize(self.status) in OBSOLETE
+        return first_word(self.status) in OBSOLETE
 
     def names(self):
         return {normalize(n) for n in (self.title, self.name) if n}
@@ -520,26 +571,75 @@ class Project:
 # Checks
 # ---------------------------------------------------------------------------
 
+TABLE_RULE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+REQ_STATUS_COLUMNS = ("status",)
+REQ_TITLE_COLUMNS = ("title", "titel")
+
+
+def requirement_rows(lines):
+    """(line number, id, cells, header) of every requirement row.
+
+    header is the casefolded header row of the table the row stands in, or
+    None for a row without one. Once the catalog has a table with a Status
+    column, a table without one (a change log, a glossary of ids) defines no
+    requirement: its rows only name requirements."""
+    rows = []
+    header = None
+    fenced = False
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        if not line.lstrip().startswith("|"):
+            header = None
+            continue
+        following = lines[index + 1] if index + 1 < len(lines) else ""
+        if header is None and TABLE_RULE.match(following):
+            header = [cell.casefold() for cell in table_cells(line)]
+            continue
+        match = REQ_ROW.match(line)
+        if match:
+            rows.append((index + 1, match.group(1), table_cells(line),
+                         header))
+    if any(header and set(header) & set(REQ_STATUS_COLUMNS)
+           for _, _, _, header in rows):
+        rows = [row for row in rows
+                if not row[3] or set(row[3]) & set(REQ_STATUS_COLUMNS)]
+    return rows
+
+
+def header_cell(cells, header, names, default):
+    """The cell under the first header column of the names, else default."""
+    for position, name in enumerate(header or ()):
+        if name in names:
+            return cells[position] if position < len(cells) else ""
+    return default
+
+
 def check_requirements(project):
-    """Requirement ids: unique; returns {id: (line, status, title)}."""
+    """Requirement ids: unique; returns {id: (line, status, title)}.
+
+    The status and the title are the cells under the Status and Title
+    columns; in a table without a header row, the last and the second cell.
+    """
     requirements = {}
     if not project.requirements_path:
         return requirements
     lines = read_lines(project.requirements_path)
-    for number, line in prose_lines(lines):
-        match = REQ_ROW.match(line)
-        if not match:
-            continue
-        rid = match.group(1)
+    for number, rid, cells, header in requirement_rows(lines):
         if rid in requirements:
             project.add(ERROR, "DUPLICATE_ID", project.requirements_path,
                         number, rid, "requirement id " + rid
                         + " is already used on line "
                         + str(requirements[rid][0]))
             continue
-        cells = table_cells(line)
-        requirements[rid] = (number, cells[-1],
-                             cells[1] if len(cells) > 2 else "")
+        requirements[rid] = (
+            number,
+            header_cell(cells, header, REQ_STATUS_COLUMNS, cells[-1]),
+            header_cell(cells, header, REQ_TITLE_COLUMNS,
+                        cells[1] if len(cells) > 2 else ""))
     return requirements
 
 
@@ -794,7 +894,11 @@ def check_structure(project, specs, validator):
                     "next to this skill; per-file structure checks skipped")
         return
     for uid, spec in specs.items():
-        for problem in validator.validate_file(spec.path):
+        try:
+            problems = validator.validate_file(spec.path)
+        except OSError:
+            continue  # unreadable or not UTF-8: read_lines named the file
+        for problem in problems:
             project.add(problem.severity, problem.code, spec.path,
                         problem.line, uid, problem.message)
 
@@ -831,7 +935,7 @@ def check_traceability(project, specs, requirements):
                         uid, "use case " + uid + " links no requirement; "
                         "nothing says why it exists")
     for rid, (number, status, _) in requirements.items():
-        if rid in referenced or normalize(status) in INACTIVE_REQUIREMENT:
+        if rid in referenced or inactive_requirement(status):
             continue
         if rid.startswith("FR-"):
             project.add(WARN, "FR_UNCOVERED", project.requirements_path,
@@ -986,11 +1090,12 @@ def check_test_cases(project, specs):
                 if not ref and not is_process:
                     continue
                 if ref:
+                    uid = resolve_uc(ref.group(1), specs)
                     if not obsolete:
-                        used.add(ref.group(1))
-                    if ref.group(1) not in specs:
+                        used.add(uid)
+                    if uid not in specs:
                         project.add(ERROR, "DANGLING_REF", path, number, tid,
-                                    "use case " + ref.group(1) + " has no "
+                                    "use case " + uid + " has no "
                                     "specification")
                         continue
                 resolved = os.path.normpath(os.path.join(
@@ -1041,6 +1146,8 @@ def check_bpmn(project, specs, diagram, bpmn):
             number = next((i for i, line in enumerate(text, 1)
                            if 'id="' + activity["id"] + '"' in line), 0)
             uid = activity.get("ucId")
+            if uid:
+                uid = resolve_uc(uid, set(specs) | set(diagram))
             if uid and (uid in specs or uid in diagram):
                 continue
             if not uid and normalize(activity["name"]) in by_name:
@@ -1424,8 +1531,8 @@ def check_adrs(project, requirements):
                 project.add(ERROR, "DANGLING_REF", path, number, aid,
                             aid + " links requirement " + rid + ", which is "
                             "not in requirements.md")
-            elif rid in requirements and status in ADR_ACTIVE and normalize(
-                    requirements[rid][1]) in INACTIVE_REQUIREMENT:
+            elif rid in requirements and status in ADR_ACTIVE \
+                    and inactive_requirement(requirements[rid][1]):
                 project.add(WARN, "ADR_STALE", path, number, aid,
                             aid + " is " + status + " but links " + rid
                             + ", which is " + requirements[rid][1]
@@ -1559,8 +1666,9 @@ def check_api_contracts(project, specs):
 
 def check_wording(project, specs, glossary):
     """Weak words and avoided glossary synonyms in the prose artifacts."""
-    avoided = [(term, synonym, word_pattern(synonym, plural=True))
-               for _, term, avoid in glossary for synonym in avoid]
+    avoided = [(term, synonym, word_pattern(synonym, plural=True),
+                word_pattern(term, plural=True))
+               for _, term, avoid in glossary for synonym in avoid if term]
     documents = [(spec.path, spec.lines, uid) for uid, spec in specs.items()]
     for path in project.tc_paths:
         match = TC_REF.match(os.path.basename(path))
@@ -1580,8 +1688,12 @@ def check_wording(project, specs, glossary):
                     project.add(WARN, "WEAK_WORD", path, number, element,
                                 "weak word '" + word + "': make it "
                                 "measurable, definite, or remove it")
-            for term, synonym, pattern in avoided:
-                if pattern.search(line):
+            for term, synonym, pattern, preferred in avoided:
+                # 'Guest' inside the preferred 'Hotel Guest' is the term
+                spans = [m.span() for m in preferred.finditer(line)]
+                if any(not any(a <= m.start() and m.end() <= b
+                               for a, b in spans)
+                       for m in pattern.finditer(line)):
                     project.add(WARN, "GLOSSARY_AVOIDED_TERM", path, number,
                                 element, "'" + synonym + "' is a synonym the "
                                 "glossary says to avoid; use '" + term + "'")
@@ -1696,8 +1808,11 @@ def doc_path(project, path):
     return os.path.relpath(path, project.docs).replace(os.sep, "/")
 
 
-def read_test_cases(project):
-    """Every test case with the use cases it links and its process."""
+def read_test_cases(project, known=()):
+    """Every test case with the use cases it links and its process.
+
+    known: the ids of the specified use cases, to tell an id from the slug
+    a link text may carry after it."""
     test_cases = []
     for path in project.tc_paths:
         lines = read_lines(path)
@@ -1709,8 +1824,9 @@ def read_test_cases(project):
                 process = MD_LINK.sub(r"\1", value)
             for text, _ in MD_LINK.findall(line):
                 ref = UC_REF.match(text.strip())
-                if ref and ref.group(1) not in use_cases:
-                    use_cases.append(ref.group(1))
+                uid = resolve_uc(ref.group(1), known) if ref else None
+                if uid and uid not in use_cases:
+                    use_cases.append(uid)
         bid = BP_REF.search(process)
         bid = bid.group(1) if bid else ""
         models = [m for m in project.bpmn_paths
@@ -1735,7 +1851,7 @@ def trace(docs):
     project = Project(docs)
     requirements = check_requirements(project)
     specs = load_specs(project)
-    test_cases = read_test_cases(project)
+    test_cases = read_test_cases(project, specs)
     tcs_by_uc = {}
     for tc in test_cases:
         if tc["status"] == "Obsolete":
@@ -1826,7 +1942,7 @@ def coverage(requirements, specs, ucs_by_req, tcs_by_uc):
     """
     stops, excluded, system_wide = {}, [], []
     for rid, (_, status, _) in requirements.items():
-        if normalize(status) in INACTIVE_REQUIREMENT:
+        if inactive_requirement(status):
             excluded.append(rid)
             continue
         ucs = [specs[u] for u in ucs_by_req.get(rid, [])
@@ -1976,7 +2092,7 @@ def impact_graph(docs, bpmn):
     requirements = check_requirements(project)
     specs = load_specs(project)
     diagram = check_diagram(project, specs)
-    test_cases = read_test_cases(project)
+    test_cases = read_test_cases(project, specs)
     nodes, edges = {}, {}
 
     def node(nid, kind, name="", status="", path=""):
@@ -2048,8 +2164,9 @@ def impact_graph(docs, bpmn):
                 node(bp_ids[process["id"]], "process", process["name"] or "",
                      "", path)
             for activity in model["activities"]:
-                uid = activity.get("ucId") \
-                    or by_name.get(normalize(activity["name"]))
+                uid = resolve_uc(activity["ucId"], active) \
+                    if activity.get("ucId") \
+                    else by_name.get(normalize(activity["name"]))
                 bid = bp_ids.get(activity["process"])
                 if uid in active and bid:
                     edge(uid, bid, "has an activity for " + uid)
@@ -2250,13 +2367,19 @@ def has_layer(stack, layer, column):
 
 def git_output(docs, *args):
     """The stripped output of a Git command run in the docs folder, or None
-    when Git is missing or the command fails."""
+    when Git is missing or the command fails.
+
+    core.quotepath=off: a path with a non-ASCII character is printed as it
+    is, not quoted and octal-escaped."""
     try:
-        done = subprocess.run(("git", "-C", docs) + args, check=False,
-                              capture_output=True, text=True, timeout=30)
+        done = subprocess.run(("git", "-c", "core.quotepath=off", "-C", docs)
+                              + args, check=False, capture_output=True,
+                              timeout=30)
     except (OSError, subprocess.SubprocessError):
         return None
-    return done.stdout.strip() if done.returncode == 0 else None
+    if done.returncode != 0:
+        return None
+    return done.stdout.decode("utf-8", errors="replace").strip()
 
 
 def done_at(docs, tag):
@@ -2277,6 +2400,16 @@ def done_at(docs, tag):
     return done
 
 
+# From harmless to worst: what /next offers /user-guide for comes last.
+GUIDE_STATES = ("unchanged", "edited", "no-spec", "unstamped", "spec-changed",
+                "edited+spec-changed")
+
+
+def guide_rank(state):
+    return GUIDE_STATES.index(state) if state in GUIDE_STATES \
+        else len(GUIDE_STATES)
+
+
 def guide_sections(docs, anchors):
     """{use case id: state} of the anchored sections of docs/user_guide/.
 
@@ -2293,12 +2426,16 @@ def guide_sections(docs, anchors):
             if uid not in specs:
                 found_specs = sorted(glob.glob(os.path.join(
                     docs, "use_cases", "**", uid + "-*.md"), recursive=True))
-                specs[uid] = anchors.spec_hash(anchors.read(found_specs[0])) \
-                    if found_specs else None
+                try:
+                    specs[uid] = anchors.spec_hash(
+                        anchors.read(found_specs[0])) if found_specs else None
+                except (OSError, ValueError):
+                    specs[uid] = None
             current = specs[uid]
             state = anchors.state(spec_hash, text_hash, current,
                                   anchors.digest(text))
-            if found.get(uid, "unchanged") == "unchanged":
+            if uid not in found \
+                    or guide_rank(state) > guide_rank(found[uid]):
                 found[uid] = state
     return found
 
@@ -2312,12 +2449,17 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     project = Project(docs)
     requirements = check_requirements(project)
     specs = load_specs(project)
-    test_cases = read_test_cases(project)
+    test_cases = read_test_cases(project, specs)
     findings = lint(docs, validator, bpmn)
     suppressed = 0
     if baseline and os.path.isfile(baseline):
-        findings, suppressed = apply_baseline(
-            findings, read_baseline(baseline), docs, False)
+        try:
+            findings, suppressed = apply_baseline(
+                findings, read_baseline(baseline), docs, False)
+        except BaselineError as exc:
+            # --next always answers: the lint counts without the baseline
+            print("spec_lint.py: " + str(exc) + "; baseline ignored",
+                  file=sys.stderr)
     codes = {}
     for f in findings:
         codes.setdefault(f.code, []).append(f)
@@ -2492,7 +2634,7 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     open_reqs = [rid for rid, (_, status, _) in requirements.items()
                  if not rid.startswith("FR-") and rid not in linked
                  and rid not in decided
-                 and normalize(status) not in INACTIVE_REQUIREMENT]
+                 and not inactive_requirement(status)]
     if open_reqs and specs:
         add("Advisory", "/architecture-decision", open_reqs, open_reqs[0]
             + " is linked by no use case and no ADR; record a decision if "
@@ -2662,7 +2804,10 @@ def render_report(matrix, findings, suppressed, docs):
     def link(path, text):
         if not path:
             return esc(text)
-        return '<a href="%s">%s</a>' % (esc(path, quote=True), esc(text))
+        # A relative file path, never a URL: quoting the colon keeps a
+        # folder named "javascript:..." from becoming a scheme.
+        href = urllib.parse.quote(path.replace(os.sep, "/"), safe="/")
+        return '<a href="%s">%s</a>' % (esc(href, quote=True), esc(text))
 
     def badge(status):
         if not status:
@@ -2820,10 +2965,27 @@ def render_report(matrix, findings, suppressed, docs):
 # Baseline and filtering
 # ---------------------------------------------------------------------------
 
+class BaselineError(ValueError):
+    pass
+
+
 def read_baseline(path):
-    with open(path, encoding="utf-8") as handle:
-        data = json.load(handle)
-    return data.get("findings", [])
+    """The entries of a baseline file; BaselineError when it is none."""
+    try:
+        with open(path, encoding="utf-8-sig") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError) as exc:
+        raise BaselineError(path + " is no baseline file (" + str(exc)
+                            + "); write it with --update-baseline")
+    entries = data.get("findings", []) if isinstance(data, dict) else None
+    if not isinstance(entries, list) or any(
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("fingerprint"), str)
+            for entry in entries):
+        raise BaselineError(path + " is no baseline file (every entry of "
+                            "\"findings\" needs a \"fingerprint\"); write it "
+                            "with --update-baseline")
+    return entries
 
 
 def write_baseline(path, findings, docs):
@@ -2863,10 +3025,13 @@ def apply_baseline(findings, entries, docs, report_stale):
             if remaining.get(entry["fingerprint"]):
                 remaining[entry["fingerprint"]] -= 1
                 kept.append(Finding(INFO, "BASELINE_STALE",
-                                    os.path.join(docs, entry["path"]), 0,
-                                    entry["element"], "baseline entry no "
-                                    "longer matches (" + entry["code"] + ": "
-                                    + entry["message"] + "); remove it with "
+                                    os.path.join(docs, str(
+                                        entry.get("path", ""))), 0,
+                                    str(entry.get("element", "")),
+                                    "baseline entry no longer matches ("
+                                    + str(entry.get("code", "")) + ": "
+                                    + str(entry.get("message", ""))
+                                    + "); remove it with "
                                     "--update-baseline"))
     return kept, suppressed
 
@@ -3491,6 +3656,234 @@ def write_fixture(root, files):
             handle.write(content)
 
 
+def self_test_tolerance(failures, validator, bpmn, anchors):
+    """What a hand-written project may hold: annotated statuses, ids with a
+    slug or a hyphen, extra tables and columns, other encodings."""
+    import contextlib
+    import io
+
+    def codes(root, code):
+        with contextlib.redirect_stderr(io.StringIO()):
+            return [f for f in lint(root, validator, bpmn) if f.code == code]
+
+    def fixture(root, changes=None):
+        files = dict(CLEAN)
+        files.update(changes or {})
+        write_fixture(root, files)
+
+    def changed(rel, old, new):
+        if old not in CLEAN[rel]:
+            failures.append("tolerance: fixture lacks " + old)
+        return CLEAN[rel].replace(old, new)
+
+    # Ids and references
+    for ref, known, wanted in (
+            ("UC-001-create-guest", {"UC-001"}, "UC-001"),
+            ("UC-001-create-guest", set(), "UC-001"),
+            ("UC-2-1", set(), "UC-2-1"),
+            ("UC-2-1-reserve", {"UC-2-1"}, "UC-2-1"),
+            ("UC-013a", set(), "UC-013a"),
+            ("SUC-GUEST-001", set(), "SUC-GUEST-001"),
+            ("UC-001-Create", {"UC-001-Create"}, "UC-001-Create")):
+        if resolve_uc(ref, known) != wanted:
+            failures.append("resolve_uc(%s): expected %s, got %s"
+                            % (ref, wanted, resolve_uc(ref, known)))
+    for element, wanted in (("UC-2-1 step 2", "UC-2-1"),
+                            ("SUC-001 BR-002", "SUC-001"),
+                            ("UC-013a A1", "UC-013a")):
+        match = ELEMENT_UC.match(element)
+        if not match or match.group(1) != wanted:
+            failures.append("ELEMENT_UC: " + element + " not read as "
+                            + wanted)
+    if REQ_ID.findall("[FR-GUEST-001](../requirements.md), NFR-2a, C-001") \
+            != ["FR-GUEST-001", "NFR-2a", "C-001"]:
+        failures.append("REQ_ID: the ids of a catalog row are not all read")
+
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root, {
+            "test_cases/TC-001-reserve-room.md": changed(
+                "test_cases/TC-001-reserve-room.md", "[UC-001](",
+                "[UC-001-create-guest]("),
+            "processes/BP-001-hotel-stay.bpmn": changed(
+                "processes/BP-001-hotel-stay.bpmn",
+                'name="UC-001 Create Guest"', 'name="UC-001-Create Guest"')})
+        for code in ("DANGLING_REF", "BPMN_UNMAPPED", "UC_UNUSED_BY_TC"):
+            if codes(root, code):
+                failures.append("slug after the id: unexpected " + code
+                                + " " + str(codes(root, code)))
+        if trace(root)["test_cases"][0]["use_cases"] != ["UC-001", "UC-002"]:
+            failures.append("slug after the id: the matrix lost UC-001")
+
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root, {
+            "requirements.md": CLEAN["requirements.md"].replace(
+                "FR-001", "FR-GUEST-001"),
+            "use_cases/UC-001-create-guest.md": changed(
+                "use_cases/UC-001-create-guest.md", "[FR-001]",
+                "[FR-GUEST-001]")})
+        for code in ("FR_UNCOVERED", "UC_NO_REQUIREMENT", "DANGLING_REF"):
+            if codes(root, code):
+                failures.append("FR-GUEST-001: unexpected " + code + " "
+                                + str(codes(root, code)))
+
+    # Statuses with an annotation
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root, {
+            "requirements.md": changed(
+                "requirements.md", "| Rejected |", "| Rejected (2026) |"),
+            "use_cases/UC-002-reserve-room.md": changed(
+                "use_cases/UC-002-reserve-room.md", "**Status:** Approved",
+                "**Status:** Obsolete (replaced by UC-001)")})
+        if not load_specs(Project(root))["UC-002"].obsolete:
+            failures.append("annotated status: 'Obsolete (replaced by "
+                            "UC-001)' is not obsolete")
+        if [f.element for f in codes(root, "FR_UNCOVERED")] != ["FR-002"]:
+            failures.append("annotated status: only FR-002, linked by the "
+                            "obsolete UC-002, is uncovered, got "
+                            + str(codes(root, "FR_UNCOVERED")))
+
+    # A second table and a column after Status
+    with tempfile.TemporaryDirectory() as root:
+        catalog = CLEAN["requirements.md"].replace(
+            "Status |\n", "Status | Notes |\n").replace(
+            "--------|\n", "--------|-------|\n")
+        catalog = re.sub(r"(?m)^(\| FR-.*\|)$", r"\1 n/a |", catalog)
+        catalog += ("\n## Change Log\n\n| ID | Change | Date |\n|----|----|"
+                    "----|\n| FR-001 | Reworded | 2026-01-01 |\n")
+        fixture(root, {"requirements.md": catalog})
+        with contextlib.redirect_stderr(io.StringIO()):
+            rows = check_requirements(Project(root))
+        if rows.get("FR-003", (0, "", ""))[1:] != ("Rejected",
+                                                    "Export Report"):
+            failures.append("requirement columns: status and title of "
+                            "FR-003 not read by header, got "
+                            + str(rows.get("FR-003")))
+        for code in ("DUPLICATE_ID", "FR_UNCOVERED"):
+            if codes(root, code):
+                failures.append("requirement tables: unexpected " + code
+                                + " " + str(codes(root, code)))
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, {"requirements.md":
+                             "| FR-001 | A | Open |\n| FR-001 | B | Open |\n"})
+        project = Project(root)
+        if check_requirements(project).get("FR-001", (0, ""))[1] != "Open" \
+                or [f.code for f in project.findings] != ["DUPLICATE_ID"]:
+            failures.append("requirement tables: rows without a header row "
+                            "are still read, last cell as status")
+
+    # The preferred term may contain the synonym to avoid
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, {
+            "glossary.md": "# Glossary\n\n| Term | Definition | Avoid |\n"
+                           "|---|---|---|\n| Hotel Guest | A person staying "
+                           "at the hotel. | Guest |\n",
+            "requirements.md": "# Requirements\n\n| ID | Requirement | "
+                               "Status |\n|---|---|---|\n"
+                               "| FR-001 | Record the Hotel Guest. | Open |\n"
+                               "| FR-002 | Greet the Guest and the Hotel "
+                               "Guests. | Open |\n"})
+        got = [f.element for f in codes(root, "GLOSSARY_AVOIDED_TERM")]
+        if got != ["FR-002"]:
+            failures.append("avoided term inside the preferred term: "
+                            "expected FR-002 only, got " + str(got))
+
+    # Encodings: no traceback, and a byte order mark is no content
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root)
+        with open(os.path.join(root, "glossary.md"), "ab") as handle:
+            handle.write("| Gruß | Begrüßung |  |\n".encode("latin-1"))
+        uc1 = os.path.join(root, "use_cases", "UC-001-create-guest.md")
+        with open(uc1, "rb") as handle:
+            data = handle.read()
+        with open(uc1, "wb") as handle:
+            handle.write(b"\xef\xbb\xbf" + data)
+        errors = io.StringIO()
+        try:
+            with contextlib.redirect_stderr(errors):
+                found = lint(root, validator, bpmn)
+            if "glossary.md is not UTF-8" not in errors.getvalue():
+                failures.append("encoding: the file that is not UTF-8 is "
+                                "not named")
+            if [f for f in found if f.severity == ERROR]:
+                failures.append("encoding: a byte order mark is no finding, "
+                                "got " + str([f.code for f in found
+                                              if f.severity == ERROR]))
+        except UnicodeDecodeError:
+            failures.append("encoding: a file that is not UTF-8 raises")
+        NOT_UTF8.clear()
+
+    # A baseline that is none
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root)
+        path = os.path.join(root, BASELINE_NAME)
+        for content in ("not json", "[]", '{"findings": [{"code": "X"}]}'):
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(content)
+            try:
+                read_baseline(path)
+                failures.append("baseline: " + content + " was accepted")
+            except BaselineError:
+                pass
+            with contextlib.redirect_stderr(io.StringIO()):
+                try:
+                    next_step(root, validator, bpmn, anchors, None, path)
+                except ValueError:
+                    failures.append("baseline: --next must answer with a "
+                                    "broken baseline")
+                with contextlib.redirect_stdout(io.StringIO()):
+                    if main(["--docs", root]) != 2:
+                        failures.append("baseline: a broken one exits 2")
+
+    # Report links are file paths, never URLs
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root, {
+            "requirements.md": CLEAN["requirements.md"]
+            + "| NFR-001 | Fast | Answers within 1 s. | High | Open |\n",
+            "js:alert(1)/decisions/ADR-001-x.md":
+                "# ADR-001: Cache\n\n**Status:** Accepted\n"
+                "**Date:** 2026-01-01\n**Requirements:** NFR-001\n"})
+        try:
+            with contextlib.redirect_stderr(io.StringIO()):
+                page = render_report(trace(root), lint(root, validator, bpmn),
+                                     0, root)
+            if 'href="js:' in page or "js%3Aalert%281%29/decisions" \
+                    not in page:
+                failures.append("report: a path with a colon must be quoted")
+        except OSError:
+            pass  # a file system that takes no colon cannot hold the case
+
+    # The worst state of a use case's guide sections wins
+    if not guide_rank("unchanged") < guide_rank("edited") \
+            < guide_rank("spec-changed") < guide_rank("edited+spec-changed"):
+        failures.append("guide: the states are not ranked")
+    with tempfile.TemporaryDirectory() as root:
+        fixture(root)
+        spec = anchors.spec_hash(anchors.read(os.path.join(
+            root, "use_cases", "UC-001-create-guest.md")))
+        text = anchors.digest(anchors.normalize(["## A", "", "Text."]))
+        write_fixture(root, {"user_guide/a.md":
+                             "## A\n<!-- UC-001 spec=%s text=%s -->\n\n"
+                             "Edited.\n\n## A\n<!-- UC-001 spec=000000000000"
+                             " text=%s -->\n\nText.\n" % (spec, text, text)})
+        got = guide_sections(root, anchors).get("UC-001")
+        if got != "spec-changed":
+            failures.append("guide: edited then spec-changed should be "
+                            "spec-changed, got " + str(got))
+
+    # Git prints a path with a non-ASCII character as it is
+    if shutil.which("git"):
+        with tempfile.TemporaryDirectory() as root:
+            fixture(root, {"use_cases/UC-009-gäste-erfassen.md": spec_text(
+                "UC-009", "Gäste erfassen", status="Done")})
+            git_fixture(root, "init", "-q")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "done")
+            git_fixture(root, "tag", "v1.0.0")
+            if "UC-009" not in done_at(root, "v1.0.0"):
+                failures.append("git: a use case in a file with a non-ASCII "
+                                "name is not seen at the tag")
+
+
 def self_test():
     failures = []
     validator = load_sibling("*use-case-spec/scripts/validate_use_case.py",
@@ -4098,6 +4491,8 @@ def self_test():
             if codes_of(changed):
                 failures.append("changed: without Git nothing can be compared")
 
+    self_test_tolerance(failures, validator, bpmn, anchors)
+
     if failures:
         for failure in failures:
             print("SELF-TEST FAIL: " + failure)
@@ -4121,8 +4516,13 @@ def filter_findings(args, findings, baseline):
     """(findings, suppressed) after the baseline and --only, or None."""
     suppressed = 0
     if not args.no_baseline and os.path.isfile(baseline):
+        try:
+            entries = read_baseline(baseline)
+        except BaselineError as exc:
+            print("spec_lint.py: " + str(exc), file=sys.stderr)
+            return None
         findings, suppressed = apply_baseline(
-            findings, read_baseline(baseline), args.docs, not args.only)
+            findings, entries, args.docs, not args.only)
     elif args.baseline and not args.no_baseline:
         print("spec_lint.py: baseline not found: " + args.baseline,
               file=sys.stderr)

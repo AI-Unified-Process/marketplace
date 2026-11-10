@@ -67,6 +67,12 @@ Run from `/use-case-test`, this skill inherits the inputs and the search for exi
 Run directly, read the use case, the linked requirement rows, `docs/glossary.md` when present, and
 `docs/architecture/stack.md`; then test this layer only and say that `/use-case-test UC-XXX` runs all test layers.
 
+Either way — run directly, first check the specification's `**Status:**` line as section "Status of the
+Specification" of `/use-case-test` says — an expected value the specification does not give is a gap, handled as
+section "Gaps in the Specification" of `/use-case-test` says and never read off the code, and decisions are taken by
+its section "Decision Rights". The report lists the decisions taken alone under **Decisions**, and under **Open
+questions** every question recorded and every test a blocking question left out.
+
 ## Use Case Traceability
 
 TypeScript has no annotation the AI Unified Process IntelliJ Navigator plugin resolves, so the naming convention

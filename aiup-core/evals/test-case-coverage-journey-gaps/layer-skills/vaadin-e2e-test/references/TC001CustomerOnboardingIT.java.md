@@ -16,10 +16,7 @@ import java.util.List;
 
 import com.example.app.TestcontainersConfiguration;
 import com.example.app.usecase.TestCase;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
-import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.vaadin.addons.dramafinder.AbstractBasePlaywrightIT;
 import org.vaadin.addons.dramafinder.element.ButtonElement;
 import org.vaadin.addons.dramafinder.element.ComboBoxElement;
+import org.vaadin.addons.dramafinder.element.ConfirmDialogElement;
 import org.vaadin.addons.dramafinder.element.DialogElement;
 import org.vaadin.addons.dramafinder.element.GridElement;
 import org.vaadin.addons.dramafinder.element.NotificationElement;
@@ -147,9 +145,10 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
         if (!rows.isEmpty()) {
             grid.select(rows.get(0));
             ButtonElement.getByText(page, "Delete").click();
-            Locator confirm = confirmDialog("Confirm Delete");
-            ButtonElement.getByText(confirm, "Confirm").click();
-            PlaywrightAssertions.assertThat(confirm).isHidden();
+            ConfirmDialogElement confirm = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");
+            confirm.assertConfirmText("Confirm");
+            confirm.confirm();
+            confirm.assertClosed();
         }
     }
 
@@ -162,22 +161,13 @@ class TC001CustomerOnboardingIT extends AbstractBasePlaywrightIT {
         if (!rows.isEmpty()) {
             grid.select(rows.get(0));
             ButtonElement.getByText(page, "Delete").click();
-            Locator confirm = confirmDialog("Confirm Delete");
-            ButtonElement.getByText(confirm, "Confirm").click();
-            PlaywrightAssertions.assertThat(confirm).isHidden();
+            ConfirmDialogElement confirm = ConfirmDialogElement.getByHeaderText(page, "Confirm Delete");
+            confirm.assertConfirmText("Confirm");
+            confirm.confirm();
+            confirm.assertClosed();
         }
     }
 
-
-    /**
-     * The view's ConfirmDialog. Drama Finder has no wrapper for it, and DialogElement matches
-     * <vaadin-dialog> only: <vaadin-confirm-dialog> carries the role "alertdialog" and its header
-     * as accessible name (Vaadin 25), so locate it by role and name, narrowed to its tag.
-     */
-    private Locator confirmDialog(String header) {
-        return page.getByRole(AriaRole.ALERTDIALOG, new Page.GetByRoleOptions().setName(header))
-                .and(page.locator("vaadin-confirm-dialog"));
-    }
 
 }
 ```

@@ -14,7 +14,9 @@ docs/use_cases/UC-004-book-room.md:12: ERROR DANGLING_REF [UC-004]: requirement 
 
 The format is `path:line: SEVERITY CODE [element]: message`. Line `0` means the finding concerns the whole file.
 The exit code is 0 when the run is clean, 1 on any `ERROR` (with `--strict`, also on any `WARN`), and 2 on usage
-errors.
+errors. A baseline file that is not valid JSON, or holds an entry without `fingerprint`, is such an error: the run
+exits 2 with a message and lints nothing (`--next` ignores the baseline and still exits 0). A file that is not UTF-8
+is read anyway and named on stderr; there is no lint code for it.
 
 ## Cross-file codes
 
@@ -34,7 +36,7 @@ errors.
 | ERROR    | `NOT_IN_DIAGRAM`        | A specification (not `Obsolete`) whose use case is not in `use_cases.puml`                    | `/use-case-diagram` |
 | ERROR    | `DUPLICATE_ID`          | A UC, TC, BP, FR, NFR, C, OQ, or ADR id, or an entity heading, is used twice — also a use case in two module diagrams or an entity in two module files | the owning skill |
 | ERROR    | `DANGLING_REF`          | An FR, NFR, or C id in `**Requirements:**`, a `UC-xxx BR-yyy` citation, a UC link in a test case, a `**Process:**` link or `BP-XXX` id, the `**Element:**` of an open question, or an id in an ADR's `**Requirements:**`, `**Supersedes:**`, or `**Superseded by:**` line points to nothing | the owning skill |
-| ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-spec`    |
+| ERROR    | `BPMN_UNMAPPED`         | A BPMN activity whose name carries no known use case id and matches no use case title         | `/use-case-diagram`, then `/business-process BP-XXX` |
 | ERROR    | `BPMN_INVALID`          | A `.bpmn` file that cannot be parsed                                                          | the modeling tool   |
 | ERROR    | `MODULE_UNKNOWN`        | A `package` of the module overview `use_cases.puml` without a folder `use_cases/<alias>/use_cases.puml`, or such a folder without a `package` of that alias | `/use-case-diagram` |
 | ERROR    | `OQ_BLOCKING`           | A use case at `Tested` or `Done` while a blocking open question on it is `Open` or `Answered`; a question on an FR, NFR, or C counts against every use case that links it | `/use-case-spec`, `/requirements` |
@@ -47,7 +49,7 @@ errors.
 | WARN     | `SPEC_CHANGED_AFTER_STATUS` | A use case at `Implemented`, `Tested`, or `Done` whose text, or the text of a requirement it links, changed after the commit that set its status; a new priority or status does not count. Needs Git history, and finds nothing without it | `/use-case-coverage UC-XXX` (`/coverage-check UC-XXX`); see the skill's After the Report |
 | WARN     | `OQ_BLOCKING`           | The same at `Approved` or `Implemented`: the use case should not have been approved, or the answer is still missing | `/open-questions`, `/use-case-spec` |
 | WARN     | `OQ_UNRESOLVED`         | An open question is `Answered`, but the answer is not in the specification yet               | `/use-case-spec`, `/requirements`, `/entity-model` |
-| WARN     | `ADR_UNLINKED`          | A `Proposed` or `Accepted` ADR whose `**Requirements:**` line links no NFR or C (an FR alone does not count): a decision is justified by a quality or a constraint | `/requirements`, then `/architecture-decision` |
+| WARN     | `ADR_UNLINKED`          | A `Proposed` or `Accepted` ADR whose `**Requirements:**` line links no NFR or C (an FR alone does not count): a decision is justified by a quality or a constraint | `/architecture-decision ADR-XXX link NFR-YYY` (`/requirements` first when the row is missing) |
 | WARN     | `ADR_STALE`             | A `Proposed` or `Accepted` ADR links a `Rejected` or `Deferred` requirement; or an ADR supersedes one that is not `Superseded`, or the two do not name each other in `**Supersedes:**` and `**Superseded by:**` | `/architecture-decision` |
 | WARN     | `ADR_INVALID`           | An ADR without a status, with a status other than Proposed, Accepted, Superseded, Deprecated, or Rejected, without a date, or `Superseded` without the ADR that replaced it | `/architecture-decision` |
 | WARN     | `MOCKUP_MISSING_FILE`   | A relative link on a use case's `**Mockup:**` line points to a file that does not exist; URLs are not checked, and a use case without a mockup is never reported | `/use-case-spec`    |

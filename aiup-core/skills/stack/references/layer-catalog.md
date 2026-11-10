@@ -171,8 +171,10 @@ dependency, so Claude Code installs it with them: its service layer is what thei
 to, and the persistence skills read the module layout reference of `spring-service`. Tessl has no dependency field; install
 `aiup-spring-boot` next to them there. `aiup-drizzle` declares `aiup-nestjs` the same way: its repositories are
 NestJS providers, and its skills read the module layout and test setup references of that plugin. `aiup-flyway`,
-`aiup-angular`, `aiup-nestjs`, `aiup-nextjs`, and `aiup-playwright` need only `aiup-core`, so Next.js can sit on any
-API layer.
+`aiup-angular`, `aiup-nestjs`, `aiup-nextjs`, and `aiup-playwright` need only `aiup-core`, so Angular and Next.js
+can sit on any API layer: their UI skills build on the Handover of whichever API skill the stack file names. `aiup-nestjs` reads no file of another plugin, but its service and test skills are written for Drizzle
+below them — the repository owns the transaction, and the test setup migrates with Drizzle: a NestJS project on
+another persistence technology (Prisma, TypeORM) records its own skills for those layers instead.
 
 ## Common combinations
 
@@ -186,8 +188,10 @@ API layer.
 | Hilla and a REST API, jOOQ      | `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, `aiup-vaadin`                    | Service (API for `API`-only use cases) |
 | Angular, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-angular`, `aiup-playwright` | API               |
 | REST API, NestJS, Drizzle       | `aiup-drizzle`, `aiup-nestjs`                                                    | API               |
+| Angular, NestJS, Drizzle        | `aiup-drizzle`, `aiup-nestjs`, `aiup-angular`, `aiup-playwright`                 | API               |
 | Next.js, NestJS, Drizzle        | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  | API               |
 | Next.js, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  | API               |
 
-The combined stack plugins (`aiup-vaadin-jooq`, `aiup-angular-jpa`, `aiup-blazor-dotnet`, `aiup-nestjs-nextjs`) do not
-use this catalog; they ship their own `/implement`.
+The combined stack plugins do not use this catalog; they ship their own `/implement`. `aiup-vaadin-jooq`,
+`aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated — the layer plugins above replace them — and are removed
+with aiup-core 4.0.0; `aiup-blazor-dotnet` stays combined.

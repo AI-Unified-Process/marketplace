@@ -34,7 +34,7 @@ there — not once per layer:
   reports units it cannot reach through its entry point (a service method only a job calls, a query only another
   use case's view runs), the test skill of the layer that owns each unit runs for exactly those units. Otherwise a
   lower layer is written only when the arguments name it.
-- **A UI layer above the integration layer** whose tests mock the backend (Hilla, Angular) tests what the UI
+- **A UI layer above the integration layer** whose tests mock the backend (Hilla, Angular, Next.js) tests what the UI
   decides and that a rejection reaches the actor with the specified message, not the rule again.
 - **The E2E layer** tests the main success scenario and the alternative flows an actor sees, not every rule, and
   leaves out a flow the shared test data rules out, which the integration layer covers — and
@@ -66,14 +66,24 @@ layer reaches the real system, a provider's sandbox included:
   every alternative flow the external system causes by switching the fake to it (`declineNext()`), and the
   postconditions, including what was sent (`charges()`). Never a stub server, never a real call. A test skill that
   finds no fake for a mapped system reports it and runs the client test skill's fake first, rather than mocking the
-  adapter ad hoc.
+  adapter ad hoc. In a stack whose Client row has no test skill (Test skill `–`), no client test skill runs first:
+  the integration layer's test skill writes the fake of the port itself, once per system, where its own rules place
+  test doubles, and puts it in place the same way.
 - **A UI above the integration layer that mocks the backend** sees only the service's exceptions and needs nothing
   of its own.
-- **E2E** runs the started application, so the fake cannot reach it: the application runs with a test profile
-  whose `<system>.base-url` points at a stub server (WireMock, or what the project uses) that answers the main
-  success scenario. A flow the external system causes is left to the integration layer unless the project's stub
-  can be switched per test. When the project has no such profile, the E2E test skill says so and leaves out the
-  steps that call the system; it never points the application at the real one.
+- **E2E** depends on how its test starts the application:
+  - *In the test's own process* — a Spring Boot test on a random port, as `/vaadin-e2e-test` writes it: the test
+    puts the same fake in place of the adapter (`@TestBean` or the project's equivalent), exactly as the integration
+    layer does, and the steps that call the system run. A flow the external system causes may be driven by switching
+    the fake, where an actor sees it.
+  - *As a separate process* — a deployed or separately started application, as `/playwright-e2e-test` drives it: the
+    fake cannot reach it, so the application runs with a test profile whose `<system>.base-url` points at a stub
+    server (WireMock, or what the project uses) that answers the main success scenario. A flow the external system
+    causes is left to the integration layer unless the project's stub can be switched per test. When the project has
+    no such profile, the E2E test skill says so, leaves out the steps that call the system, and lists them in its
+    report as not automated.
+
+  Either way it never points the application at the real system.
 
 ## The use case's own integration layer
 
@@ -81,7 +91,7 @@ The `**Layers:**` line of the use case (German `**Schichten:**`) names the
 entry layers that offer it — `UI`, `API`, or `Service` alone; without the line, every entry layer of the project
 does. The layers it leaves out get no tests, and E2E runs only when the use case is offered through the UI and the
 E2E scope covers use cases. A
-client-side UI that reaches the service through the API (Angular) implies its API layer: `UI` there runs the API
+client-side UI that reaches the service through the API (Angular, Next.js) implies its API layer: `UI` there runs the API
 test skill too, as the integration layer (the layer catalog of `/stack`, "Entry layers of a use case"). An
 entry layer the line names that the Layers table marks `–` is a contradiction between the specification and the
 architecture: stop before the first layer and ask whether `/stack` adds the layer or `/use-case-spec UC-XXX`

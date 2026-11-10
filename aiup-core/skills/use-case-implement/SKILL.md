@@ -287,7 +287,7 @@ and `/use-case-test` runs its Test skill — never build anything for it here.
 
 ## Workflow
 
-1. Read the use case specification from `docs/use_cases/` (module subfolders included; also check `docs/use-cases/`) and check its `**Status:**`
+1. Read the use case specification from `docs/use_cases/**/UC-XXX-*.md` (module subfolders included) and check its `**Status:**`
    line and its open questions in `docs/open_questions.md` — see "Gaps in the Specification" above.
 2. Read the requirements the use case links on its `**Requirements:**` line — exactly those `FR-*`, `NFR-*`, and
    `C-*` rows of `docs/requirements.md`, not the whole catalog. The functional requirements explain the intent where

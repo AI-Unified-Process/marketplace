@@ -45,8 +45,10 @@ import re
 import sys
 from pathlib import Path
 
+# The id grammar of the use case validator: SUC-001, BUC-001, UC-013a, UC-2-1
 ANCHOR = re.compile(
-    r"^<!--\s*(UC-\d+)(?:\s+spec=([0-9a-f]+))?(?:\s+text=([0-9a-f]+))?\s*-->\s*$")
+    r"^<!--\s*([SB]?UC-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)"
+    r"(?:\s+spec=([0-9a-f]+))?(?:\s+text=([0-9a-f]+))?\s*-->\s*$")
 HEADING = re.compile(r"^(#{1,6})\s")
 STATUS_FIELD = "**Status:**"
 HASH_LENGTH = 12
@@ -132,7 +134,11 @@ def check(root, targets, out=sys.stdout):
 
 
 def stamp(root, path, uc_ids):
-    lines = read(path).splitlines()
+    """Only the anchor lines change: every other line keeps its bytes, line
+    ending included, so a chapter with CRLF endings stays one."""
+    with open(path, encoding="utf-8", newline="") as handle:
+        raw = handle.read().splitlines(keepends=True)
+    lines = [line.rstrip("\r\n") for line in raw]
     found = set()
     for i, uc_id, _, _, text in list(sections(lines)):
         if uc_id not in uc_ids:
@@ -140,13 +146,14 @@ def stamp(root, path, uc_ids):
         spec = find_spec(root, uc_id)
         if spec is None:
             raise ValueError(f"no docs/use_cases/**/{uc_id}-*.md under {root}")
-        lines[i] = f"<!-- {uc_id} spec={spec_hash(read(spec))} text={digest(text)} -->"
+        ending = raw[i][len(lines[i]):]
+        raw[i] = f"<!-- {uc_id} spec={spec_hash(read(spec))} text={digest(text)} -->{ending}"
         found.add(uc_id)
     missing = [uc_id for uc_id in uc_ids if uc_id not in found]
     if missing:
         raise ValueError(f"no anchor for {', '.join(missing)} in {path}")
-    trailing = "\n" if read(path).endswith("\n") else ""
-    Path(path).write_text("\n".join(lines) + trailing, encoding="utf-8")
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        handle.write("".join(raw))
 
 
 def self_test():
@@ -216,6 +223,24 @@ def self_test():
             failures.append("stamp without anchor: expected an error")
         except ValueError:
             pass
+
+        # Ids of the whole grammar, and line endings that stay as they are
+        for uc_id in ("UC-013a", "SUC-001", "UC-2-1"):
+            (root / f"docs/use_cases/{uc_id}-x.md").write_text(spec, encoding="utf-8")
+        crlf = root / "docs/user_guide/crlf.md"
+        crlf.write_bytes(b"## A\r\n<!-- UC-013a -->\r\n\r\nText.\r\n\r\n## B\r\n<!-- SUC-001 -->\r\n\r\nText.\r\n"
+                         b"\r\n## C\r\n<!-- UC-2-1 -->\r\n\r\nText.\r\n\r\n## Team\r\n\r\nKept.")
+        out = io.StringIO()
+        check(root, [crlf], out)
+        expect("id grammar", [line.split()[1:3] for line in out.getvalue().splitlines()],
+               [["UC-013a", "unstamped"], ["SUC-001", "unstamped"], ["UC-2-1", "unstamped"]])
+        stamp(root, crlf, ["UC-013a", "SUC-001", "UC-2-1"])
+        out = io.StringIO()
+        check(root, [crlf], out)
+        expect("id grammar stamped", [line.split()[2] for line in out.getvalue().splitlines()], ["unchanged"] * 3)
+        data = crlf.read_bytes()
+        expect("CRLF kept", (data.count(b"\r\n"), data.count(b"\n"), data.endswith(b"## Team\r\n\r\nKept.")),
+               (17, 17, True))
 
     for failure in failures:
         print(f"FAIL {failure}", file=sys.stderr)
