@@ -21,7 +21,8 @@ Standard library only. The shell scripts call one subcommand at a time:
       Moves the status forward to the target, only out of Approved or a status before the target, never backwards,
       in the language of the specification. Prints the old and the new value.
   werkstatt.py blocking <UC-XXX> [--docs docs]
-      The ids of the blocking open questions (Open or Answered) whose element names the use case, one per line.
+      The ids of the blocking open questions (Open or Answered) whose element names the use case or a requirement
+      its **Requirements:** line links, one per line: the questions spec_lint.py reports as OQ_BLOCKING on it.
   werkstatt.py requirements <UC-XXX> [--docs docs] [--spec-lint spec_lint.py]
       After a status advance: moves the progress status (Open .. Verified) of the requirements the use case links to
       what their use cases make it, with derived_status() of spec_lint.py (default: $SPEC_LINT_MODULE or
@@ -186,6 +187,14 @@ def requirements(args):
         return
     progress = {lint.normalize(value) for value in lint.REQUIREMENT_PROGRESS}
     lines = read(project.requirements_path).split("\n")
+    # Where the status stands in a row: under the Status column of its table's header, as spec_lint.py reads it
+    # (requirement_rows and REQ_STATUS_COLUMNS are its own), so a column after it - Notes - is left alone. A table
+    # without a header row, or a spec_lint.py without the helper, has the status in the last cell.
+    columns = {}
+    if hasattr(lint, "requirement_rows") and hasattr(lint, "REQ_STATUS_COLUMNS"):
+        for row_number, _, _, header in lint.requirement_rows(lines):
+            columns[row_number] = next((position for position, name in enumerate(header or ())
+                                        if name in lint.REQ_STATUS_COLUMNS), None)
     changes = []
     for rid in sorted(linked):
         if args.uc not in linked[rid] or rid not in catalog:
@@ -196,10 +205,15 @@ def requirements(args):
         derived = lint.derived_status([specs[uid] for uid in linked[rid]])
         if derived is None or lint.normalize(derived) == lint.normalize(status):
             continue
-        # The status is the last cell of the row; its padding is kept where the new value fits.
+        # Only the status cell changes; its padding is kept where the new value fits.
         line = lines[number - 1]
-        end = line.rstrip().rfind("|")
-        start = line.rfind("|", 0, end)
+        pipes = [i for i, char in enumerate(line) if char == "|" and (i == 0 or line[i - 1] != "\\")]
+        column = columns.get(number)
+        if column is not None and column + 1 < len(pipes):
+            start, end = pipes[column], pipes[column + 1]
+        else:
+            end = line.rstrip().rfind("|")
+            start = line.rfind("|", 0, end)
         cell = line[start + 1:end]
         lines[number - 1] = line[:start + 1] + f" {derived} ".ljust(len(cell)) + line[end:]
         changes.append(f"{rid}: {status} -> {derived}")
@@ -209,17 +223,31 @@ def requirements(args):
         print("\n".join(changes))
 
 
+REQUIREMENTS_LINE = re.compile(r"^\*\*(?:Requirements|Anforderungen):\*\*(.*)$", re.M)
+REQUIREMENT_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-[A-Za-z0-9_-]*[A-Za-z0-9])")
+
+
+def linked_requirements(docs, uc):
+    """The requirement ids on the **Requirements:** line of the use case's specification."""
+    found = sorted(glob.glob(os.path.join(docs, "use_cases", "**", f"{uc}-*.md"), recursive=True))
+    line = REQUIREMENTS_LINE.search(read(found[0])) if found else None
+    return REQUIREMENT_ID.findall(line.group(1)) if line else []
+
+
 def blocking(args):
     path = os.path.join(args.docs, "open_questions.md")
     if not os.path.isfile(path):
         return
+    # A question on a requirement holds every use case that links it, as OQ_BLOCKING of spec_lint.py does: a use
+    # case moved to Tested over it would fail the lint in the Werkstatt's own pull request.
+    names = [args.uc] + linked_requirements(args.docs, args.uc)
     for section in re.split(r"(?m)^(?=## OQ-)", read(path)):
         head = re.match(r"## (OQ-[A-Za-z0-9-]+):", section)
         if not head:
             continue
         field = lambda name: (re.search(rf"^\*\*{name}:\*\*\s*(.*)$", section, re.M) or [None, ""])[1].strip()
         element = field("Element")
-        if (re.match(rf"{re.escape(args.uc)}\b", element)
+        if (any(re.match(rf"{re.escape(name)}(?![A-Za-z0-9_-])", element) for name in names)
                 and field("Blocking").lower().startswith(("yes", "ja"))
                 and field("Status").lower().startswith(("open", "answered", "offen", "beantwortet"))):
             print(head.group(1))
@@ -306,6 +334,24 @@ SELF_TEST_QUESTIONS = """# Open Questions
 **Element:** UC-0010
 **Blocking:** Yes
 **Status:** Open
+
+## OQ-006: A requirement UC-001 links
+
+**Element:** FR-001
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-007: A requirement UC-001 does not link
+
+**Element:** FR-0010
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-008: A linked requirement, not blocking
+
+**Element:** NFR-001
+**Blocking:** No
+**Status:** Open
 """
 
 
@@ -390,7 +436,8 @@ def self_test():
 
         # spec: found in a module folder, missing one exits
         en = os.path.join(docs, "use_cases", "booking", "UC-001-book-a-room.md")
-        write(en, "# UC-001: Book a Room\n\n**Status:** Approved  \n**Primary Actor:** Guest\n")
+        write(en, "# UC-001: Book a Room\n\n**Status:** Approved  \n**Primary Actor:** Guest\n"
+                  "**Requirements:** [FR-001](../../requirements.md#fr-001), [NFR-001](../../requirements.md)\n")
         de = os.path.join(docs, "use_cases", "UC-002-zimmer-stornieren.md")
         write(de, "# UC-002: Zimmer stornieren\n\n## Übersicht\n\n**Use-Case-ID:** UC-002\n"
                   "**Status:** Genehmigt <!-- by the PO -->\n")
@@ -412,10 +459,11 @@ def self_test():
         expect("advance de text", read(de).splitlines()[5], "**Status:** Implementiert <!-- by the PO -->")
         expect("advance obsolete", run(advance, file=obsolete, target="Tested"), "Obsolete (unchanged)\n")
 
-        # blocking: Open or Answered, Yes or Ja, element names exactly this use case
+        # blocking: Open or Answered, Yes or Ja, element names exactly this use case or a requirement it links
         expect("blocking without file", run(blocking, uc="UC-001", docs=docs), "")
         write(os.path.join(docs, "open_questions.md"), SELF_TEST_QUESTIONS)
-        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\n")
+        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\nOQ-006\n")
+        expect("blocking: a use case without the requirement", run(blocking, uc="UC-002", docs=docs), "")
         expect("blocking other id", run(blocking, uc="UC-0010", docs=docs), "OQ-005\n")
 
     # The real layer catalog, when the script runs from a marketplace checkout: its format is the contract.
@@ -451,6 +499,24 @@ def self_test():
             expect("requirements: constraint untouched", rows["C-001"].endswith("| High     |"), True)
             expect("requirements again: nothing to change",
                    run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path), "")
+            # a column after Status: the status cell is found by the header, the note stays
+            notes = os.path.join(root, "notes", "docs")
+            write(os.path.join(notes, "requirements.md"),
+                  "# Requirements\n\n## Functional Requirements\n\n"
+                  "| ID     | Title    | User Story         | Use Cases | Priority | Status | Notes        |\n"
+                  "|--------|----------|--------------------|-----------|----------|--------|--------------|\n"
+                  "| FR-001 | Register | As a manager, I x. | UC-001    | High     | Open   | Open \\| ask |\n\n"
+                  "No header:\n\n| FR-002 | Bare | As a manager, I y. | UC-001 | High | Open |\n")
+            write(os.path.join(notes, "use_cases", "UC-001-register-room.md"),
+                  "# Use Case: register-room\n\n## Overview\n\n**Use Case ID:** UC-001  \n**Status:** Tested  \n"
+                  "**Requirements:** [FR-001, FR-002](../requirements.md)\n")
+            expect("requirements with a column after Status",
+                   run(requirements, uc="UC-001", docs=notes, spec_lint=lint_path),
+                   "FR-001: Open -> Verified\nFR-002: Open -> Verified\n")
+            text = read(os.path.join(notes, "requirements.md"))
+            expect("requirements: the Status cell changed, the note stays",
+                   "| High     | Verified | Open \\| ask |" in text, True)
+            expect("requirements: headerless row, last cell", "| High | Verified |" in text, True)
             expect("requirements without spec_lint",
                    run(requirements, uc="UC-001", docs=docs, spec_lint=os.path.join(root, "none.py")), "")
 

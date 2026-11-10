@@ -15,17 +15,19 @@
 #            and the requirements the use case links follow it (werkstatt.py requirements)
 #   blocked  a blocking open question names the use case (the andon cord), or the spec lint fails;
 #            only the new open questions stay, the code of this use case is dropped
-#   stuck    the gates stay red after MAX_ROUNDS fix rounds or the cost budget is used up;
-#            the code is dropped and kept as a diff in the run records
+#   stuck    the gates stay red after MAX_ROUNDS fix rounds, the cost budget is used up, or a session failed
+#            twice (no access, an unknown model, a rate limit); the code is dropped and kept as a diff in the
+#            run records
 #
 # Env: UC, ENGINE (marketplace checkout), MODEL, MAX_TURNS, MAX_ROUNDS, MAX_COST_USD, STACK_PLUGIN (empty for
-#      layer plugins), DEFAULT_BRANCH, ARTIFACT_LOCATIONS, SPEC_LINT
+#      layer plugins), DEFAULT_BRANCH, ARTIFACT_LOCATIONS (a hint in the prompts only: the Werkstatt itself reads
+#      docs/), SPEC_LINT, RETRY_WAIT (seconds before a failed session is started once more, default 30)
 # Writes .werkstatt/<UC>/summary.json and the records of every station.
 set -uo pipefail
 
 UC="${UC:?UC is required, e.g. UC-003}"
 ENGINE="${ENGINE:?ENGINE is required}"
-MODEL="${MODEL:-claude-sonnet-5}"
+MODEL="${MODEL:-claude-opus-5-5}"
 MAX_TURNS="${MAX_TURNS:-150}"
 MAX_ROUNDS="${MAX_ROUNDS:-4}"
 MAX_COST_USD="${MAX_COST_USD:-15}"
@@ -33,11 +35,15 @@ STACK_PLUGIN="${STACK_PLUGIN:-}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 ARTIFACT_LOCATIONS="${ARTIFACT_LOCATIONS:-}"
 HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
-# Test code by path: Java/Kotlin test sources, test folders, TypeScript and .NET test files.
-TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.cs\$}"
+# Test code by path: Java/Kotlin test sources, test folders, TypeScript test files, .NET test projects
+# (MyApp.Tests/, MyApp.Tests.E2E/, MyApp.IntegrationTests/) and .NET test files (*Tests.cs, *Tests.razor).
+TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|(^|/)[^/]*Tests?(\\.[^/]+)?/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.(cs|razor)\$}"
 # Build files: the tester may add a test dependency or adjust a test runner's configuration. Kept, and listed.
 BUILD_REGEX="${BUILD_REGEX:-(^|/)(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|gradle/libs\\.versions\\.toml|package(-lock)?\\.json|pnpm-lock\\.yaml|yarn\\.lock|angular\\.json|tsconfig[^/]*\\.json|[^/]*\\.config\\.[cm]?[jt]s|[^/]*\\.csproj|Directory\\.(Packages|Build)\\.props)\$}"
 OQ_FILE=docs/open_questions.md
+# The test skills keep the Markers table of the stack file; the tester's change to it is kept, and listed.
+STACK_FILE=docs/architecture/stack.md
+RETRY_WAIT="${RETRY_WAIT:-30}"
 
 F=".werkstatt/$UC"
 mkdir -p "$F"
@@ -47,7 +53,13 @@ LAST_COVERAGE=""   # the matrix of the previous audit, kept per round as coverag
 START_TIME=$(date +%s)
 START_SHA=$(git rev-parse HEAD)
 
-SPEC=$(python3 "$HELPER" spec "$UC") || { echo "::error::No specification for $UC"; exit 1; }
+# run-change.sh checks this before it starts a use case; run on its own, the script still leaves a summary.
+SPEC=$(python3 "$HELPER" spec "$UC") || {
+  echo "::error::No specification for $UC"
+  jq -n --arg uc "$UC" '{uc:$uc, outcome:"skipped", fix_rounds:0, cost_usd:0, seconds:0,
+    reason:("No specification for " + $uc + " under docs/use_cases.")}' > "$F/summary.json"
+  exit 0
+}
 
 # The commands of the stack. Layer plugins: the orchestrators of aiup-core. A combined stack plugin brings its own.
 if [ -z "$STACK_PLUGIN" ]; then
@@ -64,10 +76,12 @@ else
   fi
 fi
 
-# The diff of the specification against the default branch makes removals visible (as in aiup-generate).
+# The diff of the specification against the default branch makes removals visible (as in aiup-generate). Against
+# the merge base, not the tip: a change made on the default branch after branching is no removal of this change.
 SPEC_DIFF=""
 if git rev-parse -q --verify "origin/$DEFAULT_BRANCH" >/dev/null; then
-  d=$(git diff "origin/$DEFAULT_BRANCH" HEAD -- "$SPEC")
+  DIFF_BASE=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD 2>/dev/null || echo "origin/$DEFAULT_BRANCH")
+  d=$(git diff "$DIFF_BASE" HEAD -- "$SPEC")
   if [ -n "$d" ] && [ "${#d}" -le 20000 ]; then
     SPEC_DIFF="The specification was changed on this branch. Its diff against \`$DEFAULT_BRANCH\`:
 
@@ -88,10 +102,10 @@ Do not run git."
 log() { echo "::group::$*"; }
 endlog() { echo "::endgroup::"; }
 
-# station <name> <prompt>
-station() {
-  local name="$1" prompt="$2" out="$F/session-$1-r$ROUNDS.json" t0 rc cost subtype
-  log "$UC: $name (round $ROUNDS)"
+# session <name> <prompt>: one headless session. Returns 1 when the session itself failed - a non-zero exit or
+# a result that is no JSON - which is not the same as a session that worked and was cut off by the turn limit.
+session() {
+  local name="$1" prompt="$2" out="$F/session-$1-r$ROUNDS.json" t0 rc cost subtype failed=0
   t0=$(date +%s)
   claude -p "$prompt" \
     --model "$MODEL" \
@@ -102,19 +116,46 @@ station() {
     > "$out" 2> "$F/session-$name-r$ROUNDS.err"
   rc=$?
   cost=$(jq -r '.total_cost_usd // 0' "$out" 2>/dev/null || echo 0)
-  TOTAL_COST=$(awk -v a="$TOTAL_COST" -v b="${cost:-0}" 'BEGIN{printf "%.4f", a+b}')
+  case "$cost" in ''|*[!0-9.]*) cost=0 ;; esac
+  TOTAL_COST=$(awk -v a="$TOTAL_COST" -v b="$cost" 'BEGIN{printf "%.4f", a+b}')
   # A session cut off by --max-turns ends with this subtype; its half-done work goes on to the gates all the same,
   # but the report says why a round may have been wasted.
   subtype=$(jq -r '.subtype // ""' "$out" 2>/dev/null || true)
   if [ "$subtype" = "error_max_turns" ]; then
     echo "::warning::$UC: the $name station stopped at the turn limit (max_turns $MAX_TURNS)."
     echo "The $name session of round $ROUNDS stopped at the turn limit (max_turns $MAX_TURNS)." >> "$F/notes.log"
+  elif [ "$rc" -ne 0 ] || ! jq -e 'type == "object"' "$out" >/dev/null 2>&1; then
+    failed=1
   fi
   jq -cn --arg uc "$UC" --arg st "$name" --argjson round "$ROUNDS" --argjson rc "$rc" --arg subtype "$subtype" \
-        --argjson cost "${cost:-0}" --argjson sec "$(( $(date +%s) - t0 ))" \
-        '{uc:$uc, station:$st, round:$round, exit:$rc, subtype:$subtype, cost_usd:$cost, seconds:$sec}' \
+        --argjson cost "$cost" --argjson sec "$(( $(date +%s) - t0 ))" --argjson failed "$failed" \
+        '{uc:$uc, station:$st, round:$round, exit:$rc, subtype:$subtype, cost_usd:$cost, seconds:$sec}
+         + (if $failed == 1 then {failed:true} else {} end)' \
         >> "$F/metrics.jsonl"
   echo "exit=$rc subtype=$subtype cost=$cost total=$TOTAL_COST"
+  SESSION_RC=$rc
+  return $failed
+}
+
+# station <name> <prompt>
+# A failed session is started once more; when it fails again, nothing was built and the gates would only judge
+# the code that was there before, so the use case ends stuck instead of green.
+station() {
+  local name="$1" detail
+  log "$UC: $name (round $ROUNDS)"
+  if ! session "$@"; then
+    echo "::warning::$UC: the $name session failed (exit $SESSION_RC); starting it once more."
+    echo "The $name session of round $ROUNDS failed (exit $SESSION_RC) and was started once more." >> "$F/notes.log"
+    cp "$F/session-$name-r$ROUNDS.json" "$F/session-$name-r$ROUNDS.failed.json" 2>/dev/null || true
+    cp "$F/session-$name-r$ROUNDS.err" "$F/session-$name-r$ROUNDS.failed.err" 2>/dev/null || true
+    sleep "$RETRY_WAIT"
+    if ! session "$@"; then
+      detail=$(jq -r '.result // empty' "$F/session-$name-r$ROUNDS.json" 2>/dev/null | head -n 1 | cut -c1-200)
+      [ -n "$detail" ] || detail=$(grep -v '^[[:space:]]*$' "$F/session-$name-r$ROUNDS.err" 2>/dev/null | tail -n 1 | cut -c1-200)
+      endlog
+      finish stuck "The $name session of $UC failed twice (exit $SESSION_RC)${detail:+: $detail}. Check the AI access, the model and the limits of the account, then start the run again."
+    fi
+  fi
   endlog
 }
 
@@ -122,15 +163,24 @@ over_budget() { awk -v t="$TOTAL_COST" -v m="$MAX_COST_USD" 'BEGIN{exit !(t>m)}'
 
 # Harness rule: a station may only change its own kind of file. Everything else is reverted.
 #   guard tests  -> the implementer may not touch test code
-#   guard code   -> the tester may only touch test code, build files (listed) and the open questions
+#   guard code   -> the tester may only touch test code, build files and the stack file (both listed) and the
+#                   open questions
+# The changes are read without rename detection and NUL-separated: a moved file is a deletion and an addition,
+# each judged by its own path, and a path with a non-ASCII character or a space arrives as it is on disk.
 guard() {
   local mode="$1" file
   git add -A
-  while IFS= read -r file; do
+  while IFS= read -r -d '' file; do
     [ -n "$file" ] || continue
-    if [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]] && [[ "$file" =~ $BUILD_REGEX ]]; then
-      echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
-      continue
+    if [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]]; then
+      if [[ "$file" =~ $BUILD_REGEX ]]; then
+        echo "$2 changed the build file $file (kept)" >> "$F/guard.log"
+        continue
+      fi
+      if [ "$file" = "$STACK_FILE" ]; then
+        echo "$2 changed the stack file $file (kept)" >> "$F/guard.log"
+        continue
+      fi
     fi
     if [ "$mode" = tests ] && [[ "$file" =~ $TEST_REGEX ]]; then :
     elif [ "$mode" = code ] && ! [[ "$file" =~ $TEST_REGEX ]] && [ "$file" != "$OQ_FILE" ]; then :
@@ -140,8 +190,16 @@ guard() {
     echo "$2 changed $file (reverted)" >> "$F/guard.log"
     git rm -q --cached -- "$file" 2>/dev/null || true
     if git cat-file -e "HEAD:$file" 2>/dev/null; then git checkout -q HEAD -- "$file"; else rm -f -- "$file"; fi
-  done < <(git diff --cached --name-only HEAD)
+  done < <(git -c core.quotePath=false diff --cached --name-only --no-renames -z HEAD)
   git reset -q
+}
+
+# drop: back to where the use case started, untracked files included; what is dropped stays as a diff in the records.
+drop() {
+  git add -A
+  git diff --cached "$START_SHA" > "$F/dropped.diff"
+  git reset -q --hard "$START_SHA"
+  git clean -fdq -e .werkstatt/ -e .aiup-werkstatt-engine/
 }
 
 commit() {
@@ -156,13 +214,12 @@ finish() {
   case "$outcome" in
     blocked)
       # Only the open questions stay; the code of an unfinished use case is no proposal.
-      git diff "$START_SHA" -- "$OQ_FILE" > "$F/oq.patch"
-      git diff "$START_SHA" > "$F/dropped.diff"
-      git reset -q --hard "$START_SHA"
+      git add -A
+      git diff --cached "$START_SHA" -- "$OQ_FILE" > "$F/oq.patch"
+      drop
       [ -s "$F/oq.patch" ] && git apply "$F/oq.patch" && commit "open questions" ;;
     stuck)
-      git diff "$START_SHA" > "$F/dropped.diff"
-      git reset -q --hard "$START_SHA" ;;
+      drop ;;
     ready)
       status=$(python3 "$HELPER" advance "$SPEC" "$3")
       # The requirements the use case links follow its new status, so the catalog shows no REQ_STATUS_DRIFT.

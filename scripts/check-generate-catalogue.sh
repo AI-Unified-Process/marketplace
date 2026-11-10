@@ -107,6 +107,50 @@ else:
         error(f"plugin selection: the combined stack plugins are {sorted(combined)}, expected "
               f"{sorted(NOT_LAYER - {'aiup-core'})}")
 
+# The block is run, not only compared: both copies being identically wrong passes every check above. /stack writes
+# the Skill and Test skill columns of the Layers table bare and the Integration layer table in backticks, and the
+# selection must find the skills in both forms - the same plugins the Werkstatt takes from the same stack file.
+if block is not None and selection(workflow) == block:
+    import subprocess, tempfile
+    STACK = """# Stack
+
+## Layers
+
+| Layer       | Technology  | Skill            | Test skill            |
+|-------------|-------------|------------------|-----------------------|
+| Migration   | Flyway      | flyway-schema    | –                     |
+| Persistence | jOOQ        | jooq-persistence | jooq-persistence-test |
+| Service     | Spring Boot | spring-service   | spring-service-test   |
+| API         | –           | –                | –                     |
+
+## Integration layer
+
+| Entry layer | Test skill            |
+|-------------|-----------------------|
+| Service     | `spring-service-test` |
+"""
+    with tempfile.TemporaryDirectory() as root:
+        os.makedirs(os.path.join(root, "docs", "architecture"))
+        stack = os.path.join(root, "docs", "architecture", "stack.md")
+        with open(stack, "w", encoding="utf-8") as handle:
+            handle.write(STACK)
+        body = "\n".join(line for line in block)
+        run = subprocess.run(["bash", "-c", "set -euo pipefail\n" + body + '\necho "RESULT $plugins"'], cwd=root,
+                             env={**os.environ, "PLUGIN": "aiup-core", "SKILL": "use-case-implement"},
+                             capture_output=True, text=True)
+        got = sorted(next((l[7:].split() for l in run.stdout.splitlines() if l.startswith("RESULT ")), []))
+        want = sorted(["aiup-core", "aiup-flyway", "aiup-jooq", "aiup-spring-boot"])
+        if got != want:
+            error(f"plugin selection: a stack file with bare skill names selects {got}, expected {want} "
+                  f"({run.stderr.strip()[-200:]})")
+        werkstatt = subprocess.run(
+            [sys.executable, "pipelines/werkstatt/werkstatt.py", "plugins", "--catalog",
+             "aiup-core/skills/stack/references/layer-catalog.md", "--stack", stack],
+            capture_output=True, text=True)
+        if sorted(werkstatt.stdout.split()) != got:
+            error(f"plugin selection: the generate workflow selects {got}, the Werkstatt "
+                  f"{sorted(werkstatt.stdout.split())} for the same stack file")
+
 # The report of spec-review is read by the Studio from the log; both implementations must print the same block.
 review = selection(script, "review report")
 if review is None or selection(workflow, "review report") is None:

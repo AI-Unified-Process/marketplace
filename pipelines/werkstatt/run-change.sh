@@ -7,7 +7,9 @@
 # AI Unified Process Werkstatt - builds the use cases of a change one after another on the checked-out branch.
 #
 # Stops at the first use case that ends blocked or stuck: later use cases of the same change may build on it.
-# The skipped ones are recorded as pending and stay Approved, so the next run selects them again.
+# The ones not reached are recorded as pending and stay Approved, so the next run selects them again.
+# A named use case that has no specification, or whose status is not Approved, is skipped with its reason in the
+# report and holds nothing up: the Werkstatt builds Approved use cases only, also when the ids are given by hand.
 # Writes .werkstatt/report.md (the pull request body) and the outcome to GITHUB_OUTPUT.
 #
 # DEADLINE (epoch seconds, optional) is when the stations must have stopped, early enough for the pull request
@@ -20,6 +22,8 @@ set -uo pipefail
 DEADLINE="${DEADLINE:-}"
 outcome=ready
 pending_reason=""
+built=0
+HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
 
 # pending <uc> <reason>
 pending() {
@@ -28,7 +32,24 @@ pending() {
     '{uc:$uc, outcome:"pending", reason:$reason, fix_rounds:0, cost_usd:0, seconds:0}' > ".werkstatt/$1/summary.json"
 }
 
+# skipped <uc> <reason>
+skipped() {
+  echo "::warning::$1: $2"
+  mkdir -p ".werkstatt/$1"
+  jq -n --arg uc "$1" --arg reason "$2" \
+    '{uc:$uc, outcome:"skipped", reason:$reason, fix_rounds:0, cost_usd:0, seconds:0}' > ".werkstatt/$1/summary.json"
+}
+
 for uc in "$@"; do
+  if ! spec=$(python3 "$HELPER" spec "$uc" 2>/dev/null); then
+    skipped "$uc" "Not built: no specification for $uc under docs/use_cases."
+    continue
+  fi
+  if [ "$(python3 "$HELPER" status "$spec")" != "2" ]; then
+    value=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' -e '/^\*\*Status:\*\*/q' "$spec")
+    skipped "$uc" "Not built: the status of $uc is ${value:-missing}, and the Werkstatt builds Approved use cases only."
+    continue
+  fi
   if [ -n "$pending_reason" ]; then
     pending "$uc" "$pending_reason"
     continue
@@ -44,6 +65,7 @@ for uc in "$@"; do
     fi
   fi
 
+  built=$((built + 1))
   start_sha=$(git rev-parse HEAD)
   t0=$(date +%s)
   rc=0
@@ -61,7 +83,7 @@ for uc in "$@"; do
     git add -A
     git diff --cached "$start_sha" > ".werkstatt/$uc/dropped.diff"
     git reset -q --hard "$start_sha"
-    git clean -fdq
+    git clean -fdq -e .werkstatt/ -e .aiup-werkstatt-engine/
     # The cost of the interrupted station is unknown; only the finished stations count.
     cost=0
     [ -s ".werkstatt/$uc/metrics.jsonl" ] && cost=$(jq -s 'map(.cost_usd) | add // 0' ".werkstatt/$uc/metrics.jsonl")
@@ -72,11 +94,15 @@ for uc in "$@"; do
   fi
 
   o=$(jq -r '.outcome // "stuck"' ".werkstatt/$uc/summary.json" 2>/dev/null || echo stuck)
-  if [ "$o" != "ready" ]; then
+  if [ "$o" = "skipped" ]; then
+    built=$((built - 1))
+  elif [ "$o" != "ready" ]; then
     outcome="$o"
     pending_reason="Not built in this run: waits for $uc."
   fi
 done
+# Nothing was built and nothing waits: every named use case was skipped.
+[ "$built" -gt 0 ] || [ "$outcome" != ready ] || outcome=none
 
 python3 - "$@" <<'EOF' > .werkstatt/report.md
 import json, os, sys

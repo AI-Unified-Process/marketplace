@@ -44,6 +44,14 @@ on:
       - '.github/workflows/publish-tessl.yml'
   workflow_dispatch:
 
+# One publishing run at a time: two pushes in quick succession would both pass the dry run, and the second
+# `tessl plugin publish` or `gh release create` would then fail on the version the first one just published.
+# A waiting run publishes whatever version is new when its turn comes, so nothing is lost when it replaces an
+# older waiting run.
+concurrency:
+  group: publish-tessl
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -61,7 +69,7 @@ jobs:
         with:
           fetch-depth: 0  # release notes need the plugin's history since its previous version
 
-      - uses: tesslio/setup-tessl@v2
+      - uses: tesslio/setup-tessl@25ec223fc0da33b41b8044ff5ab2b85235f4f91e # v2
         with:
           token: ${{ secrets.TESSL_TOKEN }}
 

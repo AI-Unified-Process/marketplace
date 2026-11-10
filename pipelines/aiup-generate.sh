@@ -175,7 +175,8 @@ esac
 # --- Run the skill ----------------------------------------------------------------
 # the lint alone needs no session (section "Determine the kind of the run")
 if [ "$lint_only" != true ]; then
-npm install --global --no-fund --no-audit @anthropic-ai/claude-code
+# A fixed version: the session holds the AI secrets, and a new release is taken over on purpose.
+npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.322
 
 # >>> plugin selection - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
 # A project uses either layer plugins or one combined stack plugin, never both: commands
@@ -205,7 +206,9 @@ for pair in $layer_skills; do
   layer_plugin=${pair%%:*}
   layer_skill=${pair#*:}
   case " $all_layers " in *" $layer_plugin "*) ;; *) all_layers="$all_layers $layer_plugin" ;; esac
-  if [ -f "$view" ] && grep -Eq "^\|.*\`$layer_skill\`" "$view"; then
+  # A table row that names the skill: in backticks anywhere in the row, or bare as a whole cell -
+  # /stack writes the Layers table bare and the Integration layer table in backticks.
+  if [ -f "$view" ] && grep -Eq "^\|.*(\`$layer_skill\`|\|[[:space:]]*$layer_skill[[:space:]]*\|)" "$view"; then
     case " $from_view " in *" $layer_plugin "*) ;; *) from_view="$from_view $layer_plugin" ;; esac
   fi
 done
@@ -348,6 +351,31 @@ advance_status() {
     echo "The skill changed nothing; the status was left alone."
     return 0
   fi
+  # A skill that stopped on a gap of the specification recorded an open question and built
+  # nothing, or not everything: the question log alone is no result, and a use case a blocking
+  # question names is not Implemented or Tested (OQ_BLOCKING of spec_lint.py).
+  if [ -z "$(git status --porcelain -- . ':(exclude)docs/open_questions.md')" ]; then
+    echo "The skill only recorded open questions; the status was left alone."
+    return 0
+  fi
+  local uc blocking
+  uc=$(sed -n -e 's/^\*\*Use[ -]Case[ -]ID:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' "$SUBJECT" | head -n 1)
+  if [ -n "$uc" ] && [ -f docs/open_questions.md ]; then
+    blocking=$(awk -v uc="$uc" '
+      function flush() {
+        if (id != "" && index(el, uc) == 1 && substr(el, length(uc) + 1, 1) !~ /[A-Za-z0-9_-]/ \
+            && bl ~ /^(yes|ja)/ && st ~ /^(open|answered|offen|beantwortet)/) printf "%s ", id
+      }
+      /^## OQ-/ { flush(); id = $2; sub(/:.*/, "", id); el = ""; bl = ""; st = ""; next }
+      /^\*\*Element:\*\*/ { el = $0; sub(/^\*\*Element:\*\*[ \t]*/, "", el) }
+      /^\*\*Blocking:\*\*/ { bl = tolower($0); sub(/^\*\*blocking:\*\*[ \t]*/, "", bl) }
+      /^\*\*Status:\*\*/ { st = tolower($0); sub(/^\*\*status:\*\*[ \t]*/, "", st) }
+      END { flush() }' docs/open_questions.md)
+    if [ -n "$blocking" ]; then
+      echo "Blocking open questions on $uc (${blocking% }); the status was left alone."
+      return 0
+    fi
+  fi
   local current rank value
   current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
     -e '/^\*\*Status:\*\*/q' "$SUBJECT")
@@ -377,9 +405,9 @@ advance_status() {
   else
     value=$english
   fi
-  # Only the first status line, and the trailing spaces of a Markdown hard break are
-  # kept - dropping them would join the line with the one below it.
-  sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*\([[:space:]]*\)\$/\1 $value\2/" "$SUBJECT"
+  # Only the first status line and only its value: what follows it - the trailing spaces
+  # of a Markdown hard break, a comment, a note - stays as it is.
+  sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*/\1 $value/" "$SUBJECT"
   echo "Status of '$SUBJECT': $current -> $value"
 }
 advance_status

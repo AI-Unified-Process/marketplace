@@ -18,7 +18,7 @@ on:
   workflow_call:
     inputs:
       use_cases:
-        description: Use case ids to build, space-separated (empty = every Approved use case of the change)
+        description: Use case ids to build, space-separated (empty = every Approved use case of the change); a named one that is not Approved is skipped
         required: false
         default: ""
         type: string
@@ -39,14 +39,17 @@ on:
         default: ""
         type: string
       artifact_locations:
-        description: Where the artifacts lie when the repository deviates from the defaults (as in aiup-generate)
+        # A hint in the prompts of the stations only. The Werkstatt itself - selection, spec lint, andon cord,
+        # status advance, requirements - reads docs/use_cases, docs/requirements.md, docs/open_questions.md and
+        # docs/architecture/stack.md.
+        description: Prompt hint for where the artifacts lie; the Werkstatt itself reads the default paths under docs/
         required: false
         default: ""
         type: string
       model:
         description: Model Claude Code runs with
         required: false
-        default: claude-sonnet-5
+        default: claude-opus-5-5
         type: string
       max_turns:
         description: Upper limit of turns per station (the cost budget is the real limit; this one stops loops)
@@ -172,7 +175,8 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           set -euo pipefail
-          npm install -g @anthropic-ai/claude-code
+          # A fixed version: the stations hold the AI secrets, and a new release is taken over on purpose.
+          npm install -g @anthropic-ai/claude-code@2.1.322
           claude plugin marketplace add https://github.com/AI-Unified-Process/marketplace.git
           for plugin in $PLUGINS; do
             claude plugin install "$plugin@ai-unified-process-marketplace"
@@ -207,7 +211,7 @@ jobs:
       - name: Provide the result as a pull request against the change branch
         id: pr
         if: steps.run.outputs.outcome != ''
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
           # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.
           token: ${{ secrets.AIUP_PR_TOKEN || github.token }}

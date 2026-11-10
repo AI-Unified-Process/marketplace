@@ -208,7 +208,9 @@ jobs:
             layer_plugin=${pair%%:*}
             layer_skill=${pair#*:}
             case " $all_layers " in *" $layer_plugin "*) ;; *) all_layers="$all_layers $layer_plugin" ;; esac
-            if [ -f "$view" ] && grep -Eq "^\|.*\`$layer_skill\`" "$view"; then
+            # A table row that names the skill: in backticks anywhere in the row, or bare as a whole cell -
+            # /stack writes the Layers table bare and the Integration layer table in backticks.
+            if [ -f "$view" ] && grep -Eq "^\|.*(\`$layer_skill\`|\|[[:space:]]*$layer_skill[[:space:]]*\|)" "$view"; then
               case " $from_view " in *" $layer_plugin "*) ;; *) from_view="$from_view $layer_plugin" ;; esac
             fi
           done
@@ -343,7 +345,7 @@ jobs:
       - name: Run the skill
         # the lint alone needs no session (step "Determine the kind of the run")
         if: steps.mode.outputs.lint_only != 'true'
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1
         with:
           # Two ways to the AI access, one of them is enough: an API key from the
           # Anthropic Console or - with a Claude subscription - the token from
@@ -482,6 +484,30 @@ jobs:
             echo "The skill changed nothing; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          # A skill that stopped on a gap of the specification recorded an open question and built
+          # nothing, or not everything: the question log alone is no result, and a use case a blocking
+          # question names is not Implemented or Tested (OQ_BLOCKING of spec_lint.py).
+          if [ -z "$(git status --porcelain -- . ':(exclude)docs/open_questions.md')" ]; then
+            echo "The skill only recorded open questions; the status was left alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          uc=$(sed -n -e 's/^\*\*Use[ -]Case[ -]ID:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' "$SUBJECT" | head -n 1)
+          if [ -n "$uc" ] && [ -f docs/open_questions.md ]; then
+            blocking=$(awk -v uc="$uc" '
+              function flush() {
+                if (id != "" && index(el, uc) == 1 && substr(el, length(uc) + 1, 1) !~ /[A-Za-z0-9_-]/ \
+                    && bl ~ /^(yes|ja)/ && st ~ /^(open|answered|offen|beantwortet)/) printf "%s ", id
+              }
+              /^## OQ-/ { flush(); id = $2; sub(/:.*/, "", id); el = ""; bl = ""; st = ""; next }
+              /^\*\*Element:\*\*/ { el = $0; sub(/^\*\*Element:\*\*[ \t]*/, "", el) }
+              /^\*\*Blocking:\*\*/ { bl = tolower($0); sub(/^\*\*blocking:\*\*[ \t]*/, "", bl) }
+              /^\*\*Status:\*\*/ { st = tolower($0); sub(/^\*\*status:\*\*[ \t]*/, "", st) }
+              END { flush() }' docs/open_questions.md)
+            if [ -n "$blocking" ]; then
+              echo "Blocking open questions on $uc (${blocking% }); the status was left alone." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
           current=$(sed -n -e 's/^\*\*Status:\*\*[[:space:]]*\([^[:space:]]*\).*/\1/p' \
             -e '/^\*\*Status:\*\*/q' "$SUBJECT")
           # The AI Unified Process status values in their order, English and German.
@@ -511,9 +537,9 @@ jobs:
           else
             value=$english
           fi
-          # Only the first status line, and the trailing spaces of a Markdown hard break
-          # are kept - dropping them would join the line with the one below it.
-          sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*\([[:space:]]*\)\$/\1 $value\2/" "$SUBJECT"
+          # Only the first status line and only its value: what follows it - the trailing spaces
+          # of a Markdown hard break, a comment, a note - stays as it is.
+          sed -i "0,/^\*\*Status:\*\*/s/^\(\*\*Status:\*\*\)[[:space:]]*[^[:space:]]*/\1 $value/" "$SUBJECT"
           echo "Status of \`$SUBJECT\`: $current -> $value" >> "$GITHUB_STEP_SUMMARY"
 
       # Title and description name the artifact the run was set on. The subject is not
@@ -528,7 +554,7 @@ jobs:
         id: pr
         # spec-review proposes nothing; its report is in the log
         if: steps.mode.outputs.review != 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
           # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.
           token: ${{ secrets.AIUP_PR_TOKEN || github.token }}

@@ -17,7 +17,11 @@ engine="$1"
 default_branch="$2"
 base=$(git merge-base "origin/$default_branch" HEAD)
 
-for f in $(git diff --name-only --diff-filter=AM "$base" HEAD -- ':(glob)docs/use_cases/**/UC-*.md'); do
+# A, M and R: a specification moved into a module folder in the same change is listed under its new path.
+# NUL-separated and unquoted, so a path with a space or a non-ASCII character arrives as it is on disk.
+git -c core.quotePath=false diff --name-only -z --diff-filter=AMR "$base" HEAD -- ':(glob)docs/use_cases/**/UC-*.md' |
+while IFS= read -r -d '' f; do
+  [ -f "$f" ] || continue
   [ "$(python3 "$engine/pipelines/werkstatt/werkstatt.py" status "$f")" = "2" ] || continue
-  basename "$f" | grep -oE '^UC-[0-9]+'
+  basename "$f" | grep -oE '^UC-[0-9]+' || true
 done | sort -t- -k2,2n -u | paste -sd' ' -
