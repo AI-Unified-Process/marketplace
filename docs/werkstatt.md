@@ -80,7 +80,7 @@ file, and an error there blocks the use case too, with the lint's findings in th
 
 | Outcome | Meaning | What the pull request carries |
 | --- | --- | --- |
-| `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit), and the new status of the requirements the use case links |
+| `ready` | All gates green | Code, tests, status `Tested` (`Implemented` when the stack has no coverage audit), the new status of the requirements the use case links, and its new colour in the use case diagram |
 | `blocked` | Spec lint errors, a blocking open question, or an open questions file the lint rejects | Only the new open questions; the code is dropped, untracked files included |
 | `stuck` | Still red after the fix rounds, over budget, a session that failed twice, a spec lint that failed itself, or stations that stopped without a result | Nothing of this use case, untracked files included; the code is kept as `dropped.diff` in the run records |
 | `pending` | Not built: an earlier use case of the run stopped | Nothing; it is built in the next run |
@@ -90,6 +90,11 @@ The requirements follow the use case in the same commit: the progress status (`O
 `Verified`) of every requirement the use case links moves to what its use cases make it, derived by `spec_lint.py`
 as `/spec-review` derives it, so the pull request shows no `REQ_STATUS_DRIFT`. `Deferred` and `Rejected` are set by
 hand and stay.
+
+The use case diagram follows too: the use case is drawn in the colour of its new status, as `/use-case-diagram`
+("Status colours") and the Studio draw it — in the colour the diagram's legend gives that status, so a project's own
+palette stays, otherwise in the standard colour with a new legend row. Module diagrams
+(`docs/use_cases/*/use_cases.puml`) count as well; every other line of the diagram stays.
 
 Use cases run in id order, also when `use_cases` names them in another order, and an id named twice is built once.
 The run stops at the first one that is not `ready`, because later use cases of the same change may build on it. The stations stop 10 minutes before `timeout_minutes`, so the pull request is still

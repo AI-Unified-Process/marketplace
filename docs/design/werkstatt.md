@@ -36,6 +36,8 @@ so a use case at `Tested` with its requirements still `Open` is a contradiction 
 `REQ_STATUS_DRIFT`. The Werkstatt writes the derived status of the linked requirements into the same commit. It does
 not derive it a second time: `werkstatt.py requirements` imports `derived_status()` from `spec_lint.py`, the one
 copy. The writer lives in the Werkstatt and not in `spec_lint.py`, because `/spec-review` is read-only.
+The same holds for the use case diagram: its colours show the status, so `werkstatt.py diagram` recolours the use
+case in the same commit, taking the colour from the diagram's legend before the standard one.
 
 ## Separate sessions, guarded lanes
 

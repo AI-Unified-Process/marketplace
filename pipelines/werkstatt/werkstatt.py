@@ -21,6 +21,11 @@ Standard library only. The shell scripts call one subcommand at a time:
   werkstatt.py advance <file> <Implemented|Tested>
       Moves the status forward to the target, only out of Approved or a status before the target, never backwards,
       in the language of the specification. Prints the old and the new value.
+  werkstatt.py diagram <UC-XXX> [--docs docs]
+      After a status advance: draws the use case in the use case diagram (docs/use_cases.puml, or the module diagrams
+      docs/use_cases/*/use_cases.puml) in the colour of its new status, as /use-case-diagram and the Studio do: the
+      colour the diagram's legend gives the status, otherwise the standard colour, and a legend row for a new colour.
+      Every other line stays. Prints the diagram it changed.
   werkstatt.py blocking <UC-XXX> [--docs docs]
       The ids of the blocking open questions (Open or Answered) whose element names the use case, or a requirement
       its **Requirements:** line links, one per line; read as spec_lint.py reads the file.
@@ -166,6 +171,108 @@ def advance(args):
             done = True
     write_back(args.file, "\n".join(lines))
     print(f"{current} -> {value}")
+
+
+# The status colours of /use-case-diagram ("Status colours") and of the Studio (UseCaseDiagramStatus, UC-010 BR-014).
+STATUS_COLOURS = {0: None, 1: "LightBlue", 2: "PaleTurquoise", 3: "Thistle", 4: "Khaki", 5: "LightGreen"}
+USECASE_ENTRY = re.compile(r'usecase\s+"([^"]+)"(?:\s+as\s+(\w+))?')
+DIAGRAM_UC_ID = re.compile(r"([SB]?UC-[A-Za-z0-9_-]+)")
+LEGEND_ROW = re.compile(r"^\s*\|\s*<#(\w+)>\s*\|\s*Status:\s*([^|]*?)\s*\|")
+# The background of an entry's style (#Khaki, #back:Khaki, #Pink-White); line:red and the like are no background.
+BACKGROUND = re.compile(r"(?i)(?:back:)?[a-z0-9]+(?:[|/\\-][a-z0-9]+)?")
+
+
+def legend_bounds(lines):
+    """(start, end) of the legend block, or None."""
+    start = next((i for i, line in enumerate(lines)
+                  if line.strip().lower() == "legend" or line.strip().lower().startswith("legend ")), None)
+    if start is None:
+        return None
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].strip().lower() == "endlegend"), None)
+    return None if end is None else (start, end)
+
+
+def legend_colour(lines, rank):
+    """The colour the legend gives the status (either language), so a project's own palette wins."""
+    bounds = legend_bounds(lines)
+    if bounds:
+        for line in lines[bounds[0]:bounds[1]]:
+            match = LEGEND_ROW.match(line)
+            if match and STATUS_RANK.get(match.group(2).strip().lower()) == rank:
+                return match.group(1)
+    return None
+
+
+def recolour(line, tail_start, colour):
+    """The entry with its background set to the colour (None removes it); the rest of its style stays."""
+    tail = line[tail_start:]
+    stereotype = re.match(r"\s*<<.*?>>", tail)
+    stereotype = stereotype.group() if stereotype else ""
+    style = re.match(r"\s*#(\S+)", tail[len(stereotype):])
+    rest = tail[len(stereotype) + (style.end() if style else 0):]
+    parts = style.group(1).split(";") if style else []
+    background = parts.pop(0) if parts and BACKGROUND.fullmatch(parts[0]) else None
+    if (background is None and colour is None) or (background and colour and background.lower() == colour.lower()):
+        return line
+    if colour:
+        parts.insert(0, colour)
+    return line[:tail_start] + stereotype + (" #" + ";".join(parts) if parts else "") + rest
+
+
+def recolour_diagram(text, uc, rank, label):
+    """The diagram with the use case in the colour of the status, or the text itself when nothing changes."""
+    lines = text.split("\n")
+    cr = "\r" if "\r\n" in text else ""
+    colour = legend_colour([line.rstrip("\r") for line in lines], rank) or STATUS_COLOURS.get(rank)
+    changed = False
+    for i, line in enumerate(lines):
+        body = line[:-1] if line.endswith("\r") else line
+        if body.lstrip().startswith("'"):
+            continue
+        match = USECASE_ENTRY.search(body)
+        if not match:
+            continue
+        found = DIAGRAM_UC_ID.search(match.group(1))
+        if (found.group(1) if found else match.group(2) or match.group(1).strip()) != uc:
+            continue
+        new = recolour(body, match.end(), colour)
+        if new != body:
+            lines[i] = new + line[len(body):]
+            changed = True
+    if not changed:
+        return text
+    if colour:
+        bounds = legend_bounds([line.rstrip("\r") for line in lines])
+        row = f"  |<#{colour}>| Status: {label} |{cr}"
+        if bounds:
+            marker = f"<#{colour.lower()}>"
+            if not any(marker in line.lower() for line in lines[bounds[0]:bounds[1]]):
+                lines.insert(bounds[1], row)
+        else:
+            end = next((i for i in range(len(lines) - 1, -1, -1) if lines[i].strip().lower() == "@enduml"), None)
+            if end is not None:
+                lines[end:end] = [f"legend right{cr}", row, f"endlegend{cr}", cr]
+    return "\n".join(lines)
+
+
+def diagram(args):
+    found = sorted(glob.glob(os.path.join(args.docs, "use_cases", "**", f"{args.uc}-*.md"), recursive=True))
+    if not found:
+        return
+    label = current_status(read(found[0]))
+    rank = STATUS_RANK.get(label.lower(), -1)
+    if rank < 0:
+        return
+    paths = [os.path.join(args.docs, "use_cases.puml")] + sorted(
+        glob.glob(os.path.join(args.docs, "use_cases", "*", "use_cases.puml")))
+    for path in paths:
+        if not os.path.isfile(path):
+            continue
+        text = read(path)
+        new = recolour_diagram(text, args.uc, rank, label)
+        if new != text:
+            write_back(path, new)
+            print(path)
 
 
 def load_spec_lint(path):
@@ -600,6 +707,42 @@ def self_test():
             expect("advance crlf kept", handle.read(),
                    b"# UC-004: Windows\r\n\r\n**Status:** Tested\r\n**Primary Actor:** Guest\r\n")
 
+        # diagram: the legend's colour for the status wins, the standard colour otherwise, a legend row for it,
+        # other style parts and other entries stay
+        with tempfile.TemporaryDirectory() as droot:
+            ddocs = os.path.join(droot, "docs")
+            write(os.path.join(ddocs, "use_cases", "UC-016-x.md"), "# UC-016: X\n\n**Status:** Getestet\n")
+            write(os.path.join(ddocs, "use_cases", "UC-017-y.md"), "# UC-017: Y\n\n**Status:** Tested\n")
+            write(os.path.join(ddocs, "use_cases", "UC-018-z.md"), "# UC-018: Z\n\n**Status:** Draft\n")
+            puml = os.path.join(ddocs, "use_cases.puml")
+            write(puml, '@startuml\nrectangle S {\n  usecase "UC-016\\nX" as UC016 #White\n'
+                        '  usecase "UC-017\\nY" as UC017 <<main>> #Pink;line:red\n'
+                        '  usecase "UC-018\\nZ" as UC018 #Thistle\n'
+                        "' usecase \"UC-016\\nX\" as OLD #White\n}\n"
+                        "legend right\n  |<#PaleGreen>| Status: Getestet |\nendlegend\n@enduml\n")
+            expect("diagram legend colour", run(diagram, uc="UC-016", docs=ddocs), puml + "\n")
+            text = read(puml)
+            expect("diagram legend colour text", 'as UC016 #PaleGreen\n' in text, True)
+            expect("diagram comment untouched", "as OLD #White" in text, True)
+            expect("diagram again: nothing", run(diagram, uc="UC-016", docs=ddocs), "")
+            run(diagram, uc="UC-017", docs=ddocs)
+            text = read(puml)
+            expect("diagram tested: same legend colour, style kept",
+                   'as UC017 <<main>> #PaleGreen;line:red\n' in text, True)
+            run(diagram, uc="UC-018", docs=ddocs)
+            expect("diagram draft: no colour", 'as UC018\n' in read(puml), True)
+            expect("diagram: no new legend row", read(puml).count("Status:"), 1)
+            # without a legend: the standard colour and a new legend before @enduml, CRLF kept
+            mod = os.path.join(ddocs, "use_cases", "billing", "use_cases.puml")
+            os.makedirs(os.path.dirname(mod))
+            with open(mod, "w", encoding="utf-8", newline="") as handle:
+                handle.write('@startuml\r\nusecase "UC-017\\nY" as UC017\r\n@enduml\r\n')
+            expect("diagram module", run(diagram, uc="UC-017", docs=ddocs), mod + "\n")
+            with open(mod, "rb") as handle:
+                expect("diagram module text", handle.read().decode("utf-8"),
+                       '@startuml\r\nusecase "UC-017\\nY" as UC017 #Khaki\r\nlegend right\r\n'
+                       '  |<#Khaki>| Status: Tested |\r\nendlegend\r\n\r\n@enduml\r\n')
+
         # blocking: Open or Answered, Yes or Ja, element names exactly this use case or a requirement it links
         expect("blocking without file", run(blocking, uc="UC-001", docs=docs), "")
         write(os.path.join(docs, "open_questions.md"), SELF_TEST_QUESTIONS)
@@ -743,6 +886,10 @@ def main():
     p.add_argument("file")
     p.add_argument("target", choices=sorted(TARGETS))
     p.set_defaults(func=advance)
+    p = sub.add_parser("diagram")
+    p.add_argument("uc")
+    p.add_argument("--docs", default="docs")
+    p.set_defaults(func=diagram)
     p = sub.add_parser("blocking")
     p.add_argument("uc")
     p.add_argument("--docs", default="docs")

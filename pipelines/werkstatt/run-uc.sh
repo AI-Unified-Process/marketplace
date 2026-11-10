@@ -248,6 +248,8 @@ finish() {
       status=$(python3 "$HELPER" advance "$SPEC" "$3")
       # The requirements the use case links follow its new status, so the catalog shows no REQ_STATUS_DRIFT.
       reqs=$(python3 "$HELPER" requirements "$UC" | paste -sd, - | sed 's/,/, /g')
+      # The use case diagram draws the use case in the colour of its new status (/use-case-diagram "Status colours").
+      python3 "$HELPER" diagram "$UC" >/dev/null || echo "::warning::$UC: the use case diagram could not be recoloured"
       commit "status $status${reqs:+; $reqs}" ;;
   esac
   jq -n --arg uc "$UC" --arg spec "$SPEC" --arg outcome "$outcome" --arg reason "$reason" --arg status "$status" \

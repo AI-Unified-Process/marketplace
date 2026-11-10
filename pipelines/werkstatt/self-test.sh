@@ -184,6 +184,10 @@ fixture() {
       printf '| NFR-001 | Fields | Errors at the field. | Usability | UC-001, UC-002, UC-003 | High | Open |\n'
     } > docs/requirements.md
     printf '# Open Questions\n' > docs/open_questions.md
+    # The project's legend gives Tested its own colour; a ready use case is drawn in it.
+    printf '%s\n' '@startuml' 'usecase "UC-001\nCase 001" as UC001 #PaleTurquoise' \
+      'usecase "UC-002\nCase 002" as UC002 #PaleTurquoise' 'legend right' '  |<#PaleTurquoise>| Status: Approved |' '  |<#PaleGreen>| Status: Tested |' 'endlegend' '@enduml' \
+      > docs/use_cases.puml
     printf '# Stack\n\n## Commands\n\n| Purpose | Command |\n|---|---|\n| Build | `true` |\n' \
       > docs/architecture/stack.md
     echo "readme" > README.md
@@ -220,6 +224,8 @@ expect_grep "1 guard lists the revert" "Sneaky001Test.java (reverted)" "$R/.werk
 expect_eq "1 audit left no change" "$(cat "$R/README.md")" readme
 expect_grep "1 tester's Markers rows kept" "^## Markers" "$R/docs/architecture/stack.md"
 expect_grep "1 guard lists the stack file" "stack file docs/architecture/stack.md (kept)" "$R/.werkstatt/UC-001/guard.log"
+expect_grep "1 UC-001 drawn in the legend's colour of Tested" 'as UC001 #PaleGreen$' "$R/docs/use_cases.puml"
+expect_grep "1 UC-002 colour unchanged" 'as UC002 #PaleTurquoise$' "$R/docs/use_cases.puml"
 expect_eq "1 UC-002 outcome" "$(outcome_of "$R" UC-002)" blocked
 expect_eq "1 UC-002 status" "$(status_of "$R" UC-002)" Approved
 expect_no_file "1 UC-002 code dropped" "$R/src/main/UC002.java"
