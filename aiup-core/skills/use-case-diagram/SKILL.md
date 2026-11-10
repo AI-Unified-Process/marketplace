@@ -87,6 +87,47 @@ When `docs/use_cases.puml` is a `@startuml Modules` overview, the diagram is spl
 [references/modules.md](references/modules.md) before you add, move, or number a use case. Never introduce a split
 in a diagram that has none.
 
+## Status colours
+
+The background colour of a use case shows the status of its specification (`**Status:**` in
+`docs/use_cases/UC-XXX-*.md`). Every status has one colour:
+
+| Status      | German        | Colour           |
+|-------------|---------------|------------------|
+| Draft       | Entwurf       | none             |
+| Reviewed    | Geprüft       | `#LightBlue`     |
+| Approved    | Genehmigt     | `#PaleTurquoise` |
+| Implemented | Implementiert | `#Thistle`       |
+| Tested      | Getestet      | `#Khaki`         |
+| Done        | Abgeschlossen | `#LightGreen`    |
+| Obsolete    | Obsolet       | `#LightGray`     |
+
+```plantuml
+rectangle "System Name" {
+    usecase "UC-001\nDescription" as UC001 #LightGreen
+    usecase "UC-002\nDescription" as UC002 #Thistle
+    usecase "UC-003\nDescription" as UC003
+}
+
+legend right
+  |<#Thistle>| Status: Implemented |
+  |<#LightGreen>| Status: Done |
+endlegend
+```
+
+- The colour follows the specification, never the other way round: read the status from the specification of the
+  use case and write its colour after the alias. A use case without a specification, or with status Draft, has no
+  colour — so a diagram drawn before any specification exists has none at all.
+- When you update a diagram, keep the colour of every use case you do not touch, and correct a colour that no
+  longer matches the status of its specification.
+- The legend before `@enduml` has one row per colour the diagram uses, `|<#Colour>| Status: <status>|`, with the
+  status value in the language of the specifications. Add the row a new colour needs; keep rows and wording that
+  are already there. A diagram without colours has no legend.
+- Do not use the background colour of a use case for anything else. Other style parts of an entry, such as
+  `;line:red`, stay as they are.
+- With modules, the same applies to every module diagram; the `@startuml Modules` overview has no use cases and
+  no colours.
+
 ## Conventions
 
 - Each use case has a unique id and a description
@@ -105,7 +146,8 @@ in a diagram that has none.
 3. Identify actors and use cases from requirements
 4. Check every use case against the question in "Goal level": fold subfunctions into the user goal they serve,
    split summary goals, and tell the user which use cases you merged or split and why
-5. Create/update the PlantUML use case diagram
+5. Create/update the PlantUML use case diagram; for every use case that has a specification, read its status and
+   set the colour and the legend as "Status colours" describes
 6. Validate the diagram:
     - Each use case is a user goal (see "Goal level"); a subfunction appears only as an `<<include>>` shared by
       several use cases
@@ -113,6 +155,8 @@ in a diagram that has none.
     - All actors are connected to at least one use case
     - Use case IDs follow the UC-{3-digit} convention
     - PlantUML syntax is valid (no missing `@enduml`, proper arrow syntax)
+    - Every colour matches the status of the use case's specification, and the legend has a row for every colour
+      in use (see "Status colours")
     - With modules: every use case is in exactly one module diagram, and the overview's packages match the module
       folders
 
