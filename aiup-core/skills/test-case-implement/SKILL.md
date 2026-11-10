@@ -51,13 +51,14 @@ these sections of it to the journey, reading "use case" as "test case":
   a diff after the path is the definitive list of what changed.
 - **When a Test Fails** — the test case is the oracle: an expected value comes from the Flow table, the test data,
   or the Validation items, never from what the application shows.
+- **Gaps in the Specification**: an expected value neither the test case nor the use cases its Flow links give is
+  a gap, not a value read off the code: it is asked or left out and recorded in `docs/open_questions.md` on the use
+  case element it concerns.
 - **Test Markers** — the test carries the `TC-XXX` id and names each step after its Flow row; where the E2E rows of
   the Markers table prescribe it, it also names the use cases the Flow links (`@TestCase(useCases = …)` in Vaadin).
 - **Status of the Specification** — the status checked is the test case's own, and that of every use case its Flow
   links: at `Draft` or `Reviewed` ask whether to go ahead or to run `/spec-review` first; write nothing for an
   `Obsolete` test case, and name an `Obsolete` use case in the Flow as a hand-off to `/test-case TC-XXX`.
-- **Gaps in the Specification** — an expected value the test case and its use cases do not give is asked or left
-  out, and recorded in `docs/open_questions.md` on the use case concerned, never read off the application.
 - **Decision Rights** — test data and the test's structure are decided alone by default, an expected value the test
   case does not give is asked first, and an existing test is never changed to make it pass; the report lists the
   decisions taken alone under **Decisions**.

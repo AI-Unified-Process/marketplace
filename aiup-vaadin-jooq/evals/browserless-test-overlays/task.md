@@ -4,7 +4,7 @@
 
 The warehouse team has a new Inventory Management view (`InventoryView`) that lets operators manage stock items. Each item row has a right-click context menu with **Edit**, **Delete**, and **View History** options. Choosing **Delete** opens a three-button confirmation dialog — **Confirm**, **Cancel**, and **Archive Instead** — so that accidental deletions are prevented.
 
-The team now needs a server-side unit test suite covering the deletion flow described in use case UC-015 ("Delete Inventory Item"). The spec lives at `docs/use-cases/UC-015-delete-inventory-item.md`. The view scaffold is already in place at `src/main/java/com/example/inventory/view/InventoryView.java` and shows the component types in use: a `Grid`, a `ConfirmDialog`, and a `ContextMenu`.
+The team now needs a server-side unit test suite covering the deletion flow described in use case UC-015 ("Delete Inventory Item"). The spec lives at `docs/use_cases/UC-015-delete-inventory-item.md`. The view scaffold is already in place at `src/main/java/com/example/inventory/view/InventoryView.java` and shows the component types in use: a `Grid`, a `ConfirmDialog`, and a `ContextMenu`.
 
 Your task is to write a comprehensive Vaadin Browserless (server-side) unit test class that exercises three scenarios from the spec:
 

@@ -29,7 +29,7 @@
     },
     {
       "name": "Controller with an error mapping per flow",
-      "description": "A @RestController under /api offers today's menu (GET) and placing an order (POST → 201 Created with a Location header), with a UC-001 Javadoc line on each handler, a @Valid request record with a six-digit constraint on the employee number, and no repository, @Transactional, or business decision; one @RestControllerAdvice maps each domain exception to an RFC 9457 ProblemDetail whose detail is the specification's message — A1 and A2 409, A3 404 or 409 — and invalid input to 400 with an errors entry per field",
+      "description": "A @RestController under /api offers today's menu (GET) and placing an order (POST → 201 Created, with a Location header only when a read endpoint of the order exists, never one that answers 404), with a UC-001 Javadoc line on each handler, a @Valid request record with a six-digit constraint on the employee number, and no repository, @Transactional, or business decision; one @RestControllerAdvice maps each domain exception to an RFC 9457 ProblemDetail whose detail is the specification's message — A1 and A2 409, A3 404 or 409 — and invalid input to 400 with an errors entry per field",
       "max_score": 11
     },
     {

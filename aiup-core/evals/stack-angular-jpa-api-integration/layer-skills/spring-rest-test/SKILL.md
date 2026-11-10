@@ -40,9 +40,9 @@ out.
 
 ## Scope
 
-- **Tests** the endpoints of the use case: the status of every flow, the `Location` of a created resource, the JSON
-  field names and formats of request and response, the Problem Details body of every rejection, and field errors
-  for invalid input.
+- **Tests** the endpoints of the use case: the status of every flow, the `Location` of a created resource where the
+  Handover lists one, the JSON field names and formats of request and response, the Problem Details body of every
+  rejection, and field errors for invalid input.
 - **Tests the business rules too** when the Integration layer table of `docs/architecture/stack.md` names
   the API for this use case (behind an Angular or Next.js client, in a REST service, or for an `API`-only use case): every rule gets its allowed and its rejected
   request at the boundary the rule names, with the full `detail` message, and the postconditions are read back
@@ -149,7 +149,7 @@ everything else; never remove or rename an attribute, other tests use it.
 
 | Unit of the specification               | Assert                                                                            |
 |-----------------------------------------|-----------------------------------------------------------------------------------|
-| Main success scenario, per endpoint     | status, `Location` on create, every response field the use case shows the actor    |
+| Main success scenario, per endpoint     | status, `Location` on create where the Handover lists it, every response field the use case shows the actor |
 | Alternative flow rejected by the service | status, `application/problem+json`, `type`, and the full `detail` message          |
 | Business rule                           | an allowed and a rejected request at the boundary the rule names (exactly eighteen on arrival, one day younger), the rejection with its full `detail` |
 | Postcondition                           | the persisted state read back through the API's own read endpoint when the response does not expose it |

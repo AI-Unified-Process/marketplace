@@ -43,10 +43,9 @@ in and leave the value out.
 - **Consumes** the Handover of the persistence layer: the repository, its methods, the result types they return, the
   steps that share a transaction, and the constraint violations its methods raise. In a project without a persistence skill run, the existing
   repositories. For a use case that calls an external system, also the Client Handover: the port and its methods.
-- **Assumes Drizzle below it.** The sections "Transactions" and "Constraint Violations" are written for the
-  persistence layer `/drizzle-persistence` builds. When the Persistence row of the stack file names another technology
-  (Prisma, TypeORM, MikroORM), follow the project's existing transaction and error-handling convention in their place,
-  write no Drizzle code, and say in the report that this skill did not guide those two parts.
+- **Written for Drizzle below it.** The examples of "Transactions" and "Constraint Violations" are those of
+  `/drizzle-persistence`. With another persistence layer those sections say what to follow instead — its Handover —
+  and no Drizzle code is written; say in the report that the examples did not apply.
 - **Produces** the public service methods the layer above calls — a controller of `/nest-rest` — with their input
   types, return types, and the domain errors they throw, and the provider entry in `<feature>.module.ts`.
 - **Never touches** the persistence code (queries, schema, migrations), the controllers and DTOs, the tests, or
@@ -130,9 +129,14 @@ alternative flow states, word for word.
 
 ## Transactions
 
-These rules hold on the Drizzle persistence layer (see [Scope](#scope)). Drizzle has no ambient transaction: nothing like `@Transactional` joins a statement to a transaction, every statement
-must run on the `tx` handle it was opened with, and the service must not touch the database. So the repository owns the
-transaction, as `/drizzle-persistence` defines it. An existing convention of the project comes first.
+An existing convention of the project comes first. Otherwise the persistence layer decides how a transaction is
+opened. With a persistence layer other than `/drizzle-persistence`, follow its Handover: it names the steps that share
+a transaction and how the service runs them together. When it names none, ask the persistence skill rather than
+opening a transaction in the service.
+
+With `/drizzle-persistence`, the repository owns the transaction, as that skill defines it. Drizzle has no ambient
+transaction: nothing like `@Transactional` joins a statement to a transaction, every statement must run on the `tx`
+handle it was opened with, and the service must not touch the database.
 
 - **One repository**: an atomic write is one repository method that runs `db.transaction` itself. Ask the persistence
   skill for the method; never compose two calls in the service and hope.
@@ -162,14 +166,19 @@ at the same time. The persistence Handover names which method raises what (`Viol
 guest_email_uk`), and the service turns that into the domain error of the flow, so the actor sees the specified message
 and not a `500`.
 
-The violation reaches the service as the driver's error with the PostgreSQL code `23505` (unique) or `23514` (check).
-Newer `drizzle-orm` versions wrap it, so read `err.cause` as well as the error itself:
+With `/drizzle-persistence` on PostgreSQL, the violation reaches the service as the driver's error with the code
+`23505` (unique) or `23514` (check) and the name of the violated constraint in `constraint`. Newer `drizzle-orm`
+versions wrap it, so read `err.cause` as well as the error itself. When the table has other constraints, check that the
+error names the rule's constraint before translating it: a `23505` on another unique key is not this rule, and its
+message would be wrong. Pass the constraint name the Handover gives. With another persistence layer, its Handover says
+what it raises.
 
 ```ts
 // src/common/errors.ts
-export function isConstraintViolation(err: unknown, code: '23505' | '23514'): boolean {
-  const { code: own, cause } = err as { code?: string; cause?: { code?: string } };
-  return own === code || cause?.code === code;
+export function isConstraintViolation(err: unknown, code: '23505' | '23514', constraint?: string): boolean {
+  type PgError = { code?: string; constraint?: string };
+  const { cause, ...own } = err as PgError & { cause?: PgError };
+  return [own, cause].some((e) => e?.code === code && (constraint === undefined || e.constraint === constraint));
 }
 ```
 
@@ -178,12 +187,14 @@ try {
   return await this.repository.insert(values);
 } catch (err) {
   // UC-001 BR-002: An email address belongs to at most one guest.
-  if (isConstraintViolation(err, '23505')) {
+  if (isConstraintViolation(err, '23505', 'guest_email_uk')) {
     throw new EmailAlreadyRegisteredError(input.email);
   }
   throw err;
 }
 ```
+
+Leave out the constraint name only when the table has no other constraint of that kind.
 
 Rethrow everything else. Inside `transaction(work)` put the `try` around the `transaction` call, not inside the
 callback: after a violation PostgreSQL has aborted the transaction, and nothing more can run on `tx`.

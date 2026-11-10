@@ -48,8 +48,8 @@ layer plugins — one per technology, combined per project — or with one combi
 `/implement`, test skills, and `/coverage-check` where it ships one.
 
 Transition hands the system over: `/acceptance-protocol` runs the user acceptance round from the test cases and sets
-the accepted use cases to `Done`, `/user-guide` writes the user guide from the use cases, and `/release-notes` lists
-what reached `Done` since the last release.
+the accepted use cases to `Done`, `/user-guide` writes the user guide from the use cases at `Tested` or `Done`, and
+`/release-notes` lists what reached `Done` since the last release.
 
 Each step reads the files produced by earlier steps. You can review or edit an artifact before continuing, and every
 later result remains traceable to the corresponding requirement or use case.
@@ -92,13 +92,9 @@ and the operations of an API contract agreed with a partner system, which the AP
 | [`aiup-vaadin`](aiup-vaadin/)           | UI (Flow, Hilla), E2E | `/vaadin-flow-ui`, `/hilla-ui`, `/vaadin-flow-ui-test`, `/hilla-ui-test`, `/vaadin-e2e-test` |
 | [`aiup-angular`](aiup-angular/)         | UI                    | `/angular-ui`, `/angular-ui-test`                                                            |
 | [`aiup-playwright`](aiup-playwright/)   | E2E (TypeScript)      | `/playwright-e2e-test`                                                                       |
-| [`aiup-drizzle`](aiup-drizzle/)         | Migration, Persistence | `/drizzle-schema`, `/drizzle-persistence`, `/drizzle-persistence-test`                      |
+| [`aiup-drizzle`](aiup-drizzle/)         | Migration, Persistence | `/drizzle-schema`, `/drizzle-persistence`, `/drizzle-persistence-test`                     |
 | [`aiup-nestjs`](aiup-nestjs/)           | Service, REST API     | `/nest-service`, `/nest-rest`, `/nest-service-test`, `/nest-rest-test`                       |
 | [`aiup-nextjs`](aiup-nextjs/)           | UI                    | `/nextjs-ui`, `/nextjs-ui-test`                                                              |
-
-`aiup-jooq`, `aiup-jpa`, and `aiup-vaadin` build on `aiup-spring-boot`, and `aiup-drizzle` on `aiup-nestjs`. The
-service and test skills of `aiup-nestjs` assume the Drizzle persistence layer; `aiup-nextjs` and `aiup-angular` sit
-on any API layer, because both API layers hand over the same paging and `application/problem+json` error shape.
 
 | Project                     | Plugins next to `aiup-core`                                                      |
 |-----------------------------|----------------------------------------------------------------------------------|
@@ -209,7 +205,7 @@ docs/
 ├── test_cases/
 │   └── TC-001-*.md                   # /test-case
 ├── open_questions.md                 # /open-questions and the skills that find a gap (created with the first question)
-├── user_guide/                       # /user-guide: one chapter per actor, from the accepted use cases
+├── user_guide/                       # /user-guide: one chapter per actor, from the use cases at Tested or Done
 ├── acceptance/
 │   └── release-1.4.md                # /acceptance-protocol: one protocol per acceptance round
 ├── release-notes.md                  # /release-notes: what reached Done, newest version first
@@ -267,7 +263,7 @@ skill and document carries its copyright header and that each plugin ships `LICE
 | [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |
 | [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |
 | [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                                        |
-| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis, then construction with the deprecated `aiup-vaadin-jooq` plugin |
+| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis, then construction with the deprecated `aiup-vaadin-jooq`; use the layer plugins and the migration guide instead |
 
 Detailed skill behavior is documented in each plugin's `skills/*/SKILL.md`. Those files are the authoritative source
 for inputs, outputs, safety constraints, and execution steps; READMEs provide navigation and concise summaries.

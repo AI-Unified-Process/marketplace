@@ -98,7 +98,8 @@ module) for what Spring Boot needs to migrate at startup:
 - **Spring Boot 4** — `spring-boot-starter-flyway`. Flyway's auto-configuration moved into its own module
   (`spring-boot-flyway`); a bare `org.flywaydb:flyway-core` no longer triggers it, and the application starts without
   migrating.
-- **Spring Boot 3** — `org.flywaydb:flyway-core` (or `spring-boot-starter-flyway` where the project uses it).
+- **Spring Boot 3** — `org.flywaydb:flyway-core`. Spring Boot 3 has no `spring-boot-starter-flyway`; that starter
+  exists only from Spring Boot 4 on.
 - **Every version with Flyway 10 or later** — the database module for a server database:
   `org.flywaydb:flyway-database-postgresql` for PostgreSQL, `org.flywaydb:flyway-mysql` for MySQL; in-memory and
   file-based databases need none.

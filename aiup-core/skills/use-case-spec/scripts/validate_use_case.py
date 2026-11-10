@@ -29,6 +29,7 @@ import argparse
 import os
 import re
 import sys
+import tempfile
 
 # ---------------------------------------------------------------------------
 # Language definitions (UseCaseLanguage.java)
@@ -566,7 +567,8 @@ def parse_extra_section(lines, index):
 
 def parse_document(text):
     doc = Document()
-    lines = [line.rstrip() for line in text.splitlines()]
+    # A byte order mark before the title is no content
+    lines = [line.rstrip() for line in text.lstrip("\ufeff").splitlines()]
     doc.language = detect_language(lines)
     lang = LANGUAGES[doc.language]
     headings = lang["headings"]
@@ -817,22 +819,15 @@ def check_contract(doc, path):
                         + step)
 
 
-def read_text(path):
-    """The file as text, without a UTF-8 byte order mark.
-
-    A file that is not UTF-8 is an OSError: the caller reports it as a file
-    it cannot read, not as a traceback."""
-    with open(path, "rb") as handle:
-        data = handle.read()
+def validate_file(path):
+    # utf-8-sig drops the byte order mark some editors write
     try:
-        return data.decode("utf-8-sig")
+        with open(path, encoding="utf-8-sig") as handle:
+            text = handle.read()
     except UnicodeDecodeError as exc:
+        # a file the caller reports as unreadable, not a traceback
         raise OSError("not UTF-8 (byte %d); save the file as UTF-8"
                       % exc.start)
-
-
-def validate_file(path):
-    text = read_text(path)
     doc = parse_document(text)
     check_contract(doc, path)
     return doc.problems
@@ -1113,20 +1108,26 @@ def self_test():
         failures.append("valid-de: **API:** label not accepted")
     expect("valid-de-api", doc.problems, [], forbidden_severity=WARN)
 
+    doc = parse_document("\ufeff" + VALID_EN)
+    check_contract(doc, "UC-001-create-reservation.md")
+    expect("valid-en-bom", doc.problems, [], forbidden_severity=ERROR)
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "UC-001-create-reservation.md")
+        with open(path, "w", encoding="utf-8-sig") as handle:
+            handle.write(VALID_EN)
+        expect("valid-en-bom-file", validate_file(path), [],
+               forbidden_severity=ERROR)
+
     doc = parse_document(INVALID)
     check_contract(doc, "UC-002-broken.md")
     expect("invalid", doc.problems,
            ["STATUS_INVALID", "UNEXPECTED_CONTENT", "FLOW_INCOMPLETE",
             "UC_TRIGGER_IS_PRECONDITION", "LAYERS_INVALID"])
 
-    # A byte order mark is no content; a file that is not UTF-8 is a file
-    # that cannot be read, not a traceback.
-    import tempfile
+    # A file that is not UTF-8 is a file that cannot be read, not a
+    # traceback.
     with tempfile.TemporaryDirectory() as folder:
         path = os.path.join(folder, "UC-001-create-reservation.md")
-        with open(path, "wb") as handle:
-            handle.write(b"\xef\xbb\xbf" + VALID_EN.encode("utf-8"))
-        expect("bom", validate_file(path), [], forbidden_severity=ERROR)
         with open(path, "wb") as handle:
             handle.write(VALID_EN.encode("utf-8") + b"\nGr\xfc\xdfe\n")
         try:

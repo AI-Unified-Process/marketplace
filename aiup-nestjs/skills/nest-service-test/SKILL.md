@@ -218,15 +218,12 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification, with the rule or step, the expected
   value, and the actual value.
 - Units this layer cannot reach, by name.
-- In a project with an E2E layer: the E2E server of the setup reference (section "The running application for E2E")
-  and the two commands that build and start it, for the team to record under End-to-end tests in the Commands table —
-  the E2E test skill takes them from there or from this hand-off.
 - When run directly, one `Next:` line: the next test skill above in the Layers table — `/nest-rest-test UC-XXX` when the
   project has an API layer — or `/use-case-coverage UC-XXX`. Never run the coverage audit.
 
 ## Resources
 
-- [references/test-setup.md](references/test-setup.md) — Vitest, Testcontainers, test data, the E2E server, and time.
+- [references/test-setup.md](references/test-setup.md) — Vitest, Testcontainers, test data, and time.
 - NestJS testing: https://docs.nestjs.com/fundamentals/testing
 - Vitest: https://vitest.dev/guide/
 - Testcontainers for Node: https://node.testcontainers.org

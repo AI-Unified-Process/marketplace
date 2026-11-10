@@ -67,7 +67,7 @@ on:
         default: "15"
         type: string
       timeout_minutes:
-        description: Upper limit of the whole run in minutes; the stations stop 10 minutes earlier for the pull request
+        description: Upper limit of the whole run in minutes, more than 10; the stations stop 10 minutes earlier for the pull request
         required: false
         default: "180"
         type: string
@@ -86,7 +86,7 @@ on:
         required: false
     outputs:
       outcome:
-        description: ready (all use cases green), blocked, stuck, pending (the time ran out between use cases), or none (nothing to build)
+        description: ready (all use cases built are green), blocked, stuck, pending (the time ran out between use cases), or none (nothing to build, or every use case named is not Approved)
         value: ${{ jobs.werkstatt.outputs.outcome }}
       pull_request:
         description: Number of the pull request against the change branch, empty when nothing changed
@@ -103,6 +103,23 @@ jobs:
       DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       ENGINE: .aiup-werkstatt-engine
     steps:
+      - name: Start the clock
+        env:
+          TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
+        run: |
+          set -euo pipefail
+          # The first step, so the deadline counts from the job's start like timeout-minutes, not from after the
+          # checkouts. The stations stop 10 minutes before the job's timeout, so the use cases finished by then still
+          # reach the pull request; the one still running ends stuck (run-change.sh).
+          case "$TIMEOUT_MINUTES" in
+            ''|*[!0-9]*) echo "::error::timeout_minutes must be a whole number of minutes, not '$TIMEOUT_MINUTES'."; exit 1 ;;
+          esac
+          if [ "$TIMEOUT_MINUTES" -le 10 ]; then
+            echo "::error::timeout_minutes is $TIMEOUT_MINUTES, but the stations stop 10 minutes before the timeout to open the pull request. Set it above 10 (default 180)."
+            exit 1
+          fi
+          echo "DEADLINE=$(( $(date +%s) + (TIMEOUT_MINUTES - 10) * 60 ))" >> "$GITHUB_ENV"
+
       - name: Check out the change branch
         uses: actions/checkout@v4
         with:
@@ -117,13 +134,8 @@ jobs:
           path: .aiup-werkstatt-engine
 
       - name: Prepare
-        env:
-          TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
         run: |
           set -euo pipefail
-          # The stations stop 10 minutes before the job's timeout, so the use cases finished by then still reach
-          # the pull request; the one still running ends stuck (run-change.sh).
-          echo "DEADLINE=$(( $(date +%s) + (TIMEOUT_MINUTES - 10) * 60 ))" >> "$GITHUB_ENV"
           # neither the engine nor the run records belong in the pull request
           printf '%s\n' ".aiup-werkstatt-engine/" ".werkstatt/" >> .git/info/exclude
           git config user.name "AI Unified Process Werkstatt"
@@ -141,6 +153,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "$USE_CASES" ]; then
+            # Ids given by hand are not checked here: run-change.sh builds only an Approved one and reports every
+            # other one as skipped, with its status, in the step summary and the pull request.
             ucs=$(printf '%s' "$USE_CASES" | grep -oE 'UC-[0-9]+' | paste -sd' ' - || true)
           else
             ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$DEFAULT_BRANCH")
@@ -210,7 +224,8 @@ jobs:
 
       - name: Provide the result as a pull request against the change branch
         id: pr
-        if: steps.run.outputs.outcome != ''
+        # none: every use case named was skipped (not Approved), so there is nothing to propose.
+        if: steps.run.outputs.outcome != '' && steps.run.outputs.outcome != 'none'
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
           # GITHUB_TOKEN when the stub passes no AIUP_PR_TOKEN: the pull request is opened, but no CI runs on it.

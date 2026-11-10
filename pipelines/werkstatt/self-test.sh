@@ -12,14 +12,16 @@
 #      implementer and production code of the tester, and keeps the tester's build file; a session cut off by the
 #      turn limit is recorded; an audit that finds a gap leads to a test round, and the next audit gets the
 #      previous round's matrix.
-#      The guard judges a moved file by both of its paths and a non-ASCII path as it is on disk, knows a .NET
-#      test project, and keeps the tester's Markers rows in the stack file.
+#      The tester's Markers rows in the stack file are kept and listed.
 #   2. the deadline: a use case still running is stopped and dropped, the one before it keeps its result.
 #   3. a deadline already past: nothing is built, every use case is pending.
-#   4. a session that fails once is started again; a named use case that is not Approved or has no specification
-#      is skipped and holds nothing up; a blocking question on a linked requirement pulls the andon cord.
-#   5. a session that fails twice ends stuck, also where no coverage audit would catch it, and leaves no file.
-#   6. select-ucs.sh: a specification moved and approved in one change is selected.
+#   4. the lanes with awkward paths: a file name with an umlaut, a test moved out of the test folder, .NET test
+#      helpers; a use case that is not Approved is skipped, not built; stations that stop without a result end stuck
+#      with a row in the report.
+#   5. every use case named is not Approved: outcome none, nothing committed.
+#   6. select-ucs.sh: an umlaut and a space in a file name, a specification moved into a module folder.
+#   7. a session that fails once is started again and the use case still ends ready; a session that fails twice
+#      ends stuck, also where no coverage audit would catch it, and leaves no untracked file behind.
 #
 # Usage: pipelines/werkstatt/self-test.sh     (CI: validate-plugins.yml)
 set -uo pipefail
@@ -42,8 +44,9 @@ cat > "$WORK/bin/claude" <<'FAKE'
 #!/usr/bin/env bash
 # Plays one Werkstatt station. FAKE_BLOCK and FAKE_SLEEP name the use cases that block or hang in the implementer,
 # FAKE_MAXTURNS the ones whose test session ends at the turn limit, FAKE_GAPS the ones whose first audit finds a
-# test gap, FAKE_FAIL the ones whose every session fails, FAKE_FAIL_ONCE the ones whose first session fails
-# (FAKE_STATE holds the marker). FAKE_LOG collects the audit prompts.
+# test gap. FAKE_LOG collects the audit prompts. FAKE_LANES names the use cases whose stations cross their lanes on
+# awkward paths, FAKE_CRASH the ones whose implementer kills the stations (no summary.json). FAKE_FAIL names the
+# use cases whose every session fails, FAKE_FAIL_ONCE the ones whose first session fails (FAKE_STATE holds the mark).
 prompt="$2"
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
 n=${uc#UC-}
@@ -78,9 +81,9 @@ case "$prompt" in
     echo "class UC${n}Test {}" > "src/test/UC${n}Test.java"
     echo "<project>test dependency $uc</project>" > pom.xml
     echo "// the tester may not change production code" >> "src/main/UC${n}.java"
-    # a moved production file, and the Markers rows the test skills keep in the stack file
-    if [ -f src/main/Legacy.java ]; then mkdir -p src/main/moved && mv src/main/Legacy.java src/main/moved/; fi
+    # the Markers rows the test skills keep in the stack file
     grep -q '^## Markers' docs/architecture/stack.md || printf '\n## Markers\n\n| Layer | Test marker |\n|---|---|\n| UI | @UseCase |\n' >> docs/architecture/stack.md
+    case " ${FAKE_LANES:-} " in *" $uc "*) echo "changed by the tester" >> "docs/glossar-prüfung.md" ;; esac
     case " ${FAKE_MAXTURNS:-} " in *" $uc "*)
       echo '{"total_cost_usd": 0.25, "subtype": "error_max_turns"}'; exit 1 ;;
     esac
@@ -89,10 +92,15 @@ case "$prompt" in
     mkdir -p src/main src/test
     echo "class UC${n} {}" > "src/main/UC${n}.java"
     echo "class Sneaky${n}Test {}" > "src/test/Sneaky${n}Test.java"
-    # a moved test, a non-ASCII test file, and a file of a .NET test project
-    if [ -f src/test/OldTest.java ]; then mkdir -p src/test/moved && mv src/test/OldTest.java src/test/moved/; fi
-    echo "class PrüfungTest {}" > "src/test/PrüfungTest.java"
-    mkdir -p App.Tests.E2E && echo "class Fixture {}" > App.Tests.E2E/ServerFixture.cs
+    case " ${FAKE_LANES:-} " in *" $uc "*)
+      echo "class Prüfung${n}Test {}" > "src/test/Prüfung${n}Test.java"
+      mkdir -p src/MyApp.Tests/Traceability MyApp.Tests.E2E src/MyApp/Pages
+      echo "class UseCaseAttribute {}" > src/MyApp.Tests/Traceability/UseCaseAttribute.cs
+      echo "class PlaywrightFixture {}" > MyApp.Tests.E2E/PlaywrightFixture.cs
+      echo "<p>test</p>" > src/MyApp/Pages/BookingTests.razor
+      mv src/test/ExistingTest.java src/main/Existing.java ;;
+    esac
+    case " ${FAKE_CRASH:-} " in *" $uc "*) kill -TERM "$PPID" ;; esac
     case " ${FAKE_BLOCK:-} " in *" $uc "*)
       printf '\n## OQ-0%s: Which rate?\n\n**Element:** %s BR-001\n**Blocking:** Yes\n**Status:** Open\n' \
         "$n" "$uc" >> docs/open_questions.md ;;
@@ -130,23 +138,18 @@ fixture() {
     printf '# Stack\n\n## Commands\n\n| Purpose | Command |\n|---|---|\n| Build | `true` |\n' \
       > docs/architecture/stack.md
     echo "readme" > README.md
-    mkdir -p src/main src/test
-    echo "class Legacy {}" > src/main/Legacy.java
-    echo "class OldTest {}" > src/test/OldTest.java
     git add -A && git commit -qm fixture
   )
 }
 
-# change <dir> <log> [env...]: run-change.sh for UC-001..UC-003 in the fixture (IDS=... names other ids)
+# change <dir> <log> [env...]: run-change.sh for UC-001..UC-003 in the fixture
 change() {
-  local dir="$1" log="$2" ids="UC-001 UC-002 UC-003" arg; shift 2
-  for arg in "$@"; do case "$arg" in IDS=*) ids="${arg#IDS=}" ;; esac; done
+  local dir="$1" log="$2"; shift 2
   mkdir -p "$dir.state"
-  # shellcheck disable=SC2086
   (cd "$dir" && env PATH="$WORK/bin:$PATH" SPEC_LINT="$WORK/bin/spec_lint.py" MAX_TURNS=5 MAX_ROUNDS=1 \
       SPEC_LINT_MODULE="$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py" \
       GITHUB_OUTPUT="$dir.output" RETRY_WAIT=0 FAKE_STATE="$dir.state" "$@" \
-      bash "$ENGINE/pipelines/werkstatt/run-change.sh" $ids > "$log" 2>&1)
+      bash "$ENGINE/pipelines/werkstatt/run-change.sh" UC-001 UC-002 UC-003 > "$log" 2>&1)
 }
 
 outcome_of() { jq -r .outcome "$1/.werkstatt/$2/summary.json" 2>/dev/null; }
@@ -166,13 +169,6 @@ expect_grep "1 tester build file kept" "UC-001" "$R/pom.xml"
 expect_grep "1 guard lists the build file" "build file pom.xml (kept)" "$R/.werkstatt/UC-001/guard.log"
 expect_grep "1 guard lists the revert" "Sneaky001Test.java (reverted)" "$R/.werkstatt/UC-001/guard.log"
 expect_eq "1 audit left no change" "$(cat "$R/README.md")" readme
-expect_file "1 implementer's moved test is back" "$R/src/test/OldTest.java"
-expect_no_file "1 implementer's moved test: new path gone" "$R/src/test/moved/OldTest.java"
-expect_file "1 tester's moved production file is back" "$R/src/main/Legacy.java"
-expect_no_file "1 tester's moved production file: new path gone" "$R/src/main/moved/Legacy.java"
-expect_no_file "1 non-ASCII test file of the implementer reverted" "$R/src/test/PrüfungTest.java"
-expect_grep "1 guard names the non-ASCII path as it is" "src/test/PrüfungTest.java (reverted)" "$R/.werkstatt/UC-001/guard.log"
-expect_no_file "1 .NET test project file of the implementer reverted" "$R/App.Tests.E2E/ServerFixture.cs"
 expect_grep "1 tester's Markers rows kept" "^## Markers" "$R/docs/architecture/stack.md"
 expect_grep "1 guard lists the stack file" "stack file docs/architecture/stack.md (kept)" "$R/.werkstatt/UC-001/guard.log"
 expect_eq "1 UC-002 outcome" "$(outcome_of "$R" UC-002)" blocked
@@ -229,60 +225,84 @@ else
   echo "SKIP the deadline scenarios: no timeout command (GNU coreutils)"
 fi
 
-# ---------------------------------------------------------------- 4. retry, skipped, and a question on a requirement
+# ---------------------------------------------------------------- 4. awkward paths, a Draft use case, a crash
 R="$WORK/four"; fixture "$R"
 (
   cd "$R" || exit 1
-  sed -i.bak 's/^\*\*Status:\*\* Approved/**Status:** Draft/' docs/use_cases/UC-002-case.md && rm docs/use_cases/UC-002-case.md.bak
-  printf '\n## OQ-001: Which fields?\n\n**Element:** FR-003\n**Blocking:** Yes\n**Status:** Open\n' >> docs/open_questions.md
-  git add -A && git commit -qm "draft and question"
+  mkdir -p src/test
+  echo "class ExistingTest {}" > src/test/ExistingTest.java
+  echo "Glossar" > "docs/glossar-prüfung.md"
+  sed 's/^\*\*Status:\*\* Approved/**Status:** Draft/' docs/use_cases/UC-002-case.md > draft.tmp
+  mv draft.tmp docs/use_cases/UC-002-case.md
+  git add -A && git commit -qm "lanes fixture"
 )
-change "$R" "$WORK/four.log" IDS="UC-001 UC-002 UC-009 UC-003" FAKE_FAIL_ONCE=UC-001
-expect_grep "4 outcome" "^outcome=blocked$" "$R.output"
-expect_eq "4 UC-001 outcome after one failed session" "$(outcome_of "$R" UC-001)" ready
-expect_grep "4 failed session in the metrics" '"failed":true' "$R/.werkstatt/UC-001/metrics.jsonl"
-expect_grep "4 failed session in the report" "implement session of round 0 failed (exit 1) and was started once more" "$R/.werkstatt/report.md"
-expect_eq "4 UC-002 skipped" "$(outcome_of "$R" UC-002)" skipped
-expect_grep "4 UC-002 reason" "status of UC-002 is Draft" "$R/.werkstatt/report.md"
+change "$R" "$WORK/four.log" FAKE_LANES=UC-001 FAKE_CRASH=UC-003
+expect_grep "4 outcome" "^outcome=stuck$" "$R.output"
+expect_eq "4 UC-001 outcome" "$(outcome_of "$R" UC-001)" ready
+expect_no_file "4 umlaut test of the implementer reverted" "$R/src/test/Prüfung001Test.java"
+expect_grep "4 guard names the umlaut path" "src/test/Prüfung001Test.java (reverted)" "$R/.werkstatt/UC-001/guard.log"
+expect_eq "4 umlaut file of the tester reverted" "$(cat "$R/docs/glossar-prüfung.md")" Glossar
+expect_file "4 test moved out of the test folder restored" "$R/src/test/ExistingTest.java"
+expect_no_file "4 .NET test project helper reverted" "$R/src/MyApp.Tests/Traceability/UseCaseAttribute.cs"
+expect_no_file "4 .NET E2E project helper reverted" "$R/MyApp.Tests.E2E/PlaywrightFixture.cs"
+expect_no_file "4 razor test reverted" "$R/src/MyApp/Pages/BookingTests.razor"
+expect_eq "4 UC-002 outcome" "$(outcome_of "$R" UC-002)" skipped
 expect_eq "4 UC-002 status" "$(status_of "$R" UC-002)" Draft
 expect_no_file "4 UC-002 not built" "$R/src/main/UC002.java"
-expect_eq "4 UC-009 skipped" "$(outcome_of "$R" UC-009)" skipped
-expect_grep "4 UC-009 reason" "no specification for UC-009" "$R/.werkstatt/report.md"
-expect_eq "4 UC-003 blocked by the question on FR-003" "$(outcome_of "$R" UC-003)" blocked
-expect_grep "4 UC-003 reason" "Blocking open questions on UC-003: OQ-001" "$R/.werkstatt/UC-003/summary.json"
+expect_grep "4 report row skipped" "| UC-002 | \*\*skipped\*\* |" "$R/.werkstatt/report.md"
+expect_grep "4 report reason skipped" "UC-002 is Draft, not Approved" "$R/.werkstatt/report.md"
+expect_eq "4 UC-003 outcome" "$(outcome_of "$R" UC-003)" stuck
+expect_no_file "4 UC-003 code dropped" "$R/src/main/UC003.java"
+expect_grep "4 report row of the crash" "| UC-003 | \*\*stuck\*\* |" "$R/.werkstatt/report.md"
+expect_grep "4 report reason of the crash" "stopped with exit code 143 before they wrote a result" "$R/.werkstatt/report.md"
 expect_eq "4 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
-# ---------------------------------------------------------------- 5. a session that fails twice is never green
+# ---------------------------------------------------------------- 5. nothing Approved: outcome none
 R="$WORK/five"; fixture "$R"
-change "$R" "$WORK/five.log" FAKE_FAIL=UC-001 STACK_PLUGIN=aiup-blazor-dotnet
-expect_grep "5 outcome" "^outcome=stuck$" "$R.output"
-expect_eq "5 UC-001 outcome" "$(outcome_of "$R" UC-001)" stuck
-expect_grep "5 UC-001 reason" "implement session of UC-001 failed twice (exit 1): API Error: 401" "$R/.werkstatt/UC-001/summary.json"
-expect_eq "5 UC-001 status" "$(status_of "$R" UC-001)" Approved
-expect_no_file "5 untracked file of the failed session removed" "$R/scratch.tmp"
-expect_eq "5 UC-002 outcome" "$(outcome_of "$R" UC-002)" pending
-expect_eq "5 nothing committed" "$(cd "$R" && git rev-list --count HEAD)" 1
-expect_eq "5 working tree clean" "$(cd "$R" && git status --porcelain)" ""
-
-R="$WORK/five-b"; fixture "$R"
-change "$R" "$WORK/five-b.log" IDS="UC-008 UC-009"
-expect_grep "5 only skipped use cases: outcome none" "^outcome=none$" "$R.output"
+(
+  cd "$R" || exit 1
+  for f in docs/use_cases/UC-*.md; do
+    sed 's/^\*\*Status:\*\* Approved/**Status:** Obsolete/' "$f" > obsolete.tmp && mv obsolete.tmp "$f"
+  done
+  git add -A && git commit -qm "obsolete"
+)
+change "$R" "$WORK/five.log"
+expect_grep "5 outcome" "^outcome=none$" "$R.output"
+expect_eq "5 nothing committed" "$(cd "$R" && git rev-list --count HEAD)" 2
 
 # ---------------------------------------------------------------- 6. select-ucs.sh
 R="$WORK/six"; fixture "$R"
-SELECTED=$(
+(
   cd "$R" || exit 1
   git update-ref refs/remotes/origin/main HEAD
   mkdir -p docs/use_cases/booking
   git mv docs/use_cases/UC-001-case.md docs/use_cases/booking/UC-001-case.md
-  echo "One more line." >> docs/use_cases/booking/UC-001-case.md
-  echo "Changed." >> docs/use_cases/UC-002-case.md
-  sed -i.bak 's/^\*\*Status:\*\* Approved/**Status:** Draft/' docs/use_cases/UC-003-case.md && rm docs/use_cases/UC-003-case.md.bak
-  printf '# UC-004: Größe\n\n**Status:** Approved\n' > "docs/use_cases/UC-004-größe ändern.md"
-  git add -A && git commit -qm change
-  bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" main
+  printf '# UC-004: Bestellung\n\n**Status:** Genehmigt\n' > "docs/use_cases/UC-004-bestellung-prüfen.md"
+  printf '# UC-005: Space\n\n**Status:** Approved\n' > "docs/use_cases/UC-005-with space.md"
+  printf '# UC-006: Draft\n\n**Status:** Draft\n' > "docs/use_cases/UC-006-draft.md"
+  git add -A && git commit -qm "change"
 )
-expect_eq "6 moved, changed and new Approved specifications" "$SELECTED" "UC-001 UC-002 UC-004"
+expect_eq "6 selected" "$(cd "$R" && bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" main 2>"$WORK/six.log")" \
+  "UC-001 UC-004 UC-005"
+
+# ---------------------------------------------------------------- 7. failed sessions
+R="$WORK/seven"; fixture "$R"
+change "$R" "$WORK/seven.log" FAKE_FAIL_ONCE=UC-001 FAKE_BLOCK=UC-002
+expect_eq "7 UC-001 ready after one failed session" "$(outcome_of "$R" UC-001)" ready
+expect_grep "7 failed session in the metrics" '"failed":true' "$R/.werkstatt/UC-001/metrics.jsonl"
+expect_grep "7 failed session in the report" "implement session of round 0 failed (exit 1) and was started once more" "$R/.werkstatt/report.md"
+expect_eq "7 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+R="$WORK/seven-b"; fixture "$R"
+change "$R" "$WORK/seven-b.log" FAKE_FAIL=UC-001 STACK_PLUGIN=aiup-blazor-dotnet
+expect_grep "7 outcome" "^outcome=stuck$" "$R.output"
+expect_eq "7 UC-001 stuck after two failed sessions" "$(outcome_of "$R" UC-001)" stuck
+expect_grep "7 UC-001 reason" "implement session of UC-001 failed twice (exit 1): API Error: 401" "$R/.werkstatt/UC-001/summary.json"
+expect_eq "7 UC-001 status" "$(status_of "$R" UC-001)" Approved
+expect_no_file "7 untracked file of the failed session removed" "$R/scratch.tmp"
+expect_eq "7 UC-002 outcome" "$(outcome_of "$R" UC-002)" pending
+expect_eq "7 nothing committed" "$(cd "$R" && git rev-list --count HEAD)" 1
+expect_eq "7 working tree clean" "$(cd "$R" && git status --porcelain)" ""
 
 if [ "$FAILURES" -gt 0 ]; then
   echo "--- run logs"; tail -n 30 "$WORK"/*.log

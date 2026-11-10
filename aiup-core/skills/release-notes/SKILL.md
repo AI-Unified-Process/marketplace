@@ -49,8 +49,9 @@ quoting the text itself.
    is no baseline: say so and ask whether this is the first release (then every use case at `Done` is new) or which
    ref to compare with. Write nothing until the user answers; when no one can answer, stop after the question. Never
    pick a baseline yourself — not a commit whose message reads like a release, not the first commit, not a date.
-2. **Use cases then.** Every `docs/use_cases/**/UC-*.md` at the baseline: list them with `git ls-tree -r --name-only
-   <ref> docs/use_cases` and read each with `git show <ref>:<path>`. Match them with the files now by the
+2. **Use cases then.** Every `docs/use_cases/**/UC-*.md` at the baseline: list them with `git -c core.quotePath=false
+   ls-tree -r --name-only <ref> docs/use_cases` (without it, Git quotes a file name with an umlaut and the file is
+   missed) and read each with `git show <ref>:<path>`. Match them with the files now by the
    `**Use Case ID:**`, never by path — a file may have moved into a module folder or been renamed.
 3. **Use cases now.** Every `docs/use_cases/**/UC-*.md` in the working tree. Say when it has uncommitted changes to
    `docs/`; the notes describe the working tree.

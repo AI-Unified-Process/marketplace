@@ -11,8 +11,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 layer with [`aiup-core`](../aiup-core/). It tests the running application in a real browser — a single use case
 (`UC-*`), or a test case journey (`TC-*`) that chains several use cases.
 
-It works with any web UI that renders semantic HTML and ARIA — Angular and Next.js today, other client-side frameworks alike —
-because it locates elements by role, label, and text. A Vaadin UI has its own E2E skill, `vaadin-e2e-test` in
+It works with any web UI that renders semantic HTML and ARIA, such as Angular (`aiup-angular`) and Next.js
+(`aiup-nextjs`), because it locates elements by role, label, and text. A Vaadin UI has its own E2E skill, `vaadin-e2e-test` in
 `aiup-vaadin`.
 
 ## Skills
@@ -41,6 +41,9 @@ with a `Next:` line. The E2E layer has no implementation skill — `/use-case-im
 | Next.js, NestJS, Drizzle  | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  |
 | Next.js, Spring Boot, JPA | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  |
 
+With a NestJS API on Drizzle, the skill can start the API for the browser tests with the test data the NestJS test
+skills write; [`e2e-server.md`](skills/playwright-e2e-test/references/e2e-server.md) shows how.
+
 ## Installation
 
 ### Tessl
@@ -58,7 +61,8 @@ tessl install ai-unified-process/aiup-playwright
 /plugin install aiup-playwright
 ```
 
-Do not combine layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa` and `aiup-nestjs-nextjs`) in one project. See the
+Do not combine layer plugins with a combined stack plugin (the deprecated `aiup-angular-jpa` or `aiup-nestjs-nextjs`)
+in one project. See the
 [installation guides](../docs/installation/) for other agents.
 
 ## Prerequisites

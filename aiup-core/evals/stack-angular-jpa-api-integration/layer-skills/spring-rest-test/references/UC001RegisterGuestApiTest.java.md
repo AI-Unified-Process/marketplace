@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Template for /spring-rest-test, Convention B (MockMvcTester, no live server), Spring Boot 4 and Testcontainers 2:
  * - Class name UC<id><PascalCaseUseCaseName>ApiTest, every test method annotated @UseCase
  * - Full stack: controller → service → persistence → Testcontainers database, nothing mocked
- * - Asserts what the client relies on: status, Location, JSON field names and formats, the Problem Details body
+ * - Asserts what the client relies on: status, Location where the Handover lists it, JSON field names and formats, the Problem Details body
  *   of each rejection — and, as the integration layer, every business rule with its allowed and its rejected
  *   request at the boundary the rule names
  * - Fixtures come from the Flyway test migration src/test/resources/db/migration/R__uc001_register_guest.sql:
@@ -75,11 +75,12 @@ class UC001RegisterGuestApiTest {
 
     @Test
     @UseCase(id = "UC-001")
-    void registers_a_guest_and_returns_its_location() {
+    void registers_a_guest() {
         MvcTestResult result = register("anna@api-test.example.com", "1990-05-04");
 
         assertThat(result).hasStatus(201);
-        assertThat(result.getResponse().getHeader("Location")).matches(".*/api/guests/\\d+");
+        // The Handover lists no Location (no GET /api/guests/{id} yet). Once it does:
+        // assertThat(result.getResponse().getHeader("Location")).matches(".*/api/guests/\\d+");
         assertThat(result).bodyJson().extractingPath("$.email").asString().isEqualTo("anna@api-test.example.com");
         assertThat(result).bodyJson().extractingPath("$.birthDate").asString().isEqualTo("1990-05-04");
     }

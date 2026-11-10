@@ -5,7 +5,7 @@
 The project tracker application is built with Hilla: a React/TypeScript view at
 `src/main/frontend/views/tasks.tsx` calls a `@BrowserCallable` Java service
 (`src/main/java/com/example/tasks/TaskService.java`) through the generated TypeScript client.
-The use case is specified in `docs/use-cases/UC-060-manage-tasks.md`. The project already
+The use case is specified in `docs/use_cases/UC-060-manage-tasks.md`. The project already
 contains the `@UseCase` annotation type at `src/main/java/com/example/app/usecase/UseCase.java`
 and has Vitest configured for the frontend.
 

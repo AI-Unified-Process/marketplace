@@ -113,7 +113,7 @@ def state(stored_spec, stored_text, current_spec, current_text):
 
 
 def read(path):
-    return Path(path).read_text(encoding="utf-8")
+    return Path(path).read_text(encoding="utf-8-sig")
 
 
 def check(root, targets, out=sys.stdout):
@@ -139,6 +139,8 @@ def stamp(root, path, uc_ids):
     with open(path, encoding="utf-8", newline="") as handle:
         raw = handle.read().splitlines(keepends=True)
     lines = [line.rstrip("\r\n") for line in raw]
+    if lines and lines[0].startswith("\ufeff"):
+        lines[0] = lines[0][1:]   # read() drops the byte order mark too
     found = set()
     for i, uc_id, _, _, text in list(sections(lines)):
         if uc_id not in uc_ids:
@@ -146,7 +148,7 @@ def stamp(root, path, uc_ids):
         spec = find_spec(root, uc_id)
         if spec is None:
             raise ValueError(f"no docs/use_cases/**/{uc_id}-*.md under {root}")
-        ending = raw[i][len(lines[i]):]
+        ending = raw[i][len(raw[i].rstrip("\r\n")):]
         raw[i] = f"<!-- {uc_id} spec={spec_hash(read(spec))} text={digest(text)} -->{ending}"
         found.add(uc_id)
     missing = [uc_id for uc_id in uc_ids if uc_id not in found]
@@ -239,6 +241,13 @@ def self_test():
         check(root, [crlf], out)
         expect("id grammar stamped", [line.split()[2] for line in out.getvalue().splitlines()], ["unchanged"] * 3)
         data = crlf.read_bytes()
+        bom = root / "docs/user_guide/bom.md"
+        bom.write_bytes(b"\xef\xbb\xbf## A\n<!-- UC-013a -->\n\nText.\n")
+        stamp(root, bom, ["UC-013a"])
+        out = io.StringIO()
+        check(root, [bom], out)
+        expect("byte order mark kept and stamped", (bom.read_bytes()[:3], out.getvalue().split()[2]),
+               (b"\xef\xbb\xbf", "unchanged"))
         expect("CRLF kept", (data.count(b"\r\n"), data.count(b"\n"), data.endswith(b"## Team\r\n\r\nKept.")),
                (17, 17, True))
 

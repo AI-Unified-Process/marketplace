@@ -12,7 +12,8 @@ Standard library only. The shell scripts call one subcommand at a time:
       The skill -> plugin mapping is the Plugins table of aiup-core's layer catalog, which
       scripts/check-layer-catalog.sh keeps in step with the plugins, so no third copy of the list exists.
   werkstatt.py commands [--stack docs/architecture/stack.md]
-      The build and test commands of the stack file's Commands table, one per line (no end-to-end tests).
+      The build and test commands of the stack file's Commands table, one per line (no end-to-end tests: a Purpose
+      with E2E, end-to-end, or Ende-zu-Ende in it).
   werkstatt.py spec <UC-XXX> [--docs docs]
       The path of the use case specification (docs/use_cases/**/UC-XXX-*.md).
   werkstatt.py status <file>
@@ -21,8 +22,8 @@ Standard library only. The shell scripts call one subcommand at a time:
       Moves the status forward to the target, only out of Approved or a status before the target, never backwards,
       in the language of the specification. Prints the old and the new value.
   werkstatt.py blocking <UC-XXX> [--docs docs]
-      The ids of the blocking open questions (Open or Answered) whose element names the use case or a requirement
-      its **Requirements:** line links, one per line: the questions spec_lint.py reports as OQ_BLOCKING on it.
+      The ids of the blocking open questions (Open or Answered) whose element names the use case, or a requirement
+      its **Requirements:** line links, one per line; read as spec_lint.py reads the file.
   werkstatt.py requirements <UC-XXX> [--docs docs] [--spec-lint spec_lint.py]
       After a status advance: moves the progress status (Open .. Verified) of the requirements the use case links to
       what their use cases make it, with derived_status() of spec_lint.py (default: $SPEC_LINT_MODULE or
@@ -49,8 +50,14 @@ STATUS_LINE = re.compile(r"^\*\*Status:\*\*[ \t]*(\S*)(.*)$")
 
 
 def read(path):
-    with open(path, encoding="utf-8") as handle:
+    """The file as it is, line ends included: a CRLF file is written back with CRLF."""
+    with open(path, encoding="utf-8", newline="") as handle:
         return handle.read()
+
+
+def write_back(path, text):
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(text)
 
 
 def table_rows(text, heading):
@@ -98,6 +105,10 @@ def plugins(args):
     print("\n".join(selected))
 
 
+# The end-to-end rows of the Commands table stay out of the build gate, in English and German.
+END_TO_END = re.compile(r"\bE2E\b|\bend[ -]to[ -]end\b|\bende[ -]zu[ -]ende\b", re.IGNORECASE)
+
+
 def commands(args):
     if not os.path.isfile(args.stack):
         return
@@ -107,7 +118,7 @@ def commands(args):
         # A cell is the command in backticks, often followed by a note: `./mvnw test` (Browserless tests)
         code = re.search(r"`([^`]+)`", cell)
         command = (code.group(1) if code else cell).strip()
-        if not command or command in ("–", "-") or "end-to-end" in purpose.lower() or command in seen:
+        if not command or command in ("–", "-") or END_TO_END.search(purpose) or command in seen:
             continue
         # Maven's verify and install phases already run the test phase.
         if re.fullmatch(r"(\./mvnw|mvn)( -\S+)* test", command) and any(
@@ -149,11 +160,11 @@ def advance(args):
     for i, line in enumerate(lines):
         match = STATUS_LINE.match(line)
         if match and not done:
-            # Only the value changes; a decoration after it and the trailing spaces of a Markdown hard break stay.
+            # Only the value changes; a decoration after it, the trailing spaces of a Markdown hard break, and the
+            # carriage return of a CRLF file stay (the rest of the line is group 2).
             lines[i] = f"**Status:** {value}{match.group(2)}"
             done = True
-    with open(args.file, "w", encoding="utf-8") as handle:
-        handle.write("\n".join(lines))
+    write_back(args.file, "\n".join(lines))
     print(f"{current} -> {value}")
 
 
@@ -205,52 +216,121 @@ def requirements(args):
         derived = lint.derived_status([specs[uid] for uid in linked[rid]])
         if derived is None or lint.normalize(derived) == lint.normalize(status):
             continue
-        # Only the status cell changes; its padding is kept where the new value fits.
-        line = lines[number - 1]
-        pipes = [i for i, char in enumerate(line) if char == "|" and (i == 0 or line[i - 1] != "\\")]
-        column = columns.get(number)
-        if column is not None and column + 1 < len(pipes):
-            start, end = pipes[column], pipes[column + 1]
-        else:
-            end = line.rstrip().rfind("|")
-            start = line.rfind("|", 0, end)
-        cell = line[start + 1:end]
-        lines[number - 1] = line[:start + 1] + f" {derived} ".ljust(len(cell)) + line[end:]
+        lines[number - 1] = replace_cell(lines[number - 1], columns.get(number), derived)
         changes.append(f"{rid}: {status} -> {derived}")
     if changes:
-        with open(project.requirements_path, "w", encoding="utf-8") as handle:
-            handle.write("\n".join(lines))
+        write_back(project.requirements_path, "\n".join(lines))
         print("\n".join(changes))
 
 
-REQUIREMENTS_LINE = re.compile(r"^\*\*(?:Requirements|Anforderungen):\*\*(.*)$", re.M)
-REQUIREMENT_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-[A-Za-z0-9_-]*[A-Za-z0-9])")
+def replace_cell(line, position, value):
+    """The row with the cell at the position (0 = first cell) set to value, in the style replace_last_cell keeps.
+
+    Without a position, or when the row has no closed cell there, the last cell is the status."""
+    if position is None:
+        return replace_last_cell(line, value)
+    eol = "\r" if line.endswith("\r") else ""
+    body = line[:-1] if eol else line
+    pipes = [m.start() for m in re.finditer(r"(?<!\\)\|", body)]
+    if not body.lstrip().startswith("|"):
+        pipes.insert(0, -1)
+    if position + 1 >= len(pipes):
+        return replace_last_cell(line, value)
+    start, end = pipes[position], pipes[position + 1]
+    return body[:start + 1] + f" {value} ".ljust(end - start - 1) + body[end:] + eol
 
 
-def linked_requirements(docs, uc):
-    """The requirement ids on the **Requirements:** line of the use case's specification."""
+def replace_last_cell(line, value):
+    """The row with its last cell (the status, as spec_lint.py reads it) set to value.
+
+    The row keeps its style: with or without a trailing pipe, the padding where the new value fits, and the carriage
+    return of a CRLF file. Escaped pipes (\\|) inside a cell are no cell borders."""
+    eol = "\r" if line.endswith("\r") else ""
+    body = line[:-1] if eol else line
+    pipes = [m.start() for m in re.finditer(r"(?<!\\)\|", body)]
+    trailing = bool(pipes) and not body[pipes[-1] + 1:].strip()
+    if trailing:
+        if len(pipes) < 2:
+            return line
+        start, end = pipes[-2], pipes[-1]
+        cell = body[start + 1:end]
+        return body[:start + 1] + f" {value} ".ljust(len(cell)) + body[end:] + eol
+    if not pipes:
+        return line
+    start = pipes[-1]
+    return body[:start + 1] + f" {value}" + eol
+
+
+# The open questions as spec_lint.py reads them (read_open_questions): a '## OQ-XXX' heading with or without a colon,
+# field lines '**Label:** value' with the first one of a label winning, fenced code skipped, any other heading ends
+# the section. Kept here on its own, so a change of spec_lint.py's internals cannot cut the andon cord.
+OQ_HEADING = re.compile(r"^##\s+(OQ-[A-Za-z0-9-]+)\s*:?\s*(.*)$")
+OQ_FIELD = re.compile(r"^\*\*([A-Za-z ]+):\*\*\s*(.*)$")
+REQ_ID = re.compile(r"(?<![A-Za-z0-9])((?:FR|NFR|C)-\d+[A-Za-z0-9_-]*)")
+REQUIREMENTS_FIELDS = ("**Requirements:**", "**Anforderungen:**")
+
+
+def read_questions(path):
+    """[(id, {label: value})] of open_questions.md, in file order."""
+    questions, current, fenced = [], None, False
+    for line in read(path).splitlines():
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        match = OQ_HEADING.match(line)
+        if match:
+            current = (match.group(1), {})
+            questions.append(current)
+            continue
+        if line.startswith("#"):
+            current = None
+            continue
+        match = OQ_FIELD.match(line.strip()) if current else None
+        if match:
+            current[1].setdefault(match.group(1).strip().capitalize(), match.group(2).replace("`", "").strip())
+    return questions
+
+
+def linked_requirements(uc, docs):
+    """The requirement ids the use case's **Requirements:** line links."""
     found = sorted(glob.glob(os.path.join(docs, "use_cases", "**", f"{uc}-*.md"), recursive=True))
-    line = REQUIREMENTS_LINE.search(read(found[0])) if found else None
-    return REQUIREMENT_ID.findall(line.group(1)) if line else []
+    if not found:
+        return set()
+    linked = set()
+    for line in read(found[0]).splitlines():
+        line = line.strip()
+        for label in REQUIREMENTS_FIELDS:
+            if line.startswith(label):
+                linked.update(REQ_ID.findall(line[len(label):]))
+    return linked
 
 
 def blocking(args):
+    """The andon cord: a blocking question (Yes/Ja) that is Open or Answered (Offen/Beantwortet) and whose element is
+    the use case (UC-XXX, UC-XXX step N, UC-XXX A1, UC-XXX BR-XXX) or a requirement its Requirements line links;
+    spec_lint.py gives such a question to every use case that links the requirement."""
     path = os.path.join(args.docs, "open_questions.md")
     if not os.path.isfile(path):
         return
-    # A question on a requirement holds every use case that links it, as OQ_BLOCKING of spec_lint.py does: a use
-    # case moved to Tested over it would fail the lint in the Werkstatt's own pull request.
-    names = [args.uc] + linked_requirements(args.docs, args.uc)
-    for section in re.split(r"(?m)^(?=## OQ-)", read(path)):
-        head = re.match(r"## (OQ-[A-Za-z0-9-]+):", section)
-        if not head:
+    requirements = None
+    for qid, fields in read_questions(path):
+        words = fields.get("Element", "").split()
+        if not words:
             continue
-        field = lambda name: (re.search(rf"^\*\*{name}:\*\*\s*(.*)$", section, re.M) or [None, ""])[1].strip()
-        element = field("Element")
-        if (any(re.match(rf"{re.escape(name)}(?![A-Za-z0-9_-])", element) for name in names)
-                and field("Blocking").lower().startswith(("yes", "ja"))
-                and field("Status").lower().startswith(("open", "answered", "offen", "beantwortet"))):
-            print(head.group(1))
+        if fields.get("Blocking", "").strip(" .*_").lower() not in ("yes", "ja"):
+            continue
+        if fields.get("Status", "").strip(" .*_").lower() not in ("open", "answered", "offen", "beantwortet"):
+            continue
+        element = words[0].rstrip(",;:")
+        if element == args.uc:
+            print(qid)
+        elif REQ_ID.fullmatch(element):
+            if requirements is None:
+                requirements = linked_requirements(args.uc, args.docs)
+            if element in requirements:
+                print(qid)
 
 
 SELF_TEST_CATALOG = """# Layer catalog
@@ -301,6 +381,9 @@ SELF_TEST_STACK = """# Stack
 | Integration tests  | – |
 | Lint               | `npm run lint` |
 | End-to-end tests   | `./mvnw -Pit verify` |
+| E2E (Playwright)   | `npx playwright test` |
+| Browser tests, end to end | `npm run e2e` |
+| Ende-zu-Ende-Tests | `./mvnw -Pe2e verify` |
 """
 
 SELF_TEST_QUESTIONS = """# Open Questions
@@ -335,23 +418,38 @@ SELF_TEST_QUESTIONS = """# Open Questions
 **Blocking:** Yes
 **Status:** Open
 
-## OQ-006: A requirement UC-001 links
+## OQ-006 Heading without a colon, element in backticks
+
+**Element:** `UC-001` BR-003
+**Blocking:** Yes
+**Status:** Open
+
+## OQ-007: On a requirement UC-001 links
 
 **Element:** FR-001
 **Blocking:** Yes
-**Status:** Open
+**Status:** Answered
+**Answer:** Monthly.
 
-## OQ-007: A requirement UC-001 does not link
+## OQ-008: On a requirement UC-001 does not link
 
-**Element:** FR-0010
+**Element:** FR-009
 **Blocking:** Yes
 **Status:** Open
 
-## OQ-008: A linked requirement, not blocking
+## OQ-009: A use case id with a hyphen
 
-**Element:** NFR-001
-**Blocking:** No
+**Element:** UC-2-1 step 2
+**Blocking:** Yes
 **Status:** Open
+
+```markdown
+## OQ-010: An example in a fenced block
+
+**Element:** UC-001
+**Blocking:** Yes
+**Status:** Open
+```
 """
 
 
@@ -437,7 +535,7 @@ def self_test():
         # spec: found in a module folder, missing one exits
         en = os.path.join(docs, "use_cases", "booking", "UC-001-book-a-room.md")
         write(en, "# UC-001: Book a Room\n\n**Status:** Approved  \n**Primary Actor:** Guest\n"
-                  "**Requirements:** [FR-001](../../requirements.md#fr-001), [NFR-001](../../requirements.md)\n")
+                  "**Requirements:** [FR-001, NFR-002](../../requirements.md)\n")
         de = os.path.join(docs, "use_cases", "UC-002-zimmer-stornieren.md")
         write(de, "# UC-002: Zimmer stornieren\n\n## Übersicht\n\n**Use-Case-ID:** UC-002\n"
                   "**Status:** Genehmigt <!-- by the PO -->\n")
@@ -458,13 +556,38 @@ def self_test():
         expect("advance de", run(advance, file=de, target="Implemented"), "Genehmigt -> Implementiert\n")
         expect("advance de text", read(de).splitlines()[5], "**Status:** Implementiert <!-- by the PO -->")
         expect("advance obsolete", run(advance, file=obsolete, target="Tested"), "Obsolete (unchanged)\n")
+        crlf = os.path.join(root, "crlf.md")
+        with open(crlf, "w", encoding="utf-8", newline="") as handle:
+            handle.write("# UC-004: Windows\r\n\r\n**Status:** Approved\r\n**Primary Actor:** Guest\r\n")
+        expect("advance crlf", run(advance, file=crlf, target="Tested"), "Approved -> Tested\n")
+        with open(crlf, "rb") as handle:
+            expect("advance crlf kept", handle.read(),
+                   b"# UC-004: Windows\r\n\r\n**Status:** Tested\r\n**Primary Actor:** Guest\r\n")
 
         # blocking: Open or Answered, Yes or Ja, element names exactly this use case or a requirement it links
         expect("blocking without file", run(blocking, uc="UC-001", docs=docs), "")
         write(os.path.join(docs, "open_questions.md"), SELF_TEST_QUESTIONS)
-        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\nOQ-006\n")
-        expect("blocking: a use case without the requirement", run(blocking, uc="UC-002", docs=docs), "")
+        expect("blocking", run(blocking, uc="UC-001", docs=docs), "OQ-001\nOQ-004\nOQ-006\nOQ-007\n")
         expect("blocking other id", run(blocking, uc="UC-0010", docs=docs), "OQ-005\n")
+        expect("blocking hyphen id", run(blocking, uc="UC-2-1", docs=docs), "OQ-009\n")
+        expect("blocking hyphen prefix", run(blocking, uc="UC-2", docs=docs), "")
+
+        # replace_last_cell: with and without the trailing pipe, CRLF, escaped pipes
+        expect("cell trailing pipe", replace_last_cell("| FR-1 | a | Open        |", "Verified"),
+               "| FR-1 | a | Verified    |")
+        expect("cell no trailing pipe", replace_last_cell("| FR-1 | a \\| b | Open", "In Progress"),
+               "| FR-1 | a \\| b | In Progress")
+        expect("cell no pipes at the ends", replace_last_cell("FR-1 | a | Open\r", "Verified"),
+               "FR-1 | a | Verified\r")
+        # replace_cell: the cell under the Status column, a column after it untouched; the last cell without one
+        expect("cell by position", replace_cell("| FR-1 | a \\| b | Open   | note |\r", 2, "Verified"),
+               "| FR-1 | a \\| b | Verified | note |\r")
+        expect("cell by position, no leading pipe", replace_cell("FR-1 | Open | note", 1, "Verified"),
+               "FR-1 | Verified | note")
+        expect("cell by position, last cell open", replace_cell("| FR-1 | a | Open", 2, "Verified"),
+               "| FR-1 | a | Verified")
+        expect("cell without a position", replace_cell("| FR-1 | a | Open |", None, "Verified"),
+               "| FR-1 | a | Verified |")
 
     # The real layer catalog, when the script runs from a marketplace checkout: its format is the contract.
     real = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
@@ -519,6 +642,25 @@ def self_test():
             expect("requirements: headerless row, last cell", "| High | Verified |" in text, True)
             expect("requirements without spec_lint",
                    run(requirements, uc="UC-001", docs=docs, spec_lint=os.path.join(root, "none.py")), "")
+
+        # requirements: a GFM row without a trailing pipe, in a CRLF file; the line ends stay CRLF
+        with tempfile.TemporaryDirectory() as root:
+            docs = os.path.join(root, "docs")
+            catalog = ("# Requirements\n\n## Functional Requirements\n\n"
+                       "| ID | Title | User Story | Use Cases | Priority | Status\n"
+                       "|---|---|---|---|---|---\n"
+                       "| FR-001 | Register | As a manager, I want a room. | UC-001 | High | Open\n")
+            os.makedirs(docs)
+            with open(os.path.join(docs, "requirements.md"), "w", encoding="utf-8", newline="") as handle:
+                handle.write(catalog.replace("\n", "\r\n"))
+            write(os.path.join(docs, "use_cases", "UC-001-register-room.md"),
+                  "# Use Case: register-room\n\n## Overview\n\n**Use Case ID:** UC-001  \n**Status:** Tested  \n"
+                  "**Requirements:** [FR-001](../requirements.md)\n")
+            expect("requirements no trailing pipe", run(requirements, uc="UC-001", docs=docs, spec_lint=lint_path),
+                   "FR-001: Open -> Verified\n")
+            with open(os.path.join(docs, "requirements.md"), "rb") as handle:
+                expect("requirements no trailing pipe, CRLF kept", handle.read().decode("utf-8"),
+                       catalog.replace("| High | Open", "| High | Verified").replace("\n", "\r\n"))
 
     for failure in failures:
         print("FAIL " + failure)

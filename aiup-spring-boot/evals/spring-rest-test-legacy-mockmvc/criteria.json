@@ -1,5 +1,5 @@
 {
-  "context": "Tests whether /spring-rest-test writes UC001RegisterGuestApiTest in the project's existing convention (classic MockMvc with the shared TestcontainersConfiguration — not migrated to MockMvcTester), testing statuses, the Location header, JSON field names and date format, and Problem Details bodies of the rejections with the specification's exact messages, testing every business rule's boundary here because the API is the integration layer and no service test exists, using the guest the project's test-data migration seeds, without mocking the service. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "context": "Tests whether /spring-rest-test writes UC001RegisterGuestApiTest in the project's existing convention (classic MockMvc with the shared TestcontainersConfiguration — not migrated to MockMvcTester), testing statuses, JSON field names and date format, and Problem Details bodies of the rejections with the specification's exact messages, testing every business rule's boundary here because the API is the integration layer and no service test exists, using the guest the project's test-data migration seeds, without mocking the service. The agent's messages to the user are in session-log.md, the log the task asks for: judge what the agent stated, reported, or handed off from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
   "type": "weighted_checklist",
   "checklist": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "name": "Created with Location and JSON contract",
-      "description": "The main scenario test asserts 201, a Location header for /api/v1/guests/{id}, and response fields by their DTO names, including birthDate as an ISO date string (YYYY-MM-DD)",
+      "description": "The main scenario test asserts 201 and response fields by their DTO names, including birthDate as an ISO date string (YYYY-MM-DD); the Location header the controller sets is either asserted as /api/v1/guests/{id} or left out, and in both cases the agent reports that no GET by id answers that URL",
       "max_score": 11
     },
     {

@@ -27,15 +27,9 @@ The Werkstatt keeps no state of its own between runs. It selects the use cases t
 `Approved`, and moves a finished one to `Tested` in the same pull request as its code, like the status advance of
 `aiup-generate` (forward only, in the language of the specification). After the merge the use case is not selected
 again; a blocked, stuck or pending one is still `Approved` and is. Nobody has to watch the pull request, and a
-rejected pull request leaves the specification as it was. Naming the use cases of a run narrows the selection and
-never widens it: a named use case that is not `Approved`, or has no specification, is skipped, because code for a
-`Draft` specification is what the status exists to prevent, and a `Done` one is not rebuilt. It is reported as
-`skipped` with its reason and does not hold up the use cases after it: unlike a stuck one, nothing later can build
-on it. A run in which every use case was skipped ends `none`. The selection compares against the merge base without
-rename detection's blind spot: a specification moved into a module folder and approved in the same change is
-selected. The stations get the specification's diff against the same merge base, not against the tip of the default
-branch, where a later change on the default branch would read as a removed line to delete the code for.
-`artifact_locations` stays a hint in the prompts: the Werkstatt itself reads the default paths under `docs/`.
+rejected pull request leaves the specification as it was. The status is also the gate for ids given by hand in
+`use_cases`: one that is not `Approved` is skipped with its status as the reason, because an approval that a typed id
+could bypass would be no gate.
 
 The requirements catalog moves with the status. A requirement's progress follows the use cases that link it (#32),
 so a use case at `Tested` with its requirements still `Open` is a contradiction `/spec-review` reports as
@@ -53,26 +47,31 @@ production code: the test skills add test dependencies and runner configuration,
 turn the tests red. The tester's changes to them are kept and listed in the pull request all the same. The stack
 file is the tester's too: the test skills keep their rows of its Markers table, and an audit that finds a layer
 without rows reports a gap, so reverting them would cost a round for a legitimate edit. It is kept as a whole file
-and listed, like a build file; the guard does not try to tell a Markers row from another line. The guard compares paths
+and listed, like a build file; the guard does not try to tell a Markers row from another line. Git paths are read
 without rename detection, so a moved file is the deletion of one path and the addition of another and is undone as
-both; with rename detection it saw only the new path, removed it, and the commit lost the file.
+both; with rename detection the guard saw only the new path, removed it, and the commit lost the file.
 
 A session that fails is not a station that found nothing to do. The exit code of the `claude` call and a missing
 result decide it, not the build: unchanged code builds green, and on a stack without a coverage audit nothing else
 would stand between a rejected key and a use case reported `ready`. The station is started once more, because a
 rate limit or a dropped connection passes; a second failure ends the use case `stuck`. Both are recorded in the
-metrics and the report.
+metrics and the report. `stuck` and `blocked` drop the untracked files too: a report or a new source file left in the
+tree would reach the pull request with the next commit. The stations get the specification's diff against the merge
+base, not against the tip of the default branch, where a later change there would read as a removed line to delete
+the code for; and `artifact_locations` stays a hint in the prompts, because the Werkstatt itself reads the default
+paths under `docs/`.
 
 ## The andon cord is read from the file
 
 A skill that meets a gap records a blocking open question (`/open-questions`). The Werkstatt does not ask the agent
 whether it got stuck; it reads `docs/open_questions.md` after each station. The file is the contract every skill
 already writes, the check is deterministic, and a question that names the use case stops it whatever the agent
-says. A blocking question on a requirement its `**Requirements:**` line links stops it as well, because `spec_lint.py` holds the use
-case for it (`OQ_BLOCKING`, an error at `Tested`): a narrower cord let the Werkstatt move a use case to a status its
-own pull request then failed the lint with. A blocked use case contributes only its questions: half-built code is no
-proposal, and the next run builds again from the answered specification. Dropping means the untracked files too; a
-report or a new source file left in the tree would reach the pull request with the next commit.
+says. A blocked use case contributes only its questions: half-built code is no proposal, and the next run builds
+again from the answered specification. The Werkstatt reads the file the way `spec_lint.py` does (heading with or
+without a colon, a backticked element, fenced examples skipped), and a question on a requirement stops every use case
+that links it, as `/spec-review` assigns it. The parser is a small copy of those rules rather than an import of
+`spec_lint.py`'s internals: a refactoring there must not cut the andon cord silently, and the self-test pins the
+rules.
 
 ## Gates before review
 
@@ -87,7 +86,9 @@ still pass the gates, and when it does not, the fix round that follows shows why
 dropped and reported instead of being handed to review half done: the reviewer's time is the scarcest resource.
 The run's own time limit is handled the same way: the stations stop before the job's timeout and the use case still
 running is dropped, because a job killed by GitHub opens no pull request and would lose the use cases already
-green.
+green. The deadline is taken in the job's first step, so it counts from where GitHub's timeout counts, and a
+`timeout_minutes` of 10 or less fails right there: it would leave the stations no time at all. Stations that stop
+without a result (a crash) end stuck as well, with a row in the report, so no use case of a run goes unreported.
 
 ## Plugins from the layer catalog
 

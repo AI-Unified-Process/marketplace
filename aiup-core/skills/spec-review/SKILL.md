@@ -173,7 +173,7 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   `/open-questions answer OQ-XXX`; a malformed one (`OQ_INVALID`) → `/open-questions`
 - a test case without a use case → `/test-case`
 - a use case that changed after its status was set (`SPEC_CHANGED_AFTER_STATUS`) → `/use-case-coverage UC-XXX` (with
-  aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). When the audit finds gaps, the user sets the status back
+  the deprecated aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). When the audit finds gaps, the user sets the status back
   and the work runs again; a status set anew and committed clears the finding. When the audit confirms the use case,
   or the change was only wording, the user accepts this state with `--update-baseline`; the next change is reported
   again
@@ -240,11 +240,11 @@ a test case, and are Verified by the status of their use cases, and lists each r
 first stage it misses. An `Obsolete` test case does not count. Verified is derived from a status: it says nobody has
 found a gap, not that a test run passed. Hand-offs: not linked →
 `/use-case-spec` (or `/use-case-diagram` when no use case fits); not in a test case → `/test-case`; not Verified →
-`/use-case-coverage UC-XXX` for its use cases (with aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). A
+`/use-case-coverage UC-XXX` for its use cases (with the deprecated aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). A
 system-wide NFR or constraint may rightly apply to the whole system; say so instead of pushing a link. `--format json`
 prints the same matrix as JSON. Show the output verbatim; it reads `docs/` only and reports no findings. If the user
 wants it as a file, they redirect it themselves (e.g. `> docs/traceability.md`); this skill writes no file. Whether code
-and tests realize the use cases is `/use-case-coverage` (or `/coverage-check` in aiup-vaadin-jooq and aiup-angular-jpa),
+and tests realize the use cases is `/use-case-coverage` (or `/coverage-check` in the deprecated aiup-vaadin-jooq and aiup-angular-jpa),
 not this matrix.
 
 ## Change Impact

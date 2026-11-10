@@ -7,38 +7,9 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # Test setup of a NestJS application
 
 The one description of how the tests of a NestJS application run: read by `/nest-service-test`, `/nest-rest-test`, and
-the persistence test skill `/drizzle-persistence-test`. An existing setup of the project comes first: check each
-section, reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js`
-suffixes where the layout detection found none.
-
-**It assumes PostgreSQL through Drizzle.** When the Persistence row of `docs/architecture/stack.md` names another
-technology, stop before writing any of this: report which technology the project uses and that this setup does not
-cover it, and ask how its tests reach the database.
-
-## The test runner: check this first
-
-The specs and the setup below are written for **Vitest**. Read `package.json` and the test configuration before
-writing a file:
-
-| What the project has                                                      | What to do                                      |
-|---------------------------------------------------------------------------|-------------------------------------------------|
-| `vitest` in `devDependencies`, a `vitest.config*.ts`                      | Go on with this reference                       |
-| `jest` in `devDependencies`, `jest.config.*` or `test/jest-e2e.json`      | Stop and ask — see below                        |
-| Neither                                                                   | Vitest, as a new dependency the report names    |
-
-`nest new` writes Vitest for an ESM project from NestJS 12 on, and Jest for a CommonJS project and for every project
-through NestJS 11, so a Jest setup is common. Never add Vitest next to it unasked, and never write a spec that imports
-from `vitest` into a project that cannot run it. Ask which the team wants:
-
-- **Stay on Jest**: keep the file names, the `describe` and `it` titles, the test data files, and every rule of the
-  test skill, and translate the mechanics — `@jest/globals` or the globals in place of the `vitest` import, `jest.fn()`
-  and `jest.useFakeTimers({ doNotFake: [...] })`, `globalSetup`/`globalTeardown` modules that publish `DATABASE_URL`
-  through `process.env` in place of `project.provide` and `inject`, `maxWorkers: 1` in place of
-  `fileParallelism: false`, and `testRegex` for the spec suffixes. `ts-jest` reads `emitDecoratorMetadata` from
-  `tsconfig.json`, so the transformer check below does not apply.
-- **Move to Vitest**: a new dependency and a change to the existing specs, which is the team's decision.
-
-When no one can answer, stay on Jest — the project's convention comes first — and say so in the report.
+the persistence test skill. The E2E test skill brings its own description of the running application. An existing
+setup of the project comes first: check each section, reuse what exists, add what is missing, and say which. Examples show a NodeNext project; drop the `.js` suffixes where
+the layout detection found none.
 
 ## Vitest configuration: check this before writing a single test
 
@@ -255,48 +226,6 @@ export async function applySeeds(db: DrizzleDb): Promise<void> {
 - **A flow the shared test data rules out** (an empty list) gets its own spec file, `UC-XXX-<slug>-empty.e2e-spec.ts`
   or `-empty.service-spec.ts`, whose `createTestApp({ seed: false })` starts without the rows. The tests run in process, so such a flow is reachable
   here; E2E leaves it to this layer.
-
-## The running application for E2E
-
-Browser tests run against a started application that must load the same test data. `src/` never imports `test/`, so a
-small entry point does what `createTestApp` does and then listens:
-
-```ts
-// test/e2e-server.ts
-import { NestFactory } from '@nestjs/core';
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { AppModule } from '../src/app.module.js';
-import { configureApp } from '../src/configure-app.js';
-import { DRIZZLE, type DrizzleDb } from '../src/database/drizzle.provider.js';
-import { applySeeds } from './utils/apply-seeds.js';
-
-// The server owns its database: a throwaway container, unless DATABASE_URL names one.
-process.env.DATABASE_URL ??= (await new PostgreSqlContainer('postgres:17-alpine').start()).getConnectionUri();
-
-const app = await NestFactory.create(AppModule);
-configureApp(app);
-const db = app.get<DrizzleDb>(DRIZZLE);
-await migrate(db, { migrationsFolder: './drizzle/migrations' });
-await applySeeds(db);
-await app.listen(process.env.PORT ?? 3001);
-```
-
-```jsonc
-// tsconfig.e2e.json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "rootDir": ".", "outDir": "dist-e2e" },
-  "include": ["src/**/*", "test/e2e-server.ts", "test/data/**/*", "test/utils/apply-seeds.ts"]
-}
-```
-
-Compile it with `tsc -p tsconfig.e2e.json` and start `node dist-e2e/test/e2e-server.js` from the API app's root, because
-the migrations folder is relative. Testcontainers removes the container when the process ends, so each start begins
-with a clean database. Do not run it with `tsx`: esbuild emits no decorator metadata, so dependency injection fails. A test
-skill never edits the Commands table of `docs/architecture/stack.md`: name the two commands in the report, for the team
-to record under End-to-end tests. Add `dist-e2e` to `.gitignore`. The top-level `await` needs ESM; in a CommonJS project
-wrap the body in an async function.
 
 ## Non-deterministic inputs
 

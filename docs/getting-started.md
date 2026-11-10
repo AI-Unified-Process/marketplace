@@ -29,7 +29,7 @@ needs `aiup-flyway`, `aiup-jooq`, and `aiup-spring-boot`; add `aiup-vaadin` for 
 | [`aiup-angular`](../aiup-angular/)         | UI: Angular                                   |
 | [`aiup-playwright`](../aiup-playwright/)   | E2E: Playwright for TypeScript                |
 | [`aiup-drizzle`](../aiup-drizzle/)         | Migration and persistence: Drizzle ORM        |
-| [`aiup-nestjs`](../aiup-nestjs/)           | Service and REST API: NestJS, on Drizzle      |
+| [`aiup-nestjs`](../aiup-nestjs/)           | Service and REST API: NestJS                  |
 | [`aiup-nextjs`](../aiup-nextjs/)           | UI: Next.js App Router                        |
 
 **Combined stack plugins** — one plugin for a fixed combination. Install exactly one, and no layer plugins next to it.
@@ -270,6 +270,7 @@ reported gaps before using those artifacts as the baseline for further work.
 ## Complete example
 
 The [Book Library tutorial](https://unifiedprocess.ai/tutorial.html) demonstrates the complete workflow. Its first
-five steps are stack-independent; steps six through nine were written with the combined `aiup-vaadin-jooq` plugin,
-which is deprecated. In a new project, run `/stack`, `/use-case-implement`, and `/use-case-test` with the layer
-plugins at that point instead; the [migration guide](migration.md) maps the commands.
+five steps are stack-independent; steps six through nine use the Vaadin and jOOQ plugin for construction and testing.
+That plugin, `aiup-vaadin-jooq`, is deprecated. A new project uses the layer plugins `aiup-flyway`, `aiup-jooq`,
+`aiup-spring-boot`, and `aiup-vaadin` with `/use-case-implement` and `/use-case-test` instead; the
+[migration guide](migration.md) maps the tutorial's commands to theirs.

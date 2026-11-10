@@ -64,7 +64,9 @@ layer plugins can. Rules that hold it together:
   No test reaches the system: `/spring-client-test` tests the adapter against a stub of the contract
   (MockRestServiceServer by default, no new dependency) and writes a fake of the port; the integration layer puts
   the fake in place with `@TestBean` and drives the external flows through it, so the client tests run first, an
-  exception to "the layers below are not run". E2E follows where the application runs: a test that starts the
+  exception to "the layers below are not run". When the Client row has no test skill, the integration layer's test
+  skill writes the port fake itself. A failing system surfaces as `ExternalSystemException`, which passes through the
+  service; `/spring-rest` maps it to 503, and the UI shows the specification's message. E2E follows where the application runs: a test that starts the
   application in its own process (`/vaadin-e2e-test`) puts the port fake in place the same way; one that drives a
   separate process (`/playwright-e2e-test`) cannot, so it uses a stub profile when the project has one, and otherwise
   leaves the steps that call the system out and lists them as not automated. The rule lives once, in section
@@ -113,18 +115,17 @@ layer plugins can. Rules that hold it together:
   `aiup-nextjs` needs only core, which is what lets Next.js sit on a Spring API, and `/angular-ui` sits on a NestJS
   one the same way: both API layers hand over the same paging shape and
   `application/problem+json { type, title, status, detail, errors?: [{ field, message }] }`. `aiup-playwright` reads
-  no file of another plugin; it takes the backend's start command from the End-to-end row of the Commands table or
-  from the backend test skill's hand-off. The `aiup-nestjs` test skills write Vitest specs and ask before adding a
+  no file of another plugin: it describes the E2E server in its own `playwright-e2e-test/references/e2e-server.md`. The `aiup-nestjs` test skills write Vitest specs and ask before adding a
   second runner to a Jest project, and the Drizzle skills describe drizzle-orm 0.x and name where 1.0 differs. `aiup-nestjs` reads no file of
-  `aiup-drizzle` and declares only core, but its service and test skills assume the Drizzle persistence layer below
-  them (the `tx` handover, the `DRIZZLE` handle in the test setup); another persistence technology under NestJS needs
-  its own layer skills. `nest-service-test` runs against the
+  `aiup-drizzle` and declares only core: its skills follow the Handover of the persistence layer below, and its test
+  setup assumes Drizzle (the `DRIZZLE` handle, the migrator). `nest-service-test` runs against the
   real database, where the combined `/nest-test` stubbed repositories: a stub would be `backend mocked` and would drop
   a Service-only use case to the persistence layer, so the stubbed tier survives only for pure logic and units out of
   the integration layer's reach. Drizzle has no ambient transaction like `@Transactional`, and a service never touches
   the database, so the repository owns the transaction, unlike jOOQ and JPA: an atomic write is one repository method,
   and a write across repositories passes an optional `tx`. Generated migrations cannot carry test data, so the E2E
-  default of a repeatable Flyway migration has a Drizzle counterpart, the per-use-case seed of the `test-setup.md`
-  reference of `nest-service-test`. There is no `nest-client`: the combined plugin had none, and `/stack` turns a
+  default of a repeatable Flyway migration has a Drizzle counterpart, the per-use-case seed the backend test skills write (the
+  `test-setup.md` reference of `nest-service-test`); the E2E server of `aiup-playwright` applies the seeds as its own
+  `e2e-server.md` reference describes. There is no `nest-client`: the combined plugin had none, and `/stack` turns a
   confirmed system with Client `–` into a question.
 - **Layer skills run standalone too** (`/jooq-persistence UC-001`), reading the same inputs and implementing one layer.

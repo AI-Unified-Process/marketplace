@@ -4,7 +4,7 @@
 
 The hotel management system has an established test suite covering room management operations. The suite uses a server-side Vaadin testing library and already has tests for UC-005 ("Manage Rooms") in `src/test/java/com/example/app/rooms/UC005ManageRoomsTest.java`.
 
-A new feature has just been shipped: **Archive Room** (UC-006). The feature lets facility managers remove rooms from active service — but the system must block archiving a room that still has active reservations. The use case spec is at `docs/use-cases/UC-006-archive-room.md`. Pre-populated test data (rooms and one active reservation) is already in `src/test/resources/db/migration/V001__test_data.sql`.
+A new feature has just been shipped: **Archive Room** (UC-006). The feature lets facility managers remove rooms from active service — but the system must block archiving a room that still has active reservations. The use case spec is at `docs/use_cases/UC-006-archive-room.md`. Pre-populated test data (rooms and one active reservation) is already in `src/test/resources/db/migration/V001__test_data.sql`.
 
 Your job is to extend the existing test suite by adding a new test class for UC-006. Look at the existing test class in `src/test/java/com/example/app/rooms/UC005ManageRoomsTest.java` to understand the conventions used in this project — your new class should follow the same style and patterns.
 

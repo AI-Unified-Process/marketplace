@@ -2,7 +2,7 @@
 
 ## Problem Description
 
-An engineering team building a .NET 10 Blazor application has derived their entity model at `docs/entity_model.md` and use case specification at `docs/use-cases/UC-010-browse-product-catalog.md`.
+An engineering team building a .NET 10 Blazor application has derived their entity model at `docs/entity_model.md` and use case specification at `docs/use_cases/UC-010-browse-product-catalog.md`.
 
 The project is structured as a .NET 10 Web Application using Vertical Slice Architecture under `Features/`.
 

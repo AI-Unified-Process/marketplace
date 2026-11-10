@@ -192,6 +192,5 @@ another persistence technology (Prisma, TypeORM) records its own skills for thos
 | Next.js, NestJS, Drizzle        | `aiup-drizzle`, `aiup-nestjs`, `aiup-nextjs`, `aiup-playwright`                  | API               |
 | Next.js, Spring Boot, JPA       | `aiup-flyway`, `aiup-jpa`, `aiup-spring-boot`, `aiup-nextjs`, `aiup-playwright`  | API               |
 
-The combined stack plugins do not use this catalog; they ship their own `/implement`. `aiup-vaadin-jooq`,
-`aiup-angular-jpa`, and `aiup-nestjs-nextjs` are deprecated — the layer plugins above replace them — and are removed
-with aiup-core 4.0.0; `aiup-blazor-dotnet` stays combined.
+The combined stack plugins (`aiup-blazor-dotnet`, and the deprecated `aiup-vaadin-jooq`, `aiup-angular-jpa`,
+`aiup-nestjs-nextjs`) do not use this catalog; they ship their own `/implement`.

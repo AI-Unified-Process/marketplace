@@ -217,9 +217,6 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification or the API contract, with the flow, the
   expected value, and the actual value.
 - Units no endpoint reaches, by name.
-- In a project with an E2E layer: the E2E server of the setup reference (section "The running application for E2E")
-  and the two commands that build and start it, for the team to record under End-to-end tests in the Commands table —
-  the E2E test skill takes them from there or from this hand-off.
 - When run directly, one `Next:` line: the UI test skill of the Layers table when the project has a UI layer
   (`/nextjs-ui-test UC-XXX`), otherwise `/use-case-coverage UC-XXX`. Never run the coverage audit.
 

@@ -254,7 +254,7 @@ End with the contract the UI layer and the API tests build on — every endpoint
 Handover from nest-rest (UC-001)
 - GET  /api/guests?page=0&size=20&lastName= → 200 Page<GuestListItemResponse>, 400 page < 0 or size not 1..100
     — apps/api/src/guests/guests.controller.ts
-- POST /api/guests  RegisterGuestBody → 201 GuestResponse, Location /api/guests/:id
+- POST /api/guests  RegisterGuestBody → 201 GuestResponse, no Location (no GET /api/guests/:id yet)
     400 invalid input (BR-001), 409 urn:problem:EmailAlreadyRegisteredError (A1, BR-002),
     409 urn:problem:GuestTooYoungError (A2, BR-003)
 - RegisterGuestBody { firstName: string(1..100), lastName: string(1..100), email: string(email, ..255),

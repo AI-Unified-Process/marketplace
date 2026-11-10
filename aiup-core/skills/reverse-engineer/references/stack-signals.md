@@ -116,7 +116,7 @@ independent — read only the ones that match the project in front of you.
 ## Angular Frontend
 
 An Angular SPA's "entry points" are its own routes, not just the backend API it calls. When a project pairs an Angular
-frontend with a separate backend (e.g. `aiup-angular-jpa`'s Spring Boot API), read both sides: recover actors and use
+frontend with a separate backend (e.g. the Spring Boot API of the deprecated `aiup-angular-jpa`), read both sides: recover actors and use
 cases from the frontend routes, and confirm entities against the backend's domain/DTO shape.
 
 - **Build files**: `angular.json`, `package.json` (look for `@angular/core`,

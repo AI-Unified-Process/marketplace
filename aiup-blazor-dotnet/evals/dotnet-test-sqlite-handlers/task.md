@@ -3,7 +3,7 @@
 ## Problem Description
 
 The ShopCatalog team has finished implementing the backend of UC-010 "Browse Product Catalog"
-(spec at `docs/use-cases/UC-010-browse-product-catalog.md`). The vertical slice lives under
+(spec at `docs/use_cases/UC-010-browse-product-catalog.md`). The vertical slice lives under
 `ShopCatalog/Features/UC010_BrowseProductCatalog/`:
 
 - `BrowseProductCatalogQuery.cs` — the query record with an optional category filter

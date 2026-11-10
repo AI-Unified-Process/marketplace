@@ -180,6 +180,8 @@ Test data comes from a Flyway test migration, not from `save` calls in the test 
   the tables too.
 - Insert with the table's sequence (`nextval('guest_seq')`) or with explicit ids in a range the tests own; reference
   other rows by a natural key subquery rather than by an id you hope for.
+- An `INSERT` with explicit ids ends with `ON CONFLICT DO NOTHING` (or the database's equivalent), so the repeatable
+  migration can run again on a database that already holds the rows.
 - The data names the boundary rows the tests need, and nothing else.
 - `@DataJpaTest` rolls every test back, so a test may insert or change rows freely — except a test that suspends
   the transaction in a project without a service layer (see Database), which cleans up after itself. A flow whose trigger the shared

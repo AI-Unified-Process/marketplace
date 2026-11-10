@@ -35,9 +35,10 @@ STACK_PLUGIN="${STACK_PLUGIN:-}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 ARTIFACT_LOCATIONS="${ARTIFACT_LOCATIONS:-}"
 HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
-# Test code by path: Java/Kotlin test sources, test folders, TypeScript test files, .NET test projects
-# (MyApp.Tests/, MyApp.Tests.E2E/, MyApp.IntegrationTests/) and .NET test files (*Tests.cs, *Tests.razor).
-TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|(^|/)[^/]*Tests?(\\.[^/]+)?/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.(cs|razor)\$}"
+# Test code by path: Java/Kotlin test sources, test folders, TypeScript test files, and .NET test files: any file in a
+# .NET test project folder (a name that ends in .Tests or holds .Tests., such as MyApp.Tests or MyApp.Tests.E2E, for
+# helpers like a fixture or an attribute) and *Test(s).cs or *Test(s).razor anywhere.
+TEST_REGEX="${TEST_REGEX:-(^|/)(src/test|test|tests|e2e|__tests__)/|(^|/)[^/]*\\.Tests(\\.[^/]*)?/|\\.(spec|test)\\.[cm]?[jt]sx?\$|Tests?\\.(cs|razor)\$}"
 # Build files: the tester may add a test dependency or adjust a test runner's configuration. Kept, and listed.
 BUILD_REGEX="${BUILD_REGEX:-(^|/)(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|gradle/libs\\.versions\\.toml|package(-lock)?\\.json|pnpm-lock\\.yaml|yarn\\.lock|angular\\.json|tsconfig[^/]*\\.json|[^/]*\\.config\\.[cm]?[jt]s|[^/]*\\.csproj|Directory\\.(Packages|Build)\\.props)\$}"
 OQ_FILE=docs/open_questions.md
@@ -53,13 +54,7 @@ LAST_COVERAGE=""   # the matrix of the previous audit, kept per round as coverag
 START_TIME=$(date +%s)
 START_SHA=$(git rev-parse HEAD)
 
-# run-change.sh checks this before it starts a use case; run on its own, the script still leaves a summary.
-SPEC=$(python3 "$HELPER" spec "$UC") || {
-  echo "::error::No specification for $UC"
-  jq -n --arg uc "$UC" '{uc:$uc, outcome:"skipped", fix_rounds:0, cost_usd:0, seconds:0,
-    reason:("No specification for " + $uc + " under docs/use_cases.")}' > "$F/summary.json"
-  exit 0
-}
+SPEC=$(python3 "$HELPER" spec "$UC") || { echo "::error::No specification for $UC"; exit 1; }
 
 # The commands of the stack. Layer plugins: the orchestrators of aiup-core. A combined stack plugin brings its own.
 if [ -z "$STACK_PLUGIN" ]; then
@@ -165,8 +160,6 @@ over_budget() { awk -v t="$TOTAL_COST" -v m="$MAX_COST_USD" 'BEGIN{exit !(t>m)}'
 #   guard tests  -> the implementer may not touch test code
 #   guard code   -> the tester may only touch test code, build files and the stack file (both listed) and the
 #                   open questions
-# The changes are read without rename detection and NUL-separated: a moved file is a deletion and an addition,
-# each judged by its own path, and a path with a non-ASCII character or a space arrives as it is on disk.
 guard() {
   local mode="$1" file
   git add -A
@@ -190,6 +183,8 @@ guard() {
     echo "$2 changed $file (reverted)" >> "$F/guard.log"
     git rm -q --cached -- "$file" 2>/dev/null || true
     if git cat-file -e "HEAD:$file" 2>/dev/null; then git checkout -q HEAD -- "$file"; else rm -f -- "$file"; fi
+  # NUL-separated and unquoted, so a path with an umlaut or a space is the real path; without rename detection, so a
+  # moved file lists both its old and its new path and a test moved out of the test folder is restored.
   done < <(git -c core.quotePath=false diff --cached --name-only --no-renames -z HEAD)
   git reset -q
 }

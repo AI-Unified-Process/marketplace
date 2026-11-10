@@ -3,7 +3,7 @@
 ## Problem Description
 
 The team at an online shop has implemented and tested the "Cancel Order" use case. Its specification
-is at `docs/use-cases/UC-020-cancel-order.md` and its status line already claims `Implemented`.
+is at `docs/use_cases/UC-020-cancel-order.md` and its status line already claims `Implemented`.
 
 Before accepting the use case as done, they want to know whether the code and the tests really cover
 the specification: which main success scenario steps, alternative flows, business rules,
