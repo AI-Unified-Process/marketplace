@@ -236,7 +236,8 @@ audit with their own `/coverage-check UC-001`.
 
 In a GitHub project the same construction can run unattended: the [Werkstatt](werkstatt.md) builds the `Approved`
 use cases of a change branch through these skills and proposes the result, with every finished use case at `Tested`,
-as one pull request.
+as one pull request. Without GitHub, `run-local.sh` runs the same stations on your own machine
+([Running it on your own machine](werkstatt.md#running-it-on-your-own-machine)).
 
 The exact commands, prerequisites, generated paths, and testing conventions are documented in each plugin README.
 The complete artifact lifecycle is described in [Workflow and artifacts](workflow.md).

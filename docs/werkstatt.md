@@ -7,7 +7,8 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # The AI Unified Process Werkstatt
 
 > **Status: released** behind the `v1` tag. The AI Unified Process Studio sets it up and starts it (Studio UC-061);
-> without the Studio, commit the stub below and dispatch it by hand.
+> without the Studio, commit the stub below and dispatch it by hand. To run it on your own machine instead, see
+> [Running it on your own machine](#running-it-on-your-own-machine).
 >
 > The concept (roles, stations, gates, branch model, metrics, rollout): [werkstatt-architecture.md](werkstatt-architecture.md).
 
@@ -194,6 +195,42 @@ of a machine user that has write access to the repository, not a person's. When 
 falls back to `GITHUB_TOKEN`: the pull request is opened all the same, only without checks. The same secret serves
 `aiup-generate` ([generate-workflow-versioning.md](generate-workflow-versioning.md#ci-on-the-pull-request)), so one
 token per repository is enough.
+
+## Running it on your own machine
+
+The stations also run on a Mac or Linux machine, without GitHub Actions:
+[`pipelines/werkstatt/run-local.sh`](../pipelines/werkstatt/run-local.sh) is the local entry point. You need
+`git`, `python3`, `jq`, Claude Code logged in with the plugins of the `ai-unified-process-marketplace` installed
+(`aiup-core` and the layer plugins of the stack file, or the combined stack plugin), the toolchain the project
+builds with, and a checkout of this marketplace for the helpers.
+
+```bash
+cd ~/projects/online-booking                  # the project, on the change branch, everything committed
+~/marketplace/pipelines/werkstatt/run-local.sh            # the Approved use cases of the change
+~/marketplace/pipelines/werkstatt/run-local.sh UC-003     # or the ones you name
+```
+
+The script refuses a checkout with uncommitted changes and the default branch. It builds the last commit of the
+change branch in a new Git worktree next to the checkout, on a new branch `aiup/werkstatt-local-<stamp>`, so the
+checkout you work in is never touched: a blocked or stuck use case resets and cleans the tree it runs in. No pull
+request is opened. The result is the commits on that branch and the report in `<worktree>/.werkstatt/report.md`;
+the script prints the commands to review it, merge it, or push it and open the pull request yourself. The limits are
+environment variables with the names of the inputs: `MODEL`, `MAX_TURNS`, `MAX_ROUNDS`, `MAX_COST_USD` (per use
+case), `STACK_PLUGIN`, `TIMEOUT_MINUTES`, plus `DEFAULT_BRANCH` and `WORKTREE`.
+
+Before it starts, the script names what is different from the GitHub run and asks you to accept it (`--yes` skips
+the question):
+
+- **No sandbox.** The stations run `claude -p --permission-mode bypassPermissions` as you, with your files,
+  credentials, and network, not on a runner that is thrown away afterwards. Only `git` is denied to them. Run it on a
+  machine and an account you would let an agent work on unattended.
+- **No session of their own on macOS.** macOS has no `setsid --wait`, so a build daemon or a dev server a station
+  leaves behind is not killed and may write into the worktree after its use case ended. Stop such processes before
+  you take over the branch.
+- **Your Claude Code, not the pinned one.** The stations use your login, your CLI version, your installed plugin
+  versions, and your `~/.claude` settings (a global `CLAUDE.md`, MCP servers, hooks), where the GitHub run installs
+  claude-code 2.1.322 and the plugins fresh. The helpers and the gates come from the marketplace checkout you run the
+  script from; keep it at the version of your installed `aiup-core`.
 
 ## Inputs
 

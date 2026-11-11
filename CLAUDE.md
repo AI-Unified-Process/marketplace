@@ -557,6 +557,10 @@ command names and would collide, and a combined plugin next to layer plugins wou
   `GITHUB_TOKEN` opens it without checks. `aiup-generate.yml` takes the same secret.
 - `werkstatt.py self-test` and `self-test.sh` (stations with a fake `claude`) run in CI; a change to a station
   extends them. The scripts keep to bash 3.2.
+- `run-local.sh` runs the stations on a developer's machine: it refuses uncommitted changes and the default branch,
+  builds in a new worktree on a new `aiup/werkstatt-local-<stamp>` branch, never in the developer's checkout, asks
+  before it starts (stations bypass permissions; macOS has no `setsid --wait`), and opens no pull request. It adds no
+  station logic of its own.
 
 Why: [`docs/design/werkstatt.md`](docs/design/werkstatt.md). Usage: [`docs/werkstatt.md`](docs/werkstatt.md). Concept:
 [`docs/werkstatt-architecture.md`](docs/werkstatt-architecture.md).

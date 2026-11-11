@@ -155,3 +155,14 @@ workflow small and lets the stations be shell and Python that run, and are teste
 `werkstatt.py self-test` checks the helpers against fixtures and the real layer catalog, and `self-test.sh` runs the
 stations against a fixture repository with a fake `claude` on the PATH. Both run in CI. The scripts keep to the
 bash 3.2 of macOS.
+
+## Local runs
+
+`run-local.sh` runs the same stations on a developer's machine. It adds no logic of its own to the stations; it does
+what the workflow does around them, minus the pull request. It builds in a new worktree on a new branch, because a
+blocked or stuck use case runs `git reset --hard` and `git clean` on the tree it runs in, and a developer's checkout
+holds work the Werkstatt must never drop. For the same reason it refuses uncommitted changes: the worktree starts at
+the last commit, and an uncommitted specification change would silently not be built. It asks before it starts,
+because the stations bypass permissions and on a laptop nothing is thrown away afterwards; without `setsid --wait`
+(macOS) the stations' processes are not reaped either. The pull request stays a step the developer takes: a local
+run has no token of a machine user, and the branch may be merged directly.

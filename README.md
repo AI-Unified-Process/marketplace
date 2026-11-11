@@ -61,7 +61,8 @@ later result remains traceable to the corresponding requirement or use case.
 The Werkstatt is a GitHub Actions workflow that builds the `Approved` use cases of a change branch through the same
 skills: specification lint, implementation, tests, build, coverage audit, and fix rounds. Its result is one pull
 request against the change branch, in which every finished use case has moved to `Tested`; a use case with a blocking
-open question stays `Approved` and keeps only its questions.
+open question stays `Approved` and keeps only its questions. The same stations also run on your own machine with
+`pipelines/werkstatt/run-local.sh`, in a worktree of their own and without a pull request.
 
 [Read how to set up and run the Werkstatt →](docs/werkstatt.md)
 
@@ -256,7 +257,7 @@ skill and document carries its copyright header and that each plugin ships `LICE
 | [Getting started](docs/getting-started.md)                   | Select plugins, prepare a vision, install AI Unified Process, and create the first artifacts |
 | [Workflow and artifacts](docs/workflow.md)                   | Phases, traceability, artifact ownership, changes, and legacy projects                       |
 | [Migration guide](docs/migration.md)                         | Moving a project from a deprecated combined stack plugin to the layer plugins                |
-| [Werkstatt](docs/werkstatt.md)                               | Building the approved use cases of a change branch in GitHub Actions, as one pull request    |
+| [Werkstatt](docs/werkstatt.md)                               | Building the approved use cases of a change branch in GitHub Actions or on your machine      |
 | [Werkstatt architecture](docs/werkstatt-architecture.md)     | The concept behind the Werkstatt: stations, gates, and the andon cord                        |
 | [Generation workflow versioning](docs/generate-workflow-versioning.md) | For maintainers: how the shared workflows are released behind the `v1` tag          |
 | [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |

@@ -31,6 +31,8 @@
 #  11. protected paths (a specification, a workflow, CLAUDE.md) are reverted and listed; the build gate runs the
 #      Commands the run found: a station's change to the Commands table is reverted; an audit that says complete without opening the specification
 #      is audited once more, and when that cannot be verified either, the use case moves to Implemented only.
+#  12. run-local.sh: refuses a dirty checkout and the default branch; builds in a worktree on a new branch and leaves
+#      the checkout and its branch as they were.
 # Where setsid exists (Linux), 2 also checks that a process that outlives the stopped stations is killed before it
 # writes into the working tree.
 #
@@ -62,6 +64,7 @@ cat > "$WORK/bin/claude" <<'FAKE'
 # FAKE_BADQ the ones whose implementer writes a question the lint rejects. FAKE_PROMPTS is a folder that collects
 # every prompt as <station>-<uc>.log. FAKE_UNREAD names the use cases whose audit says complete without opening the
 # specification, FAKE_PROTECTED the ones whose implementer edits protected paths and the stack file's Commands.
+[ "${1:-}" = --version ] && { echo "2.1.322 (fake Claude Code)"; exit 0; }   # run-local.sh prints it
 prompt="$2"
 case " $* " in *" stream-json "*) stream=1 ;; *) stream=0 ;; esac
 uc=$(printf '%s' "$prompt" | grep -oE 'UC-[0-9]+' | head -1)
@@ -460,6 +463,34 @@ expect_eq "11 UC-002 two audits" "$(jq -r .station "$R/.werkstatt/UC-002/metrics
   "implement test audit audit"
 expect_grep "11 report names the commit" "The gates ran on commit \`$(cd "$R" && git rev-parse HEAD)\`" "$R/.werkstatt/report.md"
 expect_eq "11 working tree clean" "$(cd "$R" && git status --porcelain)" ""
+
+# ---------------------------------------------------------------- 12. run-local.sh
+R="$WORK/twelve"; fixture "$R"
+local_run() {
+  (cd "$R" && env PATH="$WORK/bin:$PATH" SPEC_LINT="$WORK/bin/spec_lint.py" MAX_TURNS=5 MAX_ROUNDS=1 \
+      SPEC_LINT_MODULE="$ENGINE/aiup-core/skills/spec-review/scripts/spec_lint.py" RETRY_WAIT=0 \
+      FAKE_STATE="$R.state" "$@" bash "$ENGINE/pipelines/werkstatt/run-local.sh" --yes UC-002 UC-001 UC-001 \
+      >> "$WORK/twelve.log" 2>&1)
+}
+mkdir -p "$R.state"
+head_before=$(cd "$R" && git rev-parse HEAD)
+echo dirty >> "$R/README.md"
+local_run WORKTREE="$WORK/twelve-dirty" && fail "12 a dirty checkout is refused"
+expect_no_file "12 no worktree for a dirty checkout" "$WORK/twelve-dirty"
+(cd "$R" && git checkout -q -- README.md)
+local_run WORKTREE="$WORK/twelve-default" DEFAULT_BRANCH=change/test && fail "12 the default branch is refused"
+expect_no_file "12 no worktree on the default branch" "$WORK/twelve-default"
+local_run WORKTREE="$WORK/twelve-wt" || fail "12 the local run ends 0"
+expect_eq "12 UC-001 outcome" "$(outcome_of "$WORK/twelve-wt" UC-001)" ready
+expect_eq "12 UC-002 outcome" "$(outcome_of "$WORK/twelve-wt" UC-002)" ready
+expect_eq "12 UC-001 Tested in the worktree" "$(status_of "$WORK/twelve-wt" UC-001)" Tested
+expect_file "12 report" "$WORK/twelve-wt/.werkstatt/report.md"
+expect_grep "12 outcome printed" "^Outcome: ready" "$WORK/twelve.log"
+expect_eq "12 one result branch" "$(cd "$R" && git branch --list 'aiup/werkstatt-local-*' | wc -l | tr -d ' ')" 1
+expect_eq "12 the checkout's branch unchanged" "$(cd "$R" && git rev-parse HEAD)" "$head_before"
+expect_eq "12 the checkout's spec unchanged" "$(status_of "$R" UC-001)" Approved
+expect_eq "12 the checkout clean" "$(cd "$R" && git status --porcelain)" ""
+expect_eq "12 the worktree clean" "$(cd "$WORK/twelve-wt" && git status --porcelain)" ""
 
 if [ "$FAILURES" -gt 0 ]; then
   echo "--- run logs"; tail -n 30 "$WORK"/*.log

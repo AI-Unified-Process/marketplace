@@ -155,7 +155,8 @@ Only the third is part of the Werkstatt today.
 
 ## Runtime
 
-Version 1 runs fully on GitHub Actions with headless Claude Code. No extra server is needed.
+Version 1 runs fully on GitHub Actions with headless Claude Code. No extra server is needed. The same stations also run
+on a developer's machine (`run-local.sh`), in a worktree of their own and without a pull request.
 
 - **Shared implementation.** The reusable workflow `.github/workflows/aiup-werkstatt.yml` of this marketplace,
   next to `aiup-generate.yml`. A thin stub in the project repository calls it. The stations live in
