@@ -2551,7 +2551,6 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     codes = {}
     for f in findings:
         codes.setdefault(f.code, []).append(f)
-    stack = None if plugin else read_stack(docs)
     implement, tests, audit, journey = CONSTRUCTION[plugin]
     statuses = {uid: status_of(spec.status, UC_STATUS)
                 for uid, spec in specs.items()}
@@ -2573,6 +2572,12 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     if not project.entity_paths:
         add("Elaboration", "/entity-model", [],
             "there is no entity model, docs/entity_model.md")
+    stack = None if plugin else read_stack(docs)
+    if not plugin and stack is None:
+        # Layer plugins: the architecture is recorded right after the
+        # entity model, before the use cases are drawn and specified.
+        add("Elaboration", "/stack", [],
+            "there is no stack file, docs/architecture/stack.md")
     if not project.diagram_paths:
         add("Elaboration", "/use-case-diagram", [],
             "there is no use case diagram, docs/use_cases.puml")
@@ -2625,10 +2630,6 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
             changed[0] + " changed after its status " + statuses[changed[0]]
             + " was set; if the audit confirms it, accept the state with "
             "--update-baseline, else set the status back")
-    if (ids or approved) and not built:
-        uid = (ids or approved)[0]
-        add("Construction", "/stack", [], uid + " is " + statuses[uid]
-            + ", and there is no stack file, docs/architecture/stack.md")
     if ids and built:
         then = tests[1:] + ([audit] if audit else [])
         add("Construction", tests[0] + " " + ids[0], ids,
@@ -4397,6 +4398,16 @@ def self_test():
         if got[:1] != ["/stack"]:
             failures.append("next: Approved without stack file should lead "
                             "to /stack, got " + str(got))
+        diagram = os.path.join(root, "use_cases.puml")
+        with open(diagram, encoding="utf-8") as handle:
+            puml = handle.read()
+        os.remove(diagram)
+        got = next_commands(root, validator, bpmn, anchors)
+        if got[:2] != ["/stack", "/use-case-diagram"]:
+            failures.append("next: the stack file comes before the use case "
+                            "diagram, got " + str(got))
+        with open(diagram, "w", encoding="utf-8") as handle:
+            handle.write(puml)
         uc1 = os.path.join(root, "use_cases", "UC-001-create-guest.md")
         uc2 = os.path.join(root, "use_cases", "UC-002-reserve-room.md")
         tc1 = os.path.join(root, "test_cases", "TC-001-reserve-room.md")

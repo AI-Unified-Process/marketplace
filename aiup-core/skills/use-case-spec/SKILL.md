@@ -62,6 +62,7 @@ One file per use case, written to `docs/use_cases/UC-XXX-<kebab-case-name>.md` w
 - Mix multiple use cases in one document, or skip numbering the steps of the Main Success Scenario
 - Use technical implementation details in the flow steps (see "Step writing guidelines")
 - Invent an alternative flow, a precondition, or a postcondition only to fill a section
+- Write an alternative flow for an exotic failure that a domain expert would not recognize as realistic for this business
 
 The rules for each section are in the workflow step that writes it.
 
@@ -158,6 +159,13 @@ in the implementation, not the specification.
    - name a **Trigger** that references a specific main-scenario step number,
      written as `(step N)` (e.g. `Payment is declined (step 7)`); and
    - end with either `Use case continues at step N.` or `Use case ends.`
+
+   Document only conditions that are **realistic for the business**: a domain expert would recognize
+   them and expect the system to handle them (a declined payment, a sold-out room, a duplicate email).
+   An exotic or purely technical failure — a database outage, a full disk, a network partition, an
+   improbable combination of events — is not an alternative flow of a use case: the architecture
+   handles it once for the whole system. When you are not sure whether a condition matters to the
+   business, record it as an open question instead of writing a flow for it.
 
    Do **not** invent an alternative flow solely to satisfy the template. When the analysis finds
    no meaningful alternative, replace the template flow with an italic placeholder that states the

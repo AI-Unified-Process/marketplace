@@ -1,7 +1,7 @@
 ---
 name: coverage-check
 description: >
-  Audits an already-written use case (UC-XXX) or test case (TC-XXX) against its
+  Audits an already-implemented use case (UC-XXX) or test case (TC-XXX) against its
   specification and reports a coverage matrix: which main success scenario
   steps, alternative flows, business rules, preconditions, and postconditions
   have code and tests behind them, which are still open, and which code or

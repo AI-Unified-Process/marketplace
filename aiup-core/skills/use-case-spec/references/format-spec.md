@@ -248,7 +248,9 @@ The `/use-case-spec` skill additionally requires:
   starts with the id (canonical: `UC-XXX-<kebab-case-name>.md`).
 - The main scenario has steps numbered `1..n` without gaps.
 - Alternative flows document every meaningful alternative or exception
-  condition of a main-scenario step. A use case without one states this
+  condition of a main-scenario step that is realistic for the business;
+  exotic or purely technical failures (a database outage, a full disk)
+  are left to the architecture. A use case without one states this
   with an italic placeholder (`_None — …_`) instead of an invented flow;
   the validator warns (`NO_ALTERNATIVE_FLOWS`) only when the section is
   empty without a placeholder. Each trigger names its main-scenario

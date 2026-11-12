@@ -96,7 +96,8 @@ Start the coding agent in the target project and create the analysis artifacts i
 /use-case-spec UC-001
 ```
 
-Review every generated file before continuing. The artifacts are deliberately plain Markdown, Mermaid, and PlantUML
+Run each command in a new session of the coding agent: every skill reads its input from the files under `docs/`, and
+a long session that compacts its context loses detail. Review every generated file before continuing. The artifacts are deliberately plain Markdown, Mermaid, and PlantUML
 so a team can correct them in version control without running a skill again.
 
 The core workflow produces:

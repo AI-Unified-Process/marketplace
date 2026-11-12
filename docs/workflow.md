@@ -13,11 +13,11 @@ versioned, human-reviewable artifacts that every later step consumes.
 ## Workflow
 
 ```text
-Inception        Elaboration                                Construction                                        Transition
-─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────    ──────────────────────
-/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
-                                 ↘ /business-process        /test-case     → automate the journey            /user-guide
-                                   (optional)                                                                /release-notes
+Inception        Elaboration                                   Construction                                    Transition
+─────────────    ──────────────────────────────────────────    ────────────────────────────────────────────    ──────────────────────
+/requirements →  /entity-model → /stack → /use-case-diagram →  /use-case-spec → implement → test → coverage →  /acceptance-protocol
+                                          ↘ /business-process  /test-case     → automate the journey           /user-guide
+                                            (optional)                                                         /release-notes
                  /spec-review at any point, /next names the next step
 ```
 
@@ -47,6 +47,12 @@ The layer plugins replace `aiup-vaadin-jooq`, `aiup-angular-jpa`, and `aiup-nest
 will be removed with `aiup-core` 4.0.0; the [migration guide](migration.md) moves an existing project. Use one form per project:
 the combined plugins do not read `docs/architecture/stack.md`. The boundary between `aiup-core` and construction is the set
 of files under `docs/`, not a specific coding agent.
+
+**Start a new session for every skill run.** Each skill reads what it needs from the files under `docs/` and the
+code, so a fresh session loses nothing. A long session that runs several skills in a row fills its context and
+compacts it, and every compaction drops detail the skill may still need. A run that compacts more than once, for
+example a coverage audit that takes half an hour, is a warning sign: start it again in a new session, or narrow it to
+one use case or one layer.
 
 ## Artifact flow
 

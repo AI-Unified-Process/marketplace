@@ -33,11 +33,11 @@ plain-text artifacts that live with the source code.
 ## Workflow
 
 ```text
-Inception        Elaboration                                Construction                                        Transition
-─────────────    ───────────────────────────────────────    ─────────────────────────────────────────────    ──────────────────────
-/requirements →  /entity-model → /use-case-diagram       →  /use-case-spec → implement → test → coverage  →  /acceptance-protocol
-                                 ↘ /business-process        /test-case     → automate the journey            /user-guide
-                                   (optional)                                                                /release-notes
+Inception        Elaboration                                   Construction                                    Transition
+─────────────    ──────────────────────────────────────────    ────────────────────────────────────────────    ──────────────────────
+/requirements →  /entity-model → /stack → /use-case-diagram →  /use-case-spec → implement → test → coverage →  /acceptance-protocol
+                                          ↘ /business-process  /test-case     → automate the journey           /user-guide
+                                            (optional)                                                         /release-notes
                  /spec-review at any point, /next names the next step
 ```
 
