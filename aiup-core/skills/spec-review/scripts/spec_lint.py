@@ -3267,50 +3267,50 @@ Questions about the specification that the specification does not answer yet.
 
 ## OQ-001: Minimum age for guests travelling with a parent?
 
-**Element:** UC-001 A7
-**Raised by:** /use-case-implement, 2026-10-01
-**Blocking:** Yes
-**Status:** Resolved
+**Element:** UC-001 A7  
+**Raised by:** /use-case-implement, 2026-10-01  
+**Blocking:** Yes  
+**Status:** Resolved  
 
 ### Readings
 
 A sub-heading belongs to the question: the fields after it still count.
 
-**Answer:** No exception; BR-001 applies to every guest.
-**Answered by:** P. Meier, 2026-10-02
-**Resolved in:** UC-001 A9
+**Answer:** No exception; BR-001 applies to every guest.  
+**Answered by:** P. Meier, 2026-10-02  
+**Resolved in:** UC-001 A9  
 
 ## OQ-002: Which data does a guest need?
 
-**Element:** UC-001 step 2
-**Raised by:** /use-case-spec, 2026-10-03
-**Blocking:** No
-**Status:** Open
-**Assumed:** name and date of birth
+**Element:** UC-001 step 2  
+**Raised by:** /use-case-spec, 2026-10-03  
+**Blocking:** No  
+**Status:** Open  
+**Assumed:** name and date of birth  
 
 Step 2 names no data.
 
 ## OQ-003: Store the guest's age?
 
-**Element:** Entity: GUEST.age
-**Raised by:** /entity-model, 2026-10-03
-**Blocking:** No
-**Status:** Withdrawn
-**Withdrawn:** duplicate of OQ-002
+**Element:** Entity: GUEST.age  
+**Raised by:** /entity-model, 2026-10-03  
+**Blocking:** No  
+**Status:** Withdrawn  
+**Withdrawn:** duplicate of OQ-002  
 
 ## OQ-004: Can a room be out of service?
 
-**Element:** Entity: ROOM
-**Raised by:** S. Huber, 2026-10-04
-**Blocking:** Yes
-**Status:** Open
+**Element:** Entity: ROOM  
+**Raised by:** S. Huber, 2026-10-04  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-005: Does a guest include children?
 
-**Element:** Glossary: Guest
-**Raised by:** /requirements, 2026-10-04
-**Blocking:** No
-**Status:** Open
+**Element:** Glossary: Guest  
+**Raised by:** /requirements, 2026-10-04  
+**Blocking:** No  
+**Status:** Open  
 """,
 }
 
@@ -3358,68 +3358,68 @@ BROKEN.update({
 
 ## OQ-001: Deposit for guests under eighteen?
 
-**Element:** UC-002 BR-001
-**Raised by:** /use-case-test, 2026-10-05
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-002 BR-001  
+**Raised by:** /use-case-test, 2026-10-05  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-002: Which guests may be recorded?
 
-**Element:** FR-001
-**Raised by:** /requirements, 2026-10-05
-**Blocking:** Yes
-**Status:** Answered
+**Element:** FR-001  
+**Raised by:** /requirements, 2026-10-05  
+**Blocking:** Yes  
+**Status:** Answered  
 
-**Answer:** Every guest over eighteen.
-**Answered by:** P. Meier, 2026-10-06
+**Answer:** Every guest over eighteen.  
+**Answered by:** P. Meier, 2026-10-06  
 
 ## OQ-003: What follows the confirmation?
 
-**Element:** UC-001 step 9
-**Raised by:** /use-case-implement, 2026-10-05
-**Blocking:** No
-**Status:** Open
+**Element:** UC-001 step 9  
+**Raised by:** /use-case-implement, 2026-10-05  
+**Blocking:** No  
+**Status:** Open  
 
 ## OQ-004: Room rate rounding?
 
-**Element:** UC-002 BR-002
-**Raised by:** /use-case-implement, 2026-10-05
-**Blocking:** No
-**Status:** Resolved
+**Element:** UC-002 BR-002  
+**Raised by:** /use-case-implement, 2026-10-05  
+**Blocking:** No  
+**Status:** Resolved  
 
 ## OQ-004: Twice the same id?
 
-**Element:** UC-002
-**Raised by:** /use-case-implement, 2026-10-05
-**Blocking:** No
-**Status:** Open
+**Element:** UC-002  
+**Raised by:** /use-case-implement, 2026-10-05  
+**Blocking:** No  
+**Status:** Open  
 
 ## OQ-005: Length of the comment field?
 
-**Element:** the comment field
-**Raised by:** /use-case-test, 2026-10-05
-**Blocking:** No
-**Status:** Open
+**Element:** the comment field  
+**Raised by:** /use-case-test, 2026-10-05  
+**Blocking:** No  
+**Status:** Open  
 
 ## OQ-006: Is a booking a reservation?
 
-**Element:** Glossary: Booking
-**Raised by:** /requirements, 2026-10-05
-**Blocking:** No
-**Status:** Open
+**Element:** Glossary: Booking  
+**Raised by:** /requirements, 2026-10-05  
+**Blocking:** No  
+**Status:** Open  
 
 ## OQ-007: Is the guest's phone mandatory?
 
-**Element:** UC-001 step 2
-**Raised by:** /use-case-implement, 2026-10-05
-**Status:** Open
+**Element:** UC-001 step 2  
+**Raised by:** /use-case-implement, 2026-10-05  
+**Status:** Open  
 
 ## OQ-008: Wording of the error messages?
 
-**Element:** UC-001 A1, A2
-**Raised by:** /use-case-test, 2026-10-05
-**Blocking:** No
-**Status:** Open
+**Element:** UC-001 A1, A2  
+**Raised by:** /use-case-test, 2026-10-05  
+**Blocking:** No  
+**Status:** Open  
 """,
 })
 

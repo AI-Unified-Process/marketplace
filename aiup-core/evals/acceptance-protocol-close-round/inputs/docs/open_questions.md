@@ -6,21 +6,21 @@ history.
 
 ## OQ-001: May a workshop be created without a capacity?
 
-**Element:** UC-001 step 3
-**Raised by:** /use-case-implement, 2026-09-28
-**Blocking:** Yes
-**Status:** Resolved
+**Element:** UC-001 step 3  
+**Raised by:** /use-case-implement, 2026-09-28  
+**Blocking:** Yes  
+**Status:** Resolved  
 
-**Answer:** No; every workshop has a capacity of at least one.
-**Answered by:** M. Keller, 2026-09-29
-**Resolved in:** Entity: WORKSHOP.capacity
+**Answer:** No; every workshop has a capacity of at least one.  
+**Answered by:** M. Keller, 2026-09-29  
+**Resolved in:** Entity: WORKSHOP.capacity  
 
 ## OQ-002: Does the registration deadline count calendar hours or business hours?
 
-**Element:** UC-002 BR-002
-**Raised by:** M. Keller, 2026-10-03
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-002 BR-002  
+**Raised by:** M. Keller, 2026-10-03  
+**Blocking:** Yes  
+**Status:** Open  
 
 The partner portal closes registration at noon of the last business day before a workshop. BR-002 says 24 hours.
 Readings: (a) 24 calendar hours before the start; (b) noon of the last business day before the start.

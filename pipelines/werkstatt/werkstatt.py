@@ -608,78 +608,78 @@ SELF_TEST_QUESTIONS = """# Open Questions
 
 ## OQ-001: Which discount applies?
 
-**Element:** UC-001 BR-002
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-001 BR-002  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-002: Rounding
 
-**Element:** UC-001 step 3
-**Blocking:** No
-**Status:** Open
+**Element:** UC-001 step 3  
+**Blocking:** No  
+**Status:** Open  
 
 ## OQ-003: Already resolved
 
-**Element:** UC-001
-**Blocking:** Yes
-**Status:** Resolved
+**Element:** UC-001  
+**Blocking:** Yes  
+**Status:** Resolved  
 
 ## OQ-004: Beantwortet, aber nicht übernommen
 
-**Element:** UC-001 A1
-**Blocking:** Ja
-**Status:** Beantwortet
+**Element:** UC-001 A1  
+**Blocking:** Ja  
+**Status:** Beantwortet  
 
 ## OQ-005: Another use case
 
-**Element:** UC-0010
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-0010  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-006 Heading without a colon, element in backticks
 
-**Element:** `UC-001` BR-003
-**Blocking:** Yes
-**Status:** Open
+**Element:** `UC-001` BR-003  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-007: On a requirement UC-001 links
 
-**Element:** FR-001
-**Blocking:** Yes
-**Status:** Answered
-**Answer:** Monthly.
+**Element:** FR-001  
+**Blocking:** Yes  
+**Status:** Answered  
+**Answer:** Monthly.  
 
 ## OQ-008: On a requirement UC-001 does not link
 
-**Element:** FR-009
-**Blocking:** Yes
-**Status:** Open
+**Element:** FR-009  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-009: A use case id with a hyphen
 
-**Element:** UC-2-1 step 2
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-2-1 step 2  
+**Blocking:** Yes  
+**Status:** Open  
 
 ```markdown
 ## OQ-010: An example in a fenced block
 
-**Element:** UC-001
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-001  
+**Blocking:** Yes  
+**Status:** Open  
 ```
 
 ## OQ-011: On a requirement whose id starts with a letter
 
-**Element:** FR-A01
-**Blocking:** Yes
-**Status:** Open
+**Element:** FR-A01  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-012: On a requirement with a category in its id
 
-**Element:** NFR-PERF-1
-**Blocking:** Yes
-**Status:** Open
+**Element:** NFR-PERF-1  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-013: Fields after a sub-heading
 
@@ -687,15 +687,15 @@ SELF_TEST_QUESTIONS = """# Open Questions
 
 Two readings are possible.
 
-**Element:** UC-001 step 4
-**Blocking:** Yes
-**Status:** Open
+**Element:** UC-001 step 4  
+**Blocking:** Yes  
+**Status:** Open  
 
 ## OQ-014: A blocking value the lint rejects blocks in no parser
 
-**Element:** UC-001
-**Blocking:** Yes (decides the result)
-**Status:** Open
+**Element:** UC-001  
+**Blocking:** Yes (decides the result)  
+**Status:** Open  
 """
 
 
