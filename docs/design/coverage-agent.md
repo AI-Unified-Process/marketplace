@@ -34,6 +34,12 @@ The constraints that hold this design together apply to both and must survive ed
   are only doors to the agent: argument parsing, delegation, faithful presentation, hand-off. They must never gain
   the ability to close the gaps they report, and they must not restate the agent's checklist — that is how one would
   grow into the combined implement-and-test skill this design deliberately avoids.
+- **The HTML page is rendered, not written.** With `html`, the layered front doors pass the report they have just
+  presented to `use-case-coverage/scripts/coverage_report.py`, which writes `docs/coverage/<id>.html`. The agent
+  stays read-only, and the script only lays the Markdown out — it escapes every character, drops no row, and adds
+  no verdict — so the page and the chat cannot disagree. A page written by the model would be a second, unaudited
+  rendering of the verdicts. It is the only file a front door writes; the combined plugins' `/coverage-check` has
+  no such option.
 - **Drift is the user's call, and reruns are compared.** The agent names both fixes for every drift item
   (specification or code) and recommends neither; the front door asks which side is right before offering a
   command, and on a rerun in the same conversation flags verdicts that changed without a change to the

@@ -6,8 +6,8 @@ description: >
   code behind them, which are still open, and which test steps have drifted away from the test case. Use when the
   user asks to "check coverage of TC-001", "is TC-001 completely automated", "audit the journey", "show me the
   coverage matrix for the test case", "what is still missing for TC-001", or "can I set TC-001 to Automated". This is
-  specification coverage, not line coverage. It reports only — it writes no code, no tests, and no files. For
-  projects that combine layer plugins and record them in docs/architecture/stack.md; the deprecated
+  specification coverage, not line coverage. It reports only, with `html` also as docs/coverage/TC-XXX.html. For
+  projects that record layer plugins in docs/architecture/stack.md; the deprecated
   aiup-vaadin-jooq and aiup-angular-jpa bring their own /coverage-check TC-XXX. A use case (UC-XXX) is /use-case-coverage. When the
   user wants the gaps closed rather than listed, use /test-case-implement or /use-case-implement instead.
 ---
@@ -30,8 +30,8 @@ This skill is a front door to the read-only `uc-coverage-layered` sub-agent of `
 it with a glob for `**/agents/uc-coverage-layered.md`) and is **deliberately not repeated here**. How a report is
 presented, compared with an earlier run, and run on a host without sub-agents is owned by `/use-case-coverage`:
 locate it with a glob for `**/*use-case-coverage/SKILL.md` (the folder may carry a host prefix such as
-`tessl__use-case-coverage`) and apply its sections "Delegation", "Repeated Runs", and "Hosts without sub-agents" as
-written. Your job is argument parsing, delegation, faithful presentation, and offering the next step.
+`tessl__use-case-coverage`) and apply its sections "Delegation", "Repeated Runs", "Hosts without sub-agents", and
+"HTML Report" as written. Your job is argument parsing, delegation, faithful presentation, and offering the next step.
 
 The report is the deliverable. **You do not fix what it finds.**
 
@@ -46,6 +46,7 @@ Everything is parsed out of `$ARGUMENTS`; the tokens may appear in any order.
 | `tests`, `test`                                            | mode `tests`                                            |
 | `both`, or no mode token at all                            | mode `both` (the default)                               |
 | `wip`, `--wip`, `work in progress`, `in progress`, `draft` | pass the work-in-progress qualifier through             |
+| `html`, `--html`                                           | also write the report as HTML — see below               |
 | a `UC-*` id                                                | not a journey — hand off to `/use-case-coverage UC-XXX` |
 | nothing                                                    | list the test cases and ask — see below                 |
 
@@ -68,7 +69,9 @@ in one line before delegating (`Auditing TC-001, mode both.`).
 
 5. Present the returned report unchanged, and on a rerun add the comparison — the sections of `/use-case-coverage`
    named in [Instructions](#instructions).
-6. Offer the gap-closing commands — see [After the Report](#after-the-report). Then stop.
+6. With `html`, write the report as `docs/coverage/TC-XXX.html` with the script of `/use-case-coverage`: locate it
+   with a glob for `**/*use-case-coverage/scripts/coverage_report.py` and follow its section "HTML Report".
+7. Offer the gap-closing commands — see [After the Report](#after-the-report). Then stop.
 
 With no id: if the conversation has just been working on a specific `TC-*`, propose that one and ask. Otherwise list
 `docs/test_cases/` with each test case's `**Status:**` line and ask which to audit. Audit one journey per run.
@@ -89,7 +92,8 @@ With no id: if the conversation has just been working on a specific `TC-*`, prop
 
 ## DO NOT
 
-- Do not write or edit code, tests, or specifications — including the `**Status:**` line.
+- Do not write or edit code, tests, or specifications — including the `**Status:**` line. The only file you write is
+  the HTML page, and only with `html`.
 - Do not restate or paraphrase the agent's audit checklist in this file; `agents/uc-coverage-layered.md` owns it.
 - Do not soften, upgrade, or drop a verdict, and do not present a summary in place of the matrix.
 - Do not tell the agent what you expect it to find.

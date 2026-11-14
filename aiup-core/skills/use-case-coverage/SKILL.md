@@ -10,9 +10,8 @@ description: >
   UC-001 completely tested", "audit the use case", "show me the coverage
   matrix", "do a traceability check", "what is still missing for UC-001", or
   "can I set the status to Tested". This is specification coverage, not line
-  coverage. It reports only and writes no
-  file. For projects that combine layer plugins and record
-  them in docs/architecture/stack.md; the deprecated aiup-vaadin-jooq and
+  coverage. It reports only, with `html` also as docs/coverage/UC-XXX.html.
+  For projects that record layer plugins in docs/architecture/stack.md; the deprecated aiup-vaadin-jooq and
   aiup-angular-jpa have /coverage-check. When the user wants the gaps closed rather than listed,
   use /use-case-implement or /use-case-test instead. A TC-XXX journey is
   /test-case-coverage.
@@ -52,6 +51,7 @@ Everything is parsed out of `$ARGUMENTS`; the tokens may appear in any order.
 | `tests`, `test`                                            | mode `tests`                                                               |
 | `both`, or no mode token at all                            | mode `both` (the default)                                                  |
 | `wip`, `--wip`, `work in progress`, `in progress`, `draft` | pass the work-in-progress qualifier through                                |
+| `html`, `--html`                                           | also write the report as HTML — see [HTML Report](#html-report)            |
 | two or more ids                                            | a bounded sweep of exactly those ids                                       |
 | nothing                                                    | see [Sweeps](#sweeps)                                                      |
 
@@ -67,7 +67,7 @@ Three parsing rules carry weight:
 
 ## Workflow
 
-1. Parse `$ARGUMENTS` into the id or ids, the mode, and the work-in-progress flag. With no id, go
+1. Parse `$ARGUMENTS` into the id or ids, the mode, the work-in-progress flag, and the `html` flag. With no id, go
    to [Sweeps](#sweeps).
 2. Confirm the specification exists: `docs/use_cases/**/UC-XXX-*.md`.
    Stop and ask if it does not.
@@ -75,7 +75,8 @@ Three parsing rules carry weight:
 4. Delegate the audit — see [Delegation](#delegation).
 5. Present the returned report unchanged. When this conversation already holds an audit of the same id and mode,
    add the comparison — see [Repeated Runs](#repeated-runs).
-6. Offer the gap-closing commands — see [After the Report](#after-the-report). Then stop.
+6. With `html`, write the page — see [HTML Report](#html-report).
+7. Offer the gap-closing commands — see [After the Report](#after-the-report). Then stop.
 
 ## Delegation
 
@@ -97,6 +98,30 @@ Present the report as it came back — the heading, the score line, the full mat
 `### Drift`, `### Open questions`, and `### Suggested status`. Do not summarize it into prose, do
 not drop the covered rows to save space, and do not change a verdict. The matrix is the
 deliverable; if you disagree with a verdict, say so underneath it and leave the row alone.
+
+## HTML Report
+
+With `html` (or when the user asks for the report as HTML), render the report you have just presented — the agent's
+report exactly as it came back, plus your "Since the last run" section when there is one, and nothing else — with the
+bundled script, passing it on standard input:
+
+```bash
+python3 scripts/coverage_report.py --out docs/coverage/UC-001.html <<'REPORT'
+<the report, verbatim>
+REPORT
+```
+
+The path is relative to this skill's folder; `--out` is relative to the project root. Always write
+`docs/coverage/UC-XXX.html`, one page per id, replacing the previous page of that id; another file name only when the
+user names one. The script, not you, writes the HTML: do not write or edit the page by hand, and do not add a remark of
+yours to the report before passing it, so the page shows the same verdicts as the chat. Your disagreement with a
+verdict stays in the chat, below the report.
+
+The page is self-contained (no external assets): the score as tiles, the matrix with a badge per verdict and a filter
+for the open rows, the sections as written, a link to the specification, and the date and commit it was generated on.
+After writing it, say where it is in one line; do not repeat the matrix. In a sweep, write one page per audited id,
+never one for a triage row. Whether to commit `docs/coverage/` or add it to `.gitignore` is the user's call. This page
+is the only file the skill writes, and only with `html`.
 
 ## After the Report
 
@@ -188,7 +213,8 @@ thirty audits**:
 
 ## DO NOT
 
-- Do not write or edit code, tests, or specifications — including the `**Status:**` line.
+- Do not write or edit code, tests, or specifications — including the `**Status:**` line. The only file you write is
+  the HTML page of [HTML Report](#html-report), and only with `html`.
 - Do not restate or paraphrase the agent's audit checklist in this file; `agents/uc-coverage-layered.md`
   owns it.
 - Do not soften, upgrade, or drop a verdict, and do not present a summary in place of the matrix.

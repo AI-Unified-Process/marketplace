@@ -37,7 +37,7 @@ marketplace/
 │       ├── stack/                # writes docs/architecture/stack.md (layer → skill)
 │       ├── use-case-implement/   # runs the layer skills bottom-up
 │       ├── use-case-test/        # runs the layer test skills from the integration layer up
-│       ├── use-case-coverage/    # front door to uc-coverage-layered
+│       ├── use-case-coverage/    # front door to uc-coverage-layered; `html` renders docs/coverage/<id>.html
 │       ├── test-case-implement/  # runs the E2E test skill for a TC-* journey
 │       ├── test-case-coverage/   # front door to uc-coverage-layered for a TC-* journey
 │       ├── user-guide/           # docs/user_guide/ from the use cases at Tested or Done
@@ -453,6 +453,9 @@ skills hand off to `/coverage-check UC-XXX`.
 Rules a change must keep:
 
 - The agent never writes: its tools are `Read, Grep, Glob`.
+- With `html`, `/use-case-coverage` and `/test-case-coverage` render the report as `docs/coverage/<id>.html` with
+  `use-case-coverage/scripts/coverage_report.py` (standard library only): the script writes the page from the
+  report as presented, never the agent, and it is the only file a front door writes.
 - No `file:line`, no `Covered`.
 - `/coverage-check`, `/use-case-coverage`, and `/test-case-coverage` stay thin front doors: parse, delegate, present, hand off. They never
   close the gaps they report and never restate the agent's checklist.

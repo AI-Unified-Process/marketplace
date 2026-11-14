@@ -73,6 +73,7 @@ one use case or one layer.
 | `docs/user_guide/*.md`             | `/user-guide`; the team adds sections    | The people who use the system                                                                                |
 | `docs/acceptance/<round>.md`       | `/acceptance-protocol`; testers fill in the results | `/acceptance-protocol close`, which sets accepted use cases to `Done`                             |
 | `docs/release-notes.md`            | `/release-notes`                         | The people who use the system                                                                                |
+| `docs/coverage/<id>.html`          | `/use-case-coverage`, `/test-case-coverage` with `html` | The team and reviewers; generated, nothing reads it                                           |
 
 For a large project, `/reverse-engineer` splits both diagrams by module, one folder or file per module:
 
@@ -478,7 +479,8 @@ postcondition, and linked NFR and constraint — and maps each one onto the code
 
 It reports gaps (a unit with no code or no test), drift (code or tests the specification no longer describes), and the
 specification's justified next `**Status:**` value. It never edits a file, and neither does the front door that runs
-it: you decide which gaps to close and run `/use-case-implement` or `/use-case-test` for them.
+it, apart from the HTML page you ask for with `html`: you decide which gaps to close and run `/use-case-implement` or
+`/use-case-test` for them.
 
 The implementation and testing skills do not run the audit themselves — each run re-reads the specification and the
 code base and takes minutes, so the check runs once, explicitly, when you ask for it. `/use-case-coverage` and
@@ -488,7 +490,11 @@ code base and takes minutes, so the check runs once, explicitly, when you ask fo
 /use-case-coverage UC-001              # implementation and tests together
 /use-case-coverage UC-001 tests        # narrow the audit to one side
 /test-case-coverage TC-001             # a journey audits its Flow rows and Validation items
+/use-case-coverage UC-001 html         # also save the report as docs/coverage/UC-001.html
 ```
+
+With `html`, a bundled script renders the report shown in the chat as a self-contained page, one per id, to share or
+open in a browser; the model writes no HTML itself, so the page shows the same verdicts as the chat.
 
 A use case whose coverage matrix is complete in both columns is the point at which `**Status:** Tested` is justified.
 That is what `/use-case-coverage UC-001` is for; the skill reports the justified status but leaves the line to you.

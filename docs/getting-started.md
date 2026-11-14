@@ -232,7 +232,8 @@ a specified use case.
 `aiup-core` delegates to the read-only [`uc-coverage-layered`](../aiup-core/agents/uc-coverage-layered.md) sub-agent,
 which reads the markers of `docs/architecture/stack.md` and reports which parts of the specification still have no code
 or no test behind them. Run it when you want the audit — typically before accepting a use case as done, when it judges
-implementation and tests together in one matrix. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` run the same
+implementation and tests together in one matrix. Add `html` (`/use-case-coverage UC-001 html`) to also save the
+report as `docs/coverage/UC-001.html`. The deprecated `aiup-vaadin-jooq` and `aiup-angular-jpa` run the same
 audit with their own `/coverage-check UC-001`.
 
 In a GitHub project the same construction can run unattended: the [Werkstatt](werkstatt.md) builds the `Approved`

@@ -121,7 +121,7 @@ and the operations of an API contract agreed with a partner system, which the AP
 The coverage audit belongs to `aiup-core`: `/use-case-coverage` and `/test-case-coverage` run the read-only
 [`uc-coverage-layered`](aiup-core/agents/uc-coverage-layered.md) sub-agent on demand. It reports which parts of the
 specification have no code or no test behind them, and which code has no specification behind it, and judges
-implementation and tests together; `/use-case-test` and `/test-case-implement` end by handing off to it rather than
+implementation and tests together, and with `html` saves the report as a page under `docs/coverage/`; `/use-case-test` and `/test-case-implement` end by handing off to it rather than
 running it themselves, so a construction round stays fast. Of the combined stack plugins, the deprecated
 `aiup-vaadin-jooq` and `aiup-angular-jpa` have their own `/coverage-check`; `aiup-blazor-dotnet` and the deprecated
 `aiup-nestjs-nextjs` have no audit.

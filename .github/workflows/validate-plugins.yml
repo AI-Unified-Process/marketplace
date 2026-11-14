@@ -133,6 +133,7 @@ jobs:
           scripts/sync-eval-fixtures.sh --check
           python3 aiup-core/skills/spec-review/scripts/spec_lint.py --self-test
           python3 aiup-core/skills/user-guide/scripts/guide_anchor.py --self-test
+          python3 aiup-core/skills/use-case-coverage/scripts/coverage_report.py --self-test
           # the user-guide scenarios seed one anchored section per state; their rubrics quote the hashes
           for scenario in keeps-team-sections hand-edit-vs-spec-change; do
             (cd "aiup-core/evals/user-guide-$scenario/inputs" \

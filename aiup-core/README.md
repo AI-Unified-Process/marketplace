@@ -31,9 +31,9 @@ reviewable files under `docs/`.
 | Construction | [`/stack`](skills/stack/SKILL.md)                             | `docs/architecture/stack.md`: the layer skill for each technical layer       |
 | Construction | [`/use-case-implement`](skills/use-case-implement/SKILL.md)   | A use case implemented by running the layer skills bottom-up, within the decision rights |
 | Construction | [`/use-case-test`](skills/use-case-test/SKILL.md)             | The tests of a use case, from the integration layer up                       |
-| Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests               |
+| Construction | [`/use-case-coverage`](skills/use-case-coverage/SKILL.md)     | Read-only coverage matrix of a use case against code and tests; `html` page |
 | Construction | [`/test-case-implement`](skills/test-case-implement/SKILL.md) | The automated end-to-end test of a test case journey                         |
-| Construction | [`/test-case-coverage`](skills/test-case-coverage/SKILL.md)   | Read-only coverage matrix of a test case journey                             |
+| Construction | [`/test-case-coverage`](skills/test-case-coverage/SKILL.md)   | Read-only coverage matrix of a test case journey; `html` page               |
 | Transition   | [`/user-guide`](skills/user-guide/SKILL.md)                   | `docs/user_guide/`: one chapter per actor from the use cases at `Tested` or `Done` |
 | Transition   | [`/acceptance-protocol`](skills/acceptance-protocol/SKILL.md) | `docs/acceptance/<round>.md`: the acceptance checklist; accepted use cases go to `Done` |
 | Transition   | [`/release-notes`](skills/release-notes/SKILL.md)             | `docs/release-notes.md`: the use cases that reached `Done` since a Git tag   |
