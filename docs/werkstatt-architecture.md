@@ -82,9 +82,9 @@ Each station has one clear output. A station never fixes the work of another sta
 
 | # | Station | Input | Output | Tool |
 | --- | --- | --- | --- | --- |
-| 1 | Select | The change branch | The UCs whose specification changed against the merge base with the default branch and that are *Approved*, in id order | `select-ucs.sh` |
+| 1 | Select | The change branch | The UCs whose specification changed against the merge base with the base branch and that are *Approved*, in id order | `select-ucs.sh` |
 | 2 | G1 spec lint | One UC | Pass, or blocked with the findings | `spec_lint.py --only UC-XXX` (no LLM) and the blocking open questions |
-| 3 | Implement | The UC, its diff against the merge base with the default branch | Code with `UC-XXX BR-YYY` markers, or a new blocking open question | `/aiup-core:use-case-implement` or `/<plugin>:implement` |
+| 3 | Implement | The UC, its diff against the merge base with the base branch | Code with `UC-XXX BR-YYY` markers, or a new blocking open question | `/aiup-core:use-case-implement` or `/<plugin>:implement` |
 | 4 | Test | The same UC and diff, fresh session | Tests per layer; a test that disagrees with the code stays red | `/aiup-core:use-case-test` or the plugin's test skills |
 | 5 | G2 to G4 build | The branch | Green or red, with the log | The Build, Unit tests and Integration tests commands of the stack file |
 | 6 | G5 audit | UC, code, tests | Coverage matrix, gaps in code and in tests | `uc-coverage-layered` or the plugin's `uc-coverage` agent, read-only |
@@ -163,8 +163,9 @@ on a developer's machine (`run-local.sh`), in a worktree of their own and withou
   `pipelines/werkstatt/` and are checked out at `engine_ref`, the same tag or branch as the stub's `uses:` line.
 - **Start.** From the AI Unified Process Studio, like a generate run (Studio UC-061), or by hand with
   `workflow_dispatch` on a change branch, with or without UC ids.
-- **Selection.** Without UC ids, every UC whose specification differs from the merge base with the default branch
-  and whose status is *Approved*.
+- **Selection.** Without UC ids, every UC whose specification differs from the merge base with the base branch
+  and whose status is *Approved*. The base branch is the input `base_branch` (the Studio's configured branch), else
+  the repository's default branch; the Werkstatt refuses to run on it.
 - **The status is the memory.** A finished UC moves to *Tested* in the pull request (*Implemented* when the stack
   has no coverage audit, or its verdict could not be verified). After the merge it is no longer selected; a blocked, stuck or pending UC stays *Approved*
   and is selected again. The Werkstatt keeps no state of its own.

@@ -29,6 +29,11 @@ on:
         description: Id of the run from the Studio
         required: true
         type: string
+      base_branch:
+        description: Configured branch of the Studio the change branch forked from (empty = the repository's default branch)
+        required: false
+        default: ""
+        type: string
       stack_plugin:
         description: Combined stack plugin of the project; empty for layer plugins
         required: false
@@ -87,6 +92,7 @@ jobs:
     with:
       use_cases: ${{ inputs.use_cases }}
       correlation_id: ${{ inputs.correlation_id }}
+      base_branch: ${{ inputs.base_branch }}
       engine_ref: v1
       stack_plugin: ${{ inputs.stack_plugin }}
       artifact_locations: ${{ inputs.artifact_locations }}

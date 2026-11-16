@@ -19,7 +19,8 @@
 #      helpers; a use case that is not Approved is skipped, not built; stations that stop without a result end stuck
 #      with a row in the report.
 #   5. every use case named is not Approved: outcome none, nothing committed.
-#   6. select-ucs.sh: an umlaut and a space in a file name, a specification moved into a module folder.
+#   6. select-ucs.sh: an umlaut and a space in a file name, a specification moved into a module folder; a base branch
+#      other than the default branch (BASE_BRANCH, else DEFAULT_BRANCH).
 #   7. a session that fails once is started again and the use case still ends ready; a session that fails twice
 #      ends stuck, also where no coverage audit would catch it, and leaves no untracked file behind.
 #   8. a red build caused by a test: the implementer cannot repair it, the tester gets the new log in the same round
@@ -31,8 +32,8 @@
 #  11. protected paths (a specification, a workflow, CLAUDE.md) are reverted and listed; the build gate runs the
 #      Commands the run found: a station's change to the Commands table is reverted; an audit that says complete without opening the specification
 #      is audited once more, and when that cannot be verified either, the use case moves to Implemented only.
-#  12. run-local.sh: refuses a dirty checkout and the default branch; builds in a worktree on a new branch and leaves
-#      the checkout and its branch as they were.
+#  12. run-local.sh: refuses a dirty checkout and the base branch (BASE_BRANCH, else DEFAULT_BRANCH); builds in a
+#      worktree on a new branch and leaves the checkout and its branch as they were.
 # Where setsid exists (Linux), 2 also checks that a process that outlives the stopped stations is killed before it
 # writes into the working tree.
 #
@@ -368,6 +369,21 @@ R="$WORK/six"; fixture "$R"
 )
 expect_eq "6 selected" "$(cd "$R" && bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" main 2>"$WORK/six.log")" \
   "UC-001 UC-004 UC-005"
+# a base branch other than the default branch (the Studio's configured branch): only what changed since it counts
+(
+  cd "$R" || exit 1
+  git update-ref refs/remotes/origin/develop HEAD
+  printf '# UC-007: Later\n\n**Status:** Approved\n' > docs/use_cases/UC-007-later.md
+  git add -A && git commit -qm "change after develop"
+)
+expect_eq "6 selected against develop" \
+  "$(cd "$R" && bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" develop 2>>"$WORK/six.log")" "UC-007"
+expect_eq "6 BASE_BRANCH when no branch is named" \
+  "$(cd "$R" && BASE_BRANCH=develop DEFAULT_BRANCH=main bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" 2>>"$WORK/six.log")" \
+  "UC-007"
+expect_eq "6 DEFAULT_BRANCH without BASE_BRANCH" \
+  "$(cd "$R" && DEFAULT_BRANCH=main bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" 2>>"$WORK/six.log")" \
+  "UC-001 UC-004 UC-005 UC-007"
 
 # ---------------------------------------------------------------- 7. failed sessions
 R="$WORK/seven"; fixture "$R"
@@ -480,6 +496,8 @@ expect_no_file "12 no worktree for a dirty checkout" "$WORK/twelve-dirty"
 (cd "$R" && git checkout -q -- README.md)
 local_run WORKTREE="$WORK/twelve-default" DEFAULT_BRANCH=change/test && fail "12 the default branch is refused"
 expect_no_file "12 no worktree on the default branch" "$WORK/twelve-default"
+local_run WORKTREE="$WORK/twelve-base" BASE_BRANCH=change/test DEFAULT_BRANCH=main && fail "12 the base branch is refused"
+expect_no_file "12 no worktree on the base branch" "$WORK/twelve-base"
 local_run WORKTREE="$WORK/twelve-wt" || fail "12 the local run ends 0"
 expect_eq "12 UC-001 outcome" "$(outcome_of "$WORK/twelve-wt" UC-001)" ready
 expect_eq "12 UC-002 outcome" "$(outcome_of "$WORK/twelve-wt" UC-002)" ready

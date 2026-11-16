@@ -8,7 +8,8 @@
 # each agent station in its own Claude Code session. A use case that needs an answer (a blocking open question,
 # the andon cord) or stays red stops the run; it contributes its open questions only, never half-built code.
 # The result comes back as one pull request against the change branch, never as a direct commit, so the change
-# branch's own pull request brings specification, code and tests to the default branch together.
+# branch's own pull request brings specification, code and tests to the base branch together: the Studio's configured
+# branch (input base_branch), else the repository's default branch.
 #
 # Like aiup-generate.yml, this workflow is called by a thin stub in the project repository; the stages live in
 # pipelines/werkstatt/ of this marketplace, checked out at engine_ref. See docs/werkstatt.md.
@@ -25,6 +26,14 @@ on:
       correlation_id:
         description: Id of the run from the Studio (or any unique id)
         required: true
+        type: string
+      base_branch:
+        # The Studio's configured branch of the repository, which may differ from GitHub's default branch. The merge
+        # base with it selects the use cases of the change and bounds the specification diff, and the Werkstatt
+        # refuses to run on it. Empty (an older stub sends nothing) keeps the repository's default branch.
+        description: Branch the change branch forked from (empty = the repository's default branch)
+        required: false
+        default: ""
         type: string
       engine_ref:
         # A called workflow cannot see the ref it was called at, so the stub passes it again: the same tag or
@@ -107,7 +116,8 @@ jobs:
       outcome: ${{ steps.run.outputs.outcome || 'none' }}
       pull_request: ${{ steps.pr.outputs.pull-request-number }}
     env:
-      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      # The branch the change forked from: the Studio's configured branch, else the repository's default branch.
+      BASE_BRANCH: ${{ inputs.base_branch || github.event.repository.default_branch }}
       ENGINE: .aiup-werkstatt-engine
     steps:
       - name: Start the clock
@@ -130,7 +140,8 @@ jobs:
       - name: Check out the change branch
         uses: actions/checkout@v4
         with:
-          # the merge base with the default branch selects the use cases of the change
+          # Every branch with its history: the merge base with the base branch selects the use cases of the change.
+          # No later fetch is possible, since no token stays behind.
           fetch-depth: 0
           # The stations run with bypassPermissions and build code they wrote: no token stays in .git/config for
           # them to push with. The pull request step authenticates with its own token.
@@ -151,10 +162,20 @@ jobs:
           printf '%s\n' ".aiup-werkstatt-engine/" ".werkstatt/" >> .git/info/exclude
           git config user.name "AI Unified Process Werkstatt"
           git config user.email "werkstatt@unifiedprocess.ai"
-          if [ "$GITHUB_REF_NAME" = "$DEFAULT_BRANCH" ]; then
-            echo "::error::The Werkstatt runs on a change branch, not on $DEFAULT_BRANCH."
+          if ! git check-ref-format --branch "$BASE_BRANCH" >/dev/null 2>&1; then
+            echo "::error::base_branch '$BASE_BRANCH' is not a valid branch name."
             exit 1
           fi
+          if [ "$GITHUB_REF_NAME" = "$BASE_BRANCH" ]; then
+            echo "::error::The Werkstatt runs on a change branch, not on $BASE_BRANCH."
+            exit 1
+          fi
+          # fetch-depth 0 brought every branch of the repository along
+          if ! git rev-parse -q --verify "refs/remotes/origin/$BASE_BRANCH" >/dev/null; then
+            echo "::error::The base branch $BASE_BRANCH does not exist in the repository, so the change cannot be found."
+            exit 1
+          fi
+          echo "Base branch: $BASE_BRANCH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Select the use cases
         id: select
@@ -169,7 +190,7 @@ jobs:
             # Each id once and in id order, as select-ucs.sh gives them: a later use case may build on an earlier.
             ucs=$(printf '%s' "$USE_CASES" | grep -oE 'UC-[0-9]+' | sort -u | sort -t- -k2,2n | paste -sd' ' - || true)
           else
-            ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$DEFAULT_BRANCH")
+            ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$BASE_BRANCH")
           fi
           echo "Use cases: ${ucs:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "use_cases=$ucs" >> "$GITHUB_OUTPUT"

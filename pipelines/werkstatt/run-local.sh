@@ -21,13 +21,13 @@
 #     CLI and a fresh plugin install. The helpers come from this marketplace checkout.
 #
 # Usage: run-local.sh [--yes] [UC-001 UC-002 ...]
-#   Without ids: the Approved use cases whose specification changed against the merge base with the default branch,
+#   Without ids: the Approved use cases whose specification changed against the merge base with the base branch,
 #   as in the GitHub run (select-ucs.sh). Ids given by hand run in id order, each once; one not Approved is skipped.
-# Env: DEFAULT_BRANCH (default: origin's HEAD, else main), WORKTREE (default: <checkout>-werkstatt-<stamp> next to the
-#      checkout), TIMEOUT_MINUTES (optional: the stations stop then and the use case still running ends stuck),
-#      SPEC_LINT (default: spec_lint.py of the installed aiup-core), and the limits of run-uc.sh: MODEL, MAX_TURNS,
-#      MAX_ROUNDS, MAX_COST_USD (per use case), STACK_PLUGIN (a combined stack plugin; empty for layer plugins),
-#      ARTIFACT_LOCATIONS.
+# Env: BASE_BRANCH (the branch the change forked from; default: DEFAULT_BRANCH, else origin's HEAD, else main),
+#      WORKTREE (default: <checkout>-werkstatt-<stamp> next to the checkout), TIMEOUT_MINUTES (optional: the
+#      stations stop then and the use case still running ends stuck), SPEC_LINT (default: spec_lint.py of the
+#      installed aiup-core), and the limits of run-uc.sh: MODEL, MAX_TURNS, MAX_ROUNDS, MAX_COST_USD (per use case),
+#      STACK_PLUGIN (a combined stack plugin; empty for layer plugins), ARTIFACT_LOCATIONS.
 set -uo pipefail
 
 ENGINE=$(cd "$(dirname "$0")/../.." && pwd)
@@ -54,12 +54,13 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) || die "run it from the project
 cd "$top" || exit 1
 branch=$(git symbolic-ref -q --short HEAD) || die "HEAD is detached; check out the change branch"
 
-if [ -z "${DEFAULT_BRANCH:-}" ]; then
-  DEFAULT_BRANCH=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
-  DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+BASE_BRANCH="${BASE_BRANCH:-${DEFAULT_BRANCH:-}}"
+if [ -z "$BASE_BRANCH" ]; then
+  BASE_BRANCH=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+  BASE_BRANCH="${BASE_BRANCH:-main}"
 fi
-export DEFAULT_BRANCH
-[ "$branch" != "$DEFAULT_BRANCH" ] || die "the Werkstatt runs on a change branch, not on $DEFAULT_BRANCH"
+export BASE_BRANCH
+[ "$branch" != "$BASE_BRANCH" ] || die "the Werkstatt runs on a change branch, not on $BASE_BRANCH"
 
 # The worktree is built from the last commit: an uncommitted specification change would silently not be built.
 [ -z "$(git status --porcelain)" ] || die "the checkout has uncommitted changes; commit them first (the Werkstatt builds the committed state)"
@@ -76,13 +77,13 @@ if [ -n "$ids" ]; then
   # shellcheck disable=SC2086
   ucs=$(printf '%s\n' $ids | grep -oE '^UC-[0-9]+' | sort -u | sort -t- -k2,2n | paste -sd' ' -)
 else
-  git remote get-url origin >/dev/null 2>&1 && { git fetch -q origin "$DEFAULT_BRANCH" || echo "run-local: could not fetch origin/$DEFAULT_BRANCH; using the local copy" >&2; }
-  git rev-parse -q --verify "refs/remotes/origin/$DEFAULT_BRANCH" >/dev/null \
-    || die "origin/$DEFAULT_BRANCH is unknown, so the change cannot be found; name the use cases instead (run-local.sh UC-003)"
-  ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$DEFAULT_BRANCH") || die "select-ucs.sh failed"
+  git remote get-url origin >/dev/null 2>&1 && { git fetch -q origin "$BASE_BRANCH" || echo "run-local: could not fetch origin/$BASE_BRANCH; using the local copy" >&2; }
+  git rev-parse -q --verify "refs/remotes/origin/$BASE_BRANCH" >/dev/null \
+    || die "origin/$BASE_BRANCH is unknown, so the change cannot be found; name the use cases instead (run-local.sh UC-003)"
+  ucs=$(bash "$ENGINE/pipelines/werkstatt/select-ucs.sh" "$ENGINE" "$BASE_BRANCH") || die "select-ucs.sh failed"
 fi
 if [ -z "$ucs" ]; then
-  echo "No Approved use case changed against $DEFAULT_BRANCH; nothing to build."
+  echo "No Approved use case changed against $BASE_BRANCH; nothing to build."
   exit 0
 fi
 
@@ -101,7 +102,7 @@ WORKTREE="${WORKTREE:-$(dirname "$top")/$(basename "$top")-werkstatt-$stamp}"
 cat <<EOF
 AI Unified Process Werkstatt, local run
   use cases     $ucs
-  from          $branch ($(git rev-parse --short HEAD)), default branch $DEFAULT_BRANCH
+  from          $branch ($(git rev-parse --short HEAD)), base branch $BASE_BRANCH
   worktree      $WORKTREE
   result branch $result_branch
   model         ${MODEL:-claude-opus-5-5}, at most \$${MAX_COST_USD:-15} per use case

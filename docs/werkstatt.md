@@ -33,6 +33,11 @@ branch in one pull request, so the default branch never holds a specification wi
 
 The Werkstatt never commits to a branch directly; its result is always a pull request, as with `aiup-generate`.
 
+The branch a change branch forks from and returns to is the **base branch**: the repository's default branch, or the
+branch passed as `base_branch` (the Studio passes its configured branch of the repository, which may differ from
+GitHub's default branch). The Werkstatt selects the use cases against the merge base with the base branch, takes the
+specification diff against it, and refuses to run on it.
+
 ## Stations and gates
 
 Every use case goes through the same stations. Agent stations run as separate `claude -p` sessions, so the tester
@@ -41,7 +46,7 @@ and the auditor read the specification, not the implementer's reasoning.
 | Station / gate | What runs | On failure |
 | --- | --- | --- |
 | G1 spec lint | `spec_lint.py --only UC-XXX` of `/spec-review`, plus the blocking open questions of the use case | blocked; stuck when the lint itself fails (exit code above 1) |
-| Implement | `/aiup-core:use-case-implement` (or `/<plugin>:implement`), with the spec diff against the merge base with the default branch | – |
+| Implement | `/aiup-core:use-case-implement` (or `/<plugin>:implement`), with the spec diff against the merge base with the base branch | – |
 | Test | `/aiup-core:use-case-test` (or the plugin's test skills) in a fresh session, with the same spec diff | – |
 | Open questions | After every agent station: `spec_lint.py --questions`, then the blocking open questions of the use case | blocked |
 | G2–G4 build and tests | The Build, Unit tests and Integration tests commands of `docs/architecture/stack.md` | fix round |
@@ -210,13 +215,14 @@ cd ~/projects/online-booking                  # the project, on the change branc
 ~/marketplace/pipelines/werkstatt/run-local.sh UC-003     # or the ones you name
 ```
 
-The script refuses a checkout with uncommitted changes and the default branch. It builds the last commit of the
+The script refuses a checkout with uncommitted changes and the base branch. It builds the last commit of the
 change branch in a new Git worktree next to the checkout, on a new branch `aiup/werkstatt-local-<stamp>`, so the
 checkout you work in is never touched: a blocked or stuck use case resets and cleans the tree it runs in. No pull
 request is opened. The result is the commits on that branch and the report in `<worktree>/.werkstatt/report.md`;
 the script prints the commands to review it, merge it, or push it and open the pull request yourself. The limits are
 environment variables with the names of the inputs: `MODEL`, `MAX_TURNS`, `MAX_ROUNDS`, `MAX_COST_USD` (per use
-case), `STACK_PLUGIN`, `TIMEOUT_MINUTES`, plus `DEFAULT_BRANCH` and `WORKTREE`.
+case), `STACK_PLUGIN`, `TIMEOUT_MINUTES`, plus `BASE_BRANCH` (default: `DEFAULT_BRANCH`, else `origin/HEAD`, else
+`main`) and `WORKTREE`.
 
 Before it starts, the script names what is different from the GitHub run and asks you to accept it (`--yes` skips
 the question):
@@ -238,6 +244,7 @@ the question):
 | --- | --- | --- |
 | `use_cases` | empty | Ids to build; empty = every `Approved` use case whose specification changed on the branch. An id that is not `Approved` is skipped. A moved specification counts as added at its new path |
 | `correlation_id` | – | Run id; names the result branch `aiup/werkstatt-<id>` and the records artifact |
+| `base_branch` | empty | Base branch the change branch forked from (the Studio's configured branch); empty = the repository's default branch. Selects the use cases (merge base), bounds the spec diff, and the Werkstatt refuses to run on it; a name the repository does not have fails the run |
 | `engine_ref` | `v1` | Ref of this marketplace whose `pipelines/werkstatt/` runs; the same ref as in `uses:` |
 | `stack_plugin` | empty | A combined stack plugin (`aiup-blazor-dotnet`); empty for layer plugins |
 | `artifact_locations` | empty | Prompt hint for the stations only; the Werkstatt itself (selection, lint, andon cord, status) reads the default paths under `docs/` |

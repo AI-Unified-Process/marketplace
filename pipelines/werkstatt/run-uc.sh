@@ -26,7 +26,8 @@
 # the specification is the tester's to repair, and no other station may touch it.
 #
 # Env: UC, ENGINE (marketplace checkout), MODEL, MAX_TURNS, MAX_ROUNDS, MAX_COST_USD, STACK_PLUGIN (empty for
-#      layer plugins), DEFAULT_BRANCH, ARTIFACT_LOCATIONS (a hint in the prompts only: the Werkstatt itself reads
+#      layer plugins), BASE_BRANCH (the branch the change forked from; falls back to DEFAULT_BRANCH, then main),
+#      ARTIFACT_LOCATIONS (a hint in the prompts only: the Werkstatt itself reads
 #      docs/), SPEC_LINT, RETRY_WAIT (seconds before a failed session is started once more, default 30)
 # Writes .werkstatt/<UC>/summary.json and the records of every station.
 set -uo pipefail
@@ -38,7 +39,7 @@ MAX_TURNS="${MAX_TURNS:-150}"
 MAX_ROUNDS="${MAX_ROUNDS:-4}"
 MAX_COST_USD="${MAX_COST_USD:-15}"
 STACK_PLUGIN="${STACK_PLUGIN:-}"
-DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+BASE_BRANCH="${BASE_BRANCH:-${DEFAULT_BRANCH:-main}}"
 ARTIFACT_LOCATIONS="${ARTIFACT_LOCATIONS:-}"
 HELPER="$ENGINE/pipelines/werkstatt/werkstatt.py"
 # Test code by path: Java/Kotlin test sources, test folders, TypeScript test files, and .NET test files: any file in a
@@ -88,14 +89,14 @@ else
   fi
 fi
 
-# The diff of the specification against the default branch makes removals visible (as in aiup-generate). Against
-# the merge base, not the tip: a change made on the default branch after branching is no removal of this change.
+# The diff of the specification against the base branch makes removals visible (as in aiup-generate). Against the
+# merge base, not the tip: a change made on the base branch after branching is no removal of this change.
 SPEC_DIFF=""
-if git rev-parse -q --verify "origin/$DEFAULT_BRANCH" >/dev/null; then
-  DIFF_BASE=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD 2>/dev/null || echo "origin/$DEFAULT_BRANCH")
+if git rev-parse -q --verify "origin/$BASE_BRANCH" >/dev/null; then
+  DIFF_BASE=$(git merge-base "origin/$BASE_BRANCH" HEAD 2>/dev/null || echo "origin/$BASE_BRANCH")
   d=$(git diff "$DIFF_BASE" HEAD -- "$SPEC")
   if [ -n "$d" ] && [ "${#d}" -le 20000 ]; then
-    SPEC_DIFF="The specification was changed on this branch. Its diff against \`$DEFAULT_BRANCH\`:
+    SPEC_DIFF="The specification was changed on this branch. Its diff against \`$BASE_BRANCH\`:
 
 ~~~diff
 $d

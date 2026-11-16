@@ -533,6 +533,9 @@ command names and would collide, and a combined plugin next to layer plugins wou
   `stuck`, and both are recorded in the metrics and the report. Stations that stop without a result (a crash, a
   killed process) end the use case `stuck` too, with a row in the report.
 - The implementer, the tester, and the fix station all get the specification diff, and it is against the merge base.
+- The base branch (selection, spec diff, the refusal to run on it) is the `base_branch` input, the Studio's configured
+  branch, else `github.event.repository.default_branch`; an older stub that sends none behaves as before. The scripts
+  read `BASE_BRANCH`, falling back to `DEFAULT_BRANCH`.
 - Where `setsid` exists, the stations of a use case run in their own session, and what is left of it is killed before
   the tree is dropped or the next use case starts. An id named twice is built once; ids given by hand run in id order.
 - The project checkout keeps no token (`persist-credentials: false`), and the AI secrets reach only the stations
