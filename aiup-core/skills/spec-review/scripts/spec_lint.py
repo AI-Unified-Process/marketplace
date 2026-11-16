@@ -409,6 +409,13 @@ def normalize(text):
     return " ".join(re.sub(r"[^\w\s]", " ", text.casefold()).split())
 
 
+def actor_key(name):
+    """The key an actor is compared by, in the specification and the
+    diagram alike: the normalized name without parenthetical notes, so
+    "Zahlungsdienst (Stripe)" and "Zahlungsdienst" are the same actor."""
+    return normalize(re.sub(r"\([^)]*\)", " ", name))
+
+
 def resolve_uc(ref, known):
     """The use case id a reference means.
 
@@ -492,7 +499,7 @@ class Spec:
                     continue
                 if kind == "primary":
                     self.actor_line = number
-                for name in value.split(","):
+                for name in re.split(r",(?![^(]*\))", value):
                     name = re.sub(r"\([^)]*\)", " ", name).strip(" *_`")
                     if normalize(name) not in NO_ACTOR:
                         self.actors.append((number, name, kind))
@@ -789,7 +796,7 @@ def read_diagram_actors(path):
     lines = list(diagram_lines(path, labels=True))
 
     def declare(number, name, alias=None):
-        key = normalize(name)
+        key = actor_key(name)
         actors.setdefault(key, (number, name))
         aliases[alias or name] = key
         return key
@@ -890,7 +897,7 @@ def check_actors(project, specs):
         diagram = where[uid]
         listed = set()
         for number, name, kind in spec.actors:
-            key = normalize(name)
+            key = actor_key(name)
             listed |= ancestors(key, parents)
             if ancestors(key, parents) & linked:
                 continue
@@ -2650,13 +2657,13 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
                 ready[0] + " is Approved and every use case it "
                 "chains is implemented")
     if approved and stack and stack["has_systems"]:
-        persons = {normalize(name) for spec in specs.values()
+        persons = {actor_key(name) for spec in specs.values()
                    for _, name, kind in spec.actors if kind == "primary"}
-        systems = {normalize(name) for name in stack["systems"]}
+        systems = {actor_key(name) for name in stack["systems"]}
         for uid in approved:
             names = [name for _, name, kind in specs[uid].actors
                      if kind == "secondary"
-                     and normalize(name) not in systems | persons]
+                     and actor_key(name) not in systems | persons]
             if names:
                 add("Construction", "/stack", [uid], uid + " names the "
                     "secondary actor '" + names[0] + "', which ## External "
@@ -3436,7 +3443,7 @@ ACTOR_DIAGRAM = """\
 @startuml
 actor "Front Desk\\nClerk" as clerk
 actor manager as "Manager"
-:Payment Service: as pay
+:Payment Service (Stripe): as pay
 actor Guest
 ' actor Commented
 rectangle "Hotel" {
@@ -4089,7 +4096,7 @@ def self_test():
         write_fixture(root, {"use_cases/UC-002-reserve-room.md": spec_text(
             "UC-002", "Reserve Room").replace(
             "**Primary Actor:** Clerk", "**Primärer Akteur:** Manager\n"
-            "**Sekundäre Akteure:** Payment Service (PSP)")})
+            "**Sekundäre Akteure:** Payment Service (PSP, Stripe)")})
         project = Project(root)
         check_actors(project, load_specs(project))
         if project.findings:
