@@ -156,7 +156,7 @@ endlegend
     - Use case IDs follow the UC-{3-digit} convention
     - PlantUML syntax is valid (no missing `@enduml`, proper arrow syntax)
     - Every colour matches the status of the use case's specification, and the legend has a row for every colour
-      in use (see "Status colours")
+      in use (see "Status colours"); `/spec-review` reports a colour that no longer matches as `DIAGRAM_STATUS`
     - With modules: every use case is in exactly one module diagram, and the overview's packages match the module
       folders
 

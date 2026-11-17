@@ -22,7 +22,8 @@ check is exact and gives the same result on every run:
 - WARN   = the artifacts are connected but weak: an uncovered functional
            requirement, a requirement status its use cases contradict, an
            actor of a use case the diagram does not connect to it (or the
-           other way round), the
+           other way round), a use case whose colour in the diagram does
+           not match the status of its specification, the
            same business rule in two use cases, a weak word, a synonym the
            glossary says to avoid, an answered open question whose answer
            is not in the specification yet, a use case at Approved or
@@ -737,6 +738,84 @@ def check_diagram(project, specs):
                         + diagram_name(project))
     check_modules(project, specs, diagram)
     return {uid: names.get(uid, "") for uid in diagram}
+
+
+# The background colour of a use case shows the status of its specification,
+# as /use-case-diagram draws it (section "Status colours"); Draft has none.
+# A status row of the diagram's legend, "|<#PaleGreen>| Status: Getestet |",
+# gives a project's own colour for that status, which wins.
+STATUS_COLOURS = {
+    "Draft": None, "Reviewed": "LightBlue", "Approved": "PaleTurquoise",
+    "Implemented": "Thistle", "Tested": "Khaki", "Done": "LightGreen",
+    "Obsolete": "LightGray",
+}
+PUML_LEGEND_ROW = re.compile(r"^\s*\|\s*<#(\w+)>\s*\|\s*Status:([^|]*)\|",
+                             re.IGNORECASE)
+# A use case declaration and what follows its name and alias: usecase "UC-001
+# \nName" as UC001 #Khaki, (UC-002 Name) as UC002 <<x>> #Khaki;line:red, or
+# usecase UC003 as "UC-003\nName" #Khaki.
+PUML_UC_ENTRY = re.compile(r"^\s*(?:usecase\s+(" + PUML_NODE + r")|(\([^)]+\)))"
+                           r"(?:\s+as\s+(" + PUML_NODE + r"))?(.*)$",
+                           re.IGNORECASE)
+PUML_ENTRY_STYLE = re.compile(r"^\s*(?:<<[^>]*>>\s*)?#(?:back:)?([^\s;]+)",
+                              re.IGNORECASE)
+
+
+def legend_status_colours(path):
+    """The status colours a diagram's legend explains, as {status: colour};
+    empty when the diagram has no legend with a Status row."""
+    colours, inside = {}, False
+    for line in read_lines(path):
+        if not inside:
+            inside = bool(re.match(r"^\s*legend\b", line, re.IGNORECASE))
+            continue
+        if PUML_NOTE_END.match(line):
+            break
+        match = PUML_LEGEND_ROW.match(line)
+        status = match and UC_STATUS.get(first_word(match.group(2)))
+        if status:
+            colours.setdefault(status, match.group(1))
+    return colours
+
+
+def check_diagram_status(project, specs):
+    """The colour of every use case in a diagram matches the status of its
+    specification. Only a diagram whose legend explains status colours is
+    checked: one without uses no status colours, so there is nothing to
+    match."""
+    for path in project.diagram_paths:
+        legend = legend_status_colours(path)
+        if not legend:
+            continue
+        palette = dict(STATUS_COLOURS, **legend)
+        by_colour = {}
+        for status, colour in list(legend.items()) + list(
+                STATUS_COLOURS.items()):
+            if colour:
+                by_colour.setdefault(colour.lower(), status)
+        for number, line in diagram_lines(path):
+            match = PUML_UC_ENTRY.match(line)
+            if not match or PUML_LINK.match(line):
+                continue
+            ids = PUML_UC.findall(match.group(1) or match.group(2)) \
+                or PUML_UC.findall(match.group(3) or "")
+            spec = specs.get(ids[0]) if ids else None
+            status = spec and UC_STATUS.get(first_word(spec.status))
+            if not status:
+                continue
+            style = PUML_ENTRY_STYLE.match(match.group(4))
+            actual = style.group(1) if style else None
+            expected = palette[status]
+            if (actual or "").lower() == (expected or "").lower():
+                continue
+            shown = ("#" + actual + " (" + by_colour[actual.lower()] + ")"
+                     if actual and actual.lower() in by_colour
+                     else "#" + actual if actual else "no colour (Draft)")
+            project.add(WARN, "DIAGRAM_STATUS", path, number, ids[0],
+                        "use case " + ids[0] + " is " + status
+                        + " in its specification, but the diagram shows "
+                        + shown + "; expected "
+                        + ("#" + expected if expected else "no colour"))
 
 
 def check_modules(project, specs, diagram):
@@ -1875,6 +1954,7 @@ def lint(docs, validator, bpmn):
     specs = load_specs(project)
     check_structure(project, specs, validator)
     diagram = check_diagram(project, specs)
+    check_diagram_status(project, specs)
     check_actors(project, specs)
     check_traceability(project, specs, requirements)
     check_requirement_status(project, specs, requirements)
@@ -4102,6 +4182,61 @@ def self_test():
         if project.findings:
             failures.append("actors: German fields or the generalization "
                             "not matched, got " + str(
+                                [f.message for f in project.findings]))
+
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, {
+            "use_cases.puml": """\
+@startuml
+rectangle "Hotel" {
+    usecase "UC-001\\nCreate Guest" as UC001 #Khaki
+    (UC-002\\nReserve Room) as UC002 <<main>> #PaleGreen;line:red
+    usecase UC003 as "UC-003\\nCancel Room" #LightGreen
+    usecase "UC-004\\nCheck Out" as UC004
+    usecase "UC-005\\nPay Invoice" as UC005 #Thistle
+    usecase "UC-006\\nRate Stay" as UC006 #LightBlue
+' usecase "UC-007\\nOld" as UC007 #Khaki
+}
+UC001 --> UC002
+legend right
+  |<#PaleGreen>| Status: Getestet |
+  |<#LightGreen>| Status: Done (GitHub only) |
+endlegend
+@enduml
+""",
+            "use_cases/UC-001-create-guest.md": spec_text(
+                "UC-001", "Create Guest", status="Done"),
+            "use_cases/UC-002-reserve-room.md": spec_text(
+                "UC-002", "Reserve Room", status="Tested"),
+            "use_cases/UC-003-cancel-room.md": spec_text(
+                "UC-003", "Cancel Room", status="Abgeschlossen"),
+            "use_cases/UC-004-check-out.md": spec_text(
+                "UC-004", "Check Out", status="Done"),
+            "use_cases/UC-005-pay-invoice.md": spec_text(
+                "UC-005", "Pay Invoice", status="Implemented"),
+            "use_cases/UC-006-rate-stay.md": spec_text(
+                "UC-006", "Rate Stay", status="Draft"),
+        })
+        project = Project(root)
+        check_diagram_status(project, load_specs(project))
+        found = sorted((f.element, f.line, f.message)
+                       for f in project.findings
+                       if f.code == "DIAGRAM_STATUS")
+        if [f[:2] for f in found] != [("UC-001", 3), ("UC-004", 6),
+                                      ("UC-006", 8)] \
+                or "shows #Khaki (Tested); expected #LightGreen" \
+                not in found[0][2] \
+                or "shows no colour (Draft); expected #LightGreen" \
+                not in found[1][2] \
+                or "expected no colour" not in found[2][2]:
+            failures.append("diagram status: expected UC-001, UC-004, UC-006 "
+                            "(legend colour wins), got " + str(found))
+        write_fixture(root, {"use_cases.puml": CLEAN["use_cases.puml"]})
+        project = Project(root)
+        check_diagram_status(project, load_specs(project))
+        if project.findings:
+            failures.append("diagram status: a diagram without a status "
+                            "legend was checked, got " + str(
                                 [f.message for f in project.findings]))
 
     with tempfile.TemporaryDirectory() as root:
