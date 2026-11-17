@@ -1856,10 +1856,19 @@ def requirement_texts(lines):
     return rows
 
 
-def specification_text(lines):
-    """The lines of a use case that say what it does: all but its status."""
-    return [line.rstrip() for line in lines if line.strip()
-            and field_value(line, (STATUS_FIELD,)) is None]
+# The leading ../ and ./ of a relative link target: a move into a module
+# folder deepens every link (../requirements.md becomes ../../requirements.md)
+# without changing what the use case says.
+LINK_DEPTH = re.compile(r"\]\(\s*<?(?:\.\.?/)+")
+
+
+def specification_text(lines, compared=True):
+    """The lines of a use case that say what it does: all but its status.
+    Compared, relative links lose their depth; the digest of a baseline
+    entry takes the lines as they are."""
+    text = [line.rstrip() for line in lines
+            if line.strip() and field_value(line, (STATUS_FIELD,)) is None]
+    return [LINK_DEPTH.sub("](", line) for line in text] if compared else text
 
 
 def status_set_at(docs, rel, status):
@@ -1939,7 +1948,8 @@ def check_changed_after_status(project, specs):
                     and before[rid] != current[rid]]
         if not changed:
             continue
-        state = "\n".join(text + [current.get(rid, "") for rid in rids])
+        state = "\n".join(specification_text(spec.lines, False)
+                          + [current.get(rid, "") for rid in rids])
         project.add(WARN, "SPEC_CHANGED_AFTER_STATUS", spec.path,
                     spec.status_line, uid, uid + " is " + spec.status
                     + ", but " + ", ".join(changed) + " changed after that "
@@ -4773,6 +4783,23 @@ endlegend
             git_fixture(root, "commit", "-q", "-m", "implemented")
             if codes_of(changed):
                 failures.append("changed: a new status should clear it")
+
+            # A move into a module folder deepens the relative links; that
+            # changes nothing the use case says.
+            moved = os.path.join(root, "use_cases", "guests",
+                                 os.path.basename(uc1))
+            git_fixture(root, "mv", uc1, moved)
+            edit(moved, "](../requirements.md)", "](../../requirements.md)")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "split by module")
+            if codes_of(changed):
+                failures.append("changed: a deeper link after a move into a "
+                                "module folder is no change, got " + str(
+                                    [f.message for f in codes_of(changed)]))
+            edit(moved, "](../../requirements.md)", "](../requirements.md)")
+            git_fixture(root, "mv", moved, uc1)
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "back")
 
             with tempfile.TemporaryDirectory() as clone:
                 git_fixture(clone, "clone", "-q", "--depth", "1",

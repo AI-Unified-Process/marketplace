@@ -258,7 +258,7 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - A link is no evidence: an `Obsolete` test case counts for nothing, and an NFR or constraint no use case links is
   system-wide, outside the coverage count.
 - `SPEC_CHANGED_AFTER_STATUS` stays WARN, compares with the commit that gave the use case its current status (a move
-  of the file sets none), finds nothing without Git history, and never changes a status.
+  of the file sets none, and the deeper relative links of a move into a module folder change nothing), finds nothing without Git history, and never changes a status.
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
