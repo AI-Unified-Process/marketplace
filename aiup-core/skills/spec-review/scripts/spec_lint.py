@@ -199,7 +199,10 @@ PUML_LABEL = re.compile(r'usecase\s+"([^"]+)"|\(([^)]+)\)')
 PUML_NODE = r'"[^"]+"|:[^:]+:|\([^)]+\)|[\w.]+'
 PUML_ACTOR = re.compile(r"^\s*actor\s+(" + PUML_NODE + r")(?:\s+as\s+("
                         + PUML_NODE + r"))?", re.IGNORECASE)
+# A package may carry a stereotype, a link ([[use_cases/x/use_cases.puml]]) and
+# a colour between its alias and the opening brace.
 PUML_PACKAGE = re.compile(r'^\s*package\s+"?([^"{]+?)"?(?:\s+as\s+([\w.-]+))?'
+                          r'(?:\s*<<[^>]*>>)?(?:\s*\[\[[^\]]*\]\])?(?:\s*#\S+)?'
                           r'\s*(?:\{.*)?$', re.IGNORECASE)
 PUML_ACTOR_INLINE = re.compile(r"^\s*(:[^:]+:)\s+as\s+([\w.]+)")
 PUML_USECASE = re.compile(r"^\s*(?:usecase\s+)?(" + PUML_NODE
@@ -757,8 +760,10 @@ PUML_LEGEND_ROW = re.compile(r"^\s*\|\s*<#(\w+)>\s*\|\s*Status:([^|]*)\|",
 PUML_UC_ENTRY = re.compile(r"^\s*(?:usecase\s+(" + PUML_NODE + r")|(\([^)]+\)))"
                            r"(?:\s+as\s+(" + PUML_NODE + r"))?(.*)$",
                            re.IGNORECASE)
-PUML_ENTRY_STYLE = re.compile(r"^\s*(?:<<[^>]*>>\s*)?#(?:back:)?([^\s;]+)",
-                              re.IGNORECASE)
+# The style follows the stereotype and the link ([[UC-001-name.md]]): PlantUML
+# rejects a colour in front of the link.
+PUML_ENTRY_STYLE = re.compile(r"^\s*(?:<<[^>]*>>\s*)?(?:\[\[[^\]]*\]\]\s*)?"
+                              r"#(?:back:)?([^\s;]+)", re.IGNORECASE)
 
 
 def legend_status_colours(path):
@@ -4199,8 +4204,8 @@ def self_test():
             "use_cases.puml": """\
 @startuml
 rectangle "Hotel" {
-    usecase "UC-001\\nCreate Guest" as UC001 #Khaki
-    (UC-002\\nReserve Room) as UC002 <<main>> #PaleGreen;line:red
+    usecase "UC-001\\nCreate Guest" as UC001 [[UC-001-create-guest.md]] #Khaki
+    (UC-002\\nReserve Room) as UC002 <<main>> [[UC-002.md]] #PaleGreen;line:red
     usecase UC003 as "UC-003\\nCancel Room" #LightGreen
     usecase "UC-004\\nCheck Out" as UC004
     usecase "UC-005\\nPay Invoice" as UC005 #Thistle
@@ -4287,7 +4292,8 @@ endlegend
             two_words[name] = text.replace(
                 "use_cases/reservations/", "use_cases/room-reservations/")
         two_words["use_cases.puml"] = MODULAR["use_cases.puml"].replace(
-            "as reservations", "as room_reservations").replace(
+            "as reservations", "as room_reservations "
+            "[[use_cases/room-reservations/use_cases.puml]]").replace(
             "clerk --> reservations", "clerk --> room_reservations").replace(
             "reservations ..> guests", "room_reservations ..> guests").replace(
             "@enduml", 'note "replaces UC-099 of the old system" as N1\n'
