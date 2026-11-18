@@ -2643,11 +2643,12 @@ def diagram_requirement_links(project):
                 pending.update(rid for rid in REQ_ID.findall(stripped)
                                if rid.startswith("FR-"))
                 continue
-            match = PUML_USECASE.match(line)
-            if match:
-                uids = set(PUML_UC.findall(" ".join(match.groups())))
+            match = PUML_UC_ENTRY.match(line)
+            if match and not PUML_LINK.match(line):
+                uids = set(PUML_UC.findall(" ".join(
+                    part for part in match.groups()[:3] if part)))
                 if len(uids) == 1:
-                    comment = line[match.end():].partition("'")[2]
+                    comment = match.group(4).partition("'")[2]
                     uid = next(iter(uids))
                     for rid in pending | {rid for rid in REQ_ID.findall(comment)
                                           if rid.startswith("FR-")}:
@@ -3894,6 +3895,111 @@ def write_fixture(root, files):
             handle.write(content)
 
 
+def self_test_diagram_requirement_links(failures, validator, bpmn, anchors):
+    """Mapped requirements route to authoring for every declaration form."""
+    diagram = CLEAN["use_cases.puml"]
+    declaration = '    usecase "UC-002\\nReserve Room" as UC002'
+    annotated = diagram.replace(declaration,
+                                "    ' Requirements: FR-002\n" + declaration)
+    with tempfile.TemporaryDirectory() as root:
+        write_fixture(root, {
+            "requirements.md": CLEAN["requirements.md"],
+            "entity_model.md": CLEAN["entity_model.md"],
+            "architecture/stack.md": NEXT_STACK,
+            "use_cases.puml": annotated,
+            "use_cases/UC-001-create-guest.md": CLEAN[
+                "use_cases/UC-001-create-guest.md"],
+        })
+        got = next_commands(root, validator, bpmn, anchors)
+        if "/use-case-diagram" in got or "/use-case-spec UC-002" not in got:
+            failures.append("next: mapped FR with a missing spec should route "
+                            "to that specification, got " + str(got))
+        if not any(f.code == "FR_UNCOVERED" and f.element == "FR-002"
+                   for f in lint(root, validator, bpmn)):
+            failures.append("next: diagram mapping masked the lint finding")
+
+        write_fixture(root, {"use_cases.puml": diagram})
+        got = next_commands(root, validator, bpmn, anchors)
+        if got[:1] != ["/use-case-diagram"]:
+            failures.append("next: an unmapped FR still needs a diagram "
+                            "mapping, got " + str(got))
+
+        write_fixture(root, {
+            "use_cases.puml": diagram.replace(
+                declaration, declaration + " ' FR-002"),
+            "use_cases/UC-002-reserve-room.md": CLEAN[
+                "use_cases/UC-002-reserve-room.md"].replace(
+                    "**Requirements:** [FR-002](../requirements.md)\n", ""),
+        })
+        got = next_commands(root, validator, bpmn, anchors)
+        if got[:1] != ["/use-case-spec UC-002"] or any(
+                cmd.endswith(" UC-002") and cmd != "/use-case-spec UC-002"
+                for cmd in got):
+            failures.append("next: an inline mapping with a missing link "
+                            "should route to its specification, got " + str(got))
+
+    for label, entry in (
+            ("quoted without alias", '    usecase "UC-002\\nReserve Room"'),
+            ("parenthesized without alias", '    (UC-002\\nReserve Room)')):
+        unaliased = diagram.replace(declaration, entry).replace(
+            "UC002", '"UC-002\\nReserve Room"')
+        with tempfile.TemporaryDirectory() as root:
+            write_fixture(root, {
+                "requirements.md": CLEAN["requirements.md"],
+                "entity_model.md": CLEAN["entity_model.md"],
+                "architecture/stack.md": NEXT_STACK,
+                "use_cases.puml": unaliased.replace(
+                    entry, "    ' Requirements: FR-002\n" + entry),
+                "use_cases/UC-001-create-guest.md": CLEAN[
+                    "use_cases/UC-001-create-guest.md"],
+            })
+            got = next_commands(root, validator, bpmn, anchors)
+            if "/use-case-diagram" in got or "/use-case-spec UC-002" not in got:
+                failures.append("next: " + label + " with a missing spec "
+                                "should route to authoring, got " + str(got))
+            if not any(f.code == "FR_UNCOVERED" and f.element == "FR-002"
+                       for f in lint(root, validator, bpmn)):
+                failures.append("next: " + label + " masked uncovered FR-002")
+
+            write_fixture(root, {
+                "use_cases.puml": unaliased.replace(entry, entry + " ' FR-002"),
+                "use_cases/UC-002-reserve-room.md": CLEAN[
+                    "use_cases/UC-002-reserve-room.md"].replace(
+                        "**Requirements:** [FR-002](../requirements.md)\n", ""),
+            })
+            got = next_commands(root, validator, bpmn, anchors)
+            if got[:1] != ["/use-case-spec UC-002"] or any(
+                    cmd.endswith(" UC-002") and cmd != "/use-case-spec UC-002"
+                    for cmd in got):
+                failures.append("next: " + label + " with an inline mapping "
+                                "should repair the link, got " + str(got))
+            if not any(f.code == "FR_UNCOVERED" and f.element == "FR-002"
+                       for f in lint(root, validator, bpmn)):
+                failures.append("next: " + label + " hid the missing link")
+
+            write_fixture(root, {"use_cases/UC-002-reserve-room.md": CLEAN[
+                "use_cases/UC-002-reserve-room.md"]})
+            got = next_commands(root, validator, bpmn, anchors)
+            if "/use-case-diagram" in got or "/use-case-spec UC-002" in got or any(
+                    f.code == "FR_UNCOVERED" and f.element == "FR-002"
+                    for f in lint(root, validator, bpmn)):
+                failures.append("next: " + label + " should advance after the "
+                                "Requirements link is repaired, got " + str(got))
+
+            write_fixture(root, {
+                "use_cases.puml": unaliased,
+                "use_cases/UC-002-reserve-room.md": CLEAN[
+                    "use_cases/UC-002-reserve-room.md"].replace(
+                        "**Requirements:** [FR-002](../requirements.md)\n", ""),
+            })
+            got = next_commands(root, validator, bpmn, anchors)
+            if got[:1] != ["/use-case-diagram"] or not any(
+                    f.code == "FR_UNCOVERED" and f.element == "FR-002"
+                    for f in lint(root, validator, bpmn)):
+                failures.append("next: " + label + " without a mapping should "
+                                "retain diagram work, got " + str(got))
+
+
 def self_test_tolerance(failures, validator, bpmn, anchors):
     """What a hand-written project may hold: annotated statuses, ids with a
     slug or a hyphen, extra tables and columns, other encodings."""
@@ -4591,46 +4697,7 @@ endlegend
     if anchors is None:
         failures.append("next: guide_anchor.py must be found in the "
                         "repository")
-    with tempfile.TemporaryDirectory() as root:
-        diagram = CLEAN["use_cases.puml"]
-        declaration = '    usecase "UC-002\\nReserve Room" as UC002'
-        annotated = diagram.replace(declaration,
-                                    "    ' Requirements: FR-002\n" + declaration)
-        write_fixture(root, {
-            "requirements.md": CLEAN["requirements.md"],
-            "entity_model.md": CLEAN["entity_model.md"],
-            "architecture/stack.md": NEXT_STACK,
-            "use_cases.puml": annotated,
-            "use_cases/UC-001-create-guest.md": CLEAN[
-                "use_cases/UC-001-create-guest.md"],
-        })
-        got = next_commands(root, validator, bpmn, anchors)
-        if "/use-case-diagram" in got or "/use-case-spec UC-002" not in got:
-            failures.append("next: mapped FR with a missing spec should route "
-                            "to that specification, got " + str(got))
-        if not any(f.code == "FR_UNCOVERED" and f.element == "FR-002"
-                   for f in lint(root, validator, bpmn)):
-            failures.append("next: diagram mapping masked the lint finding")
-
-        write_fixture(root, {"use_cases.puml": diagram})
-        got = next_commands(root, validator, bpmn, anchors)
-        if got[:1] != ["/use-case-diagram"]:
-            failures.append("next: an unmapped FR still needs a diagram "
-                            "mapping, got " + str(got))
-
-        write_fixture(root, {
-            "use_cases.puml": diagram.replace(
-                declaration, declaration + " ' FR-002"),
-            "use_cases/UC-002-reserve-room.md": CLEAN[
-                "use_cases/UC-002-reserve-room.md"].replace(
-                    "**Requirements:** [FR-002](../requirements.md)\n", ""),
-        })
-        got = next_commands(root, validator, bpmn, anchors)
-        if got[:1] != ["/use-case-spec UC-002"] or any(
-                cmd.endswith(" UC-002") and cmd != "/use-case-spec UC-002"
-                for cmd in got):
-            failures.append("next: an inline mapping with a missing link "
-                            "should route to its specification, got " + str(got))
+    self_test_diagram_requirement_links(failures, validator, bpmn, anchors)
 
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, CLEAN)
