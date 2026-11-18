@@ -105,6 +105,10 @@ With the deprecated `aiup-vaadin-jooq` in a Hilla project, the commands are `/im
 
 ## How the Steps Are Ordered
 
+An explicit functional requirement ID in a comment immediately before or inline with a use case declaration
+identifies the specification to write or update. This also applies to module diagrams. Lint checks the
+requirement links in the specification's `**Requirements:**` field.
+
 The script, not you, orders the steps. So that you can explain the order: earlier phases come first; inside
 Construction, blocking questions and lint errors come before the use cases, and the use case closest to `Done` comes
 first, so work that has started is finished before new work begins.
@@ -114,10 +118,11 @@ first, so work that has started is finished before new work begins.
 | Inception    | no `docs/requirements.md`                                                 | `/requirements`                                     |
 | Elaboration  | no entity model                                                           | `/entity-model`                                     |
 | Elaboration  | layer plugins, and no stack file                                          | `/stack`                                            |
-| Elaboration  | no use case diagram, or a functional requirement no use case realizes (when an existing use case does, the fix is its `**Requirements:**` line: `/use-case-spec UC-XXX`) | `/use-case-diagram` |
+| Elaboration  | no use case diagram, or an uncovered functional requirement has no explicit use-case mapping | `/use-case-diagram` |
 | Construction | a blocking question is `Open`                                             | `/open-questions answer OQ-XXX`                     |
 | Construction | a blocking question is `Answered`, not yet in the specification           | `/use-case-spec`, `/requirements`, or `/entity-model`, whichever owns its element |
 | Construction | the spec lint reports errors                                              | `/spec-review`                                      |
+| Construction | a use case explicitly mapped to an uncovered functional requirement lacks that link in its specification | `/use-case-spec UC-XXX` |
 | Construction | a use case at `Implemented` or later changed after its status was set     | `/use-case-coverage UC-XXX`                         |
 | Construction | a use case is `Implemented`                                               | `/use-case-test UC-XXX`, then `/use-case-coverage UC-XXX` |
 | Construction | a test case is `Approved`, every use case it chains is implemented, and the stack has an E2E layer | `/test-case-implement TC-XXX` |

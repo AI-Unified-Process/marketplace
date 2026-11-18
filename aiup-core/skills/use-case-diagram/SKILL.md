@@ -41,8 +41,11 @@ actor "User" as user
 actor "Administrator" as admin
 
 rectangle "System Name" {
+    ' Requirements: FR-001
     usecase "UC-001\nDescription" as UC001
+    ' Requirements: FR-002
     usecase "UC-002\nDescription" as UC002
+    ' Requirements: FR-003
     usecase "UC-003\nDescription" as UC003
 }
 
@@ -132,7 +135,8 @@ endlegend
 
 - Each use case has a unique id and a description
 - Use Case ID: UC-{3-digit} (UC-001, UC-002, ...)
-- Each use case should trace to at least one functional requirement
+- Each use case should trace to at least one functional requirement. Put the IDs in a PlantUML comment
+  immediately before its declaration, as shown in the template.
 - Secondary actors (supporting roles and external systems such as a payment or weather service) are drawn as
   actors too and connected to the use cases they support; they appear as `**Secondary Actors:**` in the use case
   specification
