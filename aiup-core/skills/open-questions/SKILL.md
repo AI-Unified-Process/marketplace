@@ -80,7 +80,7 @@ legacy system.
 | `**Assumed:**`    | when a default was taken    | the reading the specification or the code uses until someone answers        |
 | body              | recommended                 | what the specification says, the readings seen, why it matters              |
 | `**Answer:**`     | from `Answered` on          | the answer, as long as it needs to be                                       |
-| `**Answered by:**`| from `Answered` on          | the person, a comma, and the date                                           |
+| `**Answered by:**`| from `Answered` on          | the person, a comma, and the date; several joined by `; `, each may end in `(remark)` |
 | `**Resolved in:**`| for `Resolved`              | the elements of the specification that now hold the answer, comma-separated |
 | `**Withdrawn:**`  | for `Withdrawn`             | why the question no longer applies                                          |
 
