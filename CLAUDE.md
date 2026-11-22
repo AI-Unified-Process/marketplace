@@ -337,6 +337,8 @@ Why: [`docs/design/modules.md`](docs/design/modules.md).
 - Every activity is a use case of the diagram; otherwise the skill writes nothing and hands off to `/use-case-diagram`.
 - The agent never writes diagram coordinates; `bpmn_layout.py` does, and imports `parse_xml` from `bpmn_paths.py` by
   glob.
+- An outcome the requirements leave open is modeled as the closest reading and reported with the element that leaves
+  it open, handed off to its owner; the skill reads `docs/open_questions.md` but never writes it.
 
 Why: [`docs/design/business-process.md`](docs/design/business-process.md).
 

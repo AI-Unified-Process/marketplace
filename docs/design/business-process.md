@@ -24,3 +24,10 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
   only) adds DI for elements without a shape and keeps every existing shape byte for byte, so a layout tidied in a
   modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in
   the sibling test-case skill folder by glob, like `spec_lint.py` — keep one copy of the parser.
+- **An open outcome is reported, never recorded.** Drawing an end event or a gateway can force a choice the
+  requirements leave open. The skill models the closest reading, reports it with the element that leaves it open, and
+  hands off to its owner (`/requirements`, `/use-case-spec`, or `/open-questions`); it reads `docs/open_questions.md`
+  for a question already asked but never writes it. The model is a view of the requirements and use cases, so every
+  such question is about one of their elements, and the element forms of the log have no process; a question raised
+  by the diagram would sit on an element another skill owns and resolves. A run that only reports open outcomes
+  leaves the model and its status alone (#69).
