@@ -23,11 +23,13 @@ specifications.)
   used.
 - **Earlier phase first; in Construction, the use case closest to `Done` first.** Missing requirements, a missing
   entity model or diagram, and uncovered functional requirements come before any construction step, because every
-  later step reads them. Inside Construction, blocking questions and lint errors come first, because they stop the
-  steps after them. Then the use cases, from `Implemented` down to a missing specification: work that has started is
-  finished before new work begins, which keeps the work in progress small. Transition comes last. The ADR row is
-  advice and comes after everything else, because the script cannot tell whether an NFR or constraint asks for a
-  decision.
+  later step reads them. An uncovered requirement counts only once every use case of the diagram has a specification:
+  before that, it is most likely a link of a specification not yet written, and the diagram, which needs no change,
+  would be asked for again and again (#65). Inside Construction, blocking questions and lint errors come first,
+  because they stop the steps after them. Then the use cases, from `Implemented` down to a missing specification:
+  work that has started is finished before new work begins, which keeps the work in progress small. Transition comes
+  last. The ADR row is advice and comes after everything else, because the script cannot tell whether an NFR or
+  constraint asks for a decision.
 - **One or two `Next:` lines.** A full list of pending steps is a backlog, and the backlog belongs to the team's issue
   tracker (`docs/workflow.md`). The text output shows the next step and the one after it; `--format json` and
   `/next all` list every pending step for the user who asks.

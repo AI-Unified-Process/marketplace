@@ -114,7 +114,7 @@ first, so work that has started is finished before new work begins.
 | Inception    | no `docs/requirements.md`                                                 | `/requirements`                                     |
 | Elaboration  | no entity model                                                           | `/entity-model`                                     |
 | Elaboration  | layer plugins, and no stack file                                          | `/stack`                                            |
-| Elaboration  | no use case diagram, or a functional requirement no use case realizes (when an existing use case does, the fix is its `**Requirements:**` line: `/use-case-spec UC-XXX`) | `/use-case-diagram` |
+| Elaboration  | no use case diagram, or a functional requirement no use case realizes while every use case of the diagram has a specification (when an existing use case does, the fix is its `**Requirements:**` line: `/use-case-spec UC-XXX`) | `/use-case-diagram` |
 | Construction | a blocking question is `Open`                                             | `/open-questions answer OQ-XXX`                     |
 | Construction | a blocking question is `Answered`, not yet in the specification           | `/use-case-spec`, `/requirements`, or `/entity-model`, whichever owns its element |
 | Construction | the spec lint reports errors                                              | `/spec-review`                                      |

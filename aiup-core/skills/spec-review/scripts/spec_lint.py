@@ -2683,8 +2683,11 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     if not project.diagram_paths:
         add("Elaboration", "/use-case-diagram", [],
             "there is no use case diagram, docs/use_cases.puml")
+    # While a use case of the diagram has no specification, an uncovered FR
+    # is most likely one of its links: the missing specification comes first,
+    # else the diagram would be asked for again and again (#65).
     uncovered = sorted({f.element for f in codes.get("FR_UNCOVERED", [])})
-    if uncovered:
+    if uncovered and not codes.get("SPEC_MISSING"):
         add("Elaboration", "/use-case-diagram", uncovered,
             uncovered[0] + " is realized by no use case")
 
@@ -4549,6 +4552,36 @@ endlegend
     if anchors is None:
         failures.append("next: guide_anchor.py must be found in the "
                         "repository")
+    with tempfile.TemporaryDirectory() as root:
+        # #65: the diagram is complete, only UC-001 is written. FR-002 is
+        # uncovered because UC-002 has no specification yet, so the diagram
+        # needs nothing: the specification comes first.
+        write_fixture(root, {
+            "requirements.md": CLEAN["requirements.md"],
+            "entity_model.md": CLEAN["entity_model.md"],
+            "architecture/stack.md": NEXT_STACK,
+            "use_cases.puml": CLEAN["use_cases.puml"],
+            "use_cases/UC-001-create-guest.md":
+                CLEAN["use_cases/UC-001-create-guest.md"],
+        })
+        got = next_commands(root, validator, bpmn, anchors)
+        if "/use-case-diagram" in got or "/use-case-spec UC-002" not in got:
+            failures.append("next: a missing specification must not send the "
+                            "user back to the diagram, got " + str(got))
+        if [f.element for f in lint(root, validator, bpmn)
+                if f.code == "FR_UNCOVERED"] != ["FR-002"]:
+            failures.append("next: FR_UNCOVERED FR-002 must stay reported "
+                            "while UC-002 has no specification")
+        # Every use case of the diagram is specified and FR-002 is still
+        # uncovered: a use case is missing from the diagram.
+        write_fixture(root, {"use_cases/UC-002-reserve-room.md": CLEAN[
+            "use_cases/UC-002-reserve-room.md"].replace(
+                "FR-002", "FR-001")})
+        got = next_commands(root, validator, bpmn, anchors)
+        if got[:1] != ["/use-case-diagram"]:
+            failures.append("next: an FR no specified use case realizes "
+                            "should lead to /use-case-diagram, got "
+                            + str(got))
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, CLEAN)
         os.remove(os.path.join(root, "open_questions.md"))
