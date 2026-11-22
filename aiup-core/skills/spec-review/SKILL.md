@@ -130,7 +130,8 @@ moves to Approved?>
   `docs/open_questions.md` on the use cases in scope is `Open` or `Answered`; a warning the user has declined or
   accepted in this conversation is no longer open, a blocking question is not — it needs an answer in the specification.
   `info` findings never make it `no`. This is the review's end point: once it says `yes`, say so plainly and do not look
-  for more to improve.
+  for more to improve. For a use case at `Draft`, add that the author sets it to `Reviewed`, which hands it to the
+  product owner for `Approved` and is how `/next` learns that the review is done; this skill changes no status.
 
 ## Machine-Readable Result
 
@@ -175,7 +176,10 @@ user asks to fix it; polishing the wording of a ready use case is not a reason f
   `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`; an `Open` one first needs an answer,
   `/open-questions answer OQ-XXX`; a malformed one (`OQ_INVALID`) → `/open-questions`
 - a test case without a use case → `/test-case`
-- a use case that changed after its status was set (`SPEC_CHANGED_AFTER_STATUS`) → `/use-case-coverage UC-XXX` (with
+- a use case at `Reviewed` that changed after its status was set (`SPEC_CHANGED_AFTER_STATUS`) → this review is the
+  fresh one: when it says ready, the user commits the `Reviewed` status anew, which clears the finding; otherwise the
+  user sets the use case back to `Draft`
+- a use case at `Implemented` or later that changed after its status was set (`SPEC_CHANGED_AFTER_STATUS`) → `/use-case-coverage UC-XXX` (with
   the deprecated aiup-vaadin-jooq or aiup-angular-jpa `/coverage-check UC-XXX`). When the audit finds gaps, the user sets the status back
   and the work runs again; a status set anew and committed clears the finding. When the audit confirms the use case,
   or the change was only wording, the user accepts this state with `--update-baseline`; the next change is reported

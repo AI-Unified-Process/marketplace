@@ -58,7 +58,13 @@ needs Git and finds nothing without history, never a false alarm. It stays WARN,
 a change may be wording only, and that is for a person to judge. Value columns of the catalog do not count, because a
 new priority changes nothing a test verifies. The message carries a digest of the text, so a baseline entry accepts
 this state and not every later one. Test results stay out: reading them would tie a stack-agnostic script to each
-stack's report format (see #43).
+stack's report format (see #43). The check also covers `Reviewed`: that status stands for a review that said ready,
+and a review says nothing about text written after it either, so `/next` asks for the review again (#66).
+
+The review's verdict is not stored. The semantic part is advisory and not deterministic, and a receipt of it would be
+a second record of the state next to the status, outside the specification and outside Git's history of it. The
+author records a ready verdict by setting `Draft` to `Reviewed`; that keeps `/spec-review` read-only, and the status
+remains the one memory that `/next`, the Werkstatt, and the coverage audits share.
 
 The glossary (`docs/glossary.md`, columns `Term | Definition | Avoid`) is written by `/requirements` from the
 template `skills/requirements/references/glossary.md`; `/use-case-spec` and `/reverse-engineer` use its terms.

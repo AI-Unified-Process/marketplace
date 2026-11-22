@@ -264,7 +264,7 @@ The `**Status:**` line of a use case says how far it has come. Either language i
 | Status      | German        | Meaning                                                                    | How it gets there                                                                                      |
 |-------------|---------------|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | Draft       | Entwurf       | Initial version, still being written.                                      | `/use-case-spec` writes the specification; `/reverse-engineer` always starts here.                     |
-| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once you have checked that the specification is complete.                                   |
+| Reviewed    | Geprüft       | Complete and checked by the author, awaiting the product owner's approval. | You set it once `/spec-review UC-XXX` ends with **Ready for Approved**.                                |
 | Approved    | Genehmigt     | Reviewed and approved for implementation.                                  | The product owner sets it, once `/spec-review UC-XXX` ends with **Ready for Approved**.                |
 | Implemented | Implementiert | Implementation complete, pending testing.                                  | You set it when the coverage audit suggests it; the generation workflows set it in their pull request. |
 | Tested      | Getestet      | All tests pass, pending final acceptance.                                  | You set it when the coverage audit suggests it; the generation workflows set it in their pull request. |
@@ -292,12 +292,16 @@ The status also decides what the skills do with a use case:
 - At `Tested`, it enters `/acceptance-protocol` and the user guide; `/user-guide` covers `Tested` and `Done`.
 - At `Done`, `/release-notes` lists it.
 
-A status holds for the text it was set on. When a use case at `Implemented` or later, or a requirement it links, is
-changed afterwards, `/spec-review` warns (`SPEC_CHANGED_AFTER_STATUS`, from the Git history) and `/next` names the
-coverage audit. No skill sets the status back: when the audit finds gaps, you do, and when it confirms the use case or
-the change was only wording, you accept that state with `spec_lint.py --update-baseline`.
+A status holds for the text it was set on. When a use case at `Reviewed`, `Implemented`, or later, or a requirement
+it links, is changed afterwards, `/spec-review` warns (`SPEC_CHANGED_AFTER_STATUS`, from the Git history) and `/next`
+names the spec review for a `Reviewed` use case and the coverage audit for a later one. No skill sets the status back:
+when the review or the audit finds gaps, you do; when the review says ready again, you commit `Reviewed` anew; and when
+the audit confirms the use case or the change was only wording, you accept that state with
+`spec_lint.py --update-baseline`.
 
-`/next` reads these values and names the next command for the use case closest to `Done`.
+`/next` reads these values and names the next command for the use case closest to `Done`. A review's verdict reaches it
+only through the status: a `Draft` use case is offered for `/spec-review` until you set it to `Reviewed`, and a
+`Reviewed` one waits for the product owner's approval, not for another review.
 
 ### Test case status
 

@@ -72,9 +72,10 @@ sibling use-case-spec and test-case skill folders (a host may prefix the
 folder names, e.g. tessl__use-case-spec). When a sibling is not installed,
 its checks are skipped and an INFO finding says so.
 
-With Git history, a use case at Implemented or later is compared with the
-commit that set its status: when it or a requirement it links says something
-else now, SPEC_CHANGED_AFTER_STATUS warns. Without history nothing is reported.
+With Git history, a use case at Reviewed, or at Implemented or later, is
+compared with the commit that set its status: when it or a requirement it
+links says something else now, SPEC_CHANGED_AFTER_STATUS warns. Without
+history nothing is reported.
 
 A baseline file (default <docs>/.spec-lint-baseline.json, written with
 --update-baseline) suppresses accepted findings, so a brownfield project can
@@ -1909,7 +1910,8 @@ def status_set_at(docs, rel, status):
 
 
 def check_changed_after_status(project, specs):
-    """A use case at Implemented or later still says what was built.
+    """A use case at Reviewed still says what was reviewed, and one at
+    Implemented or later what was built.
 
     The commit that gave the use case its current status is when the status
     was set; the use case and the requirements it links are compared with
@@ -1922,7 +1924,8 @@ def check_changed_after_status(project, specs):
     accepts this very state, and the next change is reported again.
     """
     built = {uid: spec for uid, spec in specs.items() if status_of(
-        spec.status, UC_STATUS) in ("Implemented", "Tested", "Done")}
+        spec.status, UC_STATUS) in ("Reviewed", "Implemented", "Tested",
+                                    "Done")}
     docs = project.docs
     if not built or git_output(docs, "rev-parse", "--git-dir") is None:
         return
@@ -1958,8 +1961,10 @@ def check_changed_after_status(project, specs):
         project.add(WARN, "SPEC_CHANGED_AFTER_STATUS", spec.path,
                     spec.status_line, uid, uid + " is " + spec.status
                     + ", but " + ", ".join(changed) + " changed after that "
-                    "status was set in " + commit[:7] + "; run the coverage "
-                    "audit again (state " + hashlib.sha1(
+                    "status was set in " + commit[:7] + "; run " + (
+                        "the spec review" if status_of(spec.status, UC_STATUS)
+                        == "Reviewed" else "the coverage audit")
+                    + " again (state " + hashlib.sha1(
                         state.encode("utf-8")).hexdigest()[:8] + ")")
 
 
@@ -2730,6 +2735,9 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     built = plugin or stack is not None
     changed = sorted({f.element for f in codes.get(
         "SPEC_CHANGED_AFTER_STATUS", [])})
+    # A Reviewed use case that changed needs the review again, not the audit.
+    stale = [uid for uid in changed if statuses[uid] == "Reviewed"]
+    changed = [uid for uid in changed if uid not in stale]
     if changed and built:
         add("Construction", (audit or tests[0]) + " " + changed[0], changed,
             changed[0] + " changed after its status " + statuses[changed[0]]
@@ -2771,12 +2779,26 @@ def next_step(docs, validator, bpmn, anchors, plugin=None, baseline=None):
     if approved and built:
         add("Construction", implement + " " + approved[0], approved,
             approved[0] + " is Approved")
-    drafts = by_status.get("Reviewed", []) + by_status.get("Draft", [])
+    # Reviewed waits for the product owner, not for another review (#66):
+    # a step without a slash is a person's decision, not a command.
+    reviewed = [uid for uid in by_status.get("Reviewed", [])
+                if uid not in stale]
+    if reviewed:
+        uid = reviewed[0]
+        add("Construction", "Approval of " + uid, reviewed, uid + " is "
+            "Reviewed and waits for the product owner, who sets it to "
+            "Approved once /spec-review " + uid + " has said Ready for "
+            "Approved")
+    if stale:
+        add("Construction", "/spec-review " + stale[0], stale, stale[0]
+            + " changed after it was set to Reviewed; once the review says "
+            "it is ready again, commit the Reviewed status anew")
+    drafts = by_status.get("Draft", [])
     if drafts:
         uid = drafts[0]
         add("Construction", "/spec-review " + uid, drafts, uid + " is "
-            + statuses[uid] + "; once the review says it is ready, set it "
-            "to Approved")
+            "Draft; once the review says it is ready, set it to Reviewed "
+            "for the product owner's approval")
     missing = sorted({f.element for f in codes.get("SPEC_MISSING", [])})
     if missing:
         add("Construction", "/use-case-spec " + missing[0], missing,
@@ -4691,6 +4713,43 @@ endlegend
                                                  anchors):
                 failures.append("next: release notes written since the tag "
                                 "should not be offered again")
+
+    with tempfile.TemporaryDirectory() as root:
+        # #66: Reviewed waits for the product owner, not for another review;
+        # a Reviewed use case changed since is reviewed again.
+        write_fixture(root, CLEAN)
+        write_fixture(root, {"architecture/stack.md": NEXT_STACK})
+        os.remove(os.path.join(root, "open_questions.md"))
+        uc1 = os.path.join(root, "use_cases", "UC-001-create-guest.md")
+        uc2 = os.path.join(root, "use_cases", "UC-002-reserve-room.md")
+        for path, value in ((uc1, "Reviewed"), (uc2, "Draft")):
+            with open(path, encoding="utf-8") as handle:
+                text = re.sub(r"\*\*Status:\*\* \w+", "**Status:** " + value,
+                              handle.read(), count=1)
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(text)
+        got = next_commands(root, validator, bpmn, anchors)
+        if got[:2] != ["Approval of UC-001", "/spec-review UC-002"] \
+                or "/spec-review UC-001" in got:
+            failures.append("next: Reviewed should wait for the approval, "
+                            "Draft for the review, got " + str(got))
+        if shutil.which("git"):
+            git_fixture(root, "init", "-q")
+            git_fixture(root, "add", "-A")
+            git_fixture(root, "commit", "-q", "-m", "reviewed")
+            with open(uc1, "a", encoding="utf-8") as handle:
+                handle.write("\n- A new rule.\n")
+            stale = [f for f in lint(root, validator, bpmn)
+                     if f.code == "SPEC_CHANGED_AFTER_STATUS"]
+            if [f.element for f in stale] != ["UC-001"] \
+                    or "run the spec review again" not in stale[0].message:
+                failures.append("changed: a Reviewed use case changed since "
+                                "should ask for the review, got " + str(stale))
+            got = next_commands(root, validator, bpmn, anchors)
+            if got[:2] != ["/spec-review UC-001", "/spec-review UC-002"] \
+                    or "Approval of UC-001" in got:
+                failures.append("next: a changed Reviewed use case needs the "
+                                "review again, got " + str(got))
 
     with tempfile.TemporaryDirectory() as root:
         write_fixture(root, CLEAN)

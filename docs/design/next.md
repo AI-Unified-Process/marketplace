@@ -33,6 +33,13 @@ specifications.)
 - **One or two `Next:` lines.** A full list of pending steps is a backlog, and the backlog belongs to the team's issue
   tracker (`docs/workflow.md`). The text output shows the next step and the one after it; `--format json` and
   `/next all` list every pending step for the user who asks.
+- **A review is no state; the status is (#66).** `/next` reads the documents that hold the project's state, never a
+  review report, a coverage report, or a conversation. A ready review is recorded by the author, who sets `Draft` to
+  `Reviewed`; a `Reviewed` use case then waits for the product owner's approval, a step for a person that the script
+  names without a slash (`Approval of UC-002`), and no longer for `/spec-review`. A `Reviewed` use case changed since
+  its status was committed (`SPEC_CHANGED_AFTER_STATUS`) is reviewed again. A receipt that stores the verdict outside
+  `docs/` was proposed and declined: it would make `/spec-review` write state, and the semantic verdict it stored is
+  not deterministic. Open findings stay with `/spec-review`'s own hand-off to the skill that owns the fix.
 - **What the baseline accepts is no next step.** An uncovered functional requirement, a missing specification, or a
   lint error that the team accepted into `docs/.spec-lint-baseline.json` does not come back as a step.
 - **Read-only.** Like `/spec-review` and the coverage audits, `/next` never runs the next command and writes no file.

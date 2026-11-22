@@ -258,8 +258,9 @@ Skills follow the AI Unified Process phases: Inception, Elaboration, Constructio
 - Business rules stay numbered per use case; there is no syntax for entity references in use cases.
 - A link is no evidence: an `Obsolete` test case counts for nothing, and an NFR or constraint no use case links is
   system-wide, outside the coverage count.
-- `SPEC_CHANGED_AFTER_STATUS` stays WARN, compares with the commit that gave the use case its current status (a move
-  of the file sets none, and the deeper relative links of a move into a module folder change nothing), finds nothing without Git history, and never changes a status.
+- `SPEC_CHANGED_AFTER_STATUS` covers `Reviewed` and `Implemented` or later, stays WARN, compares with the commit that
+  gave the use case its current status (a move of the file sets none, and the deeper relative links of a move into a
+  module folder change nothing), finds nothing without Git history, and never changes a status.
 
 Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
 
@@ -271,6 +272,8 @@ Why: [`docs/design/spec-review.md`](docs/design/spec-review.md).
   `Done`. The ADR row is advice and comes last.
 - Read-only: it never runs the next command, writes no file, and never changes the Git state. The Studio never runs it
   (`LEFT_OUT`).
+- A review's verdict is not stored; the status is the memory. `Draft` → `/spec-review`, `Reviewed` → the product
+  owner's approval (a step without a slash), a `Reviewed` use case changed since → `/spec-review` again (#66).
 - Combined stack plugins pass `--stack-plugin`; their commands replace the layer plugins' ones in the `CONSTRUCTION`
   table of the script.
 
