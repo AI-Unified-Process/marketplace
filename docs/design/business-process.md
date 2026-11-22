@@ -20,6 +20,12 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
   `/business-process BP-XXX`. The process
   sits above the use cases; it never replaces them, and a use case never carries a process model (see the goal-level
   check in `/use-case-diagram`).
+- **A proposal accounts for every use case.** A use case is an activity when the requirements connect it to another
+  use case (a trigger, a handover, a decision, a wait), whatever the number of roles; one whose goal stands alone is
+  left out. Without an argument, the proposal names the use case ids of each process and lists those left out with a
+  reason, grouped by reason, and the user confirms both before a file is written: a reviewer should not have to
+  rebuild the coverage from the diagram to see what was left out, nor ask why (#70). The lint does not report a use
+  case that is in no process — many rightly are not, and a process link is no evidence.
 - **The agent never writes diagram coordinates.** `skills/business-process/scripts/bpmn_layout.py` (standard library
   only) adds DI for elements without a shape and keeps every existing shape byte for byte, so a layout tidied in a
   modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in

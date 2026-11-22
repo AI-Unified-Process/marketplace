@@ -335,6 +335,8 @@ Why: [`docs/design/modules.md`](docs/design/modules.md).
 
 - The `BP-XXX` id is the file prefix and the `id` of the `<bpmn:process>` element.
 - Every activity is a use case of the diagram; otherwise the skill writes nothing and hands off to `/use-case-diagram`.
+- A use case is an activity when the requirements connect it to another one; a proposal without an argument lists
+  every use case left out with its reason, and the user confirms both. No lint rule for a use case in no process.
 - The agent never writes diagram coordinates; `bpmn_layout.py` does, and imports `parse_xml` from `bpmn_paths.py` by
   glob.
 - An outcome the requirements leave open is modeled as the closest reading and reported with the element that leaves
