@@ -608,8 +608,9 @@ files, and 4(d) only applies when a NOTICE file exists. Both are now enforced:
   a new skill is added to both, or to the script's `LEFT_OUT` list when the Studio must never run it, and a catalogue
   skill is in the diff and status lists or in the script's `NO_DIFF`/`NO_STATUS`. A fix inside a marked block is made
   in both files.
-- `aiup-generate` diffs the specification against the merge base with the default branch, never its tip, and checks
-  out the project without persisted credentials.
+- `aiup-generate` diffs the specification against the merge base with the base branch - the optional input
+  `base_branch` (`BASE_BRANCH` on Bitbucket), the Studio's configured branch, else the default branch - never its tip,
+  and checks out the project without persisted credentials.
 - `aiup-generate` does not advance the status when the skill only recorded open questions or a blocking question
   holds the use case. It reads the questions through `spec_lint.py` (`OQ_BLOCKING`), never with a parser of its own;
   when the lint cannot run, the status stays.

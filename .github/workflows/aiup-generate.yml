@@ -57,6 +57,14 @@ on:
         required: false
         default: "30"
         type: string
+      base_branch:
+        # The Studio's configured branch of the repository, which may differ from GitHub's default branch. The
+        # specification diff is measured from the merge base with it (UC-044 BR-006). Empty (an older stub sends
+        # nothing) keeps the repository's default branch.
+        description: Branch the run's branch forked from (empty = the repository's default branch)
+        required: false
+        default: ""
+        type: string
     # Declared instead of `secrets: inherit`: GitHub only inherits secrets when caller
     # and called workflow live in the same organization, and the project repositories
     # live anywhere. A declared secret arrives from every caller. Both stay optional
@@ -289,7 +297,7 @@ jobs:
       # A specification edit that only removes a requirement is invisible to the skill:
       # the remaining text is already satisfied by the existing code, so the run finds
       # nothing to do and the dropped behaviour survives. The diff since the branch left
-      # the default branch makes every change explicit - removals included - and travels with the
+      # the base branch makes every change explicit - removals included - and travels with the
       # prompt so the skill reconciles the code with the change instead of re-checking
       # a specification it already fulfils.
       - name: Determine the change of the specification
@@ -299,7 +307,8 @@ jobs:
           SKILL: ${{ inputs.skill }}
           # through the environment, not into the script: the subject is free text
           SUBJECT: ${{ inputs.subject }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          # the Studio's configured branch, else the repository's default branch
+          BASE_BRANCH: ${{ inputs.base_branch || github.event.repository.default_branch }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
@@ -324,10 +333,10 @@ jobs:
           export GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader"
           GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
           export GIT_CONFIG_VALUE_0
-          default_branch=$DEFAULT_BRANCH
+          base_branch=$BASE_BRANCH
           head_ref=$GITHUB_REF
           # >>> specification diff - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
-          # Against the merge base, not the tip of the default branch: a change the default branch made to the
+          # Against the merge base, not the tip of the base branch: a change the base branch made to the
           # same specification after this branch was cut would read as lines this branch removed, and the
           # prompt tells the skill to delete the code of a removed line. The clone is shallow on both hosts, so
           # both histories are deepened until they meet; without a common commit there is no diff and no hint.
@@ -336,12 +345,12 @@ jobs:
           for depth in 50 500 5000; do
             # a fetch that fails costs the hint, not the run: git says why in the log. No maintenance in the
             # background: it would hold the lock on the shallow file while the next fetch deepens.
-            if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$default_branch"; then
-              default_tip=$(git rev-parse FETCH_HEAD)
+            if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$base_branch"; then
+              base_tip=$(git rev-parse FETCH_HEAD)
               if [ -n "$head_ref" ]; then
                 git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "$head_ref" || true
               fi
-              base=$(git merge-base "$default_tip" HEAD 2>/dev/null || true)
+              base=$(git merge-base "$base_tip" HEAD 2>/dev/null || true)
             fi
             if [ -n "$base" ]; then
               break
@@ -352,11 +361,11 @@ jobs:
           fi
           # <<< specification diff
           if [ -z "$base" ]; then
-            echo "This branch and \`$DEFAULT_BRANCH\` share no commit within reach; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            echo "This branch and \`$BASE_BRANCH\` share no commit within reach; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           if [ -z "$diff" ]; then
-            echo "The specification is unchanged since this branch left \`$DEFAULT_BRANCH\`; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
+            echo "The specification is unchanged since this branch left \`$BASE_BRANCH\`; the run works from the specification alone." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           # A diff of a single specification is small. Anything larger is not a
@@ -372,7 +381,7 @@ jobs:
           {
             echo "hint<<AI-UNIFIED-PROCESS-DIFF-$GITHUB_SHA"
             echo ""
-            echo "The specification named above was changed on this branch. Its diff since the branch left \`$DEFAULT_BRANCH\`:"
+            echo "The specification named above was changed on this branch. Its diff since the branch left \`$BASE_BRANCH\`:"
             echo ""
             echo '~~~diff'
             printf '%s\n' "$diff"

@@ -24,7 +24,8 @@
 #
 # Expected from the stub (declared as variables of the custom pipeline):
 #   PLUGIN, SKILL, SUBJECT, ARTIFACT_LOCATIONS, CORRELATION_ID, MODEL, MAX_TURNS,
-#   TIMEOUT_MINUTES
+#   TIMEOUT_MINUTES, and optionally BASE_BRANCH (the Studio's configured branch; an
+#   older stub does not declare it and the repository's main branch is used)
 # Expected from the repository (secured repository variables, one of the two):
 #   ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN
 set -euo pipefail
@@ -138,7 +139,7 @@ LINT_ONLY=$lint_only
 # A specification edit that only removes a requirement is invisible to the skill:
 # the remaining text is already satisfied by the existing code, so the run finds
 # nothing to do and the dropped behaviour survives. The diff since the branch left
-# the default branch makes every change explicit - removals included - and travels with the
+# the base branch makes every change explicit - removals included - and travels with the
 # prompt so the skill reconciles the code with the change instead of re-checking a
 # specification it already fulfils.
 hint=""
@@ -151,14 +152,18 @@ case "$SKILL" in
     # The subject of these skills is the path of the specification. A subject that
     # is an id names no file and has no history to diff.
     if [ -n "${SUBJECT:-}" ] && [ -f "$SUBJECT" ]; then
-      # HEAD alone identifies the default branch without a remote round trip.
-      default_branch=$(git ls-remote --symref origin HEAD | sed -n 's|^ref: refs/heads/\(.*\)\tHEAD$|\1|p')
+      # The Studio's configured branch, which may differ from the repository's main branch
+      # (UC-044 BR-006); without it the main branch, which HEAD of the remote names.
+      base_branch=${BASE_BRANCH:-}
+      if [ -z "$base_branch" ]; then
+        base_branch=$(git ls-remote --symref origin HEAD | sed -n 's|^ref: refs/heads/\(.*\)\tHEAD$|\1|p')
+      fi
       head_ref=""
       if [ -n "${BITBUCKET_BRANCH:-}" ]; then
         head_ref="refs/heads/$BITBUCKET_BRANCH"
       fi
       # >>> specification diff - identical in pipelines/aiup-generate.sh and .github/workflows/aiup-generate.yml
-      # Against the merge base, not the tip of the default branch: a change the default branch made to the
+      # Against the merge base, not the tip of the base branch: a change the base branch made to the
       # same specification after this branch was cut would read as lines this branch removed, and the
       # prompt tells the skill to delete the code of a removed line. The clone is shallow on both hosts, so
       # both histories are deepened until they meet; without a common commit there is no diff and no hint.
@@ -167,12 +172,12 @@ case "$SKILL" in
       for depth in 50 500 5000; do
         # a fetch that fails costs the hint, not the run: git says why in the log. No maintenance in the
         # background: it would hold the lock on the shallow file while the next fetch deepens.
-        if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$default_branch"; then
-          default_tip=$(git rev-parse FETCH_HEAD)
+        if git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "refs/heads/$base_branch"; then
+          base_tip=$(git rev-parse FETCH_HEAD)
           if [ -n "$head_ref" ]; then
             git -c gc.auto=0 -c maintenance.auto=false fetch --quiet --depth="$depth" origin "$head_ref" || true
           fi
-          base=$(git merge-base "$default_tip" HEAD 2>/dev/null || true)
+          base=$(git merge-base "$base_tip" HEAD 2>/dev/null || true)
         fi
         if [ -n "$base" ]; then
           break
@@ -183,9 +188,9 @@ case "$SKILL" in
       fi
       # <<< specification diff
       if [ -z "$base" ]; then
-        echo "This branch and '$default_branch' share no commit within reach; the run works from the specification alone."
+        echo "This branch and '$base_branch' share no commit within reach; the run works from the specification alone."
       elif [ -z "$diff" ]; then
-        echo "The specification is unchanged since this branch left '$default_branch'; the run works from the specification alone."
+        echo "The specification is unchanged since this branch left '$base_branch'; the run works from the specification alone."
       elif [ "${#diff}" -gt 20000 ]; then
         # A diff of a single specification is small. Anything larger is not a
         # specification edit and would drown the prompt - better no hint than a
@@ -194,7 +199,7 @@ case "$SKILL" in
       else
         # Tildes fence the diff because a Markdown specification may itself contain
         # backtick fences.
-        hint=$(printf '\nThe specification named above was changed on this branch. Its diff since the branch left `%s`:\n\n~~~diff\n%s\n~~~\n\nReconcile the result with every change in this diff, not only with the current text of the specification. A removed line means the behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour.' "$default_branch" "$diff")
+        hint=$(printf '\nThe specification named above was changed on this branch. Its diff since the branch left `%s`:\n\n~~~diff\n%s\n~~~\n\nReconcile the result with every change in this diff, not only with the current text of the specification. A removed line means the behaviour it described was dropped deliberately: delete the code or tests that exist only for that behaviour.' "$base_branch" "$diff")
       fi
     fi ;;
 esac

@@ -73,6 +73,15 @@ working; its pull requests only arrive without checks. Adding an optional secret
 between stub and implementation, so it needs no new major tag. Bitbucket is not affected: there the Studio opens the
 pull request.
 
+## The base branch of the specification diff
+
+The code and test skills receive the diff of their specification since the run's branch forked from the base branch.
+The base branch is the Studio's configured branch of the repository, which need not be the default branch at the Git
+host; the stub passes it as the optional input `base_branch` (GitHub) or the variable `BASE_BRANCH` (Bitbucket). A stub
+without it keeps working and diffs against the default branch. Adding an optional input does not break the contract,
+so it needs no new major tag - but a stub that passes `base_branch` is refused by a shared implementation that does not
+declare it yet, so `v1` has to be moved before the Studio ships the new stub templates.
+
 ## The `v1` tag
 
 `v1` is a **moving tag**, not a release: it always points at the commit of this repository whose shared
