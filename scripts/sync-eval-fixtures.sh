@@ -2,7 +2,8 @@
 # Keep the layer-skill and sub-agent fixtures of the eval scenarios identical to the real files.
 #
 # A scenario that runs an orchestrator (/use-case-implement, /use-case-test, /use-case-coverage, ...) ships the layer
-# skills under evals/<scenario>/layer-skills/<skill>/ and the coverage agent under evals/<scenario>/agents/, because
+# skills under evals/<plugin>/<scenario>/layer-skills/<skill>/ and the coverage agent under
+# evals/<plugin>/<scenario>/agents/, because
 # Tessl installs only the plugin under test. Those fixtures must be copies of what users install: a stale copy makes
 # the scenario grade an old contract (markers, Handover, integration layer) and hides the regressions the evals are
 # there to catch (#47). A layer-skill folder is replaced by aiup-*/skills/<skill>/ as a whole; an agent file by the
@@ -56,7 +57,7 @@ sync_file() { # fixture source
 
 shopt -s nullglob
 
-for fixture in aiup-*/evals/*/layer-skills/*/; do
+for fixture in evals/aiup-*/*/layer-skills/*/; do
   fixture=${fixture%/}
   name=$(basename "$fixture")
   sources=(aiup-*/skills/"$name")
@@ -68,8 +69,9 @@ for fixture in aiup-*/evals/*/layer-skills/*/; do
   sync_dir "$fixture" "${sources[0]}"
 done
 
-for fixture in aiup-*/evals/*/agents/*.md; do
-  plugin=${fixture%%/*}
+for fixture in evals/aiup-*/*/agents/*.md; do
+  plugin=${fixture#evals/}
+  plugin=${plugin%%/*}
   name=$(basename "$fixture")
   if [[ -f $plugin/agents/$name ]]; then
     source=$plugin/agents/$name
@@ -92,7 +94,7 @@ fi
 python3 - <<'EOF' || missing=1
 import glob, json, sys
 totals = [(f, sum(c["max_score"] for c in json.load(open(f))["checklist"]))
-          for f in sorted(glob.glob("aiup-*/evals/*/criteria.json"))]
+          for f in sorted(glob.glob("evals/aiup-*/*/criteria.json"))]
 bad = [(f, total) for f, total in totals if total != 100]
 for f, total in bad:
     print(f"ERROR: {f}: the rubric totals {total} points, not 100", file=sys.stderr)

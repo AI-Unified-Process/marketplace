@@ -112,6 +112,7 @@ marketplace/
 ├── docs/                         # User guides, installation docs, design notes (docs/design/), and templates
 ├── pipelines/                    # Shared Bitbucket generation workflow implementation
 │   └── werkstatt/                # Werkstatt stations, run by .github/workflows/aiup-werkstatt.yml
+├── evals/                        # Tessl eval scenarios, one folder per plugin (evals/<plugin>/<scenario>/)
 ├── scripts/                      # Validation and publication helpers
 └── README.md
 ```
@@ -643,8 +644,9 @@ Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registr
   for that plugin; without them every plugin gets the same subject line.
 - Adding a new plugin requires wiring it into the workflow: add it to the job `matrix` **and** to the
   `on.push.paths` filter — otherwise it is never published.
-- Each plugin's committed `evals/` scenarios are uploaded on publish and drive the registry's Impact
-  score. A scenario folder is named `<skill>-<what it tests>` (`use-case-coverage-untested-rule-and-drift`);
+- Each plugin's committed scenarios, kept in `evals/<plugin>/` at the repository root, are copied into the
+  plugin folder by the publish workflow, uploaded with it, and drive the registry's Impact score. They stay out
+  of the plugin folder because the Claude directory submits that folder alone and refuses fixtures in it. A scenario folder is named `<skill>-<what it tests>` (`use-case-coverage-untested-rule-and-drift`);
   Tessl accepts any folder holding a `task.md`, so rename the `scenario-N` folders that `tessl scenario download`
   writes before committing them. The grader sees only the files the agent leaves behind, never the conversation:
   a scenario whose criteria judge what the agent says (a report, a Handover block, a hand-off line) ends its task

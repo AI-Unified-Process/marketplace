@@ -136,8 +136,8 @@ jobs:
           python3 aiup-core/skills/use-case-coverage/scripts/coverage_report.py --self-test
           # the user-guide scenarios seed one anchored section per state; their rubrics quote the hashes
           for scenario in keeps-team-sections hand-edit-vs-spec-change; do
-            (cd "aiup-core/evals/user-guide-$scenario/inputs" \
-              && python3 ../../../skills/user-guide/scripts/guide_anchor.py check | awk '{print $2, $3}' \
+            (cd "evals/aiup-core/user-guide-$scenario/inputs" \
+              && python3 ../../../../aiup-core/skills/user-guide/scripts/guide_anchor.py check | awk '{print $2, $3}' \
               > "$RUNNER_TEMP/states-$scenario.txt")
           done
           printf 'UC-001 unchanged\nUC-002 spec-changed\nUC-004 unchanged\n' \
@@ -146,7 +146,7 @@ jobs:
             | diff - "$RUNNER_TEMP/states-hand-edit-vs-spec-change.txt"
           # spec-review-lint-and-semantic seeds defects on purpose: the lint must fail on it
           if python3 aiup-core/skills/spec-review/scripts/spec_lint.py \
-              --docs aiup-core/evals/spec-review-lint-and-semantic/docs > /dev/null; then
+              --docs evals/aiup-core/spec-review-lint-and-semantic/docs > /dev/null; then
             echo "ERROR: spec_lint.py found no errors in the seeded spec-review-lint-and-semantic fixture" >&2
             exit 1
           fi

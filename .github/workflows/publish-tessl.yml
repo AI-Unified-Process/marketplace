@@ -6,10 +6,12 @@
 # want released. Pushes that touch a plugin without a version bump are skipped,
 # not failed.
 #
-# Each plugin's evals/ directory (committed scenarios) is published with it and
-# drives a publish-time eval that produces the registry Impact score. Regenerate
-# scenarios with `tessl scenario generate ./<plugin> --workspace ai-unified-process` and
-# `tessl scenario download --last`, then commit the evals/ changes.
+# Each plugin's scenarios live in evals/<plugin>/ at the repository root, outside the plugin folder, because
+# the Claude directory submits the plugin folder alone and refuses the fixtures in it. The publish step copies
+# them to <plugin>/evals/ in the runner, so Tessl still publishes them with the plugin and runs a publish-time
+# eval that produces the registry Impact score. Regenerate scenarios with
+# `tessl scenario generate ./<plugin> --workspace ai-unified-process` and `tessl scenario download --last`,
+# then move them to evals/<plugin>/ and commit.
 #
 # After the publish step, each plugin whose current version has no GitHub release yet gets one:
 # tag <plugin>-v<version> on the commit that set the version, notes from
@@ -41,6 +43,7 @@ on:
       - 'aiup-drizzle/**'
       - 'aiup-nestjs/**'
       - 'aiup-nextjs/**'
+      - 'evals/**'
       - '.github/workflows/publish-tessl.yml'
   workflow_dispatch:
 
@@ -84,6 +87,11 @@ jobs:
         run: |
           set -euo pipefail
           dir="${{ matrix.plugin }}"
+
+          # The scenarios live outside the plugin folder (see the header); Tessl reads them from <plugin>/evals/.
+          if [ -d "evals/$dir" ]; then
+            cp -R "evals/$dir" "$dir/evals"
+          fi
 
           # Dry-run gates the real publish:
           #   exit 0            -> version is new, publish it

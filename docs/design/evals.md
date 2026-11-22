@@ -10,6 +10,11 @@ Each plugin's `evals/` folder is published with it, and the Tessl registry runs 
 score. The scenarios are also the only regression tests the skills have, so they exist for the maintainers as much
 as for the score (#47).
 
+The scenarios live in `evals/<plugin>/` at the repository root, not in the plugin folder. The Claude directory
+submits a plugin folder alone, and its validation refuses what the fixtures hold: `.puml` files, a `package.json`
+with scripts, and more than 2,000 files in `aiup-core`. The Tessl publish workflow copies `evals/<plugin>/` to
+`<plugin>/evals/` in the runner before it publishes, so the registry still gets the scenarios with the plugin.
+
 - **At least two scenarios per core skill.** The first covers the main path. The second covers one rule that is
   easy to break, such as `/architecture-decision` refusing an ADR without an NFR or constraint, the spec lint
   baseline on a rerun, or `/acceptance-protocol` keeping a use case at `Tested`. A skill with one scenario can lose

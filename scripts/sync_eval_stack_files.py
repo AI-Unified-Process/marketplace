@@ -164,7 +164,7 @@ def main():
     os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
     template, refs = load_template(), load_markers()
     failed = False
-    for path in sorted(glob.glob("aiup-*/evals/*/*/docs/architecture/stack.md")):
+    for path in sorted(glob.glob("evals/aiup-*/*/*/docs/architecture/stack.md")):
         if "/layer-skills/" in path:
             continue
         text, problems, fixable = sync(path, template, refs)
