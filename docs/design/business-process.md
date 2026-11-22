@@ -26,6 +26,12 @@ and `/test-case BP-XXX` cites it in the `**Process:**` line.
   reason, grouped by reason, and the user confirms both before a file is written: a reviewer should not have to
   rebuild the coverage from the diagram to see what was left out, nor ask why (#70). The lint does not report a use
   case that is in no process — many rightly are not, and a process link is no evidence.
+- **A proposal names what resumes a wait.** A process that waits is picked up by a later event, which a reviewer can
+  take for the start of another process. For every wait, the proposal names the event that resumes the same case and
+  the business record carried across it (the active loan the lending creates and the return completes); in the model the event
+  is an intermediate catch event, never a second start event. The record stays in the proposal: a data object would
+  put the entity model into the process, and a fifth documentation line would duplicate what the use cases'
+  postconditions already say (#71).
 - **The agent never writes diagram coordinates.** `skills/business-process/scripts/bpmn_layout.py` (standard library
   only) adds DI for elements without a shape and keeps every existing shape byte for byte, so a layout tidied in a
   modeler survives reruns; it rewrites only the `BPMNDiagram` block. It imports `parse_xml` from `bpmn_paths.py` in

@@ -1,0 +1,1 @@
+{ "description": "No-argument business process proposal for a process that waits for a return: names the start, the event that resumes the same case, and the loan carried across the wait", "include": ["./docs"] }

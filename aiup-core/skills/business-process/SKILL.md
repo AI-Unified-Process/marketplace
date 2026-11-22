@@ -39,9 +39,10 @@ $ARGUMENTS selects the scope. Text after the arguments that says where the proje
 BPMN process models live under `docs/bpmn/`") replaces the default folders named in this skill.
 
 - **No argument** — derive the processes from the requirements and the use case diagram. Read the inputs below,
-  propose the list of business processes (id, name, trigger, outcome, the use case ids each one connects, and which
-  existing models it updates), account for every use case of the diagram (see [Scope](#scope)), and **ask the user
-  to confirm the list and the use cases left out before writing any file**.
+  propose the list of business processes (id, name, trigger, outcome, the use case ids each one connects, its waits
+  — see [Waits and resumption](#waits-and-resumption) — and which existing models it updates), account for every use
+  case of the diagram (see [Scope](#scope)), and **ask the user to confirm the list and the use cases left out before
+  writing any file**.
 - **`BP-XXX`** (e.g. `/business-process BP-001`) — update that process only: `docs/processes/BP-XXX-*.bpmn`. Stop
   and tell the user when no such file exists.
 - **A process name** (e.g. `/business-process "Book Loan"`) — create one new process with the next free id, or
@@ -85,6 +86,32 @@ another use case", or what else decided it. Group the use cases left out for the
 reading rather than something a requirement states, say so, so the user can move the use case into a process
 before any file is written.
 
+## Waits and resumption
+
+A process that waits — for a return, an approval, a payment, a deadline — has one start and is picked up later by
+another event. A reviewer who sees only the trigger and the outcome can read that later event as the start of a new
+process. So for every wait, the proposal names:
+
+- **the event that resumes the same case** — it continues an instance that is already running, so it is an
+  intermediate catch event in this process, not a start event and not a process of its own; and
+- **the business record carried across the wait** — what the activity before the wait produced and the activity
+  after it uses, named with the term of the entity model or the glossary and taken from a requirement or a
+  specification's postcondition. When nothing states it, say that it is your reading.
+
+For example:
+
+```
+BP-001 Book Loan (new) — UC-021, UC-022, UC-023, UC-024
+  Starts:            Book wanted (a Member wants a book)
+  Waits and resumes: after UC-022 Lend Book, on Book copy return requested
+  Carried forward:   the active Loan of that Member and copy, with its lending time; UC-024 Return Book
+                     completes that same Loan
+  Outcomes:          Book returned, Member waitlisted
+```
+
+This is part of the proposal only. The model shows the wait as an intermediate catch event; the record carried
+forward is not drawn (no data objects) and gets no documentation line.
+
 ## Identity and file naming (do this exactly)
 
 One process per file, written to `docs/processes/BP-XXX-<kebab-case-name>.bpmn` where:
@@ -123,7 +150,9 @@ its diagram layout. Both paths are relative to the folder containing this SKILL.
 - **Events are business events,** named in the past tense or as a state: a start event per trigger ("Book wanted",
   "Claim received"), an end event per distinct business outcome ("Book lent", "Member waitlisted"). Waiting for an
   outside event or a deadline is an intermediate catch event (message or timer) or a boundary event on the activity
-  that is interrupted — never an activity.
+  that is interrupted — never an activity. A start event begins a new case; an event that continues a case already
+  running (the return of *this* loan) is an intermediate catch event in the same process, never a second start event
+  and never a separate process (see [Waits and resumption](#waits-and-resumption)).
 - **Decisions are gateways.** An exclusive gateway is named as a question ("Copy available?"), and each outgoing
   sequence flow is named with the answer ("yes", "no"). Take the decision from the requirements (e.g. "when no copy is
   available, the member joins the waiting list"), or from a specification's postcondition or alternative flow that
@@ -212,7 +241,8 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 ## Workflow
 
 1. Determine the scope from $ARGUMENTS. Read the inputs listed above.
-2. Without an argument: propose the processes (id, name, trigger, outcome, use case ids, new or update), list the
+2. Without an argument: propose the processes (id, name, trigger, outcome, use case ids, waits with the resuming
+   event and the record carried forward, new or update), list the
    use cases of the diagram left out with their reasons (see [Scope](#scope)), and wait for the user's confirmation
    of both.
 3. For each process, design the flow: start events from the triggers, the use cases in business order with their
@@ -236,6 +266,9 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 
 - [ ] Without an argument: every use case of the diagram was in a proposed or existing process or listed as left out
       with its reason, and the user confirmed both.
+- [ ] Without an argument: every wait in a proposed process named the event that resumes the same case and the
+      business record carried across it.
+- [ ] An event that continues a running case is an intermediate catch event, not a start event.
 - [ ] The file is named `BP-XXX-<kebab-case-name>.bpmn`, lives in `docs/processes/`, and its `<bpmn:process>` has
       `id="BP-XXX"`, the same id, and a `name`.
 - [ ] The process has the documentation lines Goal, Trigger, Requirements, and Status.
@@ -257,6 +290,8 @@ When the process already exists (`BP-XXX` given, or the proposed list names an e
 - Stop or ask for `/use-case-spec` because a use case of the process is not specified yet
 - Write a model before the user confirmed the process list (no-argument mode)
 - Leave a use case of the diagram out of a no-argument proposal without naming it and the reason
+- Model the event that resumes a running case as a start event or as a process of its own
+- Draw the record carried across a wait as a data object or add it to the process documentation
 - Create a second model of a process that already has a `BP-XXX` id — update it
 - Renumber, reuse, or delete a `BP-XXX` id; set an obsolete process to `Status: Obsolete`
 - Rename the ids of existing elements on update

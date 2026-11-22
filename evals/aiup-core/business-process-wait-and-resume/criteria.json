@@ -1,0 +1,41 @@
+{
+  "context": "Tests whether /business-process without an argument proposes the processes before writing any model, and, for a process that waits, names the event that resumes the same case and the business record carried across the wait, instead of presenting the return as the start of a second process. The agent's messages to the user are in session-log.md, the log the task asks for: judge the proposal from it. session-log.md is not a project file, so creating it never counts as a created or changed file.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Proposal before any model",
+      "description": "No .bpmn file is created or changed; the agent presents a proposal and asks the user to confirm it before any model is written",
+      "max_score": 15
+    },
+    {
+      "name": "One process with the return",
+      "description": "The proposal has one book loan process (id BP-001, a noun-phrase name such as 'Book Loan') that connects UC-021, UC-022, UC-023, and UC-024; the return (UC-024) is part of that process, not a separate process",
+      "max_score": 20
+    },
+    {
+      "name": "Start trigger named",
+      "description": "The proposal names the trigger that starts the process as a business event of a member wanting a book (e.g. 'Book wanted' or 'Book reserved')",
+      "max_score": 10
+    },
+    {
+      "name": "Resuming event named",
+      "description": "The proposal names the wait after UC-022 Lend Book and the event that resumes the same case (the member bringing the copy back, e.g. 'Book copy return requested' or 'Copy brought back'), and says that it continues the running case or will be an intermediate catch event, not a second start event",
+      "max_score": 20
+    },
+    {
+      "name": "Record carried forward",
+      "description": "The proposal names the open loan (Loan, of that member and copy, opened by UC-022 Lend Book with its lending time) as what is carried across the wait, and says that UC-024 Return Book closes that same loan",
+      "max_score": 15
+    },
+    {
+      "name": "Outcomes named",
+      "description": "The proposal names the outcomes of the process, at least the copy returned (loan closed) and the member waitlisted",
+      "max_score": 10
+    },
+    {
+      "name": "Left-out use case with reason",
+      "description": "UC-025 Maintain Catalog is listed as left out of every process with a reason (e.g. it stands alone; no requirement connects it to another use case)",
+      "max_score": 10
+    }
+  ]
+}
