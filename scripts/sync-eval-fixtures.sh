@@ -101,6 +101,9 @@ for f, total in bad:
 sys.exit(1 if bad else 0)
 EOF
 
+# Hand graders for `claude plugin eval` (evals/<plugin>/<scenario>/graders/) name a checklist item and weigh its points.
+python3 scripts/tessl_to_plugin_evals.py --check || missing=1
+
 if (( missing )); then
   exit 1
 fi

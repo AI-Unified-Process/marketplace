@@ -68,9 +68,24 @@ claude plugin eval . --eval-dir build/plugin-evals/aiup-core/evals --scaffold --
   what the agent said on `session-log.md`; the converter lists the graders that leave files unchecked. This fits
   the scenarios of a single document skill well. For the chain and code scenarios the score is an indication,
   not a measure: a criterion about the code may be judged from what the agent reported.
+- **Hand graders** close that gap where a criterion is about code. A scenario may hold `graders/<name>.md` in the
+  `claude plugin eval` format with one extra line, `criterion: "<checklist item name>"`; they replace the generated
+  grader of that item, and their weights add up to its points (`tessl_to_plugin_evals.py --check`, run by
+  `sync-eval-fixtures.sh`). Most are `regex` graders on the `trace`, anchored on one tool call of the agent:
+  `"name":"(Write|Edit|Bash)","input":{` followed by the file name and the pattern on the same line. The anchor
+  matters three ways. The trace also holds the skill files the agent read, and their examples carry the same
+  markers, so an unanchored pattern passes on its own. The agents write most code through `Bash` heredocs, not
+  `Write`, so a `tool_used` grader on `Write` misses it (the chain scenarios scored 0.46 and 0.70 that way). And the
+  agent's messages to `session-log.md` name files and rules too, so the anchor excludes calls that write the log. A
+  `regex` grader on a file cannot help: its path takes no glob, and the package of the generated code varies.
+  `file_exists` checks that a test class exists or does not; it also counts files a `Bash` call created. The
+  patterns read JSON-encoded content: a newline is `\n`, a quote `\"`. Hand graders cost no judge call and give the
+  same verdict every run. `criteria.json` stays the rubric, so a hand grader checks what its criterion says and
+  nothing else.
 - `--format skill-evals` writes the same scenarios as Agent Skills `evals.json`
   ([evaluating skills](https://agentskills.io/skill-creation/evaluating-skills)), with the points as `weights`.
 
-Measured on 2026-11-23, one run each: `open-questions-record-answer-list` scored 1.0 with `aiup-core` and 0.2 without
-it, in 4 minutes for $0.54 including the run without the plugin; `use-case-implement-chain-rest-jpa` scored 0.75 with
-its four plugins, in 9 minutes for $2.91.
+Measured on 2026-11-23, one run each, with and without the plugins: `open-questions-record-answer-list` 1.0 and 0.2
+(4 minutes, $0.54); `use-case-implement-chain-rest-jpa` 0.87 and 0.52, `use-case-implement-chain-vaadin-flow-jooq`
+0.96 and 0.54 (both together 10 minutes, $7.81). The chain scores are the hand graders applied to the kept traces of
+that run (`--keep-temp`) together with its llm and `file_exists` verdicts.

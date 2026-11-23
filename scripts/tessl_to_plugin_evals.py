@@ -19,6 +19,11 @@ the run. The layer-skills and agents fixtures are therefore replaced by loading 
 skills and agents, and each grader judges the one file its criterion names first (session-log.md for criteria about
 what the agent said). The report lists every grader whose criterion names more than one file.
 
+Hand graders: a scenario may hold graders/<name>.md files in the `claude plugin eval` grader format with one extra
+front matter line, `criterion: "<checklist item name>"`. They replace the generated llm grader of that item, and their
+weights must add up to its max_score. criteria.json stays the rubric Tessl reads. --check validates every hand grader
+and writes nothing.
+
 Standard library only.
 """
 from __future__ import annotations
@@ -107,6 +112,35 @@ def focus_for(description: str, logs_messages: bool) -> tuple[str, list[str]]:
     return "session-log.md" if logs_messages else "last_message", []
 
 
+CRITERION_RE = re.compile(r'^criterion:\s*"(.*)"\s*$', re.M)
+WEIGHT_RE = re.compile(r"^weight:\s*([0-9.]+)\s*$", re.M)
+
+
+def hand_graders(scenario: Path, criteria: dict) -> tuple[dict[str, list[tuple[str, str]]], list[str]]:
+    """{criterion name: [(file name, grader text without the criterion line)]}, and the problems found."""
+    found: dict[str, list[tuple[str, str]]] = {}
+    problems: list[str] = []
+    names = {c["name"]: c["max_score"] for c in criteria["checklist"]}
+    for f in sorted((scenario / "graders").glob("*.md")):
+        text = f.read_text(encoding="utf-8")
+        m = CRITERION_RE.search(text)
+        if not text.startswith("---\n") or not m:
+            problems.append(f"{f}: no front matter line criterion: \"<checklist item name>\"")
+            continue
+        if m.group(1) not in names:
+            problems.append(f"{f}: criterion {m.group(1)!r} is not a checklist item of criteria.json")
+            continue
+        if not WEIGHT_RE.search(text):
+            problems.append(f"{f}: no weight")
+            continue
+        found.setdefault(m.group(1), []).append((f.name, CRITERION_RE.sub("", text, count=1).replace("---\n\n", "---\n", 1)))
+    for name, graders in found.items():
+        total = sum(float(WEIGHT_RE.search(t).group(1)) for _, t in graders)
+        if abs(total - names[name]) > 1e-6:
+            problems.append(f"{scenario}: hand graders of {name!r} weigh {total:g}, max_score is {names[name]}")
+    return found, problems
+
+
 def yaml_str(s: str) -> str:
     return json.dumps(s, ensure_ascii=False)
 
@@ -153,7 +187,14 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str])
 
     context = criteria.get("context", "")
     logs_messages = "session-log.md" in task
+    hand, problems = hand_graders(scenario, criteria)
+    if problems:
+        raise SystemExit("\n".join(problems))
     for i, item in enumerate(criteria["checklist"], 1):
+        if item["name"] in hand:
+            for name, text in hand[item["name"]]:
+                (case / "graders" / f"{i:02d}-{name}").write_text(text, encoding="utf-8")
+            continue
         focus, others = focus_for(item["description"], logs_messages)
         focus_yaml = focus if focus == "last_message" else f"{{ source: file, path: {yaml_str(focus)} }}"
         body = [
@@ -213,7 +254,19 @@ def main() -> int:
     ap.add_argument("--case", action="append", default=[], help="scenario folder name (repeatable)")
     ap.add_argument("--format", choices=["plugin-eval", "skill-evals"], default="plugin-eval")
     ap.add_argument("--out", type=Path, default=ROOT / "build" / "plugin-evals")
+    ap.add_argument("--check", action="store_true", help="validate the hand graders, write nothing")
     args = ap.parse_args()
+
+    if args.check:
+        problems: list[str] = []
+        scenarios = sorted(p.parent for p in EVALS.glob("*/*/graders"))
+        for s in scenarios:
+            problems += hand_graders(s, load(s)[2])[1]
+        for line in problems:
+            print("ERROR: " + line)
+        if not problems:
+            print(f"Hand graders valid ({len(scenarios)} scenario(s) with hand graders).")
+        return 1 if problems else 0
 
     plugins = args.plugins or sorted(p.name for p in EVALS.iterdir() if p.is_dir())
     report: list[str] = []
