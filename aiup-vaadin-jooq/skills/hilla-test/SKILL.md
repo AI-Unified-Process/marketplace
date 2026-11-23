@@ -100,13 +100,13 @@ Both suites are **use case tests**: each verifies exactly one use case from
 ### Backend — `@UseCase` annotation
 
 Backend test classes are named `UC<id><PascalCaseUseCaseName>ServiceTest` (e.g.
-`UC001ManagePersonsServiceTest`), and every test method carries the `@UseCase` annotation so the
-[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin)
-can link spec and tests.
+`UC001ManagePersonsServiceTest`), and every test method carries the `@UseCase` annotation so
+traceability tools and coverage audits can match the test to the specification.
 
 **Bootstrap step.** Check whether the project already contains an annotation type named
-`UseCase` (search for `@interface UseCase`). If not, create it — conventional location
-`src/main/java/<group>/<artifact>/usecase/UseCase.java`, exactly this shape:
+`UseCase` (search for `@interface UseCase`). If it is missing, create it as test code at
+`src/test/java/<root package>/usecase/UseCase.java`. Any package works because
+traceability tools match the short name `UseCase`. Define it with exactly this shape:
 
 ```java
 @Target(ElementType.METHOD)
@@ -136,17 +136,14 @@ void save_rejects_duplicate_email() { ... }
 
 ### Frontend — naming convention
 
-TypeScript has no annotation mechanism the Navigator plugin resolves, so don't claim that
-integration. Use a plain naming convention instead:
+These TypeScript tests are unannotated. The naming convention below is their traceability marker.
 
 - File name: `UC-XXX-<slug>.test.tsx` in the frontend tests directory (see setup below)
 - Top-level `describe` block named after the use case: `describe('UC-XXX: <Use Case Name>', ...)`
 - Each `it` title reads as the scenario it covers, matching the spec heading text
   (`'main scenario - …'`, `'A1: …'`)
 
-Run one use case's frontend tests with `npx vitest -t "UC-XXX"` — the `describe` title is the
-machine-greppable anchor, which is why the naming convention is the traceability mechanism here
-(a TypeScript decorator cannot attach to Vitest's function-call tests).
+Run one use case's frontend tests with `npx vitest -t "UC-XXX"` to match the use case ID in the `describe` title.
 
 ## One-Time Test Environment Setup (Frontend)
 
@@ -351,7 +348,6 @@ the project root). They demonstrate the naming conventions, the endpoint-mocking
 - Hilla testing guide (basis for this skill): https://vaadin.com/docs/latest/hilla/guides/testing
 - Vitest documentation: https://vitest.dev/guide/
 - React Testing Library: https://testing-library.com/docs/react-testing-library/intro/
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the Vaadin MCP server for the React component APIs (`https://mcp.vaadin.com/docs`)
 
 ## Coverage Check

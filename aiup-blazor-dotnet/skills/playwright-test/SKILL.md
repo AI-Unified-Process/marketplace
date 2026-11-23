@@ -66,7 +66,7 @@ An expected value changes only when the specification has changed — see the se
 
 ## Traceability
 
-Every test names what it verifies, so the AI Unified Process Navigator, AI Unified Studio, and a
+Every test names what it verifies, so traceability tools and a
 coverage audit can find it. A test without the marker counts as a gap.
 
 | Argument                  | Test class                                     | Marker                                                                 |
@@ -75,8 +75,8 @@ coverage audit can find it. A test without the marker counts as a gap.
 | `TC-*` (a test case)      | `TC<id><JourneyName>IT`, e.g. `TC001CustomerOnboardingIT` | `[Fact(DisplayName = "TC-001: <goal>")]` and a `// Step <n>: <name>` comment per Flow row |
 
 **Bootstrap step.** Search the solution for `class UseCaseAttribute`. If the E2E project does not
-have one, create it there (e.g. `Traceability/UseCaseAttribute.cs`). The namespace does not matter —
-the tools resolve the attribute by its short name — but the shape must be exactly this:
+have one, create it there (e.g. `Traceability/UseCaseAttribute.cs`).
+Any namespace will do because tools match the short name `UseCaseAttribute`. Use exactly the attribute shape below.
 
 ```csharp
 namespace MyApp.Tests.E2E;

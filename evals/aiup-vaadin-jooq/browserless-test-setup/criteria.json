@@ -19,7 +19,7 @@
     },
     {
       "name": "UseCase annotation exists",
-      "description": "A file defining @interface UseCase is present somewhere in src/main/java",
+      "description": "A file defining @interface UseCase is present somewhere in src/test/java",
       "max_score": 5
     },
     {

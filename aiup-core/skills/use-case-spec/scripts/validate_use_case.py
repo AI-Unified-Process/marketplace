@@ -6,14 +6,13 @@
 """Validate AI Unified Process use case specification documents.
 
 Checks UC-*.md files against the normative format described in
-references/format-spec.md. The grammar and every tolerance mirror the
-Studio structured editor's parser (UseCaseSpecificationDocument.java),
-which is the executable source of truth for what "parses":
+references/format-spec.md, the source of truth for the structural grammar,
+accepted alternative forms and extensions, and skill content rules:
 
-- ERROR  = the Studio structured editor cannot read the document
-           (it would open read-only in the plain markdown editor).
-- WARN   = Studio tolerates it, but it violates the use-case-spec skill
-           contract or is silently rewritten/flattened on save in Studio.
+- ERROR  = the document violates the structural grammar.
+- WARN   = the document is structurally readable, but violates the skill
+           contract or is not in canonical form (nested lists lose their
+           structure when parsed).
 
 Exit code 0 when clean, 1 when any ERROR was found (with --strict also
 when any WARN was found), 2 on usage errors.
@@ -36,7 +35,7 @@ import sys
 import tempfile
 
 # ---------------------------------------------------------------------------
-# Language definitions (UseCaseLanguage.java)
+# Language definitions from the normative format
 # ---------------------------------------------------------------------------
 
 LANGUAGES = {
@@ -107,7 +106,7 @@ LANGUAGES = {
 TITLE_PREFIX = "# Use Case:"
 STATUS_FIELD = "**Status:**"
 
-# UseCaseStatus.java: English enum names and German values, matched
+# English status names and German values, matched
 # case-insensitively after stripping non-letter decoration.
 STATUS_VALUES = [
     "Draft", "Reviewed", "Approved", "Implemented", "Tested", "Done",
@@ -119,7 +118,7 @@ STATUS_VALUES = [
 NUMBERED_ITEM = re.compile(r"(\d+)\.\s+(.*)")
 ID_TITLE = re.compile(r"#\s+[SB]?UC-[A-Za-z0-9_-]+\s*:.*")
 FLOW_LABEL = re.compile(r"A\d+\s*:\s*(.*)")
-# Hyphenated tails like BR-USER-050 are valid Navigator-style rule ids.
+# Hyphenated rule ids (BR-USER-050) are valid.
 RULE_LABEL = re.compile(r"BR-[A-Za-z0-9_-]+\s*:\s*.*")
 RULE_NUMBER = re.compile(r"BR-(\d+)\s*:")
 PLACEHOLDER = re.compile(r"_[^_].*_|\*[^*].*\*")
@@ -198,7 +197,7 @@ class Document:
 
 
 # ---------------------------------------------------------------------------
-# Low-level helpers (mirroring UseCaseSpecificationDocument.java)
+# Low-level helpers for the structural grammar and accepted tolerances
 # ---------------------------------------------------------------------------
 
 def detect_language(lines):
@@ -216,7 +215,7 @@ def detect_language(lines):
 
 
 def parse_status(value):
-    """UseCaseStatus.parse: decoration before/after the value is ignored."""
+    """Parse a status, ignoring decoration before/after the value."""
     start, end = 0, len(value)
     while start < end and not value[start].isalpha():
         start += 1
@@ -245,13 +244,13 @@ def is_continuation(line):
 
 def join_continuation(doc, lines, index, parts):
     """Joins wrapped lines into the current item; a joined line that itself
-    looks like a nested list item is flattened by Studio on save (WARN)."""
+    looks like a nested list item loses its list structure (WARN)."""
     while index < len(lines) and is_continuation(lines[index]):
         stripped = lines[index].strip()
         if stripped.startswith(("- ", "* ")) or NUMBERED_ITEM.fullmatch(stripped):
             doc.add(index + 1, WARN, "SUBBULLET_FLATTENED",
-                    "nested list item is joined into the line above when "
-                    "Studio saves the document: " + stripped)
+                    "nested list item loses its list structure when joined "
+                    "into the parent item: " + stripped)
         parts.append(stripped)
         index += 1
     return index
@@ -358,7 +357,7 @@ def parse_overview(doc, lines, index):
             index = join_continuation(doc, lines, index + 1, parts)
             overview["trigger"] = " ".join(parts)
         else:
-            # unknown overview lines are kept verbatim by Studio (pass-through)
+            # Unknown overview lines are accepted extensions.
             index += 1
     for key in ("id", "name", "actor", "goal", "status"):
         if key not in overview:
@@ -558,7 +557,7 @@ def parse_business_rules(doc, lines, index):
 
 
 def parse_extra_section(lines, index):
-    """A section outside the template: kept verbatim by Studio."""
+    """Skip an accepted extra section without validating its content."""
     index += 1
     while index < len(lines) and not lines[index].startswith("## "):
         index += 1
@@ -632,7 +631,7 @@ def api_targets(value):
 
 
 def check_contract(doc, path):
-    """Skill-contract checks beyond what Studio's parser enforces (WARN)."""
+    """Check skill content rules and canonical form after parsing (WARN)."""
     lang = LANGUAGES[doc.language]
     headings = lang["headings"]
 
@@ -766,8 +765,7 @@ def check_contract(doc, path):
     if doc.main_scenario_numbers != list(
             range(1, len(doc.main_scenario_numbers) + 1)):
         doc.add(0, WARN, "NUMBERING",
-                "main scenario step numbers are not 1..n without gaps "
-                "(Studio renumbers them on save)")
+                "main scenario step numbers are not 1..n without gaps")
 
     if not doc.flows and not doc.flows_placeholder \
             and "alternative_flows" in doc.sections_seen:
@@ -802,9 +800,8 @@ def check_contract(doc, path):
                     "business rule heading has no BR-XXX label: "
                     + rule["heading"])
     # Rule ids are scoped to their use case: every document numbers its rules
-    # from BR-001 without gaps (Studio renumbers them so on save). Checked only
-    # when every label is plainly numeric — Navigator-style ids (BR-USER-050)
-    # follow their own scheme.
+    # from BR-001 without gaps. Check only when every label is numeric,
+    # skipping the numbering check for hyphenated ids (BR-USER-050).
     numbers = [RULE_NUMBER.match(rule["heading"]) for rule in doc.rules]
     if numbers and all(numbers):
         values = [int(match.group(1)) for match in numbers]
@@ -812,7 +809,7 @@ def check_contract(doc, path):
             doc.add(doc.rules[0]["line"], WARN, "RULE_NUMBERING",
                     "business rule ids are not BR-001..BR-%03d without gaps "
                     % len(values) +
-                    "(ids restart per document; Studio renumbers on save)")
+                    "(ids restart per document)")
 
     steps = doc.main_scenario + [s for f in doc.flows for s in f["steps"]]
     for step_line, step in steps:
@@ -999,6 +996,9 @@ The user is logged in.
 
 
 def self_test():
+    import contextlib
+    import io
+
     failures = []
 
     def expect(name, problems, expected_codes, forbidden_severity=None):
@@ -1024,6 +1024,50 @@ def self_test():
         failures.append("valid-de: language not detected as German")
     expect("valid-de", doc.problems, [], forbidden_severity=ERROR)
     expect("valid-de", doc.problems, [], forbidden_severity=WARN)
+
+    # Canonical-form warnings describe the contract and parsing consequences.
+    # They remain non-blocking unless the caller requests strict validation.
+    canonical_cases = [
+        ("nested-list", VALID_EN.replace(
+            "- Clerk is logged into the system",
+            "- Clerk is logged into the system\n  - Clerk has a booking role"),
+         "SUBBULLET_FLATTENED",
+         "nested list item loses its list structure when joined into the "
+         "parent item: - Clerk has a booking role"),
+        ("step-numbering", VALID_EN.replace(
+            "2. System displays the reservation form.",
+            "5. System displays the reservation form."),
+         "NUMBERING",
+         "main scenario step numbers are not 1..n without gaps"),
+        ("rule-numbering", VALID_EN.replace("BR-001:", "BR-003:"),
+         "RULE_NUMBERING",
+         "business rule ids are not BR-001..BR-001 without gaps "
+         "(ids restart per document)"),
+    ]
+    for name, text, code, message in canonical_cases:
+        doc = parse_document(text)
+        check_contract(doc, "UC-001-create-reservation.md")
+        found = [(p.severity, p.code, p.message) for p in doc.problems]
+        if found != [(WARN, code, message)]:
+            failures.append(name + ": unexpected diagnostics " + str(found))
+
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "UC-001-create-reservation.md")
+        cli_cases = [("valid", VALID_EN, (0, 0)),
+                     ("structural-error", VALID_EN.replace(
+                         "**Status:** Approved", "**Status:** In Progress"),
+                      (1, 1))]
+        cli_cases += [(name, text, (0, 1))
+                      for name, text, _, _ in canonical_cases]
+        for name, text, expected in cli_cases:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(text)
+            with contextlib.redirect_stdout(io.StringIO()):
+                codes = (main([path, "--quiet"]),
+                         main([path, "--strict", "--quiet"]))
+            if codes != expected:
+                failures.append(name + ": expected normal/strict exit codes "
+                                + str(expected) + ", got " + str(codes))
 
     for line, codes in (("**Layers:** `UI`, `API`.", []),
                         ("**Layers:** Service, Service", ["LAYERS_DUPLICATE"]),
@@ -1139,8 +1183,6 @@ def self_test():
             failures.append("latin-1: expected an OSError")
         except OSError:
             pass
-        import contextlib
-        import io
         with contextlib.redirect_stdout(io.StringIO()):
             code = main([path, "--quiet"])
         if code != 1:

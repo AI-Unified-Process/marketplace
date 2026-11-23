@@ -90,10 +90,11 @@ second one is precise.
 Java projects only. A project coming from `aiup-nestjs-nextjs` has no annotation: its tests carry the id in
 `describe('UC-XXX: …')`, which stays. Skip to the next section.
 
-The combined plugins created the annotation in `src/main/java/<root package>/usecase/UseCase.java`. The layer test
-skills search the **test** sources of the module under test for `@interface UseCase`, reuse it when it is there, and
-otherwise create it in `src/test/java/<root package>/usecase/UseCase.java`. An annotation left in `src/main/java`
-means a second copy in `src/test/java` on the next test run, with the same short name.
+The combined plugins created the annotation in `src/main/java/<root package>/usecase/UseCase.java`
+(`aiup-vaadin-jooq` before 2.25.7, `aiup-angular-jpa` before 0.12.7). The layer test skills search the **test** sources
+of the module under test for `@interface UseCase`, reuse it when it is there, and otherwise create it in
+`src/test/java/<root package>/usecase/UseCase.java`. An annotation left in `src/main/java` means a second copy in
+`src/test/java` on the next test run, with the same short name.
 
 Move the file before the first `/use-case-test`:
 

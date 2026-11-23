@@ -89,18 +89,18 @@ questions** every question recorded and every test a blocking question left out.
 
 Browserless tests are **use case tests**: each test class verifies exactly one use case
 (`docs/use_cases/**/UC-XXX-*.md`) and is named `UC<id><PascalCaseUseCaseName>Test` — `UC001RegisterPersonTest` for
-UC-001 "Register Person". This is the convention the
-[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) relies on.
+UC-001 "Register Person". The class name identifies the use case under test.
 
-Every test method is annotated `@UseCase(id = "UC-XXX", ...)` so the Navigator plugin can wire gutter icons and
-Find Usages between the Markdown spec and the Java tests.
+Every test method is annotated `@UseCase(id = "UC-XXX", ...)` so traceability tools and coverage
+audits can match the test to the Markdown specification.
 
 **Bootstrap step.** Before writing any test, search the test sources of the module under test for
 `@interface UseCase` and reuse the annotation when it is there — the persistence and service test skills create the
 same one. Create it only when it is missing, in that module's test sources,
 `src/test/java/<root package>/usecase/UseCase.java`, never in `src/main/java`. In a hexagonal project every module
-that holds use case tests gets its own copy in its own `src/test/java`; the plugin resolves the annotation by short
-name. The annotation must have exactly this shape:
+that holds use case tests gets its own copy in its own `src/test/java`.
+Any package will do because tools match the short name `UseCase`, so each module can use its own copy.
+Use exactly the annotation shape below.
 
 ```java
 package com.example.app.usecase;
@@ -424,7 +424,5 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Browserless Testing: https://vaadin.com/docs/latest/flow/testing/browserless
 - Component query API: https://vaadin.com/docs/latest/flow/testing/browserless/component-query
 - Component testers: https://vaadin.com/docs/latest/flow/testing/browserless/component-testers
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
-  https://github.com/AI-Unified-Process/intellij-plugin
 - Vaadin MCP server (`https://mcp.vaadin.com/docs`); see the plugin's `rules/mcp-servers.md` (locate it with a glob
   for `**/*aiup-vaadin*/**/rules/mcp-servers.md`; not every host installs it) to configure it

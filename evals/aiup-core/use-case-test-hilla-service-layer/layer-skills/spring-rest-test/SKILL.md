@@ -124,8 +124,9 @@ at the API (a required role, a maximum payload, a response format) — never an 
 **Bootstrap.** Search the test sources of the module under test for `@interface UseCase` and reuse the annotation
 when it is there — the service and persistence test skills create the same one. Create it only when it is missing,
 in that module's test sources (`src/test/java/<root package>/usecase/UseCase.java`), never in `src/main/java`. In a
-hexagonal project every module that holds use case tests gets its own copy in its own `src/test/java`; the plugin
-resolves the annotation by short name. The annotation has exactly this shape:
+hexagonal project every module that holds use case tests gets its own copy in its own `src/test/java`.
+Any package will do because tools match the short name `UseCase`, so each module can use its own copy.
+Use exactly the annotation shape below.
 
 ```java
 @Target(ElementType.METHOD)
@@ -313,8 +314,6 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Spring Boot testing and Testcontainers: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - RFC 9457 Problem Details for HTTP APIs: https://www.rfc-editor.org/rfc/rfc9457
 - RestAssured (legacy convention): https://rest-assured.io/
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
-  https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
   `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

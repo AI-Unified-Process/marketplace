@@ -119,6 +119,20 @@ marketplace/
 
 ## Plugin Architecture
 
+### Plugin independence
+
+- Plugins define the artifact formats, public skill interfaces, and traceability markers their consumers use.
+  The definitions live in the open-source plugins so contributors can read and verify them.
+- `aiup-core/skills/use-case-spec/references/format-spec.md` is the normative use case format;
+  `validate_use_case.py` checks it without an external editor or parser.
+  A change to the grammar, the diagnostic codes, the diagnostic messages (they are part of the lint baseline
+  fingerprint), or the exit codes is a contract change. Update `format-spec.md`, the validator, and its self-test
+  together, and note the change for consumers.
+- Plugin instructions describe contracts without naming any consumer (Studio, Navigator, other tools).
+  Put consumer-specific compatibility notes in integration documentation outside the plugin directories.
+
+Why: [`docs/design/plugin-independence.md`](docs/design/plugin-independence.md).
+
 ### Core, layer plugins, and combined stack plugins
 
 - **aiup-core** — Stack-agnostic methodology: from vision to use case specification. Works with any tech stack. Also

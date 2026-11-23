@@ -98,22 +98,20 @@ use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 ### Class naming
 
 Test classes must be named after the use case using the pattern `UC<id><PascalCaseUseCaseName>RepositoryTest` — for
-example `UC001RegisterPersonRepositoryTest` for use case UC-001 "Register Person". This makes the link between spec
-and test obvious and is the convention the AI Unified Process IntelliJ Navigator plugin relies on.
+example `UC001RegisterPersonRepositoryTest` for use case UC-001 "Register Person".
 
 ### `@UseCase` annotation
 
-Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
-gutter icons and Find Usages between the Markdown spec and the Java tests.
+Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so traceability tools and coverage
+audits can match the test to the Markdown specification.
 
 **Bootstrap step.** Before writing any tests, search the test sources of the module under test for
 `@interface UseCase` and reuse the annotation when it is there. When it is missing, create it in that module's test
 sources, `src/test/java/<root package>/usecase/UseCase.java`. The annotation is test code and never goes into
 `src/main/java`. In a hexagonal multi-module project every module that holds use case tests gets its own copy in
-its own `src/test/java` (test sources are not visible across modules); the plugin resolves the annotation by short
-name, so the copies do not conflict. Every test skill of every layer follows this rule, so the annotation is in the
-same place whichever skill runs first. The annotation must have exactly this shape:
+its own `src/test/java` (test sources are not visible across modules). Every layer test skill follows this rule,
+so the annotation is in the same place whichever skill runs first. Any package will do: tools match the short name
+`UseCase`, so a copy per module does not conflict. Define it with exactly this shape:
 
 ```java
 package com.example.app.usecase;
@@ -313,4 +311,3 @@ or `Next: /use-case-coverage UC-001` when this was the last test layer. Never ru
   installs it — the servers named in this skill are all you need) to configure these optional servers
 - Spring Boot Testcontainers support: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - Testcontainers PostgreSQL module: https://java.testcontainers.org/modules/databases/postgres/
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin

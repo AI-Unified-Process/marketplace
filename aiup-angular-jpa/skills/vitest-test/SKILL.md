@@ -41,10 +41,8 @@ name the file it lives in and leave the value out.
 
 ## Test Naming and Use Case Traceability
 
-These are **use case tests**, same intent as the backend's `@UseCase`
-annotation — but TypeScript has no annotation mechanism the AI Unified Process IntelliJ
-Navigator plugin resolves, so don't claim that integration. Use a plain naming
-convention instead:
+These are **use case tests**. TypeScript has no annotation a traceability tool resolves, so the naming
+convention below is their traceability marker.
 
 - File name: `UC-XXX-<slug>.spec.ts` (Angular convention is always `.spec.ts`
   — never `.test.tsx`, there's no JSX), colocated with the component/service

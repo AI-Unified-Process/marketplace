@@ -264,8 +264,6 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Spring bean overriding in tests (`@TestBean`, `@MockitoBean`): https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/bean-overriding.html
 - WireMock: https://wiremock.org/docs/
 - Spring for Apache Kafka testing: https://docs.spring.io/spring-kafka/reference/testing.html
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
-  https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
   `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

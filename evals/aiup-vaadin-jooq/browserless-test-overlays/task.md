@@ -17,6 +17,6 @@ Your task is to write a comprehensive Vaadin Browserless (server-side) unit test
 Produce the following files:
 
 - `src/test/java/com/example/inventory/view/UC015DeleteInventoryItemTest.java` — the test class with all three test methods.
-- If the project does not already contain a `UseCase` annotation type, also create `src/main/java/com/example/inventory/usecase/UseCase.java`.
+- If the project does not already contain a `UseCase` annotation type, also create `src/test/java/com/example/inventory/usecase/UseCase.java`.
 
 The test class should be self-contained, compilable (even if the build is not run), and follow the project's existing structure. Do not add a `pom.xml` — assume the correct Vaadin Browserless testing dependency is already declared.
