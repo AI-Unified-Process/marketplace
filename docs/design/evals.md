@@ -86,6 +86,9 @@ claude plugin eval . --eval-dir build/plugin-evals/aiup-core/evals --scaffold --
   ([evaluating skills](https://agentskills.io/skill-creation/evaluating-skills)), with the points as `weights`.
 
 Measured on 2026-11-23, one run each, with and without the plugins: `open-questions-record-answer-list` 1.0 and 0.2
-(4 minutes, $0.54); `use-case-implement-chain-rest-jpa` 0.87 and 0.52, `use-case-implement-chain-vaadin-flow-jooq`
-0.96 and 0.54 (both together 10 minutes, $7.81). The chain scores are the hand graders applied to the kept traces of
-that run (`--keep-temp`) together with its llm and `file_exists` verdicts.
+(4 minutes, $0.54); `use-case-implement-chain-rest-jpa` 0.97 and 0.51, `use-case-implement-chain-vaadin-flow-jooq`
+0.96 and 0.48 (32 minutes with `-j 1`, $10.05). Each chain lost points only on an llm grader over `session-log.md`; both
+are now regex graders on that file. They score 1.0 and 0.98 on the kept logs: the Vaadin run reported no Handover
+block, which the judge had rightly failed, while the REST judge had failed lines that were there. Two earlier attempts
+with `-j 4` and `-j 2` hung after 6 to 10 minutes in API retries without an error status until the one-hour timeout,
+and `claude plugin eval` still exited 0, so a run is valid only when no run in the JSON result has an `error`.
