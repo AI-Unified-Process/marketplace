@@ -6,14 +6,15 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
 # Eval scenarios
 
-Each plugin's `evals/` folder is published with it, and the Tessl registry runs the scenarios to compute the Impact
-score. The scenarios are also the only regression tests the skills have, so they exist for the maintainers as much
+Each plugin's scenarios can be published with it, and the Tessl registry then runs them to compute the Impact
+score (see *Running the scenarios without Tessl* for when they are not). The scenarios are also the only regression tests the skills have, so they exist for the maintainers as much
 as for the score (#47).
 
 The scenarios live in `evals/<plugin>/` at the repository root, not in the plugin folder. The Claude directory
 submits a plugin folder alone, and its validation refuses what the fixtures hold: `.puml` files, a `package.json`
-with scripts, and more than 2,000 files in `aiup-core`. The Tessl publish workflow copies `evals/<plugin>/` to
-`<plugin>/evals/` in the runner before it publishes, so the registry still gets the scenarios with the plugin.
+with scripts, and more than 2,000 files in `aiup-core`. When it uploads them, the Tessl publish workflow copies
+`evals/<plugin>/` to `<plugin>/evals/` in the runner before it publishes, so the registry gets the scenarios with the
+plugin.
 
 - **At least two scenarios per core skill.** The first covers the main path. The second covers one rule that is
   easy to break, such as `/architecture-decision` refusing an ADR without an NFR or constraint, the spec lint
@@ -41,3 +42,35 @@ with scripts, and more than 2,000 files in `aiup-core`. The Tessl publish workfl
   behind.
 - **The grader sees files, not the conversation.** A criterion about what the agent said (a report, a Handover, a
   hand-off) works only because the task asks for every message in `session-log.md`.
+
+## Running the scenarios without Tessl
+
+The Tessl publish-time eval counts against the Tessl subscription, so the publish workflow uploads the scenarios only
+when the repository variable `TESSL_PUBLISH_EVALS` is `true`. Without it, the plugins are published without
+scenarios and the maintainers run them with `claude plugin eval`, on their own Claude plan or API key.
+`evals/<plugin>/` stays the single source; `scripts/tessl_to_plugin_evals.py` writes generated cases to
+`build/plugin-evals/` (not committed):
+
+```sh
+python3 scripts/tessl_to_plugin_evals.py aiup-core --case open-questions-record-answer-list
+claude plugin eval . --eval-dir build/plugin-evals/aiup-core/evals --scaffold --trust-plugin \
+  --allow-tools Write Edit Bash --runs 1 --no-publish --max-cost-usd 5
+```
+
+- The eval runs against the repository root, because every plugin a case loads must lie under the directory the
+  eval runs against.
+- Each checklist item becomes one `llm` grader with `max_score` as its weight; the run also measures the same task
+  without the plugins (the delta Tessl calls Impact).
+- `claude plugin eval` loads no `.claude/skills` or `.claude/agents` from the workspace. The converter therefore
+  loads the real plugins that own the skills under `layer-skills/` and the agents under `agents/` instead of the
+  copies.
+- An `llm` grader reads one file. A criterion that names several files is judged on the first one, criteria about
+  what the agent said on `session-log.md`; the converter lists the graders that leave files unchecked. This fits
+  the scenarios of a single document skill well. For the chain and code scenarios the score is an indication,
+  not a measure: a criterion about the code may be judged from what the agent reported.
+- `--format skill-evals` writes the same scenarios as Agent Skills `evals.json`
+  ([evaluating skills](https://agentskills.io/skill-creation/evaluating-skills)), with the points as `weights`.
+
+Measured on 2026-11-23, one run each: `open-questions-record-answer-list` scored 1.0 with `aiup-core` and 0.2 without
+it, in 4 minutes for $0.54 including the run without the plugin; `use-case-implement-chain-rest-jpa` scored 0.75 with
+its four plugins, in 9 minutes for $2.91.

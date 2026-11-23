@@ -68,6 +68,19 @@ Install the layer plugins of your stack, or one combined stack plugin instead (`
 deprecated). See the full
 [Claude Code installation guide](installation/claude-code.md).
 
+### Any agent from Git
+
+```sh
+npx skills add AI-Unified-Process/marketplace/aiup-core
+npx skills add AI-Unified-Process/marketplace/aiup-flyway
+npx skills add AI-Unified-Process/marketplace/aiup-jooq
+npx skills add AI-Unified-Process/marketplace/aiup-spring-boot
+```
+
+`npx skills` installs the skills of each plugin folder straight from this repository for most coding agents, without
+an account. It installs skills only; see [Agent Plugins and manual installation](installation/other-agents.md) for
+the MCP servers and the coverage agent.
+
 ### Tessl
 
 ```sh

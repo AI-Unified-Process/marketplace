@@ -7,9 +7,11 @@
 # not failed.
 #
 # Each plugin's scenarios live in evals/<plugin>/ at the repository root, outside the plugin folder, because
-# the Claude directory submits the plugin folder alone and refuses the fixtures in it. The publish step copies
-# them to <plugin>/evals/ in the runner, so Tessl still publishes them with the plugin and runs a publish-time
-# eval that produces the registry Impact score. Regenerate scenarios with
+# the Claude directory submits the plugin folder alone and refuses the fixtures in it. They are published only
+# when the repository variable TESSL_PUBLISH_EVALS is "true": the publish step then copies them to
+# <plugin>/evals/ in the runner, and Tessl runs a publish-time eval that produces the registry Impact score and
+# counts against the Tessl subscription. Without the variable the plugin is published without scenarios; run
+# them yourself with `claude plugin eval` (docs/design/evals.md). Regenerate scenarios with
 # `tessl scenario generate ./<plugin> --workspace ai-unified-process` and `tessl scenario download --last`,
 # then move them to evals/<plugin>/ and commit.
 #
@@ -89,7 +91,8 @@ jobs:
           dir="${{ matrix.plugin }}"
 
           # The scenarios live outside the plugin folder (see the header); Tessl reads them from <plugin>/evals/.
-          if [ -d "evals/$dir" ]; then
+          # Published only on request: the publish-time eval counts against the Tessl subscription.
+          if [ "${{ vars.TESSL_PUBLISH_EVALS }}" = "true" ] && [ -d "evals/$dir" ]; then
             cp -R "evals/$dir" "$dir/evals"
           fi
 
@@ -105,10 +108,8 @@ jobs:
 
           if [ "$code" -eq 0 ]; then
             echo "::notice::Publishing $dir"
-            # Publishes the committed evals/ scenarios and runs a publish-time
-            # eval to attach the Impact score. --with-scenario-quality-check
-            # drops misleading/errored scenarios so a single empty agent run
-            # can't tank the average.
+            # With TESSL_PUBLISH_EVALS, publishes the committed evals/ scenarios
+            # and runs a publish-time eval to attach the Impact score.
             tessl plugin publish "./$dir"
           elif echo "$out" | grep -q "already exists"; then
             echo "::notice::$dir version already published — skipping"
