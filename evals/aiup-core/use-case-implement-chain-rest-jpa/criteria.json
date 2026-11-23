@@ -49,7 +49,7 @@
     },
     {
       "name": "Reports, status, and documents",
-      "description": "UC-001's **Status:** line still reads Approved; no specification, requirement, glossary, or entity model file changes, and docs/architecture/stack.md changes only in its Markers table (the All row kept, the rows of the skills that ran added); the implementation report ends with an Open questions list naming OQ-001 UC-001 BR-003 as left out and hands off to /use-case-spec UC-001 and `Next: /use-case-test UC-001`; the test report lists the BR-003 test as left out because of the blocking question and ends with `Next: /use-case-coverage UC-001`",
+      "description": "UC-001's **Status:** line still reads Approved; no specification, requirement, glossary, or entity model file changes, and docs/architecture/stack.md changes only in its Markers table (the All row kept, the rows of the skills that ran added); session-log.md contains a Handover block of each build layer ('Handover from flyway-schema (UC-001)', jpa-persistence, spring-service, spring-rest); the implementation report ends with an Open questions list naming OQ-001 UC-001 BR-003 as left out and hands off to /use-case-spec UC-001 and `Next: /use-case-test UC-001`; the test report lists the BR-003 test as left out because of the blocking question and ends with `Next: /use-case-coverage UC-001`",
       "max_score": 5
     }
   ]

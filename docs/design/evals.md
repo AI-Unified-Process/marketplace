@@ -92,3 +92,7 @@ are now regex graders on that file. They score 1.0 and 0.98 on the kept logs: th
 block, which the judge had rightly failed, while the REST judge had failed lines that were there. Two earlier attempts
 with `-j 4` and `-j 2` hung after 6 to 10 minutes in API retries without an error status until the one-hour timeout,
 and `claude plugin eval` still exited 0, so a run is valid only when no run in the JSON result has an `error`.
+
+Both chains had written no Handover block at all: nothing in `/use-case-implement` said to write it out. With that
+sentence added (aiup-core 3.21.4), both scored 1.0 with every Handover in the log (34 minutes, $8.17); the REST chain
+scored 0.535 without the plugins. The Vaadin run without the plugins ended on an API error and counts for nothing.

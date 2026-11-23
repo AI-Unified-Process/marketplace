@@ -1,7 +1,7 @@
 ---
 criterion: "Reports, status, and documents"
 type: regex
-weight: 1
+weight: 0.5
 target: { source: file, path: "session-log.md" }
 pattern: 'Next: `?/use-case-test UC-001'
 ---
