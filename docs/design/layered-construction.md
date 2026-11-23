@@ -47,7 +47,10 @@ layer plugins can. Rules that hold it together:
   "Which Layer Tests What". Layer skills and `/test-case-implement` refer to these by slash command and must not copy
   them back; `/test-case-coverage` likewise applies the presentation rules of `/use-case-coverage`.
 - **Bottom-up with a Handover.** Layers run migration → persistence → client → service → API → UI (→ E2E for tests). Each layer
-  skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on.
+  skill ends with a **Handover** block (types, signatures, endpoints it created) that the next layer builds on. The
+  block is written into the reply as the layer finishes: kept in the agent's head, it is a contract no one can hold the
+  next layer to, and an unattended run leaves no record of it. The construction chain evals found both chains skipping
+  it when nothing said so.
 - **An external system is a layer below the service (#52).** A secondary actor our system calls — a payment
   provider, a channel manager — is the outbound counterpart of the database, so it gets the same shape: a port in
   the business module, an adapter behind it, and a Handover the service consumes like the persistence one. The

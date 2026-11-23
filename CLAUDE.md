@@ -156,7 +156,8 @@ Rules a change must keep:
   skeleton under *Layer plugins (Java, TypeScript)*.
 - Shared rules live once, in `/use-case-implement` and `/use-case-test`; layer skills and the `test-case-*` skills
   refer to them by slash command and never copy them.
-- Layers run bottom-up, and every layer skill ends with a **Handover** block.
+- Layers run bottom-up, and every layer skill ends with a **Handover** block, written into the reply before the next
+  layer starts.
 - The integration layer and the E2E scope rules live once, in `layer-catalog.md`. Only `/stack` derives them; every
   other skill looks them up in the stack file.
 - The Java `@UseCase` copies stay identical (`scripts/check-usecase-annotation.sh`).

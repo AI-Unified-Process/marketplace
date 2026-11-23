@@ -278,7 +278,9 @@ answered, the reconcile rules, the use case's `**Mockup:**` and `**API:**` links
 same questions again.
 
 Each layer skill ends with a **Handover** block: the types, method signatures, endpoints, or tables it created or
-changed that the next layer builds on. Pass it on unchanged; the layer above builds on exactly that contract and
+changed that the next layer builds on. Write each Handover block into your reply as its layer finishes, before the
+next layer starts, also in an unattended run: written out, it is the contract a reviewer can hold the next layer to,
+and the only record of it in the log. Pass it on unchanged; the layer above builds on exactly that contract and
 does not reinvent a DTO or a method the layer below already provides. A layer skill run on its own, in another
 conversation, gets no Handover and reads the existing code of the layer below instead; each layer skill's Scope says
 where.
