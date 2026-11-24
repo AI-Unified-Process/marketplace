@@ -91,7 +91,8 @@ are judged more reliably by hand graders.
   `focus.json` in the scenario: `{"<checklist item name>" or "*": "<workspace path>"}`, with `"session-log.md"` for
   what the agent said and `null` for not gradable. `*` stands for every item that names no file.
 - `scripts/sync-eval-fixtures.sh --check` validates the hand graders, the rubric totals, and the copies of the layer
-  skills; CI runs it.
+  skills; CI runs it. A `file_exists` grader with `exists: false` must not match a file of the fixture, and its glob
+  uses only `*`, `**`, and `?`.
 - A new plugin folder under `evals/` is also added to the `plugin` choice of `run-evals.yml`; the same check fails
   otherwise.
 

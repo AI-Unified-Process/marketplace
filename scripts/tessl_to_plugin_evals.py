@@ -167,6 +167,25 @@ def focus_for(item: dict, task: str, known: set[str], overrides: dict[str, str |
 
 CRITERION_RE = re.compile(r'^criterion:\s*"(.*)"\s*$', re.M)
 WEIGHT_RE = re.compile(r"^weight:\s*([0-9.]+)\s*$", re.M)
+PATH_FIELD_RE = re.compile(r"""^path:\s*['"]?([^'"\n]+?)['"]?\s*$""", re.M)
+
+
+def glob_re(pattern: str) -> re.Pattern:
+    """A workspace glob as a regex: ** spans folders, * and ? stay inside one."""
+    out = ""
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif pattern[i] == "?":
+            out, i = out + "[^/]", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
 
 
 def hand_graders(scenario: Path, criteria: dict) -> tuple[dict[str, list[tuple[str, str]]], list[str]]:
@@ -187,6 +206,24 @@ def hand_graders(scenario: Path, criteria: dict) -> tuple[dict[str, list[tuple[s
             problems.append(f"{f}: no weight")
             continue
         found.setdefault(m.group(1), []).append((f.name, CRITERION_RE.sub("", text, count=1).replace("---\n\n", "---\n", 1)))
+    known: set[str] | None = None
+    for name, graders in found.items():
+        for fname, text in graders:
+            if not re.search(r"^type:\s*file_exists\s*$", text, re.M):
+                continue
+            m = PATH_FIELD_RE.search(text)
+            if not m:
+                problems.append(f"{scenario / 'graders' / fname}: file_exists without a path")
+                continue
+            if re.search(r"[\[\]{}]", m.group(1)):
+                problems.append(f"{scenario / 'graders' / fname}: glob {m.group(1)!r} uses [..] or {{..}}; split it into plain globs")
+            elif re.search(r"^exists:\s*false\s*$", text, re.M):
+                if known is None:
+                    known = fixture_files(scenario, load(scenario)[1])
+                hits = sorted(f for f in known if glob_re(m.group(1)).match(f))
+                if hits:
+                    problems.append(f"{scenario / 'graders' / fname}: exists: false, but the fixture already holds {hits[0]}; "
+                                    "check the agent's writes with a not_contains regex instead")
     for name, graders in found.items():
         total = sum(float(WEIGHT_RE.search(t).group(1)) for _, t in graders)
         if abs(total - names[name]) > 1e-6:
