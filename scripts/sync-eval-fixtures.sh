@@ -101,6 +101,18 @@ for f, total in bad:
 sys.exit(1 if bad else 0)
 EOF
 
+# Hand graders for `claude plugin eval` (evals/<plugin>/<scenario>/graders/) name a checklist item and weigh its points.
+python3 scripts/tessl_to_plugin_evals.py --check || missing=1
+
+# The plugin choice of .github/workflows/run-evals.yml lists exactly the folders under evals/.
+listed=$(sed -n '/# >>> eval plugins/,/# <<< eval plugins/s/^ *- \(aiup-[a-z0-9-]*\)$/\1/p' .github/workflows/run-evals.yml)
+on_disk=$(cd evals && ls -d aiup-*/ | tr -d / | sort)
+if [[ $listed != "$on_disk" ]]; then
+  echo "ERROR: the plugin choice of .github/workflows/run-evals.yml differs from the folders under evals/:" >&2
+  diff <(echo "$listed") <(echo "$on_disk") >&2 || true
+  missing=1
+fi
+
 if (( missing )); then
   exit 1
 fi

@@ -10,8 +10,8 @@ AI Unified Process is a methodology implemented as portable Agent Skills. Every 
 [Agent Plugins](https://agent-plugins.org) package with a root `plugin.json`, `mcp.json`, and `skills/` directory.
 Clients that implement the standard can load a plugin directly from a checkout of this repository.
 
-For most supported agents, [Tessl](tessl.md) is the shortest installation path. Use this page when adopting the
-packages directly or configuring skills and MCP servers by hand.
+Use this page when adopting the packages directly or configuring skills and MCP servers by hand.
+[Tessl](tessl.md) is another installation path: it pins versions and maps the MCP servers for you.
 
 ## What is portable
 
@@ -37,6 +37,24 @@ git clone https://github.com/AI-Unified-Process/marketplace.git
 
 The manifests are validated against the Claude Code and Tessl variants in CI. Consult the client's documentation for
 the command or UI used to add a local package.
+
+## Install the skills with npx skills
+
+[`npx skills`](https://skills.sh) reads the skills of one plugin folder straight from GitHub and installs them for the
+agents it detects (Claude Code, Cursor, Codex, Copilot, Gemini CLI, OpenCode, and more). It needs no account:
+
+```sh
+npx skills add AI-Unified-Process/marketplace/aiup-core
+npx skills add AI-Unified-Process/marketplace/aiup-flyway
+npx skills add AI-Unified-Process/marketplace/aiup-jooq
+npx skills add AI-Unified-Process/marketplace/aiup-spring-boot
+```
+
+Install `aiup-core` and the layer plugins of your project, or one combined stack plugin, one folder each; adding the
+repository root instead lists every skill of every plugin, where the combined stack plugins share names such as
+`implement`. `npx skills update` updates them. It copies skills only, so step 3 of the manual installation below
+still apply: translate the MCP servers, and keep `aiup-core/agents/uc-coverage-layered.md` at hand for the coverage
+audits.
 
 ## Manual installation
 
