@@ -74,6 +74,9 @@ A run *without* the plugins that ended on an error makes that baseline invalid; 
 the job still passes. Do not trust the exit code of `claude plugin eval` alone: runs that hung until their timeout
 ended with exit 0.
 
+The score of a partly graded scenario covers only its gradable points (the converter lists them); compare it only
+with runs of the same graders.
+
 A low score has two causes: the skill, or the grader. Open the HTML report, or run the scenario locally without
 `--json`, and read the failed graders before changing the skill. An `llm` grader judges one file; criteria about code
 are judged more reliably by hand graders.
@@ -83,6 +86,10 @@ are judged more reliably by hand graders.
 - `evals/<plugin>/` is the only source. Never edit `build/plugin-evals/`.
 - A criterion about code gets hand graders in `evals/<plugin>/<scenario>/graders/`: `claude plugin eval` grader
   files with a `criterion:` line that names the checklist item; their weights add up to its points.
+- An `llm` grader needs a file to judge. When the converter cannot tell which, the criterion gets no grader, and a
+  scenario with fewer than 50 gradable points is not written; the converter lists both. Add hand graders, or a
+  `focus.json` in the scenario: `{"<checklist item name>" or "*": "<workspace path>"}`, with `"session-log.md"` for
+  what the agent said and `null` for not gradable. `*` stands for every item that names no file.
 - `scripts/sync-eval-fixtures.sh --check` validates the hand graders, the rubric totals, and the copies of the layer
   skills; CI runs it.
 - A new plugin folder under `evals/` is also added to the `plugin` choice of `run-evals.yml`; the same check fails

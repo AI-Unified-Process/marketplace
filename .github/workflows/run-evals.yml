@@ -87,12 +87,23 @@ jobs:
           java-version: "25"
 
       # Granting Bash makes every command run in Claude Code's OS sandbox, which needs bubblewrap and socat on Linux.
-      # Ubuntu 24.04 restricts the unprivileged user namespaces bubblewrap uses.
+      # Ubuntu restricts the unprivileged user namespaces bubblewrap uses.
       - name: Install Claude Code and the sandbox
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q bubblewrap socat
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          # Ubuntu 26.04 confines what bubblewrap starts (profile unpriv_bwrap, no capabilities), so Claude Code's
+          # sandbox helper could not nest its namespace and every shell command failed (anthropics/claude-code#101946).
+          # Safe on a throwaway runner.
+          profile=/etc/apparmor.d/bwrap-userns-restrict
+          if [ -f "$profile" ]; then sudo apparmor_parser -R "$profile" || true; fi
+          # Nest a namespace as the sandbox helper does; a broken sandbox must stop the job before it costs money.
+          if ! bwrap --ro-bind / / --dev /dev --proc /proc --unshare-user --unshare-pid --unshare-net --cap-drop ALL \
+              unshare --user --map-current-user --pid --mount --fork true; then
+            echo "::error::Claude Code's sandbox cannot start on this runner; every shell command of the agents would fail."
+            exit 1
+          fi
           npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.330
           claude --version
 
