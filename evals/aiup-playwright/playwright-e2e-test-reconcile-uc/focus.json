@@ -1,0 +1,8 @@
+{
+  "Tag on every test": "frontend/e2e/UC-020-register-guest.spec.ts",
+  "Accessible locators replace CSS selectors": "frontend/e2e/UC-020-register-guest.spec.ts",
+  "Expected value from the specification": "frontend/e2e/UC-020-register-guest.spec.ts",
+  "Cleanup only what the test created": "frontend/e2e/UC-020-register-guest.spec.ts",
+  "Markers table maintained": "docs/architecture/stack.md",
+  "A1 test with the seeded email": "frontend/e2e/UC-020-register-guest.spec.ts"
+}

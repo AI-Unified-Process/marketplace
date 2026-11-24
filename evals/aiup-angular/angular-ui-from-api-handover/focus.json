@@ -1,0 +1,5 @@
+{
+  "Use case id on the page": "frontend/src/app/pages/product-catalog/product-catalog.ts",
+  "Standalone page with signals": "frontend/src/app/pages/product-catalog/product-catalog.ts",
+  "Category filter and empty state": "frontend/src/app/pages/product-catalog/product-catalog.html"
+}

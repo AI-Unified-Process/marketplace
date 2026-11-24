@@ -1,0 +1,7 @@
+---
+criterion: "Schema created before use"
+type: regex
+weight: 5
+target: trace
+pattern: '"name":\s*"(Write|Edit|Bash)",\s*"input":\s*\{(?![^\n]{0,80}session-log\.md)(?=.*(EnsureCreated(Async)?\(|\.Migrate(Async)?\()).*ShopCatalog\.Tests/[\w./-]*\.cs'
+---
