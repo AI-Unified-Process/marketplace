@@ -272,6 +272,7 @@ skill and document carries its copyright header and that each plugin ships `LICE
 | [Migration guide](docs/migration.md)                         | Moving a project from a deprecated combined stack plugin to the layer plugins                |
 | [Werkstatt](docs/werkstatt.md)                               | Building the approved use cases of a change branch in GitHub Actions or on your machine      |
 | [Werkstatt architecture](docs/werkstatt-architecture.md)     | The concept behind the Werkstatt: stations, gates, and the andon cord                        |
+| [Running the evals](docs/evals.md)                           | For maintainers: running a plugin's eval scenarios with `claude plugin eval`, locally or in GitHub Actions |
 | [Generation workflow versioning](docs/generate-workflow-versioning.md) | For maintainers: how the shared workflows are released behind the `v1` tag          |
 | [Project setup](docs/guides/project-setup.md)                | Recommended project documentation tree and agent guidance                                    |
 | [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |

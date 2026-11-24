@@ -8,8 +8,9 @@ generated copies that are not committed:
 
   --format plugin-eval   (default) cases for `claude plugin eval`, under <out>/<plugin>/evals/<scenario>/:
                          prompt.md, case.yaml, fixture.sh, graders/<nn>-<slug>.md (one llm grader per checklist item,
-                         weight = max_score). Run with:
-                           claude plugin eval <out>/<plugin> --scaffold --allow-tools Write Edit Bash --runs 1
+                         weight = max_score). Run from the repository root (docs/evals.md):
+                           claude plugin eval . --eval-dir <out>/<plugin>/evals --scaffold --trust-plugin \\
+                             --allow-tools Write Edit Bash --runs 1 -j 1
   --format skill-evals   Agent Skills evals.json (https://agentskills.io/skill-creation/evaluating-skills), one file
                          per plugin at <out>/<plugin>/evals.json; max_score is kept as "weights".
 

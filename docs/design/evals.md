@@ -49,13 +49,8 @@ The Tessl publish-time eval counts against the Tessl subscription, so the publis
 when the repository variable `TESSL_PUBLISH_EVALS` is `true`. Without it, the plugins are published without
 scenarios and the maintainers run them with `claude plugin eval`, on their own Claude plan or API key.
 `evals/<plugin>/` stays the single source; `scripts/tessl_to_plugin_evals.py` writes generated cases to
-`build/plugin-evals/` (not committed):
-
-```sh
-python3 scripts/tessl_to_plugin_evals.py aiup-core --case open-questions-record-answer-list
-claude plugin eval . --eval-dir build/plugin-evals/aiup-core/evals --scaffold --trust-plugin \
-  --allow-tools Write Edit Bash --runs 1 --no-publish --max-cost-usd 5
-```
+`build/plugin-evals/` (not committed). How to run them, locally or with the workflow **Run evals**:
+[Running the evals](../evals.md).
 
 - The eval runs against the repository root, because every plugin a case loads must lie under the directory the
   eval runs against.
@@ -91,7 +86,8 @@ Measured on 2026-11-23, one run each, with and without the plugins: `open-questi
 are now regex graders on that file. They score 1.0 and 0.98 on the kept logs: the Vaadin run reported no Handover
 block, which the judge had rightly failed, while the REST judge had failed lines that were there. Two earlier attempts
 with `-j 4` and `-j 2` hung after 6 to 10 minutes in API retries without an error status until the one-hour timeout,
-and `claude plugin eval` still exited 0, so a run is valid only when no run in the JSON result has an `error`.
+and `claude plugin eval` still exited 0, so a run is valid only when no run in the JSON result has an `error`;
+`scripts/check_plugin_eval_result.py` checks that, and the workflow **Run evals** decides on it, not on the exit code.
 
 Both chains had written no Handover block at all: nothing in `/use-case-implement` said to write it out. With that
 sentence added (aiup-core 3.21.4), both scored 1.0 with every Handover in the log (34 minutes, $8.17); the REST chain

@@ -1,0 +1,140 @@
+name: Run evals
+
+# Runs the eval scenarios of one plugin (evals/<plugin>/) with `claude plugin eval`, on the repository's own API key,
+# with and without the plugins. Started by hand only: every case is a full agent run, and the construction chain
+# scenarios cost about $4 each. The scenarios are converted by scripts/tessl_to_plugin_evals.py and the result is
+# checked by scripts/check_plugin_eval_result.py, because a run that hung until its timeout ended with exit 0.
+# Usage and how to read the result: docs/evals.md. Why: docs/design/evals.md.
+#
+# Needs the repository secret ANTHROPIC_API_KEY.
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin whose scenarios run (a folder under evals/)
+        required: true
+        type: choice
+        # >>> eval plugins (kept equal to the folders under evals/ by scripts/sync-eval-fixtures.sh)
+        options:
+          - aiup-angular
+          - aiup-angular-jpa
+          - aiup-blazor-dotnet
+          - aiup-core
+          - aiup-drizzle
+          - aiup-flyway
+          - aiup-jooq
+          - aiup-jpa
+          - aiup-nestjs
+          - aiup-nestjs-nextjs
+          - aiup-nextjs
+          - aiup-playwright
+          - aiup-spring-boot
+          - aiup-vaadin
+          - aiup-vaadin-jooq
+        # <<< eval plugins
+      cases:
+        description: Scenario name glob, e.g. use-case-implement-chain-* (empty runs every scenario of the plugin)
+        required: false
+        default: ""
+      runs:
+        description: Runs per scenario and arm
+        required: true
+        default: "1"
+      min_score:
+        description: Lowest score with the plugins a scenario may reach (0 to 1)
+        required: true
+        default: "0.8"
+      max_cost_usd:
+        description: Cost ceiling in USD; the run stops starting new runs when it is reached
+        required: true
+        default: "20"
+      model:
+        description: Model of the agent under test
+        required: true
+        default: claude-opus-5-5
+      ablation:
+        description: with-without also runs every scenario without the plugins (about half the cost again)
+        required: true
+        type: choice
+        options:
+          - with-without
+          - none
+
+permissions:
+  contents: read
+
+concurrency:
+  group: run-evals
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # The agents may compile what they write; the chain scenarios are Spring Boot projects.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      # Granting Bash makes every command run in Claude Code's OS sandbox, which needs bubblewrap and socat on Linux.
+      # Ubuntu 24.04 restricts the unprivileged user namespaces bubblewrap uses.
+      - name: Install Claude Code and the sandbox
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q bubblewrap socat
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.330
+          claude --version
+
+      - name: Generate the cases
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+        run: python3 scripts/tessl_to_plugin_evals.py "$PLUGIN"
+
+      # Runs against the repository root: every plugin a case loads must lie under the eval target. -j 1, because
+      # parallel runs hung in API retries. The exit code is kept for the check below, which decides.
+      - name: Run the evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PLUGIN: ${{ inputs.plugin }}
+          CASES: ${{ inputs.cases }}
+          RUNS: ${{ inputs.runs }}
+          MIN_SCORE: ${{ inputs.min_score }}
+          MAX_COST_USD: ${{ inputs.max_cost_usd }}
+          MODEL: ${{ inputs.model }}
+          ABLATION: ${{ inputs.ablation }}
+        run: |
+          set +e
+          case_filter=()
+          if [[ -n $CASES ]]; then case_filter=(--case "$CASES"); fi
+          claude plugin eval . --eval-dir "build/plugin-evals/$PLUGIN/evals" "${case_filter[@]}" \
+            --scaffold --trust-plugin --allow-tools Write Edit Bash \
+            --runs "$RUNS" -j 1 --threshold "$MIN_SCORE" --ablation "$ABLATION" \
+            --model "$MODEL" --judge-model claude-haiku-5-5 \
+            --max-cost-usd "$MAX_COST_USD" --no-publish \
+            --json build/eval-result.json --report build/eval-report.html
+          echo "claude plugin eval exited $?"
+
+      - name: Check the result
+        env:
+          MIN_SCORE: ${{ inputs.min_score }}
+        run: python3 scripts/check_plugin_eval_result.py build/eval-result.json --min-score "$MIN_SCORE"
+
+      - name: Keep the result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-${{ inputs.plugin }}-${{ github.run_number }}
+          path: |
+            build/eval-result.json
+            build/eval-report.html
+          if-no-files-found: warn
