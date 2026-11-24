@@ -101,7 +101,9 @@ and `claude plugin eval` still exited 0, so a run is valid only when no run in t
 The first full run of `aiup-core` on GitHub (2026-11-24) ran on `ubuntu-26.04`, where every shell command of the agents
 failed: Ubuntu's AppArmor profile `bwrap-userns-restrict` takes the capabilities Claude Code's sandbox helper needs,
 whatever the user namespace sysctl says. The workflow unloads the profile and nests a namespace itself before the eval,
-so a broken sandbox stops the job instead of lowering scores. Scores of that run count for nothing.
+so a broken sandbox stops the job instead of lowering scores. A sandbox that starts may still mount the workspace
+read-only: it did for workspaces under `/tmp`, so the workflow sets `TMPDIR` to a folder in the home directory and runs
+one cheap case that writes a file through the shell first. Scores of that run count for nothing.
 
 Both chains had written no Handover block at all: nothing in `/use-case-implement` said to write it out. With that
 sentence added (aiup-core 3.21.4), both scored 1.0 with every Handover in the log (34 minutes, $8.17); the REST chain
