@@ -81,6 +81,11 @@ scenarios and the maintainers run them with `claude plugin eval`, on their own C
   patterns read JSON-encoded content: a newline is `\n`, a quote `\"`. Hand graders cost no judge call and give the
   same verdict every run. `criteria.json` stays the rubric, so a hand grader checks what its criterion says and
   nothing else.
+- **Facts in the log get regexes too.** On 2026-11-24 the judge failed "started work before new work" with three votes
+  although the answer named the test before the implementation; more votes do not repair a wrong judge. Order, ids,
+  and file statuses are therefore regexes on `session-log.md` or the file, and "nothing changed under docs/" is two on
+  the trace (an edit tool, or a shell redirect, `tee`, `rm`, `sed -i`). The second sees no write by a program. A fact
+  only the plugin can know, such as a command name, stays with the judge where the rubric accepts other words.
 - `--format skill-evals` writes the same scenarios as Agent Skills `evals.json`
   ([evaluating skills](https://agentskills.io/skill-creation/evaluating-skills)), with the points as `weights`.
 
