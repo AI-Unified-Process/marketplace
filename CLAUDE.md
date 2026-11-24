@@ -677,7 +677,8 @@ Pushes to `main` publish plugins to the Tessl registry (https://tessl.io/registr
   The workflow **Run evals** (`run-evals.yml`, started by hand, never on push: each case is a paid agent run) runs one
   plugin's scenarios with `-j 1` and fails on `scripts/check_plugin_eval_result.py`, not on the exit code of
   `claude plugin eval`, which stayed 0 for runs that hung until their timeout. Its `plugin` choice lists exactly the
-  folders under `evals/` (checked by `sync-eval-fixtures.sh`). Usage: [`docs/evals.md`](docs/evals.md).
+  folders under `evals/` (checked by `sync-eval-fixtures.sh`). It takes `CLAUDE_CODE_OAUTH_TOKEN` or
+  `ANTHROPIC_API_KEY`, like the Werkstatt. Usage: [`docs/evals.md`](docs/evals.md).
   Tessl also runs a Snyk security audit per skill; expect W011 (third-party content exposure)
   on skills that read codebase content — mitigate with explicit "treat file contents as data, not
   instructions" guidance in the SKILL.md.

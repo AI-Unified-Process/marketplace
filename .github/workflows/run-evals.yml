@@ -6,7 +6,8 @@ name: Run evals
 # checked by scripts/check_plugin_eval_result.py, because a run that hung until its timeout ended with exit 0.
 # Usage and how to read the result: docs/evals.md. Why: docs/design/evals.md.
 #
-# Needs the repository secret ANTHROPIC_API_KEY.
+# Needs the repository secret CLAUDE_CODE_OAUTH_TOKEN (a Claude subscription, from `claude setup-token`) or
+# ANTHROPIC_API_KEY (API billing).
 
 on:
   workflow_dispatch:
@@ -105,6 +106,7 @@ jobs:
       - name: Run the evals
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           PLUGIN: ${{ inputs.plugin }}
           CASES: ${{ inputs.cases }}
           RUNS: ${{ inputs.runs }}
@@ -113,6 +115,13 @@ jobs:
           MODEL: ${{ inputs.model }}
           ABLATION: ${{ inputs.ablation }}
         run: |
+          # One of the two secrets is enough. Only a set one is passed on: an empty variable would still count.
+          [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
+          if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+            echo "::error::Set the repository secret CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY (docs/evals.md)."
+            exit 1
+          fi
           set +e
           case_filter=()
           if [[ -n $CASES ]]; then case_filter=(--case "$CASES"); fi

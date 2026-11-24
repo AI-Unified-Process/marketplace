@@ -17,7 +17,15 @@ them at publication only when the repository variable `TESSL_PUBLISH_EVALS` is `
 ## In GitHub Actions
 
 Start the workflow **Run evals** (`.github/workflows/run-evals.yml`) under *Actions → Run evals → Run workflow*. It
-needs the repository secret `ANTHROPIC_API_KEY`.
+needs one repository secret, set once under *Settings → Secrets and variables → Actions → New repository secret*:
+
+- **`CLAUDE_CODE_OAUTH_TOKEN`**, with a Claude subscription (Pro, Max, Team, Enterprise). Run `claude setup-token`
+  on your machine, sign in, and paste the token it prints. The runs count against the subscription's usage limits;
+  a limit reached in the middle ends the remaining runs with an error, and the job fails.
+- **`ANTHROPIC_API_KEY`**, with API billing, from the Claude Console. The runs are billed per token.
+
+With both set, the API key is used. The dollar figures in the result are list-price estimates either way, and
+`max_cost_usd` caps that estimate.
 
 | Input          | Default           | Meaning                                                                            |
 |----------------|-------------------|------------------------------------------------------------------------------------|
