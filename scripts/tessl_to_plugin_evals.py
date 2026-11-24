@@ -18,7 +18,10 @@ Limits of `claude plugin eval` this conversion has to live with (https://code.cl
 an llm grader reads one file (or the final message), and project .claude/skills and .claude/agents do not load in
 the run. The layer-skills and agents fixtures are therefore replaced by loading the real plugins that own those
 skills and agents, and each grader judges the one file its criterion names first (session-log.md for criteria about
-what the agent said). The report lists every grader whose criterion names more than one file.
+what the agent said, else the one document the task asks for). The report lists every grader whose criterion names more
+than one file. A criterion with no file to judge gets no grader, because a judge shown the wrong text fails good work;
+a scenario with fewer than MIN_POINTS gradable points is not written. focus.json in the scenario names the file where
+the rules cannot tell it, or null.
 
 Hand graders: a scenario may hold graders/<name>.md files in the `claude plugin eval` grader format with one extra
 front matter line, `criterion: "<checklist item name>"`. They replace the generated llm grader of that item, and their
@@ -103,14 +106,63 @@ def copies(scenario: Path, meta: dict) -> tuple[list[tuple[Path, str]], set[Path
     return pairs, plugins
 
 
-def focus_for(description: str, logs_messages: bool) -> tuple[str, list[str]]:
-    paths = list(dict.fromkeys(m.group(1) for m in PATH_RE.finditer(description)))
-    paths = [p for p in paths if p != "session-log.md"]
-    if logs_messages and (not paths or SAYS_RE.search(description) and "agent" in description.lower()):
-        return "session-log.md", paths
+# A name pattern, not a file: .spec.ts, V00N__create_x.sql, UC-XXX-short-name.md, V2__<name>.sql cut at the bracket.
+PATTERN_RE = re.compile(r"(^|/)\.[a-z]+\.|00N|XXX|^__")
+MIN_POINTS = 50  # a scenario with fewer gradable points is not written: its score would say too little
+
+
+def fixture_files(scenario: Path, meta: dict) -> set[str]:
+    """Workspace paths of the files the scenario starts with."""
+    found: set[str] = set()
+    for src, target in copies(scenario, meta)[0]:
+        for f in [src] if src.is_file() else (p for p in src.rglob("*") if p.is_file()):
+            inner = "" if src.is_file() else str(f.relative_to(src))
+            found.add(os.path.normpath(os.path.join(target, inner)))
+    return found
+
+
+def focus_overrides(scenario: Path, criteria: dict) -> tuple[dict[str, str | None], list[str]]:
+    """focus.json: {"<checklist item name>" or "*": workspace path, "session-log.md", or null for not gradable}."""
+    path = scenario / "focus.json"
+    if not path.is_file():
+        return {}, []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    names = {c["name"] for c in criteria["checklist"]} | {"*"}
+    return data, [f"{path}: {n!r} is not a checklist item of criteria.json" for n in data if n not in names]
+
+
+def focus_for(item: dict, task: str, known: set[str], overrides: dict[str, str | None]) -> tuple[str | None, list[str]]:
+    """The file a criterion is judged on, and the named files left unchecked; None when no file can be told."""
+    description = item["description"]
+    if item["name"] in overrides:
+        return overrides[item["name"]], []
+    logs_messages = "session-log.md" in task
+    named = list(dict.fromkeys(m.group(1) for m in PATH_RE.finditer(description)))
+    named = [p for p in named if p != "session-log.md" and not PATTERN_RE.search(p)]
+    if description.startswith("session-log.md"):
+        return "session-log.md", named
+    if logs_messages and SAYS_RE.search(description) and (not named or "agent" in description.lower()):
+        return "session-log.md", named
+    task_paths = {p for p in PATH_RE.findall(task) if not PATTERN_RE.search(p)}
+    paths = []
+    for p in named:
+        if "/" not in p and p not in known:  # a bare name: the one path of the task or the fixture that ends with it
+            hits = {q for q in task_paths | known if q.endswith("/" + p)}
+            if len(hits) != 1:
+                continue
+            p = hits.pop()
+        paths.append(p)
+    paths = list(dict.fromkeys(paths))
     if paths:
         return paths[0], paths[1:]
-    return "session-log.md" if logs_messages else "last_message", []
+    if "*" in overrides:
+        return overrides["*"], []
+    if not named:  # no file named: the only document the task asks for
+        output = task.split("## Output Specification", 1)[-1]
+        made = {p for p in PATH_RE.findall(output) if "/" in p and not PATTERN_RE.search(p)} - known
+        if len(made) == 1 and "session-log.md" not in made:
+            return made.pop(), []
+    return None, named
 
 
 CRITERION_RE = re.compile(r'^criterion:\s*"(.*)"\s*$', re.M)
@@ -146,7 +198,7 @@ def yaml_str(s: str) -> str:
     return json.dumps(s, ensure_ascii=False)
 
 
-def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str]) -> None:
+def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str], ungraded: list[tuple]) -> bool:
     task, meta, criteria = load(scenario)
     case = out / plugin / "evals" / scenario.name
     if case.exists():
@@ -187,8 +239,11 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str])
     )
 
     context = criteria.get("context", "")
-    logs_messages = "session-log.md" in task
     hand, problems = hand_graders(scenario, criteria)
+    overrides, unknown = focus_overrides(scenario, criteria)
+    problems += unknown
+    known = fixture_files(scenario, meta)
+    omitted: list[dict] = []
     if problems:
         raise SystemExit("\n".join(problems))
     for i, item in enumerate(criteria["checklist"], 1):
@@ -196,8 +251,11 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str])
             for name, text in hand[item["name"]]:
                 (case / "graders" / f"{i:02d}-{name}").write_text(text, encoding="utf-8")
             continue
-        focus, others = focus_for(item["description"], logs_messages)
-        focus_yaml = focus if focus == "last_message" else f"{{ source: file, path: {yaml_str(focus)} }}"
+        focus, others = focus_for(item, task, known, overrides)
+        if focus is None:
+            omitted.append(item)
+            continue
+        focus_yaml = f"{{ source: file, path: {yaml_str(focus)} }}"
         body = [
             f"Scenario: {context}",
             "",
@@ -222,6 +280,13 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str])
             "",
         ]
         (case / "graders" / f"{i:02d}-{slug(item['name'])}.md").write_text("\n".join(grader), encoding="utf-8")
+    points = sum(c["max_score"] for c in criteria["checklist"]) - sum(c["max_score"] for c in omitted)
+    if omitted:
+        skip = points < MIN_POINTS
+        if skip:
+            shutil.rmtree(case)
+        ungraded.append((f"{plugin}/{scenario.name}", points, skip, [c["name"] for c in omitted]))
+    return points >= MIN_POINTS
 
 
 def write_skill_evals(plugin: str, scenarios: list[Path], out: Path) -> None:
@@ -263,6 +328,8 @@ def main() -> int:
         scenarios = sorted(p.parent for p in EVALS.glob("*/*/graders"))
         for s in scenarios:
             problems += hand_graders(s, load(s)[2])[1]
+        for f in sorted(EVALS.glob("*/*/focus.json")):
+            problems += focus_overrides(f.parent, load(f.parent)[2])[1]
         for line in problems:
             print("ERROR: " + line)
         if not problems:
@@ -271,6 +338,7 @@ def main() -> int:
 
     plugins = args.plugins or sorted(p.name for p in EVALS.iterdir() if p.is_dir())
     report: list[str] = []
+    ungraded: list[tuple] = []
     count = 0
     for plugin in plugins:
         scenarios = sorted(p for p in (EVALS / plugin).iterdir() if (p / "task.md").is_file())
@@ -280,16 +348,23 @@ def main() -> int:
             continue
         if args.format == "skill-evals":
             write_skill_evals(plugin, scenarios, args.out.resolve())
+            count += len(scenarios)
         else:
             for s in scenarios:
-                write_plugin_eval(plugin, s, args.out.resolve(), report)
-        count += len(scenarios)
+                count += write_plugin_eval(plugin, s, args.out.resolve(), report, ungraded)
     print(f"{count} scenario(s) written to {args.out}")
     if report:
         print(f"{len(report)} grader(s) judge one file of several:")
         for line in report:
             print("  " + line)
-    return 0 if count else 1
+    for heading, skipped in (("not written, under %d gradable points" % MIN_POINTS, True), ("partly graded", False)):
+        rows = [r for r in ungraded if r[2] is skipped]
+        if rows:
+            print(f"{len(rows)} scenario(s) {heading}; add hand graders or focus.json:")
+            for name, points, _, names in rows:
+                print(f"  {name}: {points} of 100 points; no file to judge: {', '.join(names)}")
+    # a scenario asked for by name must not go missing silently
+    return 1 if not count or args.case and any(r[2] for r in ungraded) else 0
 
 
 if __name__ == "__main__":

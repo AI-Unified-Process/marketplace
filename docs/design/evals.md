@@ -63,6 +63,10 @@ scenarios and the maintainers run them with `claude plugin eval`, on their own C
   what the agent said on `session-log.md`; the converter lists the graders that leave files unchecked. This fits
   the scenarios of a single document skill well. For the chain and code scenarios the score is an indication,
   not a measure: a criterion about the code may be judged from what the agent reported.
+- **No file to judge, no grader.** The converter used to fall back to the agent's last message (356 of 1,015 llm
+  graders) or the log (196 more) when a criterion named no file. The first full run (2026-11-24) failed good entity
+  models that way: the judge saw a summary, never `docs/entity_model.md`. A missing grader is listed and shows how much
+  of the rubric is unmeasured; a wrong one only looks like a measurement.
 - **Hand graders** close that gap where a criterion is about code. A scenario may hold `graders/<name>.md` in the
   `claude plugin eval` format with one extra line, `criterion: "<checklist item name>"`; they replace the generated
   grader of that item, and their weights add up to its points (`tessl_to_plugin_evals.py --check`, run by
@@ -88,6 +92,11 @@ block, which the judge had rightly failed, while the REST judge had failed lines
 with `-j 4` and `-j 2` hung after 6 to 10 minutes in API retries without an error status until the one-hour timeout,
 and `claude plugin eval` still exited 0, so a run is valid only when no run in the JSON result has an `error`;
 `scripts/check_plugin_eval_result.py` checks that, and the workflow **Run evals** decides on it, not on the exit code.
+
+The first full run of `aiup-core` on GitHub (2026-11-24) ran on `ubuntu-26.04`, where every shell command of the agents
+failed: Ubuntu's AppArmor profile `bwrap-userns-restrict` takes the capabilities Claude Code's sandbox helper needs,
+whatever the user namespace sysctl says. The workflow unloads the profile and nests a namespace itself before the eval,
+so a broken sandbox stops the job instead of lowering scores. Scores of that run count for nothing.
 
 Both chains had written no Handover block at all: nothing in `/use-case-implement` said to write it out. With that
 sentence added (aiup-core 3.21.4), both scored 1.0 with every Handover in the log (34 minutes, $8.17); the REST chain
