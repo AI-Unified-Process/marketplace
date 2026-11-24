@@ -107,10 +107,39 @@ jobs:
           npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.330
           claude --version
 
+      # The eval makes its workspaces under TMPDIR. Under /tmp the sandbox mounts them read-only for shell commands, so
+      # nothing an agent wrote through Bash reached the workspace.
+      - name: Put the workspaces outside /tmp
+        run: |
+          mkdir -p "$HOME/eval-tmp"
+          echo "TMPDIR=$HOME/eval-tmp" >> "$GITHUB_ENV"
+
       - name: Generate the cases
         env:
           PLUGIN: ${{ inputs.plugin }}
         run: python3 scripts/tessl_to_plugin_evals.py "$PLUGIN"
+
+      # One cheap case that writes a file through the shell: a sandbox that starts may still not let commands write,
+      # and then every score of a scenario that uses Bash is wrong.
+      - name: Check that a sandboxed command can write
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          [ -n "$ANTHROPIC_API_KEY" ] || unset ANTHROPIC_API_KEY
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || unset CLAUDE_CODE_OAUTH_TOKEN
+          case=build/plugin-evals/smoke/evals/shell-write
+          mkdir -p "$case/graders"
+          printf '%s\n' '---' 'plugins: ["../../../../../aiup-core"]' 'max_turns: 5' 'allowed_tools: [Bash]' '---' \
+            'Run exactly this with the Bash tool, then stop: touch written-by-shell.txt' > "$case/prompt.md"
+          printf '%s\n' '---' 'type: file_exists' 'path: "written-by-shell.txt"' '---' > "$case/graders/written.md"
+          if ! claude plugin eval . --eval-dir build/plugin-evals/smoke/evals --trust-plugin --allow-tools Bash \
+              --runs 1 -j 1 --ablation none --model claude-haiku-5-5 --max-cost-usd 1 --no-publish \
+              --json build/smoke-result.json --report build/smoke-report.html \
+              || ! python3 scripts/check_plugin_eval_result.py build/smoke-result.json --min-score 1; then
+            echo "::error::A shell command of the agent could not write its workspace; the scores would count for nothing."
+            exit 1
+          fi
 
       # Runs against the repository root: every plugin a case loads must lie under the eval target. -j 1, because
       # parallel runs hung in API retries. The exit code is kept for the check below, which decides.

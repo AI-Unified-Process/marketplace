@@ -108,6 +108,7 @@ def copies(scenario: Path, meta: dict) -> tuple[list[tuple[Path, str]], set[Path
 
 # A name pattern, not a file: .spec.ts, V00N__create_x.sql, UC-XXX-short-name.md, V2__<name>.sql cut at the bracket.
 PATTERN_RE = re.compile(r"(^|/)\.[a-z]+\.|00N|XXX|^__")
+EXAMPLE_RE = re.compile(r"\((?:e\.g\.|for example|such as)[^()]*\)")
 MIN_POINTS = 50  # a scenario with fewer gradable points is not written: its score would say too little
 
 
@@ -137,7 +138,9 @@ def focus_for(item: dict, task: str, known: set[str], overrides: dict[str, str |
     if item["name"] in overrides:
         return overrides[item["name"]], []
     logs_messages = "session-log.md" in task
-    named = list(dict.fromkeys(m.group(1) for m in PATH_RE.finditer(description)))
+    # a file named as an example is not the file to judge
+    facts = EXAMPLE_RE.sub("", description)
+    named = list(dict.fromkeys(m.group(1) for m in PATH_RE.finditer(facts)))
     named = [p for p in named if p != "session-log.md" and not PATTERN_RE.search(p)]
     if description.startswith("session-log.md"):
         return "session-log.md", named
