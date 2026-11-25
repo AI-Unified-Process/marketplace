@@ -15,6 +15,7 @@ Standard library only; a missing result or scaffold is reported, never an error.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -50,9 +51,15 @@ def main() -> int:
                 target.mkdir(parents=True, exist_ok=True)
                 if trace.is_file():
                     shutil.copy2(trace, target / "trace.jsonl")
+                # claude plugin eval seals what the plugin wrote to home/ and tmp/ (mode 000): skip what is unreadable
                 for sub in sorted(p for p in scaffold.iterdir() if p.is_dir() and p != trace.parent):
-                    shutil.copytree(sub, target / "workspace" / sub.name, ignore=ignore, symlinks=True,
-                                    dirs_exist_ok=True)
+                    if sub.name == "sealed" or not os.access(sub, os.R_OK | os.X_OK):
+                        continue
+                    try:
+                        shutil.copytree(sub, target / "workspace" / sub.name, ignore=ignore, symlinks=True,
+                                        dirs_exist_ok=True)
+                    except (OSError, shutil.Error) as e:
+                        print(f"{case['name']} {arm}-{n}: {sub.name} copied in part ({str(e)[:200]})")
                 copied += 1
                 logs = sorted((target / "workspace").glob("**/session-log.md"))
                 if logs:  # in the job log too: the artifact is a zip on a host a sandbox may not reach
