@@ -118,3 +118,9 @@ too narrow for correct work (an assertion style, a wording of the BR-001 hand-of
 each (16 minutes, $4.35): `jpa-persistence-flat-n-plus-one` 1.00 and 0.83, `jpa-persistence-hexagonal-port` 1.00 and
 0.75, `jpa-persistence-test-datajpatest` 0.95 and 0.36. The one failed grader of the last is a real finding: the agent
 wrote a test dedicated to the CANCELLED exclusion, which the rubric leaves to the integration layer.
+
+The run of the ten layer plugins (2026-11-25) found one more converter fault: a criterion that names a short path
+(`src/database/schema.ts`) was judged on that path although the fixture keeps the file under `apps/api/`, so the judge
+was given a missing file in both arms. The converter now takes the one fixture file that ends with the named path. It
+also showed a third way a run says nothing: the safety classifier refused the agent's write, and the check now reports
+such a run invalid instead of scoring it.
