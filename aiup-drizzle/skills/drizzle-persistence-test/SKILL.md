@@ -65,7 +65,8 @@ Following "Which Layer Tests What" of `/use-case-test`: the integration layer's 
 skill only to reconcile existing tests, for the queries the integration layer's skill reported it cannot reach, or when
 the arguments name the persistence layer. Run so, or directly, write a test only for a query with logic of its own:
 
-- a filter or a condition — every filter value, and the rows a condition excludes
+- a filter or a condition — every filter value, and the rows a condition excludes (a condition that is a business
+  rule only as the next paragraph allows)
 - a join or a relational query — the children arrive complete, in order, with the right parent
 - a projection — every field of the type carries the right column
 - paging and sorting — page boundaries, the order, and the count agreeing with the rows
@@ -80,7 +81,10 @@ case has logic of its own, write no file and say so in the report.
 
 Business rules are tested here only when the skill runs directly in a project with no layer above it: then every rule
 gets its allowed and its rejected case — for a rule a query condition enforces, the row the rule keeps and the row it
-excludes (`BR-001`). Otherwise a rule's cases belong to the integration layer's tests; do not write them again here.
+excludes (`BR-001`). Otherwise a rule's cases belong to the integration layer's tests; do not write them again here. A query condition that is the rule (the stock filter under
+its `// UC-XXX BR-YYY` marker) gets no test of its own and no `businessRules` entry, whatever the test is called;
+rows it excludes may sit in the other tests' data, and the report names the integration layer's test skill that
+covers the rule.
 
 ## Test Setup
 
