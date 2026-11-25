@@ -37,8 +37,10 @@ With both set, the API key is used. The dollar figures in the result are list-pr
 | `model`        | `claude-opus-5-5` | The model of the agent under test; keep it fixed to compare runs                   |
 | `ablation`     | `with-without`    | `none` skips the runs without the plugins and halves the cost, but gives no delta  |
 
-The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json` and the HTML
-report with every grader's verdict.
+The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json`, the HTML
+report with every grader's verdict, and `runs/<case>/<arm>-<n>/` with each run's `trace.jsonl` and workspace
+(`session-log.md` and the files the agent wrote; `scripts/collect_plugin_eval_runs.py` copies them from the
+`--keep-temp` scaffolds). Read those before changing a grader or a skill.
 
 `aiup-core` has 52 scenarios; run it with a `cases` glob, not as a whole. The other plugins have 1 to 15.
 
