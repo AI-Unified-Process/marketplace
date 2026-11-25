@@ -266,8 +266,9 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Every test left failing because the code disagrees with the specification, with the rule or step, the expected
   value, and the actual value.
 - When run directly, one `Next:` line: the next test skill above in the Layers table — `/spring-rest-test UC-XXX`
-  when the project has an API layer, otherwise the UI test skill — or `/use-case-coverage UC-XXX`. Never run the
-  coverage audit.
+  when the project has an API layer, otherwise the UI row's Test skill (`/hilla-ui-test UC-XXX`, whose mocked view
+  tests still run above an integration layer in the service) — or `/use-case-coverage UC-XXX` only when no layer
+  above has a test skill. Never run the coverage audit.
 
 ## Resources
 

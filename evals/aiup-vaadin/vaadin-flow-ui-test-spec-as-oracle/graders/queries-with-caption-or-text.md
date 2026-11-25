@@ -3,5 +3,5 @@ criterion: "Browserless API used correctly"
 type: regex
 weight: 2
 target: trace
-pattern: '"name":\s*"(Write|Edit|Bash)",\s*"input":\s*\{(?![^\n]{0,80}session-log\.md)[^\n]*?UC020RegisterGuestTest\.java.*\$\(\s*\w+\.class\s*\)\s*\.\s*with(Caption|Text)\('
+pattern: '"name":\s*"(Write|Edit|Bash)",\s*"input":\s*\{(?![^\n]{0,80}session-log\.md)[^\n]*?UC020RegisterGuestTest\.java.*(\$|(?<![.\w])find)\(\s*\w+\.class\s*\)(\\n|\s)*\.\s*with(Caption|Text)\('
 ---

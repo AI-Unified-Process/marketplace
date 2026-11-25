@@ -160,6 +160,10 @@ def focus_for(item: dict, task: str, known: set[str], overrides: dict[str, str |
     task_paths = {p for p in PATH_RE.findall(task) if not PATTERN_RE.search(p)}
     paths = []
     for p in named:
+        if "/" in p and p not in known:  # a short path: the one fixture file that ends with it (apps/api/src/...)
+            hits = {q for q in known if q.endswith("/" + p)}
+            if len(hits) == 1:
+                p = hits.pop()
         if "/" not in p and p not in known:  # a bare name: the one path of the task or the fixture that ends with it
             hits = {q for q in task_paths | known if q.endswith("/" + p)}
             if len(hits) != 1:

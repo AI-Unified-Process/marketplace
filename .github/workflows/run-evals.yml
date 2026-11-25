@@ -61,6 +61,10 @@ on:
         options:
           - with-without
           - none
+      more_plugins:
+        description: Further plugins to run after the first, one after another, separated by spaces (folders under evals/)
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -70,9 +74,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # One dispatch per plugin does not work: the concurrency group keeps only one pending run and cancels the others.
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      plugins: ${{ steps.list.outputs.plugins }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: list
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+          MORE: ${{ inputs.more_plugins }}
+        run: |
+          plugins=()
+          for p in $PLUGIN $MORE; do
+            if [ ! -d "evals/$p" ] || [[ ! $p =~ ^aiup-[a-z0-9-]+$ ]]; then
+              echo "::error::$p is not a folder under evals/"
+              exit 1
+            fi
+            [[ " ${plugins[*]} " == *" $p "* ]] || plugins+=("$p")
+          done
+          printf 'plugins=%s\n' "$(printf '%s\n' "${plugins[@]}" | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
   eval:
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        plugin: ${{ fromJSON(needs.plan.outputs.plugins) }}
     steps:
       - uses: actions/checkout@v6
 
@@ -109,7 +141,7 @@ jobs:
 
       - name: Generate the cases
         env:
-          PLUGIN: ${{ inputs.plugin }}
+          PLUGIN: ${{ matrix.plugin }}
         run: python3 scripts/tessl_to_plugin_evals.py "$PLUGIN"
 
       # Runs against the repository root: every plugin a case loads must lie under the eval target. -j 1, because
@@ -118,7 +150,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          PLUGIN: ${{ inputs.plugin }}
+          PLUGIN: ${{ matrix.plugin }}
           CASES: ${{ inputs.cases }}
           RUNS: ${{ inputs.runs }}
           MIN_SCORE: ${{ inputs.min_score }}
@@ -159,7 +191,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: eval-${{ inputs.plugin }}-${{ github.run_number }}
+          name: eval-${{ matrix.plugin }}-${{ github.run_number }}
           path: |
             build/eval-result.json
             build/eval-report.html
