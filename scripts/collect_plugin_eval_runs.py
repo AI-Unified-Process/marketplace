@@ -54,6 +54,12 @@ def main() -> int:
                     shutil.copytree(sub, target / "workspace" / sub.name, ignore=ignore, symlinks=True,
                                     dirs_exist_ok=True)
                 copied += 1
+                logs = sorted((target / "workspace").glob("**/session-log.md"))
+                if logs:  # in the job log too: the artifact is a zip on a host a sandbox may not reach
+                    text = logs[0].read_text(encoding="utf-8", errors="replace")
+                    print(f"::group::{case['name']} {arm}-{n} score {run.get('score')}: session-log.md")
+                    print(text if len(text) <= 20000 else text[:20000] + "\n[... cut at 20000 characters]")
+                    print("::endgroup::")
     print(f"Collected {copied} run(s) into {out}")
     return 0
 
