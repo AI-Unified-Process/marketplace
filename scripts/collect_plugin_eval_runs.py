@@ -55,9 +55,22 @@ def main() -> int:
                 target.mkdir(parents=True, exist_ok=True)
                 if trace.is_file():
                     shutil.copy2(trace, target / "trace.jsonl")
-                # claude plugin eval seals what the plugin wrote to home/ and tmp/ (mode 000): skip what is unreadable
+                # claude plugin eval seals home/ and tmp/ (the workspace too) in sealed/ (mode 000) and makes the kept
+                # folder read-only. Opening them is safe on a throwaway runner as long as nothing loads configuration
+                # from inside (no git there): they are only copied.
+                sealed = scaffold / "sealed"
+                if sealed.exists():
+                    try:
+                        scaffold.chmod(0o700)
+                        sealed.chmod(0o700)
+                        for root, dirs, _ in os.walk(sealed):  # top-down: each folder opened before it is entered
+                            for d in dirs:
+                                if not os.path.islink(os.path.join(root, d)):
+                                    os.chmod(os.path.join(root, d), 0o700)
+                    except OSError as e:
+                        print(f"{case['name']} {arm}-{n}: could not open sealed/ ({str(e)[:200]})")
                 for sub in sorted(p for p in scaffold.iterdir() if p.is_dir() and p != trace.parent):
-                    if sub.name == "sealed" or not os.access(sub, os.R_OK | os.X_OK):
+                    if not os.access(sub, os.R_OK | os.X_OK):
                         continue
                     try:
                         shutil.copytree(sub, target / "workspace" / sub.name, ignore=ignore, symlinks=True,
