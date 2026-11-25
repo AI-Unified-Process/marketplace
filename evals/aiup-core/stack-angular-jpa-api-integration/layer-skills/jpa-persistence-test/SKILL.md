@@ -94,8 +94,14 @@ and returns the next version.
 
 Business rules are tested here only when persistence is itself the integration layer, or when the skill runs
 directly in a project with no layer above it: then every rule gets its allowed and its rejected case. Otherwise a
-rule's cases belong to the integration layer's tests; a test here covers only the query logic a rule relies on
-(the case-insensitive email lookup), not the rule's outcome.
+rule's cases belong to the integration layer's tests; do not write them again here:
+
+- **A query condition that is the rule** (the `status <> CANCELLED` under a `// UC-XXX BR-YYY` marker, the stock
+  filter) gets no test of its own and no `businessRules` entry, whatever the test is called: no "cancelled is not
+  listed" method, with or without the annotation. The rows of the other tests may hold such a row; asserting it
+  is absent there is fine. The report names the rule and the integration layer's test skill that covers it.
+- **Query logic a rule only relies on** (the case-insensitive email lookup the service then decides on) is tested
+  like any other query logic, without `businessRules`: it is not the rule's outcome.
 
 ## Test Class
 
@@ -210,7 +216,7 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Change production code, an entity, a query, or a main migration to make a test pass — report the disagreement.
 - Run the tests on H2 when the project has no H2 tests already.
 - Test `save`, `findById`, or other inherited Spring Data methods, or a business rule the integration layer's tests
-  cover.
+  cover — also not a query condition that is the rule, under another test name.
 - Mock the `EntityManager`, the repository, or the database.
 - Arrange test data with repository calls when a Flyway test migration can hold it.
 - Weaken, delete, or disable an assertion whose expected value the specification states.
