@@ -51,6 +51,9 @@ def print_trace_facts(case: str, run: str, trace: Path) -> None:
                 continue
             if block.get("type") == "tool_use" and block.get("name") == "Skill":
                 calls.append(json.dumps(block.get("input"))[:200])
+            if block.get("type") == "tool_use" and block.get("name") == "Read" and \
+                    str((block.get("input") or {}).get("file_path", "")).endswith("SKILL.md"):
+                calls.append("Read " + str(block["input"]["file_path"])[-120:])
             if block.get("type") == "tool_result" and block.get("is_error"):
                 text = block.get("content")
                 text = json.dumps(text) if not isinstance(text, str) else text
@@ -58,7 +61,7 @@ def print_trace_facts(case: str, run: str, trace: Path) -> None:
                     refused.append(text[:300])
     first = trace.read_text(encoding="utf-8", errors="replace").split("\n", 1)[0]
     print(f"{case} {run}: trace starts {first[:800]}")
-    print(f"{case} {run}: {len(skills)} skill(s) visible: {', '.join(s for s in skills if 'aiup' in s or ':' in s)[:600]}")
+    print(f"{case} {run}: {len(skills)} skill(s) visible: {', '.join(skills)[:1500]}")
     print(f"{case} {run}: Skill calls: {calls or 'none'}")
     for r in refused[:5]:
         print(f"{case} {run}: refused: {r}")
