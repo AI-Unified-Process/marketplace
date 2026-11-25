@@ -108,3 +108,13 @@ so a broken sandbox stops the job instead of lowering scores. Scores of that run
 Both chains had written no Handover block at all: nothing in `/use-case-implement` said to write it out. With that
 sentence added (aiup-core 3.21.4), both scored 1.0 with every Handover in the log (34 minutes, $8.17); the REST chain
 scored 0.535 without the plugins. The Vaadin run without the plugins ended on an API error and counts for nothing.
+
+The first runs of the new hand graders (aiup-jpa, 2026-11-25) found three faults outside the skills. The cases loaded
+the plugin without its declared dependencies, and the session then listed none of the plugin's skills: the arm "with
+the plugin" wrote the tests by hand, and one scenario scored 0.83 in both arms. The kept runs were sealed and their
+artifact was out of reach for a sandboxed session, so the collect step now opens them and prints each run's failed
+graders, visible skills, Skill calls, refused tool calls, and `session-log.md` into the job log. And two graders were
+too narrow for correct work (an assertion style, a wording of the BR-001 hand-off). With all three fixed, one run
+each (16 minutes, $4.35): `jpa-persistence-flat-n-plus-one` 1.00 and 0.83, `jpa-persistence-hexagonal-port` 1.00 and
+0.75, `jpa-persistence-test-datajpatest` 0.95 and 0.36. The one failed grader of the last is a real finding: the agent
+wrote a test dedicated to the CANCELLED exclusion, which the rubric leaves to the integration layer.
