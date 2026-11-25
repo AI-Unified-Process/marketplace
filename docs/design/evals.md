@@ -58,7 +58,10 @@ scenarios and the maintainers run them with `claude plugin eval`, on their own C
   without the plugins (the delta Tessl calls Impact).
 - `claude plugin eval` loads no `.claude/skills` or `.claude/agents` from the workspace. The converter therefore
   loads the real plugins that own the skills under `layer-skills/` and the agents under `agents/` instead of the
-  copies.
+  copies. It also loads the dependencies each plugin declares in `.claude-plugin/plugin.json`, as Claude Code
+  installs them: without them, the jpa runs listed none of the plugin's skills (2026-11-25), so the arm "with the
+  plugin" ran without it, while the chain scenarios, which loaded the dependencies anyway, did not have the problem.
+  The collect step of **Run evals** prints the skills each run could see.
 - An `llm` grader reads one file. A criterion that names several files is judged on the first one, criteria about
   what the agent said on `session-log.md`; the converter lists the graders that leave files unchecked. This fits
   the scenarios of a single document skill well. For the chain and code scenarios the score is an indication,

@@ -69,6 +69,20 @@ def agent_owner(agent_file: str) -> Path | None:
     return hits[0].parent.parent if hits else None
 
 
+def dependencies(plugin: Path, seen: set[Path] | None = None) -> set[Path]:
+    """The plugins of this repository that .claude-plugin/plugin.json declares as dependencies, transitively."""
+    seen = set() if seen is None else seen
+    manifest = plugin / ".claude-plugin" / "plugin.json"
+    if not manifest.is_file():
+        return set()
+    for dep in json.loads(manifest.read_text(encoding="utf-8")).get("dependencies") or []:
+        path = ROOT / (dep.get("name") if isinstance(dep, dict) else str(dep))
+        if path.is_dir() and path not in seen:
+            seen.add(path)
+            dependencies(path, seen)
+    return seen
+
+
 def load(scenario: Path) -> tuple[str, dict, dict]:
     task = (scenario / "task.md").read_text(encoding="utf-8")
     meta = json.loads((scenario / "scenario.json").read_text(encoding="utf-8"))
@@ -244,6 +258,11 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str],
 
     pairs, extra = copies(scenario, meta)
     under_test = ROOT / plugin
+    # Claude Code installs a plugin's declared dependencies with it; without them the plugin under test may not load
+    # as users get it (a jpa run saw none of its skills).
+    extra = set(extra) | dependencies(under_test)
+    for p in list(extra):
+        extra |= dependencies(p)
     plugin_dirs = [under_test] + sorted(p for p in extra if p != under_test)
     rel_plugins = [os.path.relpath(p, case) for p in plugin_dirs]
 
