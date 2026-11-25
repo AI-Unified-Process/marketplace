@@ -182,6 +182,14 @@ of another system. Such an entity gets no `###` section and no line in the Merma
 usual (`Not Null, Foreign Key (APP_USER.id)`) and name it once, in one sentence under the document title:
 `APP_USER (id, username, password_hash, role) ships with the project and is an external boundary.`
 
+## Groups
+
+Second-level headings after the diagram may group the `###` sections of one document (`## Core`, `## Supportive`).
+Groups are optional: do not introduce them in a model that has none. Keep existing groups and their order, and put a
+new entity into the group it fits. Entities without a group come before the first group heading. Every group name
+occurs once, has at least one entity, and is not `Entity Relationship Diagram`; no text stands between the group
+heading and its first entity. Entity headings stay `###`, and there is one diagram for all groups.
+
 ## Modules
 
 A large project may hold its entity model split by module, as `/reverse-engineer` writes it: `docs/entity_model.md`
