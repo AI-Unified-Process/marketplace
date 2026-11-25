@@ -44,7 +44,7 @@
     },
     {
       "name": "Layer boundaries respected",
-      "description": "No file outside frontend/ and docs/architecture/stack.md is created or changed, no *.test.tsx test file is created, no dependency is added to package.json, and no database client or route handler appears in the web app",
+      "description": "No file outside frontend/, docs/architecture/stack.md, and docs/open_questions.md is created or changed, no *.test.tsx test file is created, no dependency is added to package.json, and no database client or route handler appears in the web app",
       "max_score": 9
     },
     {

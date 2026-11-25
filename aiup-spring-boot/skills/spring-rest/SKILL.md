@@ -165,7 +165,10 @@ public class GuestController {
 - A created resource answers `201` with a `Location` header that points at the read endpoint of that resource
   (`ResponseEntity.created(uri.path("/api/guests/{id}").buildAndExpand(guest.id()).toUri())`, with a
   `UriComponentsBuilder` parameter). While the project has no such endpoint, answer `201` without the header, as the
-  example does, and say so in the Handover. Never point `Location` at a URL that answers `404`.
+  example does, and say so in the Handover. Never point `Location` at a URL that answers `404`. An agreed operation
+  the use case's `**API:**` line links wins (section "API Contract"): when its response documents `Location`, send
+  the header as written even before the read endpoint exists, and record the missing endpoint as a non-blocking open
+  question.
 
 ## DTOs
 
