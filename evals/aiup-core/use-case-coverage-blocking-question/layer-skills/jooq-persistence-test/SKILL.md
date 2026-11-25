@@ -301,9 +301,10 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 
 ## Hand-off
 
-Run from `/use-case-test`, return to it. Run directly, end with one `Next:` line naming the integration layer's test skill
-from the Integration layer table of `docs/architecture/stack.md` (for example `Next: /vaadin-flow-ui-test UC-001`),
-or `Next: /use-case-coverage UC-001` when this was the last test layer. Never run the coverage audit.
+Run from `/use-case-test`, return to it. Run directly, end with one `Next:` line naming the integration layer's test
+skill: the Test skill of the Integration layer table of `docs/architecture/stack.md`, in the row the use case's
+`**Layers:**` line names first, or in the first row when it has no such line (for example `Next: /vaadin-flow-ui-test UC-001`).
+Name `Next: /use-case-coverage UC-001` only when this was the last test layer. Never run the coverage audit.
 
 ## Resources
 
