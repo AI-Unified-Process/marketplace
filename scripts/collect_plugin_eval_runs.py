@@ -67,6 +67,30 @@ def print_trace_facts(case: str, run: str, trace: Path) -> None:
         print(f"{case} {run}: refused: {r}")
 
 
+def print_writes(case: str, run: str, trace: Path, limit: int = 4000) -> None:
+    """The agent's Write, Edit, and Bash calls, so a failed regex grader can be read against what was written."""
+    print(f"::group::{case} {run}: the agent's writes")
+    for line in trace.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        message = event.get("message") if isinstance(event, dict) else None
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
+            if not (isinstance(block, dict) and block.get("type") == "tool_use"):
+                continue
+            args = block.get("input") or {}
+            name = block.get("name")
+            if name in ("Write", "Edit") and not str(args.get("file_path", "")).endswith("session-log.md"):
+                body = args.get("content") if name == "Write" else f"--- old\n{args.get('old_string')}\n--- new\n{args.get('new_string')}"
+                print(f"## {name} {args.get('file_path')}\n{str(body)[:limit]}")
+            elif name == "Bash" and re.search(r"cat\s*>|tee |<<", str(args.get("command", ""))) and \
+                    "session-log.md" not in str(args.get("command", ""))[:200]:
+                print(f"## Bash\n{str(args.get('command'))[:limit]}")
+    print("::endgroup::")
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         print(__doc__)
@@ -94,6 +118,9 @@ def main() -> int:
                 if trace.is_file():
                     shutil.copy2(trace, target / "trace.jsonl")
                     print_trace_facts(case["name"], f"{arm}-{n}", trace)
+                    if arm == "with" and any(g.get("type") == "regex" or "pattern" in str(g.get("explanation"))
+                                             for g in failed):
+                        print_writes(case["name"], f"{arm}-{n}", trace)
                 # claude plugin eval seals home/ and tmp/ (the workspace too) in sealed/ (mode 000) and makes the kept
                 # folder read-only. Opening them is safe on a throwaway runner as long as nothing loads configuration
                 # from inside (no git there): they are only copied.

@@ -44,7 +44,8 @@ Name several plugins in one dispatch with `more_plugins` instead; `cases`, `runs
 The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json`, the HTML
 report with every grader's verdict, and `runs/<case>/<arm>-<n>/` with each run's `trace.jsonl` and workspace
 (`session-log.md` and the files the agent wrote; `scripts/collect_plugin_eval_runs.py` copies them from the
-`--keep-temp` scaffolds, and prints each `session-log.md` into the job log). Read those before changing a grader or
+`--keep-temp` scaffolds, and prints each `session-log.md` into the job log, with the agent's writes for a run that failed a regex grader). A run
+whose tool call the safety classifier refused to run is reported invalid, not as a low score: rerun it. Read those before changing a grader or
 a skill.
 
 `aiup-core` has 52 scenarios; run it with a `cases` glob, not as a whole. The other plugins have 1 to 15.

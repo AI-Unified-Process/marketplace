@@ -6,7 +6,10 @@ exit 0 (docs/design/evals.md). This check reads the result instead and fails whe
 
   - the result is partial (the --max-cost-usd ceiling was hit),
   - a run with the plugins has an error or skipped its paid graders, so its score counts for nothing,
-  - a case's score with the plugins is below --min-score.
+  - a case's score with the plugins is below --min-score,
+  - a run's trace (kept with --keep-temp) shows a tool call the safety classifier refused to run ("Not run: ...
+    stopped by a safety classifier"): the agent could not write its work, so the score says nothing about the skill
+    or the graders; rerun the case.
 
 A run without the plugins that has an error makes the baseline of that case invalid; it is reported, not failed,
 because the baseline never gates.
@@ -19,6 +22,19 @@ import argparse
 import json
 import os
 import sys
+
+
+CLASSIFIER_STOP = "Not run: the response that made this tool call was stopped by a safety classifier"
+
+
+def classifier_stopped(run):
+    """True when the run's trace shows a tool call the safety classifier refused to run."""
+    path = run.get("tracePath")
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            return CLASSIFIER_STOP in f.read()
+    except (OSError, TypeError):
+        return False
 
 
 def fmt(score):
@@ -48,6 +64,12 @@ def main():
                 problems.append(f"{name}: a run with the plugins ended on an error: {run['error'][:200]}")
             if run.get("skippedPaidGraders"):
                 problems.append(f"{name}: a run with the plugins skipped its llm graders (cost ceiling)")
+            if classifier_stopped(run):
+                problems.append(f"{name}: a run with the plugins is invalid, the safety classifier refused a tool call; "
+                                "rerun the case")
+        for run in arms.get("without", []):
+            if classifier_stopped(run):
+                notes.append(f"{name}: the baseline is invalid, the safety classifier refused a tool call")
         baseline_errors = [run["error"] for run in arms.get("without", []) if run.get("error")]
         for error in baseline_errors:
             notes.append(f"{name}: the baseline is invalid, a run without the plugins ended on: {error[:200]}")
