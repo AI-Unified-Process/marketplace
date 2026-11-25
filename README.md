@@ -278,7 +278,7 @@ skill and document carries its copyright header and that each plugin ships `LICE
 | [Writing a layer skill](docs/guides/layer-skill.md)          | The contract a team's own layer skill fulfils to run under `/use-case-implement`             |
 | [Vision template](docs/templates/vision.md)                  | Starting point for `docs/vision.md`                                                          |
 | [CLAUDE.md template](docs/templates/CLAUDE.md)               | Stack-neutral repository instructions for Claude Code                                        |
-| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example: stack-neutral analysis, then construction with the deprecated `aiup-vaadin-jooq`; use the layer plugins and the migration guide instead |
+| [Complete tutorial](https://unifiedprocess.ai/tutorial.html) | Book Library example from the vision to a tested app, with `aiup-core` and the layer plugins for Flyway, jOOQ, Spring Boot, and Vaadin |
 
 Detailed skill behavior is documented in each plugin's `skills/*/SKILL.md`. Those files are the authoritative source
 for inputs, outputs, safety constraints, and execution steps; READMEs provide navigation and concise summaries.

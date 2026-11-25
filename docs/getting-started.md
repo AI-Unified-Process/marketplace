@@ -287,8 +287,9 @@ reported gaps before using those artifacts as the baseline for further work.
 
 ## Complete example
 
-The [Book Library tutorial](https://unifiedprocess.ai/tutorial.html) demonstrates the complete workflow. Its first
-five steps are stack-independent; steps six through nine use the Vaadin and jOOQ plugin for construction and testing.
-That plugin, `aiup-vaadin-jooq`, is deprecated. A new project uses the layer plugins `aiup-flyway`, `aiup-jooq`,
-`aiup-spring-boot`, and `aiup-vaadin` with `/use-case-implement` and `/use-case-test` instead; the
-[migration guide](migration.md) maps the tutorial's commands to theirs.
+The [Book Library tutorial](https://unifiedprocess.ai/tutorial.html) demonstrates the complete workflow, from the
+vision to a tested app, with `aiup-core` and the layer plugins `aiup-flyway`, `aiup-jooq`, `aiup-spring-boot`, and
+`aiup-vaadin`. After `/requirements` and `/entity-model`, `/stack` records the layers; `/use-case-implement UC-001`
+builds them bottom-up, and `/use-case-test UC-001` writes the Browserless tests in the UI and the browser test that
+`./mvnw verify` runs. A project still on the deprecated `aiup-vaadin-jooq` finds the mapping of the old commands in
+the [migration guide](migration.md).
