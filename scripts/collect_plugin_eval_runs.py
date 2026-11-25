@@ -16,17 +16,52 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
 
 SKIP = {"node_modules", "target", "build", "bin", "obj", ".git", ".gradle", ".m2", ".npm", ".cache", "dist", ".next"}
 MAX_FILE = 5 * 1024 * 1024
+re_refused = re.compile(r"denied|not allowed|permission|classifier|blocked", re.I)
 
 
 def ignore(folder: str, names: list[str]) -> set[str]:
     base = Path(folder)
     return {n for n in names if n in SKIP or ((base / n).is_file() and (base / n).stat().st_size > MAX_FILE)}
+
+
+def print_trace_facts(case: str, run: str, trace: Path) -> None:
+    """The skills the session could see, the Skill calls it made, and the tool calls refused, in the job log."""
+    skills: list[str] = []
+    calls: list[str] = []
+    refused: list[str] = []
+    for line in trace.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        if event.get("type") == "system" and event.get("subtype") == "init":
+            skills = [str(s) for s in event.get("skills") or event.get("slash_commands") or []]
+        content = ((event.get("message") or {}).get("content")) if isinstance(event.get("message"), dict) else None
+        for block in content if isinstance(content, list) else []:
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "tool_use" and block.get("name") == "Skill":
+                calls.append(json.dumps(block.get("input"))[:200])
+            if block.get("type") == "tool_result" and block.get("is_error"):
+                text = block.get("content")
+                text = json.dumps(text) if not isinstance(text, str) else text
+                if re_refused.search(text):
+                    refused.append(text[:300])
+    first = trace.read_text(encoding="utf-8", errors="replace").split("\n", 1)[0]
+    print(f"{case} {run}: trace starts {first[:800]}")
+    print(f"{case} {run}: {len(skills)} skill(s) visible: {', '.join(s for s in skills if 'aiup' in s or ':' in s)[:600]}")
+    print(f"{case} {run}: Skill calls: {calls or 'none'}")
+    for r in refused[:5]:
+        print(f"{case} {run}: refused: {r}")
 
 
 def main() -> int:
@@ -55,6 +90,7 @@ def main() -> int:
                 target.mkdir(parents=True, exist_ok=True)
                 if trace.is_file():
                     shutil.copy2(trace, target / "trace.jsonl")
+                    print_trace_facts(case["name"], f"{arm}-{n}", trace)
                 # claude plugin eval seals home/ and tmp/ (the workspace too) in sealed/ (mode 000) and makes the kept
                 # folder read-only. Opening them is safe on a throwaway runner as long as nothing loads configuration
                 # from inside (no git there): they are only copied.
