@@ -42,6 +42,10 @@ def main() -> int:
     for case in data.get("cases", []):
         for arm, runs in (case.get("arms") or {}).items():
             for n, run in enumerate(runs, 1):
+                failed = [g for g in run.get("graders", []) if not g.get("passed")]
+                print(f"{case['name']} {arm}-{n}: score {run.get('score')}, {len(failed)} grader(s) failed")
+                for g in failed:  # the verdicts in the job log too, for the same reason as the session log
+                    print(f"  FAIL {g.get('name')} (weight {g.get('weight')}): {str(g.get('explanation'))[:300]}")
                 trace = Path(run.get("tracePath") or "")
                 scaffold = trace.parent.parent if trace.name else None
                 target = out / case["name"] / f"{arm}-{n}"
