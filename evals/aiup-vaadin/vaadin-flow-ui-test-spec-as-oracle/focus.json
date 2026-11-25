@@ -1,0 +1,6 @@
+{
+  "Success message from the specification": "src/test/java/com/example/hotel/guest/ui/UC020RegisterGuestTest.java",
+  "Assertions scoped to the test's own rows": "src/test/java/com/example/hotel/guest/ui/UC020RegisterGuestTest.java",
+  "A2 asserts the field error": "src/test/java/com/example/hotel/guest/ui/UC020RegisterGuestTest.java",
+  "BR-002 tested here, at the boundary": "src/test/java/com/example/hotel/guest/ui/UC020RegisterGuestTest.java"
+}

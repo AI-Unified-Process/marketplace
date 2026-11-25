@@ -1,0 +1,7 @@
+---
+criterion: "Business rule markers"
+type: regex
+weight: 2.5
+target: trace
+pattern: '"name":\s*"(Write|Edit|Bash)",\s*"input":\s*\{(?![^\n]{0,80}session-log\.md)[^\n]*?(src/main/java/[^"\s]*\.java|db/migration/[^"\s]*\.sql).*(//|--) UC-002 BR-001\b'
+---

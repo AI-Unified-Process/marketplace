@@ -69,6 +69,20 @@ def agent_owner(agent_file: str) -> Path | None:
     return hits[0].parent.parent if hits else None
 
 
+def dependencies(plugin: Path, seen: set[Path] | None = None) -> set[Path]:
+    """The plugins of this repository that .claude-plugin/plugin.json declares as dependencies, transitively."""
+    seen = set() if seen is None else seen
+    manifest = plugin / ".claude-plugin" / "plugin.json"
+    if not manifest.is_file():
+        return set()
+    for dep in json.loads(manifest.read_text(encoding="utf-8")).get("dependencies") or []:
+        path = ROOT / (dep.get("name") if isinstance(dep, dict) else str(dep))
+        if path.is_dir() and path not in seen:
+            seen.add(path)
+            dependencies(path, seen)
+    return seen
+
+
 def load(scenario: Path) -> tuple[str, dict, dict]:
     task = (scenario / "task.md").read_text(encoding="utf-8")
     meta = json.loads((scenario / "scenario.json").read_text(encoding="utf-8"))
@@ -167,6 +181,25 @@ def focus_for(item: dict, task: str, known: set[str], overrides: dict[str, str |
 
 CRITERION_RE = re.compile(r'^criterion:\s*"(.*)"\s*$', re.M)
 WEIGHT_RE = re.compile(r"^weight:\s*([0-9.]+)\s*$", re.M)
+PATH_FIELD_RE = re.compile(r"""^path:\s*['"]?([^'"\n]+?)['"]?\s*$""", re.M)
+
+
+def glob_re(pattern: str) -> re.Pattern:
+    """A workspace glob as a regex: ** spans folders, * and ? stay inside one."""
+    out = ""
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif pattern[i] == "?":
+            out, i = out + "[^/]", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
 
 
 def hand_graders(scenario: Path, criteria: dict) -> tuple[dict[str, list[tuple[str, str]]], list[str]]:
@@ -187,6 +220,24 @@ def hand_graders(scenario: Path, criteria: dict) -> tuple[dict[str, list[tuple[s
             problems.append(f"{f}: no weight")
             continue
         found.setdefault(m.group(1), []).append((f.name, CRITERION_RE.sub("", text, count=1).replace("---\n\n", "---\n", 1)))
+    known: set[str] | None = None
+    for name, graders in found.items():
+        for fname, text in graders:
+            if not re.search(r"^type:\s*file_exists\s*$", text, re.M):
+                continue
+            m = PATH_FIELD_RE.search(text)
+            if not m:
+                problems.append(f"{scenario / 'graders' / fname}: file_exists without a path")
+                continue
+            if re.search(r"[\[\]{}]", m.group(1)):
+                problems.append(f"{scenario / 'graders' / fname}: glob {m.group(1)!r} uses [..] or {{..}}; split it into plain globs")
+            elif re.search(r"^exists:\s*false\s*$", text, re.M):
+                if known is None:
+                    known = fixture_files(scenario, load(scenario)[1])
+                hits = sorted(f for f in known if glob_re(m.group(1)).match(f))
+                if hits:
+                    problems.append(f"{scenario / 'graders' / fname}: exists: false, but the fixture already holds {hits[0]}; "
+                                    "check the agent's writes with a not_contains regex instead")
     for name, graders in found.items():
         total = sum(float(WEIGHT_RE.search(t).group(1)) for _, t in graders)
         if abs(total - names[name]) > 1e-6:
@@ -207,6 +258,11 @@ def write_plugin_eval(plugin: str, scenario: Path, out: Path, report: list[str],
 
     pairs, extra = copies(scenario, meta)
     under_test = ROOT / plugin
+    # Claude Code installs a plugin's declared dependencies with it; without them the plugin under test may not load
+    # as users get it (a jpa run saw none of its skills).
+    extra = set(extra) | dependencies(under_test)
+    for p in list(extra):
+        extra |= dependencies(p)
     plugin_dirs = [under_test] + sorted(p for p in extra if p != under_test)
     rel_plugins = [os.path.relpath(p, case) for p in plugin_dirs]
 

@@ -1,0 +1,10 @@
+{
+  "Activities are the use cases": "docs/processes/BP-001-book-loan.bpmn",
+  "Lanes are the actors": "docs/processes/BP-001-book-loan.bpmn",
+  "Decision as a gateway": "docs/processes/BP-001-book-loan.bpmn",
+  "Business events": "docs/processes/BP-001-book-loan.bpmn",
+  "Complete diagram layout": "docs/processes/BP-001-book-loan.bpmn",
+  "Process documentation": "docs/processes/BP-001-book-loan.bpmn",
+  "Valid, non-executable BPMN": "docs/processes/BP-001-book-loan.bpmn",
+  "No implementation detail": "docs/processes/BP-001-book-loan.bpmn"
+}

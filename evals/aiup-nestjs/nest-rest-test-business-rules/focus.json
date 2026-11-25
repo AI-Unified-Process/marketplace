@@ -1,0 +1,4 @@
+{
+  "A1 exact result": "apps/api/test/UC-010-browse-product-catalog.e2e-spec.ts",
+  "BR-010 with and without a filter": "apps/api/test/UC-010-browse-product-catalog.e2e-spec.ts"
+}

@@ -1,0 +1,6 @@
+{
+  "country_code constraint expressed in the schema": "apps/api/src/database/schema.ts",
+  "Optional relationship modelled correctly": "apps/api/src/database/schema.ts",
+  "Correct pg-core types": "apps/api/src/database/schema.ts",
+  "snake_case column naming": "apps/api/src/database/schema.ts"
+}

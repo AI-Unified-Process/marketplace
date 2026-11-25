@@ -58,7 +58,10 @@ scenarios and the maintainers run them with `claude plugin eval`, on their own C
   without the plugins (the delta Tessl calls Impact).
 - `claude plugin eval` loads no `.claude/skills` or `.claude/agents` from the workspace. The converter therefore
   loads the real plugins that own the skills under `layer-skills/` and the agents under `agents/` instead of the
-  copies.
+  copies. It also loads the dependencies each plugin declares in `.claude-plugin/plugin.json`, as Claude Code
+  installs them: without them, the jpa runs listed none of the plugin's skills (2026-11-25), so the arm "with the
+  plugin" ran without it, while the chain scenarios, which loaded the dependencies anyway, did not have the problem.
+  The collect step of **Run evals** prints the skills each run could see.
 - An `llm` grader reads one file. A criterion that names several files is judged on the first one, criteria about
   what the agent said on `session-log.md`; the converter lists the graders that leave files unchecked. This fits
   the scenarios of a single document skill well. For the chain and code scenarios the score is an indication,
@@ -77,7 +80,11 @@ scenarios and the maintainers run them with `claude plugin eval`, on their own C
   `Write`, so a `tool_used` grader on `Write` misses it (the chain scenarios scored 0.46 and 0.70 that way). And the
   agent's messages to `session-log.md` name files and rules too, so the anchor excludes calls that write the log. A
   `regex` grader on a file cannot help: its path takes no glob, and the package of the generated code varies.
-  `file_exists` checks that a test class exists or does not; it also counts files a `Bash` call created. The
+  `file_exists` checks that a test class exists or does not; it also counts files a `Bash` call created. It sees
+  the workspace, fixture included: `exists: false` on a path the fixture already holds fails every run (the
+  first one in `architecture-decision-refuses-without-requirement` cost 25 points that way), so "the agent writes no
+  X" is a `not_contains` regex on the writes there. Its globs keep to `*`, `**`, and `?`; a `{a,b}` or `[..]` is
+  split into plain globs, because the grader's glob syntax is not documented. `--check` fails on both. The
   patterns read JSON-encoded content: a newline is `\n`, a quote `\"`. Hand graders cost no judge call and give the
   same verdict every run. `criteria.json` stays the rubric, so a hand grader checks what its criterion says and
   nothing else.

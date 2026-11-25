@@ -140,7 +140,7 @@ jobs:
             --scaffold --trust-plugin --allow-tools Write Edit Bash \
             --runs "$RUNS" -j 1 --threshold "$MIN_SCORE" --ablation "$ABLATION" \
             --model "$MODEL" --judge-model claude-haiku-5-5 \
-            --max-cost-usd "$MAX_COST_USD" --no-publish \
+            --max-cost-usd "$MAX_COST_USD" --no-publish --keep-temp \
             --json build/eval-result.json --report build/eval-report.html
           echo "claude plugin eval exited $?"
 
@@ -148,6 +148,12 @@ jobs:
         env:
           MIN_SCORE: ${{ inputs.min_score }}
         run: python3 scripts/check_plugin_eval_result.py build/eval-result.json --min-score "$MIN_SCORE"
+
+      - name: Collect the runs
+        # The report shows each grader's verdict, not what the agent did. Keep every run's trace and workspace
+        # (session-log.md, the files it wrote) so a failed grader can be told from a failed skill.
+        if: always()
+        run: python3 scripts/collect_plugin_eval_runs.py build/eval-result.json build/runs
 
       - name: Keep the result
         if: always()
@@ -157,4 +163,5 @@ jobs:
           path: |
             build/eval-result.json
             build/eval-report.html
+            build/runs/
           if-no-files-found: warn

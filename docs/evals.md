@@ -37,8 +37,11 @@ With both set, the API key is used. The dollar figures in the result are list-pr
 | `model`        | `claude-opus-5-5` | The model of the agent under test; keep it fixed to compare runs                   |
 | `ablation`     | `with-without`    | `none` skips the runs without the plugins and halves the cost, but gives no delta  |
 
-The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json` and the HTML
-report with every grader's verdict.
+The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json`, the HTML
+report with every grader's verdict, and `runs/<case>/<arm>-<n>/` with each run's `trace.jsonl` and workspace
+(`session-log.md` and the files the agent wrote; `scripts/collect_plugin_eval_runs.py` copies them from the
+`--keep-temp` scaffolds, and prints each `session-log.md` into the job log). Read those before changing a grader or
+a skill.
 
 `aiup-core` has 52 scenarios; run it with a `cases` glob, not as a whole. The other plugins have 1 to 15.
 
@@ -91,7 +94,8 @@ are judged more reliably by hand graders.
   `focus.json` in the scenario: `{"<checklist item name>" or "*": "<workspace path>"}`, with `"session-log.md"` for
   what the agent said and `null` for not gradable. `*` stands for every item that names no file.
 - `scripts/sync-eval-fixtures.sh --check` validates the hand graders, the rubric totals, and the copies of the layer
-  skills; CI runs it.
+  skills; CI runs it. A `file_exists` grader with `exists: false` must not match a file of the fixture, and its glob
+  uses only `*`, `**`, and `?`.
 - A new plugin folder under `evals/` is also added to the `plugin` choice of `run-evals.yml`; the same check fails
   otherwise.
 

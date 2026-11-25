@@ -1,0 +1,5 @@
+{
+  "BR-003 boundary": "apps/api/src/guests/guests.service.ts",
+  "Rule guards with markers": "apps/api/src/guests/guests.service.ts",
+  "TSDoc names the use case": "apps/api/src/guests/guests.service.ts"
+}
