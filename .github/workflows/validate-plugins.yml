@@ -18,6 +18,9 @@ jobs:
       - name: Check Agent Plugins / Claude Code / Tessl manifest consistency
         run: bash scripts/validate-plugin-manifests.sh
 
+      - name: Check that no two paths clash on Windows or macOS
+        run: bash scripts/check-path-clashes.sh
+
       - name: Check public documentation links
         run: bash scripts/validate-doc-links.sh
 
