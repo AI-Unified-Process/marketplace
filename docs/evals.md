@@ -36,6 +36,10 @@ With both set, the API key is used. The dollar figures in the result are list-pr
 | `max_cost_usd` | `20`              | No new run starts once the estimate reaches it; the job then fails as partial      |
 | `model`        | `claude-opus-5-5` | The model of the agent under test; keep it fixed to compare runs                   |
 | `ablation`     | `with-without`    | `none` skips the runs without the plugins and halves the cost, but gives no delta  |
+| `more_plugins` |                   | Further plugins, separated by spaces, run one after another after `plugin`         |
+
+Start one dispatch at a time: the workflow keeps one run waiting, and a second dispatch cancels the waiting one.
+Name several plugins in one dispatch with `more_plugins` instead; `cases`, `runs`, and `max_cost_usd` apply to each.
 
 The job summary shows the table of scores. The artifact `eval-<plugin>-<run>` holds `eval-result.json`, the HTML
 report with every grader's verdict, and `runs/<case>/<arm>-<n>/` with each run's `trace.jsonl` and workspace
