@@ -13,7 +13,7 @@ Your job is to introduce the correct Vaadin server-side unit testing setup and w
 Produce the following:
 
 - An updated `pom.xml` with the required Vaadin server-side unit testing dependency added.
-- Any shared Java source files needed to support the test infrastructure (place them under `src/main/java/`).
+- Any shared Java source files needed to support the test infrastructure (place them under `src/test/java/`).
 - A test class under `src/test/java/` that covers UC-040 with one test method per scenario (main flow and each alternative flow described in the spec).
 - Any Flyway SQL migration(s) under `src/test/resources/db/migration/` required to seed test data.
 

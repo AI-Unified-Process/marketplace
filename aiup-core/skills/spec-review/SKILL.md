@@ -135,7 +135,7 @@ moves to Approved?>
 
 ## Machine-Readable Result
 
-When `$ARGUMENTS` contains `--output <file>` (the AI Unified Process Studio passes `--output .aiup-report/review.json`), write the
+When `$ARGUMENTS` contains `--output <file>` (e.g. `--output .aiup-report/review.json`), write the
 report as usual and then the semantic part (Part B) and the verdict as JSON to that file. Strip `--output <file>` from
 the arguments before resolving the scope. The path must lie outside `docs/`; refuse any other. The skill writes two
 files and no others: `docs/spec-report.html`, on `/spec-review report`, and the JSON result at the path the caller

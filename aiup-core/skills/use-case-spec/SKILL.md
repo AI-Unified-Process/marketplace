@@ -75,7 +75,7 @@ success postconditions paired with failure postconditions written as minimum gua
 containing this SKILL.md, not to the project root.
 
 The normative definition of the format — including the German variant and the
-tolerances of the AI Unified Process Studio structured editor — is
+accepted alternative forms and extensions — is
 [references/format-spec.md](references/format-spec.md); what goes into the Overview lines and the failure
 postconditions is in [references/overview-and-postconditions.md](references/overview-and-postconditions.md). A machine check of both
 the structure and the rules of this skill is bundled as
@@ -191,8 +191,8 @@ in the implementation, not the specification.
     ```
 
     Fix every reported problem and re-run until it exits cleanly. Errors mean the
-    Studio structured editor cannot read the file; warnings mean a rule of this
-    skill is violated — e.g. an implementation term in a step, which "Step writing guidelines" shows how to rewrite.
+    file violates the structural grammar; warnings identify skill-contract violations
+    or noncanonical forms — e.g. an implementation term in a step, which "Step writing guidelines" shows how to rewrite.
     When you wrote to `docs/open_questions.md`, check it as section "Checking the File" of `/open-questions` says
     (`spec_lint.py --questions`) and fix every finding on a section you wrote.
 15. Mark todo complete.

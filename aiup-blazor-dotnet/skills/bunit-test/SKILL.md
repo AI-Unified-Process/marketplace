@@ -64,13 +64,13 @@ An expected value changes only when the specification has changed — see the se
 
 ## Traceability
 
-Every test names the use case, the scenario, and the business rules it verifies, so the AI Unified
-Process Navigator, AI Unified Studio, and a coverage audit can find it. A test without the marker
+Every test names the use case, the scenario, and the business rules it verifies, so traceability
+tools and coverage audits can find it. A test without the marker
 counts as a gap.
 
 **Bootstrap step.** Search the solution for `class UseCaseAttribute`. If the test project (`*.Tests`) does not have one,
-create it there (e.g. `Traceability/UseCaseAttribute.cs`). The namespace does not matter — the tools
-resolve the attribute by its short name — but the shape must be exactly this:
+create it there (e.g. `Traceability/UseCaseAttribute.cs`).
+Any namespace will do because tools match the short name `UseCaseAttribute`. Use exactly the attribute shape below.
 
 ```csharp
 namespace MyApp.Tests;

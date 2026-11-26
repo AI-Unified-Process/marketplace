@@ -168,24 +168,20 @@ one use case from the use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 Test classes must be named after the use case using the pattern
 `UC<id><PascalCaseUseCaseName>Test` — for example `UC001RegisterGuestTest` for
-use case UC-001 "Register Guest". This makes the link between spec and test
-obvious and is the convention the AI Unified Process IntelliJ Navigator plugin relies on.
+use case UC-001 "Register Guest". The class name identifies the use case under test.
 
 ### `@UseCase` annotation
 
-Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
-gutter icons and Find Usages between the Markdown spec and the Java tests.
+Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so traceability tools and coverage
+audits can match the test to the Markdown specification.
 
-**Bootstrap step.** Before writing any tests, check whether the project already
-contains an annotation type named `UseCase` (search the project for
-`@interface UseCase`). If it does not, create it. In a hexagonal multi-module
-project, place it in the **composition-root module** (e.g. `*-app`) — that's
-the only module with a runtime classpath spanning all the others, and per
-observed convention, the only module containing any tests at all. In a flat
-project, a conventional location is `src/main/java/<group>/<artifact>/usecase/UseCase.java`.
-The package does not matter — the plugin resolves the annotation by short name
-— but the annotation must have exactly this shape:
+**Bootstrap step.** Search the test sources of the module under test for
+`@interface UseCase` and reuse it if present. Otherwise, create it under
+that module's `src/test/java`. The conventional path is
+`src/test/java/<root package>/usecase/UseCase.java`. In a hexagonal project,
+each module that holds use case tests gets its own copy because test sources
+are local to each module. Any package works because traceability tools match
+the short name `UseCase`. Use exactly the annotation shape below.
 
 ```java
 package com.example.app.usecase;
@@ -238,11 +234,12 @@ void registration_fails_when_email_already_exists() { ...}
   **composition-root module** (e.g. `*-app`) — the only module where every
   layer is on the classpath.
 - **`@DataJpaTest`** on a Spring Data query method must live in the
-  **persistence-adapter module** (e.g. `*-postgres`) instead — that's the only
-  module with the JPA/Spring Data classpath. This is a necessary consequence
-  of where the repository interface lives, not a stylistic deviation from
-  "only the app module has tests" — if this will be the first test file in
-  that module, say so.
+  **persistence-adapter module** (e.g. `*-postgres`), where the repository
+  interface and JPA/Spring Data dependencies are available. If this will be
+  the first test file in that module, say so.
+
+Reuse or create `@UseCase` in the test sources of the module that holds each
+test class, as described in the bootstrap step above.
 
 ## DO NOT
 
@@ -472,12 +469,11 @@ and don't let Convention A's `JdbcTemplate`/API seeding leak into this one.
 2. Read the use case specification (`docs/use_cases/**/UC-XXX-*.md`) to identify
    the main success scenario, alternative flows (A1, A2, …), and referenced
    business rules (BR-XXX)
-3. Check whether a `UseCase` annotation type already exists in the project. If
-   not, create `UseCase.java` with the canonical shape shown above, in the
-   correct module for the detected layout
-4. Look for an existing test class for this use case. If there is one, follow
+3. Look for an existing test class for this use case. If there is one, follow
    "If Tests for This Use Case Already Exist" above and reconcile it with the
    spec instead of creating a new class
+4. Determine the module that holds the test class. Reuse or create `@UseCase`
+   in that module's test sources as described in the bootstrap step
 5. Create the test class named `UC<id><PascalCaseUseCaseName>Test`, in the
    correct module for the detected layout (or open the existing one)
 6. For each test method:
@@ -533,6 +529,4 @@ all is the user's call.
 - MockMvcTester / AssertJ integration reference (Spring Boot 3.4+): https://docs.spring.io/spring-framework/reference/testing/mockmvc/assertj.html
 - RestAssured documentation (legacy convention): https://rest-assured.io/
 - MockMvc reference (legacy convention): https://docs.spring.io/spring-framework/reference/testing/spring-mvc-test-framework.html
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation
-  contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the JavaDocs MCP server for additional API lookups (`https://www.javadocs.dev/mcp`)

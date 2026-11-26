@@ -131,9 +131,9 @@ Search the test sources of the module under test for `@interface UseCase` first 
 there. When it is missing, create [references/UseCase.java.md](references/UseCase.java.md) with exactly that shape
 in `src/test/java/<root package>/usecase/UseCase.java` of that module. The annotation is test code and never goes
 into `src/main/java`. In a hexagonal multi-module project every module that holds use case tests gets its own copy
-in its own `src/test/java` (test sources are not visible across modules); the plugin resolves the annotation by
-short name, so the copies do not conflict. The service and API test skills follow the same rule. An existing annotation
-without `requirements` predates that attribute: add it with its default `{}` and keep everything else.
+in its own `src/test/java` (test sources are not visible across modules). Any package will do because tools match
+the short name `UseCase`. The service and API test skills follow the same rule. An existing annotation without
+`requirements` predates that attribute. Add it with its default `{}` and keep everything else.
 
 ### Database
 
@@ -256,5 +256,3 @@ Name `Next: /use-case-coverage UC-001` only when this was the last test layer. N
 - Spring Boot testing, data JPA slice: https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html
 - Testcontainers service connections: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - Flyway repeatable migrations: https://documentation.red-gate.com/fd/repeatable-migrations-273973335.html
-- AI Unified Process IntelliJ Navigator plugin (the `@UseCase` contract):
-  https://github.com/AI-Unified-Process/intellij-plugin

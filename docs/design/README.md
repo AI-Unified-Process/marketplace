@@ -25,3 +25,4 @@ in the repository's `CLAUDE.md`, and a change to a rule is made there and here t
 | [Coverage sub-agent](coverage-agent.md)               | The read-only coverage auditor and its front door                              |
 | [Eval scenarios](evals.md)                            | What the scenarios cover, real layer-skill fixtures, and the end-to-end chain  |
 | [Werkstatt](werkstatt.md)                             | Building the approved use cases of a change: branch model, gates, andon cord   |
+| [Plugin independence](plugin-independence.md)         | Why open-source plugins define the contracts their consumers must follow       |

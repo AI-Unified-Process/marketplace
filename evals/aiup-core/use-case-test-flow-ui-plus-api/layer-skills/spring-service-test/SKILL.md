@@ -137,8 +137,8 @@ An existing annotation without `requirements` predates that attribute: add it wi
 everything else; never remove or rename an attribute, other tests use it.
 
 In a hexagonal project whose tests live in more than one module, a test-source annotation is not visible across
-modules: every module that holds use case tests gets its own copy in its own `src/test/java`. The plugin resolves
-the annotation by short name, so the copies do not conflict.
+modules: every module that holds use case tests gets its own copy in its own `src/test/java`.
+Any package will do because tools match the short name `UseCase`, so each module can use its own copy.
 
 ## What to Test
 
@@ -275,8 +275,6 @@ for this skill: add missing rows, correct rows that differ, touch no other row.
 - Spring Boot testing: https://docs.spring.io/spring-boot/reference/testing/index.html
 - Testcontainers service connections: https://docs.spring.io/spring-boot/reference/testing/testcontainers.html
 - AssertJ exception assertions: https://assertj.github.io/doc/#assertj-core-exception-assertions
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` contract):
-  https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, the JavaDocs MCP server (`https://www.javadocs.dev/mcp`) for API lookups. See the plugin's
   `rules/mcp-servers.md` (locate it with a glob for `**/*aiup-spring-boot*/**/rules/mcp-servers.md`; not every host installs it — the
   server named here is all you need) to configure it.

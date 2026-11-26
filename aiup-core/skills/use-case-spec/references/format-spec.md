@@ -7,24 +7,23 @@ Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 # Use Case Specification — Normative Format
 
 This document is the single normative definition of the use case
-specification format shared by the AI Unified Process skills
-(`/use-case-spec`, `/reverse-engineer`) and the AI Unified Process Studio
-structured editor. The Studio parser
-(`UseCaseSpecificationDocument.java`) is the executable reference for the
-*structural* rules; the skills add *content* rules on top. The bundled
-validator (`scripts/validate_use_case.py`) checks both:
+specification format used by the AI Unified Process skills
+(`/use-case-spec`, `/reverse-engineer`). Editors and other integrations
+consume this contract; their implementations do not define it. The bundled
+validator (`scripts/validate_use_case.py`) checks its structural and
+content rules:
 
-- **ERROR** — the document violates the structural grammar; Studio's
-  structured editor cannot open it (it falls back to a plain markdown
-  editor and the file is only counted on dashboards if it carries a
-  `**Use Case ID:**` line).
-- **WARN** — Studio tolerates the document, but it violates the skill
-  contract, or Studio rewrites the content on save (lossy tolerance).
+- **ERROR** — the document violates the structural grammar.
+- **WARN** — the validator found a skill-contract violation or a departure
+  from a canonical convention it checks.
+
+Diagnostic codes, messages, and exit codes are part of this contract. A lint
+baseline matches findings by code and message.
 
 ## Document structure
 
-One file per use case. Sections in this order (Studio reorders them to
-this order on save):
+Use one file per use case and follow the template's section order. Section order
+is a convention that validators and `/spec-review` do not check.
 
 ```markdown
 # Use Case: <name>
@@ -135,8 +134,7 @@ Status values (either language is readable in any document):
 1. **Title** — the first non-blank line is `# Use Case: <name>` or an
    id-style title `# UC-XXX: <name>` matching the id grammar
    `[SB]?UC-[A-Za-z0-9_-]+` (so `SUC-`, `BUC-`, `UC-013a`, `UC-2-1` are
-   valid ids). Studio rewrites id-style titles to the canonical prefix
-   on save.
+   valid ids). The canonical title uses the `# Use Case:` prefix.
 2. **Overview** — the `## Overview` section must exist and carry the
    five mandatory fields: ID, Name, Primary Actor, Goal, Status.
    Secondary Actors, Trigger, Requirements, Layers, Mockup and API are optional. Primary
@@ -165,9 +163,9 @@ Status values (either language is readable in any document):
 
 ## Tolerances (parsed losslessly, no diagnostic)
 
-These come from Studio's pass-through rules (UC-010 BR-011, FR-072) and
-tolerant-read rule (UC-020 BR-003); generators should still emit the
-canonical form, but validators must accept:
+Generators should emit the canonical form, but validators must accept
+these extensions and alternative forms without a diagnostic. Editors
+must preserve extension content when writing the document:
 
 - **Unknown overview lines** (e.g. `**Priorität:** Hoch`) — kept
   verbatim.
@@ -188,16 +186,19 @@ canonical form, but validators must accept:
   names the condition of an alternative flow.
 - **Wrapped lines** — joined into the item above.
 
-## Normalized on save by Studio (WARN level)
+## Canonical form and lossy tolerance
 
-Studio rewrites these without asking; a generator that produces them
-creates diffs on the first Studio save:
+Generators should follow the template section order and number steps,
+alternative flows (`A1`, `A2`, …), and business rules (`BR-001`, `BR-002`, …)
+from one without gaps to avoid renumbering diffs when editors normalize on
+save. Avoid nested lists because parsing joins sub-items into the parent item,
+so editors can lose the nested structure when saving the document.
 
-- **Sub-bullets nested under a step or bullet item** are flattened —
-  joined into the parent line. Do not nest lists inside steps.
-- **Step, flow (`A1`…) and rule (`BR-001`…) numbers are positional**:
-  Studio renumbers them gaplessly on save.
-- **Section order** is normalized to the template order.
+The validator warns about nested lists (`SUBBULLET_FLATTENED`) and gaps or
+out-of-sequence numbers in the main scenario (`NUMBERING`). It checks the
+sequence of business rule numbers (`RULE_NUMBERING`) when every rule uses a
+numeric ID. Section order, alternative-flow labels, and step numbering
+within alternative flows are generation conventions outside these checks.
 
 ## Skill contract (WARN level)
 
@@ -268,8 +269,7 @@ The `/use-case-spec` skill additionally requires:
 
 `BR-XXX` ids are **scoped to their use case**: every document numbers
 its rules from `BR-001`, and the same id may appear in other documents.
-This matches Studio, which renumbers rules per document on save. A rule
-referenced from another document is qualified with the use case id
+A rule referenced from another document is qualified with the use case id
 ("UC-005 BR-002"), never by the bare rule id.
 
 ## Validation
@@ -283,4 +283,4 @@ A folder stands for every use case file in it and in its module folders; single 
 Exit 0 when clean; 1 on any ERROR (with `--strict` also on any WARN);
 `--self-test` runs the built-in fixtures. Newly generated documents must
 pass `--strict`. Pre-existing hand-written documents must at minimum be
-ERROR-free, or Studio cannot open them in the structured editor.
+ERROR-free to conform to the structural grammar.

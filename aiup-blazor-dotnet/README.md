@@ -100,8 +100,8 @@ skills inspect existing project and test conventions before selecting exact name
 
 ## Traceability
 
-The test skills mark every test with the use case, scenario, and business rules it verifies, so the AI Unified
-Process Navigator, AI Unified Studio, and coverage audits can find it. They create a `UseCaseAttribute` in the test
+The test skills mark every test with the use case, scenario, and business rules it verifies, so traceability
+tools and coverage audits can find it. They create a `UseCaseAttribute` in the test
 project when it is missing and use it as `[UseCase("UC-001", Scenario = "A2: Invalid Postal Code", BusinessRules =
 ["BR-003"])]`.
 

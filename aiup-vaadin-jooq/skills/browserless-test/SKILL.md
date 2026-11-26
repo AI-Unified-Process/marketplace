@@ -78,20 +78,18 @@ case from the use case specification (`docs/use_cases/**/UC-XXX-*.md`).
 
 Test classes must be named after the use case using the pattern
 `UC<id><PascalCaseUseCaseName>Test` — for example `UC001RegisterPersonTest` for use case UC-001
-"Register Person". This makes the link between spec and test obvious and is the convention the
-AI Unified Process IntelliJ Navigator plugin relies on.
+"Register Person". The class name identifies the use case under test.
 
 ### `@UseCase` annotation
 
-Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so the
-[AI Unified Process IntelliJ Navigator plugin](https://github.com/AI-Unified-Process/intellij-plugin) can wire up
-gutter icons and Find Usages between the Markdown spec and the Java tests.
+Every test method must be annotated with `@UseCase(id = "UC-XXX", ...)` so traceability tools and coverage
+audits can match the test to the Markdown specification.
 
 **Bootstrap step.** Before writing any tests, check whether the project already contains an
 annotation type named `UseCase` (search the project for `@interface UseCase`). If it does not,
-create it. The package does not matter — the plugin resolves the annotation by short name — but a
-conventional location is `src/main/java/<group>/<artifact>/usecase/UseCase.java`. The annotation
-must have exactly this shape:
+create it as test code at `src/test/java/<root package>/usecase/UseCase.java`.
+Any package works because traceability tools match the short name `UseCase`.
+Define it with exactly this shape:
 
 ```java
 package com.example.app.usecase;
@@ -428,7 +426,6 @@ Use AssertJ for assertions; read state from component APIs, not from `test(...)`
 - Getting started: https://vaadin.com/docs/latest/flow/testing/browserless/getting-started
 - Component query API: https://vaadin.com/docs/latest/flow/testing/browserless/component-query
 - Component testers: https://vaadin.com/docs/latest/flow/testing/browserless/component-testers
-- AI Unified Process IntelliJ Navigator plugin (defines the `@UseCase` annotation contract): https://github.com/AI-Unified-Process/intellij-plugin
 - If configured, use the Vaadin MCP server for additional patterns (`https://mcp.vaadin.com/docs`)
 
 ## Coverage Check
