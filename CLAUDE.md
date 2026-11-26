@@ -287,6 +287,8 @@ Why: [`docs/design/next.md`](docs/design/next.md).
 - Construction and test skills only append; only `/use-case-spec`, `/requirements`, and `/entity-model` resolve;
   they and `/open-questions` withdraw; `/spec-review` and the coverage agents only read.
 - `OQ_BLOCKING` is WARN at `Approved`/`Implemented` and ERROR at `Tested`/`Done`.
+- `**Assigned to:**` is optional (`/open-questions assign`, or the Studio) and decides nothing. A field line the
+  format does not name is kept unchanged by every skill and ignored by the lint.
 - A question names exactly one element. Every skill that writes a section checks the file right after with
   `spec_lint.py --questions` and fixes its own findings; `--questions` leaves out `OQ_UNRESOLVED`, which only the
   resolving skill can fix.

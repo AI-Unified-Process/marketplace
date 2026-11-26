@@ -2114,6 +2114,7 @@ def trace_open_questions(project, ucs_by_req):
                      "blocking": oq_value(question, "Blocking"),
                      "status": status,
                      "raised_by": oq_value(question, "Raised by"),
+                     "assigned_to": oq_value(question, "Assigned to"),
                      "use_cases": uids})
     rows.sort(key=lambda q: (normalize(q["blocking"]) not in ("yes", "ja"),
                              q["status"] != "Open"))
@@ -3135,7 +3136,8 @@ def render_report(matrix, findings, suppressed, docs):
     if matrix["open_questions"]:
         out.append("<h2>Open Questions</h2>")
         out.append(table(
-            ["ID", "Element", "Question", "Blocking", "Status", "Raised by"],
+            ["ID", "Element", "Question", "Blocking", "Status", "Raised by",
+             "Assigned to"],
             [[link("open_questions.md", q["id"]), esc(q["element"]),
               esc(q["question"]),
               '<span class="badge s-err">Yes</span>'
@@ -3143,7 +3145,8 @@ def render_report(matrix, findings, suppressed, docs):
               else esc(q["blocking"]),
               '<span class="badge %s">%s</span>' % (
                   "s-warn" if q["status"] == "Open" else "s-info",
-                  esc(q["status"])), esc(q["raised_by"])]
+                  esc(q["status"])), esc(q["raised_by"]),
+              esc(q["assigned_to"]) or '<span class="muted">—</span>']
              for q in matrix["open_questions"]]))
 
     if matrix["decisions"]:
@@ -3432,6 +3435,7 @@ Step 2 names no data.
 **Raised by:** S. Huber, 2026-10-04  
 **Blocking:** Yes  
 **Status:** Open  
+**Assigned to:** P. Meier  
 
 ## OQ-005: Does a guest include children?
 

@@ -39,6 +39,11 @@ ends at `Resolved` once its answer is in the specification.
   The check reuses the lint instead of a second parser, so the Element forms live in one regex. It leaves out
   `OQ_UNRESOLVED`: the writer of an `Answered` section (`/open-questions answer`, `/use-case-implement`) may not set
   `Resolved`, so it could never fix that finding. The full lint still reports it.
+- **Fields of others are kept.** `**Assigned to:**` is optional: the person expected to answer, written by
+  `/open-questions assign` or by the Studio, which assigns questions to people. No status depends on it and the lint
+  does not check it, so a team without assignments loses nothing. Any field line the format does not name is kept as
+  it is when a skill changes the section, and the lint ignores it: a tool can add a field before the skills learn it,
+  and a resolving skill does not erase it.
 - **History is not checked.** `DANGLING_REF` covers only `Open` and `Answered` questions; `Resolved` and
   `Withdrawn` ones may point to renumbered elements.
 - The Studio never runs `/open-questions` (`LEFT_OUT` of `check-generate-catalogue.sh`); `spec_lint.py --report`

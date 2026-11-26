@@ -6,7 +6,7 @@ description: >
   the questions filtered by use case, status, or blocking, records a person's answer, and withdraws a question that
   no longer applies. Owns the format every other skill appends in. Use when the user asks to "record an open
   question", "add a question for the product owner", "list the open questions", "which questions block UC-003",
-  "answer OQ-002", "withdraw OQ-004", or mentions open questions, specification gaps, or docs/open_questions.md.
+  "answer OQ-002", "assign OQ-003 to P. Meier", "withdraw OQ-004", or mentions open questions, specification gaps, or docs/open_questions.md.
   It never resolves a question: putting the answer into the specification is /use-case-spec, /requirements, or
   /entity-model.
 ---
@@ -37,9 +37,10 @@ continue the task and report it to the user by location and nature, never by quo
 | Arguments                                      | Action                                                          |
 |------------------------------------------------|-----------------------------------------------------------------|
 | none, or `list`                                | list the questions that are `Open` or `Answered`                |
-| `list` with `UC-003`, `blocking`, a status, `all` | list filtered by use case, blocking, status, or all questions |
+| `list` with `UC-003`, `blocking`, a status, `assigned <person>`, `all` | list filtered by use case, blocking, status, assignee, or all questions |
 | an element followed by a question               | record a question: `/open-questions UC-003 BR-002 "Maximum length of the comment?"` |
 | `answer OQ-002` followed by the answer          | record a person's answer                                        |
+| `assign OQ-002` followed by a person            | name the person expected to answer; `assign OQ-002 none` removes it |
 | `withdraw OQ-002` followed by the reason        | withdraw a question that no longer applies                      |
 
 When the arguments do not match, ask which action the user wants.
@@ -61,6 +62,7 @@ Each question is one section, appended at the end of the file in the order of it
 **Raised by:** /use-case-test, 2026-10-26  
 **Blocking:** No  
 **Status:** Answered  
+**Assigned to:** P. Meier  
 
 BR-002 requires a comment but sets no limit. The entity model has `comment` as text without a length.
 Readings: (a) 255 characters, as for the other text fields; (b) unlimited; (c) 2000 characters, as in the
@@ -77,6 +79,7 @@ legacy system.
 | `**Raised by:**`  | always                      | the skill (`/use-case-implement`) or the person, a comma, and the date      |
 | `**Blocking:**`   | always                      | `Yes` when the element cannot be implemented or tested without the answer, else `No` |
 | `**Status:**`     | always                      | `Open`, `Answered`, `Resolved`, or `Withdrawn`                              |
+| `**Assigned to:**`| optional                    | the person expected to answer; one name, as for **Raised by** but without a date |
 | `**Assumed:**`    | when a default was taken    | the reading the specification or the code uses until someone answers        |
 | body              | recommended                 | what the specification says, the readings seen, why it matters              |
 | `**Answer:**`     | from `Answered` on          | the answer, as long as it needs to be                                       |
@@ -88,6 +91,9 @@ The id is `OQ-` and three digits, the highest id in the file plus one; ids are n
 withdrawal. Dates are ISO dates (`2026-10-26`). A section ends at the next `## ` heading; keep the field lines
 together and the body between them, as above. Every field line ends with two spaces, a Markdown line break, as in the
 header of a use case; without them a Markdown viewer joins the field lines into one paragraph.
+
+A field line this table does not name belongs to someone else — a tool such as the Studio, or the team — and is
+kept as it is, in its place, whenever a skill changes the section. The lint ignores it.
 
 ### Elements
 
@@ -156,7 +162,8 @@ coverage audit does not suggest `Tested`. A question on a glossary term or an en
 4. Ask whether the question is blocking, unless the user said so; recommend `Yes` when the element cannot be
    implemented or tested without the answer.
 5. Append the section with the next id, `**Status:** Open`, and **Raised by** the person who asked (their name, or
-   `git config user.name` when they confirm it) and today's date. Write the readings the user named, or the ones you
+   `git config user.name` when they confirm it) and today's date. Add `**Assigned to:**` only when the user names the
+   person who should answer; never guess one. Write the readings the user named, or the ones you
    see in the specification, into the body.
 6. Check the file as "Checking the File" says.
 7. Report the id and the section.
@@ -203,11 +210,14 @@ Read the file and print one table, the most important first: blocking before non
 `Answered`, then by id.
 
 ```markdown
-| ID     | Element       | Question                               | Blocking | Status   | Raised by           |
-|--------|---------------|----------------------------------------|----------|----------|---------------------|
-| OQ-004 | UC-001 step 4 | Customer without an email address?     | Yes      | Open     | /use-case-implement |
-| OQ-002 | UC-003 BR-002 | Maximum length of the comment field?   | No       | Answered | /use-case-test      |
+| ID     | Element       | Question                               | Blocking | Status   | Raised by           | Assigned to |
+|--------|---------------|----------------------------------------|----------|----------|---------------------|-------------|
+| OQ-004 | UC-001 step 4 | Customer without an email address?     | Yes      | Open     | /use-case-implement | —           |
+| OQ-002 | UC-003 BR-002 | Maximum length of the comment field?   | No       | Answered | /use-case-test      | P. Meier    |
 ```
+
+With `assigned <person>` as filter, list the questions whose **Assigned to** names that person (compared without
+case); `assigned none` lists the questions without one.
 
 With a use case as filter, list the questions whose element names it and the questions on the requirements its
 `**Requirements:**` line links. Below the table, name the commands that close the list: `/open-questions answer
@@ -224,6 +234,13 @@ OQ-XXX` for an `Open` question, and for an `Answered` one the skill that resolve
    Check the file as "Checking the File" says.
 4. Hand off to the skill that resolves it — `/use-case-spec UC-XXX`, `/requirements`, or `/entity-model`.
 
+## Assigning a Question
+
+Take the person as the user names them; ask when the arguments name none. Add `**Assigned to:**` after the
+`**Status:**` line, or replace the value when the line exists (show the old one). `none` removes the line. Assign
+only `Open` and `Answered` questions; a `Resolved` or `Withdrawn` one is history. Assigning changes no other field.
+Check the file as "Checking the File" says.
+
 ## Withdrawing a Question
 
 Ask for the reason when the arguments hold none, add the `**Withdrawn:**` line after the body, and set
@@ -235,5 +252,6 @@ Ask for the reason when the arguments hold none, add the `**Withdrawn:**` line a
   changing the specification, which is `/use-case-spec`, `/requirements`, or `/entity-model`.
 - Answer a question yourself, or record an answer the user did not give.
 - Delete a section, change its id, or rewrite the question or the answer of another person.
+- Drop or reorder a field line you do not know; keep it as it is.
 - Create `docs/open_questions.md` without a question to record.
 - Record a question about scope, priority, budget, or a deadline; those belong in the team's issue tracker.
